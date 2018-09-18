@@ -82,6 +82,7 @@ include simple_perf/test.am
 
 ## 2.1 examples
 
+include 2.1/counter/test.am
 include 2.1/dpipe/test.am
 include 2.1/forkjoin/test.am
 include 2.1/reset_signal_is/test.am
