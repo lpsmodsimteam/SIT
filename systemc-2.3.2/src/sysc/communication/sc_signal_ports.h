@@ -421,7 +421,7 @@ public:
     sc_in()
 	: base_type(), m_traces( 0 ), m_change_finder_p(0),
 	  m_neg_finder_p(0), m_pos_finder_p(0)
-	{}
+	{ std::cout << "INIT YO" << '\n'; }
 
     explicit sc_in( const char* name_ )
 	: base_type( name_ ), m_traces( 0 ), m_change_finder_p(0),
@@ -1035,7 +1035,7 @@ public:
     // write the new value
 
     void write( const data_type& value_ )
-	{ (*this)->write( value_ ); }
+	{ (*this)->write( value_ ); std::cout << "AY LMAO " << value_ << '\n'; }
 
     this_type& operator = ( const data_type& value_ )
 	{ (*this)->write( value_ ); return *this; }
