@@ -1,5 +1,16 @@
+# Clion cache
 .idea/
 cmake-build-debug/
-sysc-sst-docs/
-archives/
 
+# docs that may contain pre-published content
+sysc-sst-docs/*
+!sysc-sst-docs/sst-tut
+sysc-sst-docs/sst-tut/*
+!sysc-sst-docs/sst-tut/examples
+sysc-sst-docs/sst-tut/examples/*
+!sysc-sst-docs/sst-tut/examples/make.sh
+!sysc-sst-docs/sst-tut/examples/counter
+
+
+# open-source archived tars and zips
+archives/
