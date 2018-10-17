@@ -25,12 +25,6 @@ public:
 		COMPONENT_CATEGORY_UNCATEGORIZED
 	)
 
-	// Parameter name, description, default value
-	SST_ELI_DOCUMENT_PARAMS(
-		{ "printFrequency", "How frequently to print a message from the component", "5" },
-		{ "repeats", "Number of repetitions to make", "15" }
-	)
-
 private:
 	// local variables
 	SST::Output output;
