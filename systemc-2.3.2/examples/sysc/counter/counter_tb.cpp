@@ -16,13 +16,13 @@ int sc_main (int argc, char* argv[]) {
 
   sc_start(1, SC_NS);
 
-  // Open VCD file
-  sc_trace_file *wf = sc_create_vcd_trace_file("counter");
-  // Dump the desired signals
-  sc_trace(wf, clock, "clock");
-  sc_trace(wf, reset, "reset");
-  sc_trace(wf, enable, "enable");
-  sc_trace(wf, counter_out, "count");
+//  // Open VCD file
+//  sc_trace_file *wf = sc_create_vcd_trace_file("counter");
+//  // Dump the desired signals
+//  sc_trace(wf, clock, "clock");
+//  sc_trace(wf, reset, "reset");
+//  sc_trace(wf, enable, "enable");
+//  sc_trace(wf, counter_out, "count");
 
   // Initialize all variables
   reset = 0;       // initial value of reset
@@ -61,7 +61,7 @@ int sc_main (int argc, char* argv[]) {
   enable = 0; // De-assert enable
 
   cout << "@" << sc_time_stamp() <<" Terminating simulation\n" << endl;
-  sc_close_vcd_trace_file(wf);
+//  sc_close_vcd_trace_file(wf);
   return 0;// Terminate simulation
 
  }

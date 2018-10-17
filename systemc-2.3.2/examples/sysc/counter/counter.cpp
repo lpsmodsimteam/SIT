@@ -78,10 +78,10 @@ SC_MODULE (counter) {
     void incr_count() {
         // At every rising edge of clock we check if reset is active
         // If active, we load the counter output with 4'b0000
-        if (reset.read() == 1) {
+        if (reset.read()) {
             count = 0;
             // If enable is active, then we increment the counter
-        } else if (enable.read() == 1) {
+        } else if (enable.read()) {
             count++;
             cout << "@" << sc_time_stamp() << " :: Incremented Counter "
                  << counter_out.read() << endl;
