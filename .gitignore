@@ -1,6 +1,10 @@
-# Clion cache
+# CLion cache
 .idea/
 cmake-build-debug/
+
+# compiled binaries
+*.so
+*.out
 
 # docs that may contain pre-published content
 sysc-sst-docs/*
