@@ -3,6 +3,7 @@
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
+#include "counter_model.h"
 
 class counter : public SST::Component {
 
@@ -31,5 +32,6 @@ private:
 	uint8_t upCounter;
 
 };
+
 
 #endif

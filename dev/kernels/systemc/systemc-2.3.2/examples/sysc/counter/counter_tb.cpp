@@ -26,7 +26,7 @@ int sc_main (int argc, char* argv[]) {
     sc_start(1, SC_NS);
   }
   reset = 1;    // Assert the reset
-  cout << "@" << sc_time_stamp() <<" Asserting reset\n" << endl;
+  cout << "@" << sc_time_stamp() <<" Asserting reset\n" << '\n';
   for (i=0;i<10;i++) {
     clock = 0; 
     sc_start(1, SC_NS);
@@ -34,14 +34,14 @@ int sc_main (int argc, char* argv[]) {
     sc_start(1, SC_NS);
   }
   reset = 0;    // De-assert the reset
-  cout << "@" << sc_time_stamp() <<" De-Asserting reset\n" << endl;
+  cout << "@" << sc_time_stamp() <<" De-Asserting reset\n" << '\n';
   for (i=0;i<5;i++) {
     clock = 0; 
     sc_start(1, SC_NS);
     clock = 1; 
     sc_start(1, SC_NS);
   }
-  cout << "@" << sc_time_stamp() <<" Asserting Enable\n" << endl;
+  cout << "@" << sc_time_stamp() <<" Asserting Enable\n" << '\n';
   enable = 1;  // Assert enable
   for (i=0;i<20;i++) {
     clock = 0; 
@@ -49,10 +49,10 @@ int sc_main (int argc, char* argv[]) {
     clock = 1; 
     sc_start(1, SC_NS);
   }
-  cout << "@" << sc_time_stamp() <<" De-Asserting Enable\n" << endl;
+  cout << "@" << sc_time_stamp() <<" De-Asserting Enable\n" << '\n';
   enable = 0; // De-assert enable
 
-  cout << "@" << sc_time_stamp() <<" Terminating simulation\n" << endl;
+  cout << "@" << sc_time_stamp() <<" Terminating simulation\n" << '\n';
 
   return 0;// Terminate simulation
 

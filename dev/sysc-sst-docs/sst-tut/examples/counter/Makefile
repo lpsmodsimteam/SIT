@@ -1,4 +1,4 @@
-CXX=$(shell sst-config --CXX)
+CXX=clang++
 # SST configs
 SST_FLAGS=$(shell sst-config --ELEMENT_CXXFLAGS)
 SST_LDFLAGS=$(shell sst-config --ELEMENT_LDFLAGS)
@@ -17,7 +17,7 @@ OBJS = libcounterSST.so
 all: ${OBJS} install
 
 ${OBJS}: ${SRCS}
-	${CXX} ${SST_FLAGS} ${SST_LDFLAGS} ${SYSC_FLAGS} -o $@ $^ ${SYSC_LDFLAGS}
+	${CXX} -v ${SST_FLAGS} ${SST_LDFLAGS} ${SYSC_FLAGS} -o $@ $^ ${SYSC_LDFLAGS}
 
 install:
 	sst-register counter counter_LIBDIR=$(CURDIR)

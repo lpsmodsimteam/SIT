@@ -8,7 +8,7 @@
 ## Environment
 
 - C++: `std=c++1y`
-- Compiler: `g++ 7.3.0`
+- Compiler: `g++ 7.3.0` or `clang 6.0.0-1ubuntu2`
 - CMake 3.10.2
 - SystemC
     - `SYSTEMC_FLAGS = -I. -I${SYSTEMC_HOME}/include -L. -L${SYSTEMC_HOME}/lib-linux64 -Wl,-rpath=${SYSTEMC_HOME}/lib-linux64 -lsystemc -lm`
