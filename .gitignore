@@ -6,14 +6,16 @@ cmake-build-debug/
 *.so
 *.out
 
-# docs that may contain pre-published content
-sysc-sst-docs/*
-!sysc-sst-docs/sst-tut
-sysc-sst-docs/sst-tut/*
-!sysc-sst-docs/sst-tut/examples
-sysc-sst-docs/sst-tut/examples/*
-!sysc-sst-docs/sst-tut/examples/make.sh
-!sysc-sst-docs/sst-tut/examples/counter
+# ignore docs that may be in pre-publication reviews
+dev/*
+!dev/sysc-sst-docs/
+dev/sysc-sst-docs/*
+!dev/sysc-sst-docs/sst-tut
+dev/sysc-sst-docs/sst-tut/*
+!dev/sysc-sst-docs/sst-tut/examples
+dev/sysc-sst-docs/sst-tut/examples/*
+!dev/sysc-sst-docs/sst-tut/examples/make.sh
+!dev/sysc-sst-docs/sst-tut/examples/counter
 
 
 # open-source archived tars and zips
