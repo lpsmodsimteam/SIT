@@ -11,8 +11,7 @@
 - Compiler: `g++ 7.3.0`
 - CMake 3.10.2
 - SystemC
-    - `SYSTEMC_FLAGS = -I. -I${SYSTEMC_HOME}/include -L. -L${SYSTEMC_HOME}/lib-linux64 -Wl,-rpath=${SYSTEMC_HOME}/lib-linux64`
-    - `LIBS = -lsystemc -lm`
+    - `SYSTEMC_FLAGS = -I. -I${SYSTEMC_HOME}/include -L. -L${SYSTEMC_HOME}/lib-linux64 -Wl,-rpath=${SYSTEMC_HOME}/lib-linux64 -lsystemc -lm`
 - SST
     - `ELEMENT_CXXFLAGS = -D__STDC_FORMAT_MACROS -fPIC -DHAVE_CONFIG_H -I${SST_ELEMENTS_HOME}/include`
     - `ELEMENT_LDFLAGS = -shared -fno-common -Wl,-undefined -Wl,dynamic_lookup`

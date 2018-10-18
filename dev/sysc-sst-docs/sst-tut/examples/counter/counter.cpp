@@ -3,6 +3,7 @@ Simple 8-bit Up-Counter Model with one clock
 */
 
 #include <sst/core/sst_config.h>
+#include "systemc.h"
 #include "counter.h"
 
 // Component Constructor

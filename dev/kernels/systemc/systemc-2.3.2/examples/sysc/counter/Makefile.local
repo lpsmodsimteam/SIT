@@ -6,7 +6,7 @@ SYSTEMC_LIB = ${SYSTEMC_HOME}/lib-linux64
 SYSTEMC_INC = ${SYSTEMC_HOME}/include
 SYSTEMC_FLAGS = -I. -I${SYSTEMC_INC} -L. -L${SYSTEMC_LIB} -Wl,-rpath=${SYSTEMC_LIB}
 # CPP compiler flags
-CXX_FLAGS = -lsystemc -lm
+CXX_FLAGS = -std=c++1y -lsystemc -lm
 
 # define the executable file
 EXE = test_exe
