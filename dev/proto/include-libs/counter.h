@@ -7,37 +7,32 @@
 
 class counter : public SST::Component {
 
-public:
-	counter( SST::ComponentId_t id, SST::Params& params );
-	~counter();
+  public:
+    counter(SST::ComponentId_t, SST::Params&);
+    ~counter();
 
-	void setup();
-	void finish();
+    void setup();
+    void finish();
 
-	bool tick( SST::Cycle_t currentCycle );
+    bool tick(SST::Cycle_t);
 
-	int sc_main ();
-	// Register the component
-	SST_ELI_REGISTER_COMPONENT(
-		counter, // class
-		"counterSST", // element library
-		"counter", // component
-		SST_ELI_ELEMENT_VERSION( 1, 0, 0 ),
-		"Simple 8-bit Up-Counter Model with one clock",
-		COMPONENT_CATEGORY_UNCATEGORIZED
-	)
+    // int sc_main ();
+    // Register the component
+    SST_ELI_REGISTER_COMPONENT(
+        counter, // class
+        "counterSST", // element library
+        "counter", // component
+        SST_ELI_ELEMENT_VERSION( 1, 0, 0 ),
+        "Simple 8-bit Up-Counter Model with one clock",
+        COMPONENT_CATEGORY_UNCATEGORIZED
+    )
 
-private:
-	// local variables
-	SST::Output output;
-	uint8_t upCounter;
+  private:
+    // local variables
+    SST::Output m_output;
 
-    // sc_signal<bool> clock;
-    // sc_signal<bool> reset;
-    // sc_signal<bool> enable;
-    // sc_signal< sc_uint<4> > counter_out;
+    std::function<int()> sc_main = sc_test;
 
 };
-
 
 #endif
