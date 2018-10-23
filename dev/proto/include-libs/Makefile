@@ -5,7 +5,7 @@ SST_LDFLAGS=$(shell sst-config --ELEMENT_LDFLAGS)
 
 # SystemC configs
 SYSC_HOME = /usr/local/_systemc-sys
-SYSC_FLAGS = -I. -I${SYSC_HOME}/include 
+SYSC_FLAGS = -I. -I${SYSC_HOME}/include
 SYSC_LDFLAGS =-L. -L${SYSC_HOME}/lib-linux64 -Wl,-rpath=${SYSC_HOME}/lib-linux64 -lsystemc -lm
 
 # define the CPP source files

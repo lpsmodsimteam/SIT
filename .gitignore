@@ -5,11 +5,13 @@ cmake-build-debug/
 # compiled binaries
 *.so
 *.out
+*.o
 
 # ignore docs that may be in pre-publication reviews
 dev/*
 !dev/sysc-sst-docs/
 !dev/kernels/
+!dev/proto/
 dev/sysc-sst-docs/*
 !dev/sysc-sst-docs/sst-tut
 dev/sysc-sst-docs/sst-tut/*

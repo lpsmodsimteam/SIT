@@ -3,6 +3,7 @@
 
 #include "systemc.h"
 
+
 SC_MODULE (_sc_counter) {
 
     sc_in_clk clock;      // Clock input of the design

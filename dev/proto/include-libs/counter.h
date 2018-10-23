@@ -16,6 +16,7 @@ public:
 
 	bool tick( SST::Cycle_t currentCycle );
 
+	int sc_main ();
 	// Register the component
 	SST_ELI_REGISTER_COMPONENT(
 		counter, // class
@@ -30,6 +31,11 @@ private:
 	// local variables
 	SST::Output output;
 	uint8_t upCounter;
+
+    // sc_signal<bool> clock;
+    // sc_signal<bool> reset;
+    // sc_signal<bool> enable;
+    // sc_signal< sc_uint<4> > counter_out;
 
 };
 

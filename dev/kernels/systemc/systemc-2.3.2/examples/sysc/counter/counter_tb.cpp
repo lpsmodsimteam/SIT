@@ -57,3 +57,7 @@ int sc_main (int argc, char* argv[]) {
   return 0;// Terminate simulation
 
  }
+
+ int main (int argc, char* argv[]) {
+    sc_main(argc, argv);
+}
