@@ -16,6 +16,8 @@ dev/*
 !dev/sysc-sst-docs/
 !dev/kernels/
 !dev/proto/
+!dev/proto/*/CMakeFiles
+!dev/proto/*/CMakeFiles/*.cmake
 dev/sysc-sst-docs/*
 !dev/sysc-sst-docs/sst-tut
 dev/sysc-sst-docs/sst-tut/*
