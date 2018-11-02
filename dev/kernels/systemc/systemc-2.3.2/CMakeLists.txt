@@ -598,6 +598,13 @@ mark_as_advanced(SystemCLanguage_INSTALL_CMAKEDIR SystemCTLM_INSTALL_CMAKEDIR)
 set(SystemCLanguage_INSTALL_FULL_CMAKEDIR "${CMAKE_INSTALL_PREFIX}/${SystemCLanguage_INSTALL_CMAKEDIR}")
 set(SystemCTLM_INSTALL_FULL_CMAKEDIR "${CMAKE_INSTALL_PREFIX}/${SystemCTLM_INSTALL_CMAKEDIR}")
 
+###############################################################################
+# SST Dev
+###############################################################################
+
+set (CMAKE_CXX_STANDARD 11)
+INCLUDE_DIRECTORIES(/home/sabbir/local/sstelements-7.0.0/include/)
+LINK_DIRECTORIES(/home/sabbir/local/sstelements-7.0.0/libexec)
 
 ###############################################################################
 # Configure RPATH so that all targets find the libraries they link to

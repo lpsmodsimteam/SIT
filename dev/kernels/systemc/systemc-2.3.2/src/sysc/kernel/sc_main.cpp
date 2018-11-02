@@ -27,14 +27,14 @@
  *****************************************************************************/
 
 
+#include <iostream>
 #include "sysc/kernel/sc_cmnhdr.h"
 #include "sysc/kernel/sc_externs.h"
 
-int
-main( int argc, char* argv[] )
-{
-	return sc_core::sc_elab_and_sim( argc, argv );
-}
+// unwrap top level entry point
+//int main(int argc, char *argv[]) {
+//    return sc_core::sc_elab_and_sim(argc, argv);
+//}
 
 // $Log: sc_main.cpp,v $
 // Revision 1.5  2011/08/26 20:46:09  acg

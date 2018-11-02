@@ -85,9 +85,7 @@ sc_elab_and_sim( int argc, char* argv[] )
         // Perform initialization here
         sc_in_action = true;
 
-        std::cout << "START" << status << '\n';
         status = sc_main( argc, &argv_call[0] );
-        std::cout << "HERE" << status << '\n';
 
         // Perform cleanup here
         sc_in_action = false;
