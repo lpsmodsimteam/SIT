@@ -1,6 +1,10 @@
 # CLion cache
 .idea/
+
+# CMake cache and builds
 cmake-build-debug/
+*.cmake
+CMakeFiles/
 
 # compiled binaries
 *.so

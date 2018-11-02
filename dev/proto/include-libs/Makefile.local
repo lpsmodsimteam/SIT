@@ -1,0 +1,49 @@
+#=============================================================================
+# Directory level rules for directory examples/sysc/counter
+
+# Convenience name for "all" pass in the directory.
+examples/sysc/counter/all: examples/sysc/counter/CMakeFiles/counter.dir/all
+
+.PHONY : examples/sysc/counter/all
+
+# Convenience name for "clean" pass in the directory.
+examples/sysc/counter/clean: examples/sysc/counter/CMakeFiles/counter.dir/clean
+
+.PHONY : examples/sysc/counter/clean
+
+# Convenience name for "preinstall" pass in the directory.
+examples/sysc/counter/preinstall:
+
+.PHONY : examples/sysc/counter/preinstall
+
+#=============================================================================
+# Target rules for target examples/sysc/counter/CMakeFiles/counter.dir
+
+# All Build rule for target.
+examples/sysc/counter/CMakeFiles/counter.dir/all: src/CMakeFiles/systemc.dir/all
+    $(MAKE) -f examples/sysc/counter/CMakeFiles/counter.dir/build.make examples/sysc/counter/CMakeFiles/counter.dir/depend
+    $(MAKE) -f examples/sysc/counter/CMakeFiles/counter.dir/build.make examples/sysc/counter/CMakeFiles/counter.dir/build
+    @$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles --progress-num=21 "Built target counter"
+.PHONY : examples/sysc/counter/CMakeFiles/counter.dir/all
+
+# Build rule for subdir invocation for target.
+examples/sysc/counter/CMakeFiles/counter.dir/rule: cmake_check_build_system
+    $(CMAKE_COMMAND) -E cmake_progress_start /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles 32
+    $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/counter/CMakeFiles/counter.dir/all
+    $(CMAKE_COMMAND) -E cmake_progress_start /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles 0
+.PHONY : examples/sysc/counter/CMakeFiles/counter.dir/rule
+
+# Convenience name for target.
+counter: examples/sysc/counter/CMakeFiles/counter.dir/rule
+
+.PHONY : counter
+
+# clean rule for target.
+examples/sysc/counter/CMakeFiles/counter.dir/clean:
+    $(MAKE) -f examples/sysc/counter/CMakeFiles/counter.dir/build.make examples/sysc/counter/CMakeFiles/counter.dir/clean
+.PHONY : examples/sysc/counter/CMakeFiles/counter.dir/clean
+
+# clean rule for target.
+clean: examples/sysc/counter/CMakeFiles/counter.dir/clean
+
+.PHONY : clean
