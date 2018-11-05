@@ -126,14 +126,14 @@ install/fast: preinstall/fast
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(CMAKE_COMMAND) -E cmake_progress_start /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/examples/sysc/2.1/sc_export/CMakeFiles/progress.marks
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/all
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(CMAKE_COMMAND) -E cmake_progress_start /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/examples/CMakeFiles/progress.marks
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/clean
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/clean
 .PHONY : clean
 
 # The main clean target
@@ -143,12 +143,12 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/preinstall
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/preinstall
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
@@ -157,46 +157,19 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/rule:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/rule
-.PHONY : examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/rule
+examples/CMakeFiles/check.dir/rule:
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/CMakeFiles/check.dir/rule
+.PHONY : examples/CMakeFiles/check.dir/rule
 
 # Convenience name for target.
-sc_export: examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/rule
+check: examples/CMakeFiles/check.dir/rule
 
-.PHONY : sc_export
+.PHONY : check
 
 # fast build rule for target.
-sc_export/fast:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build.make examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build
-.PHONY : sc_export/fast
-
-main.o: main.cpp.o
-
-.PHONY : main.o
-
-# target to build an object file
-main.cpp.o:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build.make examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/main.cpp.o
-.PHONY : main.cpp.o
-
-main.i: main.cpp.i
-
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cpp.i:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build.make examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/main.cpp.i
-.PHONY : main.cpp.i
-
-main.s: main.cpp.s
-
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cpp.s:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build.make examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/main.cpp.s
-.PHONY : main.cpp.s
+check/fast:
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/CMakeFiles/check.dir/build.make examples/CMakeFiles/check.dir/build
+.PHONY : check/fast
 
 # Help Target
 help:
@@ -209,11 +182,8 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... list_install_components"
 	@echo "... install/local"
-	@echo "... sc_export"
+	@echo "... check"
 	@echo "... install"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
 .PHONY : help
 
 

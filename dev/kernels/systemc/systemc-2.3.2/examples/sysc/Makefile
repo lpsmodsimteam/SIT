@@ -68,6 +68,40 @@ install/strip/fast: preinstall/fast
 	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
 .PHONY : install/strip/fast
 
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/usr/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
+
+# Special rule for the target list_install_components
+list_install_components:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\" \"dev\" \"doc\""
+.PHONY : list_install_components
+
+# Special rule for the target list_install_components
+list_install_components/fast: list_install_components
+
+.PHONY : list_install_components/fast
+
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
@@ -90,50 +124,16 @@ rebuild_cache/fast: rebuild_cache
 
 .PHONY : rebuild_cache/fast
 
-# Special rule for the target list_install_components
-list_install_components:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\" \"dev\" \"doc\""
-.PHONY : list_install_components
-
-# Special rule for the target list_install_components
-list_install_components/fast: list_install_components
-
-.PHONY : list_install_components/fast
-
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/usr/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
-
-# Special rule for the target install
-install: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install
-
-# Special rule for the target install
-install/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/usr/bin/cmake -P cmake_install.cmake
-.PHONY : install/fast
-
 # The main all target
 all: cmake_check_build_system
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(CMAKE_COMMAND) -E cmake_progress_start /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/examples/sysc/2.1/sc_export/CMakeFiles/progress.marks
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/all
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(CMAKE_COMMAND) -E cmake_progress_start /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/examples/sysc/CMakeFiles/progress.marks
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/clean
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/clean
 .PHONY : clean
 
 # The main clean target
@@ -143,60 +143,18 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/preinstall
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/preinstall
+	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
 	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
-
-# Convenience name for target.
-examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/rule:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f CMakeFiles/Makefile2 examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/rule
-.PHONY : examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/rule
-
-# Convenience name for target.
-sc_export: examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/rule
-
-.PHONY : sc_export
-
-# fast build rule for target.
-sc_export/fast:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build.make examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build
-.PHONY : sc_export/fast
-
-main.o: main.cpp.o
-
-.PHONY : main.o
-
-# target to build an object file
-main.cpp.o:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build.make examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/main.cpp.o
-.PHONY : main.cpp.o
-
-main.i: main.cpp.i
-
-.PHONY : main.i
-
-# target to preprocess a source file
-main.cpp.i:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build.make examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/main.cpp.i
-.PHONY : main.cpp.i
-
-main.s: main.cpp.s
-
-.PHONY : main.s
-
-# target to generate assembly for a file
-main.cpp.s:
-	cd /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2 && $(MAKE) -f examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/build.make examples/sysc/2.1/sc_export/CMakeFiles/sc_export.dir/main.cpp.s
-.PHONY : main.cpp.s
 
 # Help Target
 help:
@@ -205,15 +163,11 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... install/strip"
+	@echo "... install"
+	@echo "... install/local"
+	@echo "... list_install_components"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... list_install_components"
-	@echo "... install/local"
-	@echo "... sc_export"
-	@echo "... install"
-	@echo "... main.o"
-	@echo "... main.i"
-	@echo "... main.s"
 .PHONY : help
 
 
