@@ -71,7 +71,7 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
-# compiled binaries
+# compiled binaries and library objects
 *.so
 *.out
 *.o
@@ -90,7 +90,6 @@ dev/sysc-sst-docs/sst-tut/*
 dev/sysc-sst-docs/sst-tut/examples/*
 !dev/sysc-sst-docs/sst-tut/examples/make.sh
 !dev/sysc-sst-docs/sst-tut/examples/counter
-
 
 # open-source archived tars and zips
 archives/
