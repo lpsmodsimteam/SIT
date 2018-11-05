@@ -45,5 +45,6 @@ bool counter::tick( SST::Cycle_t currentCycle ) {
     //     static_cast<uint8_t>(upCounter));
 
     // up_counter++;
+    std::cout << currentCycle << '\n';
     return false;
 }
