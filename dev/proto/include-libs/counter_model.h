@@ -38,7 +38,6 @@ SC_MODULE (_sc_counter) {
         counter_out.write(count);
 
         // DEV ////////////////////////////////////
-        /*
 
         int sockfd, newsockfd, portno;
         socklen_t clilen;
@@ -86,8 +85,7 @@ SC_MODULE (_sc_counter) {
         close(newsockfd);
         close(sockfd);
 
-        */
-       // DEV /////////////////////////////////////
+        // DEV /////////////////////////////////////
 
     } // End of function incr_count
 
@@ -124,39 +122,39 @@ int sc_test() {
     reset = 0;       // initial value of reset
     enable = 0;      // initial value of enable
     for (int i = 0; i < 2; i++) {
-        clock = 0; 
+        clock = 0;
         sc_start(1, SC_NS);
-        clock = 1; 
+        clock = 1;
         sc_start(1, SC_NS);
     }
     reset = 1;    // Assert the reset
-    cout << "@" << sc_time_stamp() <<" Asserting reset\n" << '\n';
+    cout << "@" << sc_time_stamp() << " Asserting reset\n" << '\n';
     for (int i = 0; i < 2; i++) {
-        clock = 0; 
+        clock = 0;
         sc_start(1, SC_NS);
-        clock = 1; 
+        clock = 1;
         sc_start(1, SC_NS);
     }
     reset = 0;    // De-assert the reset
-    cout << "@" << sc_time_stamp() <<" De-Asserting reset\n" << '\n';
+    cout << "@" << sc_time_stamp() << " De-Asserting reset\n" << '\n';
     for (int i = 0; i < 2; i++) {
-        clock = 0; 
+        clock = 0;
         sc_start(1, SC_NS);
-        clock = 1; 
+        clock = 1;
         sc_start(1, SC_NS);
     }
-    cout << "@" << sc_time_stamp() <<" Asserting Enable\n" << '\n';
+    cout << "@" << sc_time_stamp() << " Asserting Enable\n" << '\n';
     enable = 1;  // Assert enable
     for (int i = 0; i < 300; i++) {
-        clock = 0; 
+        clock = 0;
         sc_start(1, SC_NS);
-        clock = 1; 
+        clock = 1;
         sc_start(1, SC_NS);
     }
-    cout << "@" << sc_time_stamp() <<" De-Asserting Enable\n" << '\n';
+    cout << "@" << sc_time_stamp() << " De-Asserting Enable\n" << '\n';
     enable = 0; // De-assert enable
 
-    cout << "@" << sc_time_stamp() <<" Terminating simulation\n" << '\n';
+    cout << "@" << sc_time_stamp() << " Terminating simulation\n" << '\n';
 
     return EXIT_SUCCESS;  // Terminate simulation
 
