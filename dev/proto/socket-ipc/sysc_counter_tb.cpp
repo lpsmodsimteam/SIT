@@ -8,11 +8,11 @@ int sc_main(int argc, char *argv[]) {
     sc_signal<sc_uint<8> > counter_out;
     int i = 0;
     // Connect the DUT
-    counter counter("COUNTER");
-    counter.clock(clock);
-    counter.reset(reset);
-    counter.enable(enable);
-    counter.counter_out(counter_out);
+    sysc_counter sysc_counter("COUNTER");
+    sysc_counter.clock(clock);
+    sysc_counter.reset(reset);
+    sysc_counter.enable(enable);
+    sysc_counter.counter_out(counter_out);
 
     sc_start(1, SC_NS);
 
