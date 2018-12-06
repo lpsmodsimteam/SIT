@@ -39,6 +39,7 @@
 cmake-build-*/
 CMakeFiles/
 *.cmake
+CMakeCache.txt
 
 
 # Mongo Explorer plugin
