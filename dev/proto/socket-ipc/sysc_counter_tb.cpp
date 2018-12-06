@@ -1,5 +1,5 @@
 #include "systemc.h"
-#include "counter.cpp"
+#include "sysc_counter.cpp"
 
 int sc_main(int argc, char *argv[]) {
     sc_signal<bool> clock;

@@ -26,8 +26,8 @@ sst_counter::~sst_counter() {}
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
 void sst_counter::setup() {
+    m_up_counter = 0;
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
-    // sc_main();
 }
 
 // finish is called by SST before the simulation is ended and should be used
@@ -40,10 +40,10 @@ void sst_counter::finish() {
 // this function runs once every clock cycle
 bool sst_counter::tick(SST::Cycle_t currentCycle) {
 
-    // output.verbose(CALL_INFO, 1, 0, "Counter: %" PRIu8 "\n",
-    //     static_cast<uint8_t>(upCounter));
+    m_output.verbose(CALL_INFO, 1, 0, "Counter: %" PRIu8 "\n",
+                     static_cast<uint8_t>(m_up_counter));
 
-    // up_counter++;
+    m_up_counter++;
     std::cout << currentCycle << '\n';
     return false;
 }

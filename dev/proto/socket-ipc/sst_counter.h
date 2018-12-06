@@ -34,6 +34,8 @@ private:
     // local variables
     SST::Output m_output;
 
+    int64_t m_up_counter;
+
 };
 
 #endif

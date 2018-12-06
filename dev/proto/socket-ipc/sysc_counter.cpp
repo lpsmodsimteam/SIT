@@ -8,7 +8,7 @@
 //-----------------------------------------------------
 #include "systemc.h"
 
-SC_MODULE (counter) {
+SC_MODULE (sysc_counter) {
 
     sc_in_clk clock;      // Clock input of the design
     sc_in<bool> reset;      // active high, synchronous Reset input
@@ -38,7 +38,7 @@ SC_MODULE (counter) {
     // Since this counter is a positive edge trigged one,
     // We trigger the below block with respect to positive
     // edge of the clock and also when ever reset changes state
-    SC_CTOR(counter) {
+    SC_CTOR(sysc_counter) {
         cout << "Executing new" << endl;
         SC_METHOD(incr_count);
         sensitive << reset;
