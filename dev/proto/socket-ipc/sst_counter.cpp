@@ -4,6 +4,7 @@ Simple 8-bit Up-Counter Model with one clock
 
 #include <sst/core/sst_config.h>
 #include "sst_counter.h"
+#include <unistd.h>
 
 // Component Constructor
 sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
@@ -19,6 +20,7 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
     // Tell SST to wait until we authorize it to exit
     registerAsPrimaryComponent();
     primaryComponentDoNotEndSim();
+
 }
 
 sst_counter::~sst_counter() {}
@@ -26,6 +28,14 @@ sst_counter::~sst_counter() {}
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
 void sst_counter::setup() {
+    char *args[]={"./../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/counter", nullptr};
+    std::cout << "before\n";
+    int child_pid = fork();
+    if (!child_pid) {
+        execvp(args[0], args);
+        std::cout << "LOL" << child_pid << "\n";
+    }
+    std::cout << "after\n";
     m_up_counter = 0;
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 }
@@ -44,6 +54,6 @@ bool sst_counter::tick(SST::Cycle_t currentCycle) {
                      static_cast<uint8_t>(m_up_counter));
 
     m_up_counter++;
-    std::cout << currentCycle << '\n';
+//    std::cout << currentCycle << '\n';
     return false;
 }
