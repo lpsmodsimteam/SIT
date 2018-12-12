@@ -11,6 +11,19 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <sstream>
+
+//template<typename T>
+//std::ostream &operator<<(std::ostream &outs, const sc_out<T> &p) {
+//    return outs << p;
+//}
+
+template<typename T>
+std::string to_string(const T &value) {
+    std::ostringstream ss;
+    ss << value;
+    return ss.str();
+}
 
 SC_MODULE (sysc_counter) {
 
@@ -41,7 +54,7 @@ SC_MODULE (sysc_counter) {
             count++;
             strncpy(buffer, "CHILD", sizeof(buffer) - 1);
 
-            int n = write(sockfd, buffer, strlen(buffer));
+            int n = write(sockfd, to_string(counter_out).c_str(), strlen(buffer));
             if (n < 0)
                 perror("ERROR writing to socket");
             bzero(buffer, 256);
@@ -49,10 +62,10 @@ SC_MODULE (sysc_counter) {
             if (n < 0)
                 perror("ERROR reading from socket");
 
-            printf("%s\n", buffer);
+            printf("maybe? %s\n", buffer);
 
             cout << "@" << sc_time_stamp() << " :: Incremented Counter "
-                 << counter_out.read() << endl;
+                 << to_string(counter_out) << endl;
         }
         counter_out.write(count);
     } // End of function incr_count
@@ -87,18 +100,6 @@ SC_MODULE (sysc_counter) {
             exit(-1);
         }
 
-//        strncpy(buffer, "CHILD", sizeof(buffer) - 1);
-//
-//        int n = write(sockfd, buffer, strlen(buffer));
-//        if (n < 0)
-//            perror("ERROR writing to socket");
-//        bzero(buffer, 256);
-//        n = read(sockfd, buffer, 255);
-//        if (n < 0)
-//            perror("ERROR reading from socket");
-//
-//        printf("%s\n", buffer);
-//        close(sockfd);
         // -------------- SERVER-SIDE -----------------
 
         cout << "Executing new" << endl;
@@ -106,5 +107,9 @@ SC_MODULE (sysc_counter) {
         sensitive << reset;
         sensitive << clock.pos();
     } // End of Constructor
+
+    ~sysc_counter() {
+        close(sockfd);
+    }
 
 }; // End of Module counter
