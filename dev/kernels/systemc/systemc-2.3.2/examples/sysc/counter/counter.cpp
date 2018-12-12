@@ -22,6 +22,13 @@ SC_MODULE (sysc_counter) {
     //------------Local Variables Here---------------------
     sc_uint<8> count;
 
+    char buffer[256];
+    int portno = 8080;
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    struct hostent *server = gethostbyname("work-vm01");
+    struct sockaddr_in serv_addr;
+
+
     //------------Code Starts Here-------------------------
     // Below function implements actual counter logic
     void incr_count() {
@@ -32,6 +39,18 @@ SC_MODULE (sysc_counter) {
             // If enable is active, then we increment the counter
         } else if (enable.read()) {
             count++;
+            strncpy(buffer, "CHILD", sizeof(buffer) - 1);
+
+            int n = write(sockfd, buffer, strlen(buffer));
+            if (n < 0)
+                perror("ERROR writing to socket");
+            bzero(buffer, 256);
+            n = read(sockfd, buffer, 255);
+            if (n < 0)
+                perror("ERROR reading from socket");
+
+            printf("%s\n", buffer);
+
             cout << "@" << sc_time_stamp() << " :: Incremented Counter "
                  << counter_out.read() << endl;
         }
@@ -46,51 +65,40 @@ SC_MODULE (sysc_counter) {
 
         // -------------- SERVER-SIDE -----------------
 
-        char buffer[256];
-
-        int portno = 8080;
-
-        int sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
         if (sockfd < 0) {
             perror("ERROR opening socket");
         }
-
-        struct hostent *server = gethostbyname("work-vm01");
 
         if (!server) {
             fprintf(stderr, "ERROR, no such host\n");
             exit(0);
         }
 
-        struct sockaddr_in serv_addr;
         bzero((char *) &serv_addr, sizeof(serv_addr));
 
         serv_addr.sin_family = AF_INET;
 
-        bcopy((char *) server->h_addr, (char *) &serv_addr.sin_addr.s_addr,
-              server->h_length);
+        bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
         serv_addr.sin_port = htons(portno);
 
-        int connected = connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
-        while (connected < 0) {
+        while (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
             perror("ERROR connecting");
-            sleep(2);
-            connected = connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr));
+            exit(-1);
         }
 
-        strncpy(buffer, "CHILD", sizeof(buffer) - 1);
-
-        int n = write(sockfd, buffer, strlen(buffer));
-        if (n < 0)
-            perror("ERROR writing to socket");
-        bzero(buffer, 256);
-        n = read(sockfd, buffer, 255);
-        if (n < 0)
-            perror("ERROR reading from socket");
-
-        printf("%s\n", buffer);
-        close(sockfd);
+//        strncpy(buffer, "CHILD", sizeof(buffer) - 1);
+//
+//        int n = write(sockfd, buffer, strlen(buffer));
+//        if (n < 0)
+//            perror("ERROR writing to socket");
+//        bzero(buffer, 256);
+//        n = read(sockfd, buffer, 255);
+//        if (n < 0)
+//            perror("ERROR reading from socket");
+//
+//        printf("%s\n", buffer);
+//        close(sockfd);
         // -------------- SERVER-SIDE -----------------
 
         cout << "Executing new" << endl;

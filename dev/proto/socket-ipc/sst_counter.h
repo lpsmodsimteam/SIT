@@ -4,6 +4,11 @@
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
 
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+#include <netdb.h>
+
 class sst_counter : public SST::Component {
 
 public:
@@ -35,7 +40,9 @@ private:
     SST::Output m_output;
 
     int64_t m_up_counter;
-
+    struct sockaddr_in serv_addr, cli_addr;
+    int portno = 8080;
+    int m_sockfd, m_newsockfd;
 };
 
 #endif
