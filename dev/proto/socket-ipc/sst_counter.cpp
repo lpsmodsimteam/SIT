@@ -4,7 +4,10 @@ Simple 8-bit Up-Counter Model with one clock
 
 #include <sst/core/sst_config.h>
 #include "sst_counter.h"
+#include <netinet/in.h>
+#include <sys/socket.h>
 #include <unistd.h>
+#include <netdb.h>
 
 // Component Constructor
 sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
@@ -28,13 +31,64 @@ sst_counter::~sst_counter() {}
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
 void sst_counter::setup() {
+
     char *args[]={"./../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/counter", nullptr};
     std::cout << "before\n";
     int child_pid = fork();
+
     if (!child_pid) {
         execvp(args[0], args);
-        std::cout << "LOL" << child_pid << "\n";
+    } else {
+
+        // -------------- SERVER-SIDE -----------------
+        int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+        if (sockfd < 0) {
+            perror("ERROR opening socket");
+        }
+
+        struct sockaddr_in serv_addr, cli_addr;
+        bzero((char *) &serv_addr, sizeof(serv_addr));
+
+        int portno = 8080;
+
+        serv_addr.sin_family = AF_INET;
+        serv_addr.sin_addr.s_addr = INADDR_ANY;
+        serv_addr.sin_port = htons(portno);
+
+        if (bind(sockfd, (struct sockaddr *) &serv_addr,
+                 sizeof(serv_addr)) < 0) {
+            perror("ERROR on binding");
+        }
+
+        listen(sockfd, 5);
+
+        socklen_t clilen = sizeof(cli_addr);
+
+        int newsockfd = accept(sockfd,
+                               (struct sockaddr *) &cli_addr,
+                               &clilen);
+        if (newsockfd < 0) {
+            perror("ERROR on accept");
+        }
+
+        char buffer[256];
+        bzero(buffer, 256);
+        int n = read(newsockfd, buffer, 255);
+
+        if (n < 0) {
+            perror("ERROR reading from socket");
+        }
+        printf("Here is the message: %s\n", buffer);
+
+        close(newsockfd);
+        close(sockfd);
+        // -------------- SERVER-SIDE -----------------
+
     }
+
+
+    std::cout << "LOL" << child_pid << "\n";
     std::cout << "after\n";
     m_up_counter = 0;
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");

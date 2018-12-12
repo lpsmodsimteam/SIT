@@ -39,10 +39,7 @@ int main(int argc, char *argv[]) {
         perror("ERROR connecting");
     }
 
-    printf("Please enter the message: ");
-
-    bzero(buffer, 256);
-    fgets(buffer, 255, stdin);
+    strncpy(buffer, "CHILD", sizeof(buffer) - 1);
 
     int n = write(sockfd, buffer, strlen(buffer));
     if (n < 0)
