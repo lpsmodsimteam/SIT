@@ -7,20 +7,8 @@
 // with active high enable signal
 //-----------------------------------------------------
 #include "systemc.h"
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <netdb.h>
-#include <sstream>
 
 #define BUFSIZE 256
-
-template<typename T>
-std::string to_string(const T &value) {
-    std::ostringstream ss;
-    ss << value;
-    return ss.str();
-}
 
 SC_MODULE (sysc_counter) {
 
@@ -31,13 +19,6 @@ SC_MODULE (sysc_counter) {
 
     //------------Local Variables Here---------------------
     sc_uint<8> count;
-
-    char buffer[BUFSIZE];
-    int portno = 8080;
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    struct hostent *server = gethostbyname("work-vm01");
-    struct sockaddr_in serv_addr;
-
 
     //------------Code Starts Here-------------------------
     // Below function implements actual counter logic
@@ -54,19 +35,6 @@ SC_MODULE (sysc_counter) {
 
             count++;
 
-            std::string counter_out_str = to_string(counter_out);
-
-            if (write(sockfd, counter_out_str.c_str(), counter_out_str.size()) < 0) {
-                perror("ERROR writing to socket");
-            }
-
-            bzero(buffer, BUFSIZE);
-            if (read(sockfd, buffer, BUFSIZE - 1) < 0) {
-                perror("ERROR reading from socket");
-            }
-
-            cout << buffer << endl;
-
         }
         counter_out.write(count);
 
@@ -78,30 +46,6 @@ SC_MODULE (sysc_counter) {
     // edge of the clock and also when ever reset changes state
     SC_CTOR(sysc_counter) {
 
-        // -------------- SERVER-SIDE -----------------
-
-
-        if (sockfd < 0) {
-            perror("ERROR opening socket");
-        }
-
-        if (!server) {
-            fprintf(stderr, "ERROR, no such host\n");
-            exit(0);
-        }
-
-        bzero((char *) &serv_addr, sizeof(serv_addr));
-        serv_addr.sin_family = AF_INET;
-        bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
-        serv_addr.sin_port = htons(portno);
-
-        while (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-            perror("ERROR connecting");
-            exit(-1);
-        }
-
-        // -------------- SERVER-SIDE -----------------
-
         cout << "Executing new" << endl;
 
         SC_METHOD(incr_count);
@@ -112,7 +56,6 @@ SC_MODULE (sysc_counter) {
 
     ~sysc_counter() override {
         printf("CALLING DESTRUCTOR\n");
-        close(sockfd);
     }
 
 }; // End of Module counter

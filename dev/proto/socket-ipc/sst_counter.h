@@ -9,6 +9,13 @@
 #include <unistd.h>
 #include <netdb.h>
 
+// hardcoded path
+#include "../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/json.hpp"
+using json = nlohmann::json;
+
+
+#define BUFSIZE 256
+
 class sst_counter : public SST::Component {
 
 public:
@@ -39,11 +46,14 @@ private:
     // local variables
     SST::Output m_output;
 
-    int64_t m_up_counter;
-//    std::string
+    json m_data_in;
+    json m_data_out;
+
     struct sockaddr_in serv_addr, cli_addr;
     int portno = 8080;
     int m_sockfd, m_newsockfd;
+    char m_buffer[BUFSIZE];
+
 };
 
 #endif

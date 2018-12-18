@@ -5,7 +5,6 @@ Simple 8-bit Up-Counter Model with one clock
 #include <sst/core/sst_config.h>
 #include "sst_counter.h"
 
-#define BUFSIZE 256
 
 // Component Constructor
 sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
@@ -31,6 +30,10 @@ sst_counter::~sst_counter() {}
 void sst_counter::setup() {
 
     char *args[] = {"./../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/counter", nullptr};
+    m_data_out["on"] = true;
+    m_data_out["clock"] = 0;
+    m_data_out["reset"] = 0;
+    m_data_out["enable"] = 0;
 
     if (!fork()) {
 
@@ -66,8 +69,6 @@ void sst_counter::setup() {
 
     }
 
-    std::cout << "after\n";
-    m_up_counter = 0;
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 }
 
@@ -79,24 +80,60 @@ void sst_counter::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
+template<typename T>
+std::string to_string(const T &value) {
+    std::ostringstream ss;
+    ss << value;
+    return ss.str();
+}
+
+
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
 bool sst_counter::tick(SST::Cycle_t currentCycle) {
+
+    m_data_out["clock"] = currentCycle;
+    if (currentCycle == 10) {
+        std::cout << "RESET ON" << std::endl;
+        m_data_out["reset"] = 1;
+    }
+
+    if (currentCycle == 15) {
+        std::cout << "RESET OFF" << std::endl;
+        m_data_out["reset"] = 0;
+    }
+
+    if (currentCycle == 20) {
+        std::cout << "ENABLE ON" << std::endl;
+        m_data_out["enable"] = 1;
+    }
+
+    if (currentCycle == 570) {
+        std::cout << "ENABLE OFF" << std::endl;
+        m_data_out["enable"] = 0;
+    }
+
+    if (currentCycle == 580) {
+        std::cout << "MODULE OFF" << std::endl;
+        m_data_out["on"] = false;
+    }
+
+    std::string m_data_out_str = to_string(m_data_out);
 
     if (m_newsockfd < 0) {
         perror("ERROR on accept");
     }
 
-    char buffer[BUFSIZE];
-    bzero(buffer, BUFSIZE);
+    bzero(m_buffer, BUFSIZE);
 
-    if (read(m_newsockfd, buffer, BUFSIZE - 1) < 0) {
+    if (read(m_newsockfd, m_buffer, BUFSIZE - 1) < 0) {
         perror("ERROR reading from socket");
     }
 
-    m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n", buffer);
+    std::cout << "Counter: " << json::parse(m_buffer)["counter_out"] << std::endl;
+//    m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n", json::parse(m_buffer)["counter_out"]);
 
-    if (write(m_newsockfd, "I got your message", 18) < 0) {
+    if (write(m_newsockfd, m_data_out_str.c_str(), m_data_out_str.size()) < 0) {
         perror("ERROR writing to socket");
     }
 
