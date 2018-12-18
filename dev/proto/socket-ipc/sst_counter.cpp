@@ -5,6 +5,8 @@ Simple 8-bit Up-Counter Model with one clock
 #include <sst/core/sst_config.h>
 #include "sst_counter.h"
 
+#define BUFSIZE 256
+
 // Component Constructor
 sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
 
@@ -81,28 +83,23 @@ void sst_counter::finish() {
 // this function runs once every clock cycle
 bool sst_counter::tick(SST::Cycle_t currentCycle) {
 
-    m_output.verbose(CALL_INFO, 1, 0, "Counter: %" PRIu8 "\n",
-                     static_cast<uint8_t>(m_up_counter));
     if (m_newsockfd < 0) {
         perror("ERROR on accept");
     }
 
-    char buffer[256];
-    bzero(buffer, 256);
-    int n = read(m_newsockfd, buffer, 255);
+    char buffer[BUFSIZE];
+    bzero(buffer, BUFSIZE);
 
-    if (n < 0) {
+    if (read(m_newsockfd, buffer, BUFSIZE - 1) < 0) {
         perror("ERROR reading from socket");
     }
-    printf("Here is the message: %s\n", buffer);
 
-    n = write(m_newsockfd, "I got your message", 18);
+    m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n", buffer);
 
-    if (n < 0) {
+    if (write(m_newsockfd, "I got your message", 18) < 0) {
         perror("ERROR writing to socket");
     }
 
-    m_up_counter++;
-//    std::cout << currentCycle << '\n';
     return false;
+
 }

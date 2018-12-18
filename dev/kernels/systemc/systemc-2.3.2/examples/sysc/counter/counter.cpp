@@ -13,10 +13,7 @@
 #include <netdb.h>
 #include <sstream>
 
-//template<typename T>
-//std::ostream &operator<<(std::ostream &outs, const sc_out<T> &p) {
-//    return outs << p;
-//}
+#define BUFSIZE 256
 
 template<typename T>
 std::string to_string(const T &value) {
@@ -35,7 +32,7 @@ SC_MODULE (sysc_counter) {
     //------------Local Variables Here---------------------
     sc_uint<8> count;
 
-    char buffer[256];
+    char buffer[BUFSIZE];
     int portno = 8080;
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     struct hostent *server = gethostbyname("work-vm01");
@@ -45,29 +42,34 @@ SC_MODULE (sysc_counter) {
     //------------Code Starts Here-------------------------
     // Below function implements actual counter logic
     void incr_count() {
+
         // At every rising edge of clock we check if reset is active
         // If active, we load the counter output with 4'b0000
         if (reset.read()) {
+
             count = 0;
+
             // If enable is active, then we increment the counter
         } else if (enable.read()) {
+
             count++;
-            strncpy(buffer, "CHILD", sizeof(buffer) - 1);
 
-            int n = write(sockfd, to_string(counter_out).c_str(), strlen(buffer));
-            if (n < 0)
+            std::string counter_out_str = to_string(counter_out);
+
+            if (write(sockfd, counter_out_str.c_str(), counter_out_str.size()) < 0) {
                 perror("ERROR writing to socket");
-            bzero(buffer, 256);
-            n = read(sockfd, buffer, 255);
-            if (n < 0)
+            }
+
+            bzero(buffer, BUFSIZE);
+            if (read(sockfd, buffer, BUFSIZE - 1) < 0) {
                 perror("ERROR reading from socket");
+            }
 
-            printf("maybe? %s\n", buffer);
+            cout << buffer << endl;
 
-            cout << "@" << sc_time_stamp() << " :: Incremented Counter "
-                 << to_string(counter_out) << endl;
         }
         counter_out.write(count);
+
     } // End of function incr_count
 
     // Constructor for the counter
@@ -89,9 +91,7 @@ SC_MODULE (sysc_counter) {
         }
 
         bzero((char *) &serv_addr, sizeof(serv_addr));
-
         serv_addr.sin_family = AF_INET;
-
         bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
         serv_addr.sin_port = htons(portno);
 
@@ -103,12 +103,15 @@ SC_MODULE (sysc_counter) {
         // -------------- SERVER-SIDE -----------------
 
         cout << "Executing new" << endl;
+
         SC_METHOD(incr_count);
         sensitive << reset;
         sensitive << clock.pos();
+
     } // End of Constructor
 
-    ~sysc_counter() {
+    ~sysc_counter() override {
+        printf("CALLING DESTRUCTOR\n");
         close(sockfd);
     }
 

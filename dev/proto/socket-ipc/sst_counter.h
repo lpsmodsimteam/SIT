@@ -40,6 +40,7 @@ private:
     SST::Output m_output;
 
     int64_t m_up_counter;
+//    std::string
     struct sockaddr_in serv_addr, cli_addr;
     int portno = 8080;
     int m_sockfd, m_newsockfd;

@@ -2,11 +2,12 @@
 #include "counter.cpp"
 
 int sc_main(int argc, char *argv[]) {
+
     sc_signal<bool> clock;
     sc_signal<bool> reset;
     sc_signal<bool> enable;
     sc_signal<sc_uint<8> > counter_out;
-    int i = 0;
+
     // Connect the DUT
     sysc_counter sysc_counter("COUNTER");
     sysc_counter.clock(clock);
@@ -19,7 +20,7 @@ int sc_main(int argc, char *argv[]) {
     // Initialize all variables
     reset = 0;       // initial value of reset
     enable = 0;      // initial value of enable
-    for (i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
         clock = 0;
         sc_start(1, SC_NS);
         clock = 1;
@@ -27,7 +28,7 @@ int sc_main(int argc, char *argv[]) {
     }
     reset = 1;    // Assert the reset
     cout << "@" << sc_time_stamp() << " Asserting reset\n\n";
-    for (i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) {
         clock = 0;
         sc_start(1, SC_NS);
         clock = 1;
@@ -35,7 +36,7 @@ int sc_main(int argc, char *argv[]) {
     }
     reset = 0;    // De-assert the reset
     cout << "@" << sc_time_stamp() << " De-Asserting reset\n\n";
-    for (i = 0; i < 5; i++) {
+    for (int i = 0; i < 5; i++) {
         clock = 0;
         sc_start(1, SC_NS);
         clock = 1;
@@ -43,7 +44,7 @@ int sc_main(int argc, char *argv[]) {
     }
     cout << "@" << sc_time_stamp() << " Asserting Enable\n\n";
     enable = 1;  // Assert enable
-    for (i = 0; i < 260; i++) {
+    for (int i = 0; i < 260; i++) {
         clock = 0;
         sc_start(1, SC_NS);
         clock = 1;
