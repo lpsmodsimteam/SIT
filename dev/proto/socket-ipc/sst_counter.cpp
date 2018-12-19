@@ -61,9 +61,9 @@ void sst_counter::setup() {
 
         listen(m_sockfd, 5);
 
-        socklen_t clilen = sizeof(cli_addr);
+        m_clilen = sizeof(cli_addr);
 
-        m_newsockfd = accept(m_sockfd, (struct sockaddr *) &cli_addr, &clilen);
+        m_newsockfd = accept(m_sockfd, (struct sockaddr *) &cli_addr, &m_clilen);
 
         // -------------- SERVER-SIDE -----------------
 
@@ -92,47 +92,66 @@ std::string to_string(const T &value) {
 // this function runs once every clock cycle
 bool sst_counter::tick(SST::Cycle_t currentCycle) {
 
+    // ---------------- SYSTEMC MODULE TESTBENCH ----------------
+
+    // assign SST clock to SystemC clock
     m_data_out["clock"] = currentCycle;
-    if (currentCycle == 10) {
+
+    // set reset to 1 at 4 ns
+    if (currentCycle == 4) {
         std::cout << "RESET ON" << std::endl;
         m_data_out["reset"] = 1;
     }
 
-    if (currentCycle == 15) {
+    // set reset to 0 at 8 ns
+    if (currentCycle == 8) {
         std::cout << "RESET OFF" << std::endl;
         m_data_out["reset"] = 0;
     }
 
-    if (currentCycle == 20) {
+    // set enable to 1 at 12 ns
+    if (currentCycle == 12) {
         std::cout << "ENABLE ON" << std::endl;
         m_data_out["enable"] = 1;
     }
 
-    if (currentCycle == 570) {
+    // set enable to 0 at 50 ns
+    if (currentCycle == 50) {
         std::cout << "ENABLE OFF" << std::endl;
         m_data_out["enable"] = 0;
     }
 
-    if (currentCycle == 580) {
+    // turn module off at 52 ns
+    if (currentCycle == 52) {
         std::cout << "MODULE OFF" << std::endl;
         m_data_out["on"] = false;
     }
 
-    std::string m_data_out_str = to_string(m_data_out);
+    // ---------------- SOCKET COMMUNICATION ----------------
 
+    // ---------------- READ DATA ----------------
     if (m_newsockfd < 0) {
         perror("ERROR on accept");
     }
 
+    // reset buffer
     bzero(m_buffer, BUFSIZE);
 
+    // read buffer from child process
     if (read(m_newsockfd, m_buffer, BUFSIZE - 1) < 0) {
         perror("ERROR reading from socket");
     }
 
-    std::cout << "Counter: " << json::parse(m_buffer)["counter_out"] << std::endl;
-//    m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n", json::parse(m_buffer)["counter_out"]);
+    // if module is on, dump the JSON object buffer
+    if (m_data_out["on"]) {
+        m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n",
+                         std::string(json::parse(m_buffer)["counter_out"]).c_str());
+    }
 
+    // ---------------- WRITE DATA ----------------
+
+    // convert JSON object to bytes to be transmitted via sockets
+    std::string m_data_out_str = to_string(m_data_out);
     if (write(m_newsockfd, m_data_out_str.c_str(), m_data_out_str.size()) < 0) {
         perror("ERROR writing to socket");
     }

@@ -15,7 +15,7 @@ SC_MODULE (sysc_counter) {
     sc_in_clk clock;      // Clock input of the design
     sc_in<bool> reset;      // active high, synchronous Reset input
     sc_in<bool> enable;      // Active high enable signal for counter
-    sc_out<sc_uint<8> > counter_out; // 4 bit vector output of the counter
+    sc_out<sc_uint<4> > counter_out; // 4 bit vector output of the counter
 
     //------------Local Variables Here---------------------
     sc_uint<8> count;

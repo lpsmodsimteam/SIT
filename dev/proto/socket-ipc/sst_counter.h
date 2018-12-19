@@ -11,6 +11,7 @@
 
 // hardcoded path
 #include "../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/json.hpp"
+
 using json = nlohmann::json;
 
 
@@ -46,10 +47,10 @@ private:
     // local variables
     SST::Output m_output;
 
-    json m_data_in;
     json m_data_out;
 
     struct sockaddr_in serv_addr, cli_addr;
+    socklen_t m_clilen;
     int portno = 8080;
     int m_sockfd, m_newsockfd;
     char m_buffer[BUFSIZE];

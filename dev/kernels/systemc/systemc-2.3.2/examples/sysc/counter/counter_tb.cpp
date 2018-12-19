@@ -23,7 +23,7 @@ int sc_main(int argc, char *argv[]) {
     sc_signal<bool> clock;
     sc_signal<bool> reset;
     sc_signal<bool> enable;
-    sc_signal<sc_uint<8> > counter_out;
+    sc_signal<sc_uint<4> > counter_out;
 
     // Connect the DUT
     sysc_counter sysc_counter("COUNTER");
@@ -71,68 +71,17 @@ int sc_main(int argc, char *argv[]) {
 
         m_data_in = json::parse(m_buffer);
 
-        clock =  (int(m_data_in["clock"]) % 2);
-        enable = (int) m_data_in["enable"];
-        reset = (int) m_data_in["reset"];
+        clock = (int(m_data_in["clock"]) % 2);
+        enable = int(m_data_in["enable"]);
+        reset = int(m_data_in["reset"]);
 
-        std::cout << "@ " << sc_time_stamp() << " clock: " << m_data_in["clock"] << ' ' << clock << std::endl;
-        std::cout << "@ " << sc_time_stamp() << " enable: " << m_data_in["enable"] << std::endl;
-        std::cout << "@ " << sc_time_stamp() << " reset: " << m_data_in["reset"] << std::endl;
+        std::cout << "@" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
+                  "\nclock: " << clock << "\nenable: " << m_data_in["enable"]
+                  << "\nreset: " << m_data_in["reset"] << std::endl;
 
     } while (m_data_in["on"]);
 
-//    sc_start(1, SC_NS);
-//
-//    // Initialize all variables
-//    reset = 0;       // initial value of reset
-//    enable = 0;      // initial value of enable
-//    for (int i = 0; i < 5; i++) {
-//        clock = 0;
-//        sc_start(1, SC_NS);
-//        clock = 1;
-//        sc_start(1, SC_NS);
-//    }
-//    reset = 1;    // Assert the reset
-//    cout << "@" << sc_time_stamp() << " Asserting reset\n\n";
-//    for (int i = 0; i < 10; i++) {
-//        clock = 0;
-//        sc_start(1, SC_NS);
-//        clock = 1;
-//        sc_start(1, SC_NS);
-//    }
-//    reset = 0;    // De-assert the reset
-//    cout << "@" << sc_time_stamp() << " De-Asserting reset\n\n";
-//    for (int i = 0; i < 5; i++) {
-//        clock = 0;
-//        sc_start(1, SC_NS);
-//        clock = 1;
-//        sc_start(1, SC_NS);
-//    }
-//    cout << "@" << sc_time_stamp() << " Asserting Enable\n\n";
-//
-//    if (sockfd < 0) {
-//        perror("ERROR opening socket");
-//    }
-//
-//    if (!server) {
-//        fprintf(stderr, "ERROR, no such host\n");
-//        exit(0);
-//    }
-//
-//
-//    enable = 1;  // Assert enable
-//    for (int i = 0; i < 260; i++) {
-//        clock = 0;
-//        sc_start(1, SC_NS);
-//        clock = 1;
-//        sc_start(1, SC_NS);
-//
-//
-//    }
-//    cout << "@" << sc_time_stamp() << " De-Asserting Enable\n\n";
-//    enable = 0; // De-assert enable
-//
-//    cout << "@" << sc_time_stamp() << " Terminating simulation\n\n";
+    close(sockfd);
 
     return 0;// Terminate simulation
 
