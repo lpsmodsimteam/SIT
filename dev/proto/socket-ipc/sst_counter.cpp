@@ -12,7 +12,8 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
     // Initialize output
     m_output.init("module-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
-    // up_counter = params.find<uint8_t>("upCounter", 0);
+    m_port = params.find<uint16_t>("port", 8080);
+    m_sysc_counter = params.find<std::string>("sysc_counter", "");
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_counter>(this, &sst_counter::tick));
@@ -23,25 +24,25 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
 
 }
 
-sst_counter::~sst_counter() {}
+sst_counter::~sst_counter() {
+    close(m_newsockfd);
+    close(m_sockfd);
+}
 
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
 void sst_counter::setup() {
 
-    char *args[] = {"./../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/counter", nullptr};
-    m_data_out["on"] = true;
-    m_data_out["clock"] = 0;
-    m_data_out["reset"] = 0;
-    m_data_out["enable"] = 0;
+    m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
     if (!fork()) {
 
+        char *args[] = {&m_sysc_counter[0u], nullptr};
+        m_output.verbose(CALL_INFO, 1, 0, "Forking SystemC process from: %s\n", args[0]);
         execvp(args[0], args);
 
     } else {
 
-        // -------------- SERVER-SIDE -----------------
         m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
         if (m_sockfd < 0) {
@@ -52,7 +53,7 @@ void sst_counter::setup() {
 
         serv_addr.sin_family = AF_INET;
         serv_addr.sin_addr.s_addr = INADDR_ANY;
-        serv_addr.sin_port = htons(portno);
+        serv_addr.sin_port = htons(m_port);
 
         if (bind(m_sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
             perror("ERROR on binding");
@@ -65,18 +66,18 @@ void sst_counter::setup() {
 
         m_newsockfd = accept(m_sockfd, (struct sockaddr *) &cli_addr, &m_clilen);
 
-        // -------------- SERVER-SIDE -----------------
+        m_data_out["on"] = true;
+        m_data_out["clock"] = 0;
+        m_data_out["reset"] = 0;
+        m_data_out["enable"] = 0;
 
     }
 
-    m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 }
 
 // finish is called by SST before the simulation is ended and should be used
 // to clean up variables and memory
 void sst_counter::finish() {
-    close(m_newsockfd);
-    close(m_sockfd);
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 

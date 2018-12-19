@@ -11,7 +11,6 @@
 
 // hardcoded path
 #include "../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/json.hpp"
-
 using json = nlohmann::json;
 
 
@@ -31,27 +30,27 @@ public:
 
     bool tick(SST::Cycle_t);
 
-    // int sc_main ();
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
             sst_counter, // class
             "sst_counterSST", // element library
             "sst_counter", // component
             SST_ELI_ELEMENT_VERSION(1, 0, 0),
-            "Simple 8-bit Up-Counter Model with one clock",
+            "Simple 4-bit Up-Counter Model with one clock",
             COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
 private:
 
+    // parameters
+    uint16_t m_port;
+    std::string m_sysc_counter;
+
     // local variables
     SST::Output m_output;
-
     json m_data_out;
-
     struct sockaddr_in serv_addr, cli_addr;
     socklen_t m_clilen;
-    int portno = 8080;
     int m_sockfd, m_newsockfd;
     char m_buffer[BUFSIZE];
 

@@ -33,7 +33,7 @@ int sc_main(int argc, char *argv[]) {
     sysc_counter.counter_out(counter_out);
 
     char m_buffer[BUFSIZE];
-    int portno = 8080;
+    uint16_t portno = 8080;
     int sockfd = socket(AF_INET, SOCK_STREAM, 0);
     struct hostent *server = gethostbyname("work-vm01");
     struct sockaddr_in serv_addr{};
