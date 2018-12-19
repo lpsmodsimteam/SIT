@@ -37,7 +37,7 @@ void sst_counter::setup() {
 
     if (!fork()) {
 
-        char *args[] = {&m_sysc_counter[0u], nullptr};
+        char *args[] = {&m_sysc_counter[0u], "8080", nullptr};
         m_output.verbose(CALL_INFO, 1, 0, "Forking SystemC process from: %s\n", args[0]);
         execvp(args[0], args);
 
