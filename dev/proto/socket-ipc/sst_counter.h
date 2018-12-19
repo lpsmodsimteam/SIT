@@ -11,10 +11,18 @@
 
 // hardcoded path
 #include "../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/json.hpp"
+
 using json = nlohmann::json;
 
 
 #define BUFSIZE 256
+
+template<typename T>
+std::string to_string(const T &);
+
+void send_signal(const json &, int);
+
+//json recv_signal(const char, int);
 
 class sst_counter : public SST::Component {
 
@@ -48,6 +56,7 @@ private:
 
     // local variables
     SST::Output m_output;
+    json m_data_in;
     json m_data_out;
     struct sockaddr_in serv_addr, cli_addr;
     socklen_t m_clilen;

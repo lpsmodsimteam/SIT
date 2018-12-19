@@ -2,6 +2,7 @@
 #include "counter.cpp"
 
 #include "json.hpp"
+
 using json = nlohmann::json;
 
 #include <sstream>
@@ -15,6 +16,39 @@ std::string to_string(const T &value) {
     std::ostringstream ss;
     ss << value;
     return ss.str();
+}
+
+
+void send_signal(const json &data, int sock_fd) {
+
+    // convert JSON object to bytes to be transmitted via sockets
+    std::string data_str = to_string(data);
+    if (write(sock_fd, data_str.c_str(), data_str.size()) < 0) {
+        perror("ERROR writing to socket");
+    }
+
+}
+
+json recv_signal(char buffer[], int sock_fd) {
+
+    if (sock_fd < 0) {
+        perror("ERROR on accept");
+    }
+
+    // reset buffer
+    bzero(buffer, BUFSIZE);
+
+    // read buffer from child process
+    if (read(sock_fd, buffer, BUFSIZE - 1) < 0) {
+        perror("ERROR reading from socket");
+    }
+
+    try {
+        return json::parse(buffer);
+    } catch (json::parse_error &e) {
+        std::cout << "JSON PARSE ERROR" << buffer << std::endl;
+        exit(-1);
+    }
 }
 
 
@@ -56,28 +90,19 @@ int sc_main(int argc, char *argv[]) {
 
         sc_start(1, SC_NS);
 
+        m_data_in = recv_signal(m_buffer, sockfd);
+
+        clock = (int) (m_data_in["clock"]) % 2;
+        enable = (int) m_data_in["enable"];
+        reset = (int) m_data_in["reset"];
+
         m_data_out["counter_out"] = to_string(counter_out);
 
-        std::string counter_out_str = to_string(m_data_out);
-
-        if (write(sockfd, counter_out_str.c_str(), counter_out_str.size()) < 0) {
-            perror("ERROR writing to socket");
-        }
-
-        bzero(m_buffer, BUFSIZE);
-        if (read(sockfd, m_buffer, BUFSIZE - 1) < 0) {
-            perror("ERROR reading from socket");
-        }
-
-        m_data_in = json::parse(m_buffer);
-
-        clock = (int(m_data_in["clock"]) % 2);
-        enable = int(m_data_in["enable"]);
-        reset = int(m_data_in["reset"]);
+        send_signal(m_data_out, sockfd);
 
         std::cout << "@" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
-                  "\nclock: " << clock << "\nenable: " << m_data_in["enable"]
-                  << "\nreset: " << m_data_in["reset"] << std::endl;
+                  " clock: " << clock << " enable: " << m_data_in["enable"]
+                  << " reset: " << m_data_in["reset"] << std::endl;
 
     } while (m_data_in["on"]);
 

@@ -18,7 +18,7 @@ SC_MODULE (sysc_counter) {
     sc_out<sc_uint<4> > counter_out; // 4 bit vector output of the counter
 
     //------------Local Variables Here---------------------
-    sc_uint<8> count;
+    sc_uint<4> count;
 
     //------------Code Starts Here-------------------------
     // Below function implements actual counter logic

@@ -83,11 +83,44 @@ void sst_counter::finish() {
 
 template<typename T>
 std::string to_string(const T &value) {
+
     std::ostringstream ss;
     ss << value;
     return ss.str();
+
 }
 
+void send_signal(const json &data, int sock_fd) {
+
+    // convert JSON object to bytes to be transmitted via sockets
+    std::string data_str = to_string(data);
+    if (write(sock_fd, data_str.c_str(), data_str.size()) < 0) {
+        perror("ERROR writing to socket");
+    }
+
+}
+
+json recv_signal(char buffer[], int sock_fd) {
+
+    if (sock_fd < 0) {
+        perror("ERROR on accept");
+    }
+
+    // reset buffer
+    bzero(buffer, BUFSIZE);
+
+    // read buffer from child process
+    if (read(sock_fd, buffer, BUFSIZE - 1) < 0) {
+        perror("ERROR reading from socket");
+    }
+
+    try {
+        return json::parse(buffer);
+    } catch (json::parse_error &e) {
+        std::cout << "JSON PARSE ERROR" << std::endl;
+        return json{};
+    }
+}
 
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
@@ -130,31 +163,18 @@ bool sst_counter::tick(SST::Cycle_t currentCycle) {
 
     // ---------------- SOCKET COMMUNICATION ----------------
 
-    // ---------------- READ DATA ----------------
-    if (m_newsockfd < 0) {
-        perror("ERROR on accept");
-    }
-
-    // reset buffer
-    bzero(m_buffer, BUFSIZE);
-
-    // read buffer from child process
-    if (read(m_newsockfd, m_buffer, BUFSIZE - 1) < 0) {
-        perror("ERROR reading from socket");
-    }
+    // ---------------- WRITE DATA ----------------
+    send_signal(m_data_out, m_newsockfd);
 
     // if module is on, dump the JSON object buffer
     if (m_data_out["on"]) {
+
+        // ---------------- READ DATA ----------------
+        m_data_in = recv_signal(m_buffer, m_newsockfd);
+
         m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n",
-                         std::string(json::parse(m_buffer)["counter_out"]).c_str());
-    }
+                         std::string(m_data_in["counter_out"]).c_str());
 
-    // ---------------- WRITE DATA ----------------
-
-    // convert JSON object to bytes to be transmitted via sockets
-    std::string m_data_out_str = to_string(m_data_out);
-    if (write(m_newsockfd, m_data_out_str.c_str(), m_data_out_str.size()) < 0) {
-        perror("ERROR writing to socket");
     }
 
     return false;
