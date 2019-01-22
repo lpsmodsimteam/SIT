@@ -12,7 +12,7 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
     // Initialize output
     m_output.init("module-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
-    m_port = params.find<uint16_t>("port", 8080);
+    m_port = params.find<uint16_t>("port", 8000);
     m_sysc_counter = params.find<std::string>("sysc_counter", "");
 
     // Just register a plain clock for this simple example

@@ -10,7 +10,7 @@
 #include <netdb.h>
 
 // hardcoded path
-#include "../../kernels/systemc/systemc-2.3.2/examples/sysc/counter/json.hpp"
+#include "json.hpp"
 
 using json = nlohmann::json;
 

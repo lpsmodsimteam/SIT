@@ -6,30 +6,31 @@ SST_FLAGS=$(shell sst-config --ELEMENT_CXXFLAGS)
 SST_LDFLAGS=$(shell sst-config --ELEMENT_LDFLAGS)
 
 # SystemC configs
-SYSC_HOME = /home/sabbir/projects/sysc-sst/dev/kernels/systemc/systemc-2.3.2/src
-SYSC_FLAGS = -I. -I${SYSC_HOME}
-SYSC_LDFLAGS =-L. -L${SYSC_HOME} -Wl,-rpath=${SYSC_HOME} -lsystemc -lm
+SYSC_HOME = /usr/local/systemc-2.3
+SYSC_FLAGS = -I. -I${SYSC_HOME}/include
+SYSC_LDFLAGS =-L. -L${SYSC_HOME}/lib-linux64 -Wl,-rpath,${SYSC_HOME}/lib-linux64
+CXX_FLAGS = -lsystemc -lm
 
 SST_OBJS = libsst_counterSST.so
 SST_SRCS = sst_counter.cpp
-SYSC_OBJS = counter_module.o
-SYSC_SRCS = sysc_counter_tb.cpp
+SYSC_OBJS = sysc_counter_module.o
+SYSC_SRCS = sysc_counter.cpp sysc_counter_tb.cpp
 
-all: ${SST_OBJS} ${SYSC_OBJS}
+all: ${SYSC_OBJS} ${SST_OBJS}
 
+# define the CPP object files
+OBJS = ${SYSC_SRCS:.cpp=.o}
+${SYSC_OBJS}: ${OBJS}
+	${CXX} ${SYSC_FLAGS} ${SYSC_LDFLAGS} -o ${SYSC_OBJS} ${OBJS} ${CXX_FLAGS}
 
-${SYSC_OBJS}: ${SYSC_SRCS}
-	${CXX} -v ${SYSC_FLAGS} -o $@ $^ ${SYSC_LDFLAGS}
-
+.cpp.o:
+	${CXX} ${SYSC_FLAGS} -c $< -o $@
 
 ${SST_OBJS}: ${SST_SRCS}
 	${CXX} -v ${SST_FLAGS} ${SST_LDFLAGS} -o $@ $^
 	sst-register counter counter_LIBDIR=$(CURDIR)
 
 clean:
+	find . \( -name "*.o" -o -name ${SST_OBJS} -o -name ${SYSC_OBJS} \) -type f -delete
 	rm -rf *.o tests/graph ${SST_OBJS}
 	sst-register -u sst_counter
-
-
-${SYSC_OBJS}: ${SYSC_SRCS}
-	${CXX} -v ${SST_FLAGS} ${SST_LDFLAGS} ${SYSC_FLAGS} -o $@ $^ ${SYSC_LDFLAGS}
