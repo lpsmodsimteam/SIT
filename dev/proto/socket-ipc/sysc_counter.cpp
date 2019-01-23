@@ -8,8 +8,6 @@
 //-----------------------------------------------------
 #include "systemc.h"
 
-#define BUFSIZE 256
-
 SC_MODULE (sysc_counter) {
 
     sc_in_clk clock;      // Clock input of the design

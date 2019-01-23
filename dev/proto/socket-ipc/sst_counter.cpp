@@ -1,9 +1,10 @@
 /**
-Simple 8-bit Up-Counter Model with one clock
+Simple 4-bit Up-Counter Model with one clock
 */
 
-#include <sst/core/sst_config.h>
 #include "sst_counter.h"
+
+#include <sst/core/sst_config.h>
 
 
 // Component Constructor
@@ -12,7 +13,7 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
     // Initialize output
     m_output.init("module-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
-    m_port = params.find<uint16_t>("port", 8000);
+    m_port = params.find<uint16_t>("port", 2000);
     m_sysc_counter1 = params.find<std::string>("sysc_counter", "");
 
     // Just register a plain clock for this simple example
@@ -37,29 +38,34 @@ void sst_counter::setup() {
 
     for (int i = 0; i < 1; i++) {
 
-        if (!fork()) {
+        pids.push_back(fork());
 
-            char *args[] = {&m_sysc_counter1[0u], &(std::to_string(m_port + i))[0u], nullptr};
-            m_output.verbose(CALL_INFO, 1, 0,
-                    "Forking SystemC process (pid: %d) from: %s\n", getpid(), args[0]);
+        if (!pids.back()) {
+
+            char *args[] = {&m_sysc_counter1[0u], &(to_string(m_port + i))[0u], nullptr};
+            m_output.verbose(
+                    CALL_INFO, 1, 0,
+                    "Forking process %s (pid: %d) on port: %d: \n", args[0],
+                    getpid(), m_port + i);
             execvp(args[0], args);
 
         } else {
 
+            std::cout << i << " " << pids.back() << std::endl;
             m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
             if (m_sockfd < 0) {
-                perror("ERROR opening socket");
+                perror("PARENT");
             }
 
             bzero((char *) &serv_addr, sizeof(serv_addr));
 
             serv_addr.sin_family = AF_INET;
             serv_addr.sin_addr.s_addr = INADDR_ANY;
-            serv_addr.sin_port = htons(m_port);
+            serv_addr.sin_port = htons(m_port + i);
 
             if (bind(m_sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-                perror("ERROR on binding");
+                perror("PARENT");
                 exit(-1);
             }
 

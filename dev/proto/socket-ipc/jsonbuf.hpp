@@ -1,30 +1,22 @@
-#ifndef JSON_BUF
-#define JSON_BUF
+#ifndef JSON_BUF_HPP
+#define JSON_BUF_HPP
 
 #include "json.hpp"
 
 using json = nlohmann::json;
 
-#define BUFSIZE 256
-
-#include <netinet/in.h>
 #include <sstream>
-#include <sys/socket.h>
 #include <unistd.h>
-#include <netdb.h>
 
-void send_signal(const json &, int);
-
-json recv_signal(char [], int);
-
-template<typename T>
-std::string to_string(const T &value);
+#define BUFSIZE 256
 
 template<typename T>
 std::string to_string(const T &value) {
+
     std::ostringstream ss;
     ss << value;
     return ss.str();
+
 }
 
 
@@ -55,9 +47,11 @@ json recv_signal(char buffer[], int sock_fd) {
     try {
         return json::parse(buffer);
     } catch (json::parse_error &e) {
-        std::cout << "JSON PARSE ERROR" << buffer << std::endl;
+        perror("JSON PARSE ERROR");
         exit(-1);
+        // return json{};
     }
+
 }
 
 #endif

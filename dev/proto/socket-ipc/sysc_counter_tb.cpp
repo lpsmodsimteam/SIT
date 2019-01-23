@@ -1,6 +1,6 @@
 #include "sysc_counter.cpp"
 
-#include "jsonbuf.hpp"
+#include "sstsysc.hpp"
 #include "systemc.h"
 
 
@@ -30,8 +30,7 @@ int sc_main(int argc, char *argv[]) {
     serv_addr.sin_port = htons(portno);
 
     while (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-        perror("ERROR connecting");
-        exit(-1);
+        perror("CHILD");
     }
 
     // create an empty structure (null)
