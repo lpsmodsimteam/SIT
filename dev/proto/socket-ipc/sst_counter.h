@@ -4,25 +4,8 @@
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
 
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <netdb.h>
-
 // hardcoded path
-#include "json.hpp"
-
-using json = nlohmann::json;
-
-
-#define BUFSIZE 256
-
-template<typename T>
-std::string to_string(const T &);
-
-void send_signal(const json &, int);
-
-//json recv_signal(const char, int);
+#include "jsonbuf.hpp"
 
 class sst_counter : public SST::Component {
 
@@ -40,19 +23,19 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-            sst_counter, // class
-            "sst_counterSST", // element library
-            "sst_counter", // component
-            SST_ELI_ELEMENT_VERSION(1, 0, 0),
-            "Simple 4-bit Up-Counter Model with one clock",
-            COMPONENT_CATEGORY_UNCATEGORIZED
+         sst_counter, // class
+         "sst_counterSST", // element library
+         "sst_counter", // component
+         SST_ELI_ELEMENT_VERSION(1, 0, 0),
+         "Simple 4-bit Up-Counter Model with one clock",
+         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
 private:
 
     // parameters
     uint16_t m_port;
-    std::string m_sysc_counter;
+    std::string m_sysc_counter1, m_sysc_counter2;
 
     // local variables
     SST::Output m_output;

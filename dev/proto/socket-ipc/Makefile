@@ -6,7 +6,6 @@ SST_FLAGS=$(shell sst-config --ELEMENT_CXXFLAGS)
 SST_LDFLAGS=$(shell sst-config --ELEMENT_LDFLAGS)
 
 # SystemC configs
-SYSC_HOME = /usr/local/systemc-2.3
 SYSC_FLAGS = -I. -I${SYSC_HOME}/include
 SYSC_LDFLAGS =-L. -L${SYSC_HOME}/lib-linux64 -Wl,-rpath,${SYSC_HOME}/lib-linux64
 CXX_FLAGS = -lsystemc -lm
@@ -32,5 +31,4 @@ ${SST_OBJS}: ${SST_SRCS}
 
 clean:
 	find . \( -name "*.o" -o -name ${SST_OBJS} -o -name ${SYSC_OBJS} \) -type f -delete
-	rm -rf *.o tests/graph ${SST_OBJS}
 	sst-register -u sst_counter

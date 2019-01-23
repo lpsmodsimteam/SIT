@@ -1,109 +1,7 @@
+#include "sysc_counter.cpp"
+
+#include "jsonbuf.hpp"
 #include "systemc.h"
-//#include "sysc_counter.cpp"
-
-#include "json.hpp"
-
-using json = nlohmann::json;
-
-#include <sstream>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <netdb.h>
-
-#define BUFSIZE 256
-
-template<typename T>
-std::string to_string(const T &value) {
-    std::ostringstream ss;
-    ss << value;
-    return ss.str();
-}
-
-
-void send_signal(const json &data, int sock_fd) {
-
-    // convert JSON object to bytes to be transmitted via sockets
-    std::string data_str = to_string(data);
-    if (write(sock_fd, data_str.c_str(), data_str.size()) < 0) {
-        perror("ERROR writing to socket");
-    }
-
-}
-
-json recv_signal(char buffer[], int sock_fd) {
-
-    if (sock_fd < 0) {
-        perror("ERROR on accept");
-    }
-
-    // reset buffer
-    bzero(buffer, BUFSIZE);
-
-    // read buffer from child process
-    if (read(sock_fd, buffer, BUFSIZE - 1) < 0) {
-        perror("ERROR reading from socket");
-    }
-
-    try {
-        return json::parse(buffer);
-    } catch (json::parse_error &e) {
-        std::cout << "JSON PARSE ERROR" << buffer << std::endl;
-        exit(-1);
-    }
-}
-
-
-SC_MODULE (sysc_counter) {
-
-    sc_in_clk clock;      // Clock input of the design
-    sc_in<bool> reset;      // active high, synchronous Reset input
-    sc_in<bool> enable;      // Active high enable signal for counter
-    sc_out<sc_uint<4> > counter_out; // 4 bit vector output of the counter
-
-    //------------Local Variables Here---------------------
-    sc_uint<4> count;
-
-    //------------Code Starts Here-------------------------
-    // Below function implements actual counter logic
-    void incr_count() {
-
-        // At every rising edge of clock we check if reset is active
-        // If active, we load the counter output with 4'b0000
-        if (reset.read()) {
-
-            count = 0;
-
-            // If enable is active, then we increment the counter
-        } else if (enable.read()) {
-
-            count++;
-
-        }
-        counter_out.write(count);
-
-    } // End of function incr_count
-
-    // Constructor for the counter
-    // Since this counter is a positive edge triggered one,
-    // We trigger the below block with respect to positive
-    // edge of the clock and also when ever reset changes state
-    SC_CTOR(sysc_counter) {
-
-        cout << "Executing new" << endl;
-
-        SC_METHOD(incr_count);
-        sensitive << reset;
-        sensitive << clock.pos();
-
-    } // End of Constructor
-
-    ~sysc_counter() override {
-        printf("CALLING DESTRUCTOR\n");
-    }
-
-}; // End of Module counter
-
 
 
 int sc_main(int argc, char *argv[]) {
@@ -162,6 +60,6 @@ int sc_main(int argc, char *argv[]) {
 
     close(sockfd);
 
-    return 0;// Terminate simulation
+    return 0;  // Terminate simulation
 
 }
