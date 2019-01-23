@@ -1,7 +1,7 @@
 #include "sysc_counter.cpp"
 
 #include "sstsysc.hpp"
-#include "systemc.h"
+#include <systemc.h>
 
 
 int sc_main(int argc, char *argv[]) {
