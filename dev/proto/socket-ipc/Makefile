@@ -69,8 +69,8 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/opt/clion-2018.2.5/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
+	/opt/clion-2018.2.5/bin/cmake/linux/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -122,6 +122,46 @@ sysc_counter_module.o: cmake_check_build_system
 sysc_counter_module.o/fast:
 	$(MAKE) -f CMakeFiles/sysc_counter_module.o.dir/build.make CMakeFiles/sysc_counter_module.o.dir/build
 .PHONY : sysc_counter_module.o/fast
+
+#=============================================================================
+# Target rules for targets named libsst_counterSST.so
+
+# Build rule for target.
+libsst_counterSST.so: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 libsst_counterSST.so
+.PHONY : libsst_counterSST.so
+
+# fast build rule for target.
+libsst_counterSST.so/fast:
+	$(MAKE) -f CMakeFiles/libsst_counterSST.so.dir/build.make CMakeFiles/libsst_counterSST.so.dir/build
+.PHONY : libsst_counterSST.so/fast
+
+sst_counter.o: sst_counter.cpp.o
+
+.PHONY : sst_counter.o
+
+# target to build an object file
+sst_counter.cpp.o:
+	$(MAKE) -f CMakeFiles/libsst_counterSST.so.dir/build.make CMakeFiles/libsst_counterSST.so.dir/sst_counter.cpp.o
+.PHONY : sst_counter.cpp.o
+
+sst_counter.i: sst_counter.cpp.i
+
+.PHONY : sst_counter.i
+
+# target to preprocess a source file
+sst_counter.cpp.i:
+	$(MAKE) -f CMakeFiles/libsst_counterSST.so.dir/build.make CMakeFiles/libsst_counterSST.so.dir/sst_counter.cpp.i
+.PHONY : sst_counter.cpp.i
+
+sst_counter.s: sst_counter.cpp.s
+
+.PHONY : sst_counter.s
+
+# target to generate assembly for a file
+sst_counter.cpp.s:
+	$(MAKE) -f CMakeFiles/libsst_counterSST.so.dir/build.make CMakeFiles/libsst_counterSST.so.dir/sst_counter.cpp.s
+.PHONY : sst_counter.cpp.s
 
 sysc_counter.o: sysc_counter.cpp.o
 
@@ -184,8 +224,12 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... sysc_counter_module.o"
 	@echo "... edit_cache"
+	@echo "... sysc_counter_module.o"
+	@echo "... libsst_counterSST.so"
+	@echo "... sst_counter.o"
+	@echo "... sst_counter.i"
+	@echo "... sst_counter.s"
 	@echo "... sysc_counter.o"
 	@echo "... sysc_counter.i"
 	@echo "... sysc_counter.s"
