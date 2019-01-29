@@ -29,8 +29,9 @@ int sc_main(int argc, char *argv[]) {
     bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
     serv_addr.sin_port = htons(portno);
 
-    while (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+    if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         perror("CHILD");
+        exit(-1);
     }
 
     // create an empty structure (null)
@@ -42,6 +43,8 @@ int sc_main(int argc, char *argv[]) {
         sc_start(1, SC_NS);
 
         m_data_in = recv_signal(m_buffer, sockfd);
+
+        std::cout << "CHILD PID: " << getpid() << ' ' << portno << '\n';
 
         clock = (int) (m_data_in["clock"]) % 2;
         enable = (int) m_data_in["enable"];

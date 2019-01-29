@@ -39,6 +39,7 @@ private:
     std::string m_sysc_counter1, m_sysc_counter2;
 
     // local variables
+    int done;
     std::vector<pid_t> pids;
     SST::Output m_output;
     json m_data_in;

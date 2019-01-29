@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="sstsysc"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="clang"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\;CMake Files\..\..\..\..\..\..\..\opt\;CMake Files\..\..\..\..\..\..\..\opt\systemc\;CMake Files\..\..\..\..\..\..\..\opt\systemc\lib\;CMake Files\..\..\..\..\..\..\..\opt\systemc\lib\cmake\;CMake Files\..\..\..\..\..\..\..\opt\systemc\lib\cmake\SystemCLanguage\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sysc_counter_module.o">
+				<Option output="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/sysc_counter_module.o" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/opt/systemc/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 sysc_counter_module.o"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="sysc_counter_module.o/fast">
+				<Option output="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/sysc_counter_module.o" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="clang"/>
+				<Compiler>
+					<Add directory="/opt/systemc/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 sysc_counter_module.o/fast"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/sysc_counter.cpp">
+			<Option target="sysc_counter_module.o"/>
+		</Unit>
+		<Unit filename="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/sysc_counter_tb.cpp">
+			<Option target="sysc_counter_module.o"/>
+		</Unit>
+		<Unit filename="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+		<Unit filename="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/../../../../../../../opt/systemc/lib/cmake/SystemCLanguage/SystemCLanguageConfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\systemc\lib\cmake\SystemCLanguage\"/>
+		</Unit>
+		<Unit filename="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/../../../../../../../opt/systemc/lib/cmake/SystemCLanguage/SystemCLanguageConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\systemc\lib\cmake\SystemCLanguage\"/>
+		</Unit>
+		<Unit filename="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/../../../../../../../opt/systemc/lib/cmake/SystemCLanguage/SystemCLanguageTargets-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\systemc\lib\cmake\SystemCLanguage\"/>
+		</Unit>
+		<Unit filename="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/../../../../../../../opt/systemc/lib/cmake/SystemCLanguage/SystemCLanguageTargets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\..\..\..\opt\systemc\lib\cmake\SystemCLanguage\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

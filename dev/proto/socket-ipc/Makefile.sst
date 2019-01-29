@@ -26,9 +26,11 @@ ${SYSC_OBJS}: ${OBJS}
 	${CXX} ${SYSC_FLAGS} -c $< -o $@
 
 ${SST_OBJS}: ${SST_SRCS}
-	${CXX} -v ${SST_FLAGS} ${SST_LDFLAGS} -o $@ $^
+	${CXX} ${SST_FLAGS} ${SST_LDFLAGS} -o $@ $^
 	sst-register counter counter_LIBDIR=$(CURDIR)
 
 clean:
 	find . \( -name "*.o" -o -name ${SST_OBJS} -o -name ${SYSC_OBJS} \) -type f -delete
+	find . -name "*.cmake" -type f -delete
+	rm -rf CMakeFiles CMakeCache.txt
 	sst-register -u sst_counter
