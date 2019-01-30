@@ -10,13 +10,25 @@ set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 add_executable(sysc_counter_module.o sysc_counter.cpp sysc_counter_tb.cpp)
 target_link_libraries(sysc_counter_module.o SystemC::systemc)
 
-# clang++ -std=c++1y -D__STDC_FORMAT_MACROS -fPIC -DHAVE_CONFIG_H -I/home/sabbir/local/sstcore-8.0.0/include -shared -fno-common -Wl,-undefined -Wl,dynamic_lookup -o libsst_counterSST.so sst_counter.cpp
-#add_compile_options(-D__STDC_FORMAT_MACROS -fPIC -DHAVE_CONFIG_H -I/home/sabbir/local/sstcore-8.0.0/include -shared -fno-common -Wl,-undefined -Wl,dynamic_lookup)
-#add_executable(libsst_counterSST.so sst_counter.cpp)
+set(SST_OBJ "libsst_counterSST.so")
+set(SST_SRC "sst_counter.cpp")
+set(SST_CONFIG /home/sabbir/local/sstcore-8.0.0/bin/sst-config)
+execute_process(
+        COMMAND ${SST_CONFIG} --ELEMENT_CXXFLAGS
+        OUTPUT_VARIABLE SST_FLAGS
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+        COMMAND ${SST_CONFIG} --ELEMENT_LDFLAGS
+        OUTPUT_VARIABLE SST_LDFLAGS
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+separate_arguments(SST_FLAGS)
+separate_arguments(SST_LDFLAGS)
 
 add_custom_target(
-        libsst_counterSST.so
+        ${SST_OBJ}
         ALL
-        DEPENDS sst_counter.cpp
-        COMMAND clang++ -std=c++1y -D__STDC_FORMAT_MACROS -fPIC -DHAVE_CONFIG_H -I/home/sabbir/local/sstcore-8.0.0/include -shared -fno-common -Wl,-undefined -Wl,dynamic_lookup -o libsst_counterSST.so sst_counter.cpp
+        DEPENDS ${SST_SRC}
+        COMMAND ${CMAKE_CXX_COMPILER} ${SST_FLAGS} ${SST_LDFLAGS} -o ${SST_OBJ} ${SST_SRC}
 )

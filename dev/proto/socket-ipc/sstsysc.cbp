@@ -27,6 +27,16 @@
 					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
 			<Target title="sysc_counter_module.o">
 				<Option output="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/sysc_counter_module.o" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc"/>
@@ -59,11 +69,11 @@
 					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="edit_cache">
+			<Target title="libsst_counterSST.so">
 				<Option working_dir="/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc"/>
 				<Option type="4"/>
 				<MakeCommands>
-					<Build command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<Build command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 libsst_counterSST.so"/>
 					<CompileFile command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/gmake -f &quot;/home/sabbir/projects/sysc-sst/dev/proto/socket-ipc/Makefile&quot;  VERBOSE=1 clean"/>
