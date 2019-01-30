@@ -39,10 +39,10 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /opt/clion-2018.2.5/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /usr/local/bin/cmake
 
 # The command to remove a file.
-RM = /opt/clion-2018.2.5/bin/cmake/linux/bin/cmake -E remove -f
+RM = /usr/local/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
@@ -59,7 +59,7 @@ CMAKE_BINARY_DIR = /home/sabbir/projects/sysc-sst/dev/proto/socket-ipc
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/opt/clion-2018.2.5/bin/cmake/linux/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/usr/local/bin/cmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -69,8 +69,8 @@ rebuild_cache/fast: rebuild_cache
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/opt/clion-2018.2.5/bin/cmake/linux/bin/ccmake -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/usr/local/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -136,33 +136,6 @@ libsst_counterSST.so/fast:
 	$(MAKE) -f CMakeFiles/libsst_counterSST.so.dir/build.make CMakeFiles/libsst_counterSST.so.dir/build
 .PHONY : libsst_counterSST.so/fast
 
-sst_counter.o: sst_counter.cpp.o
-
-.PHONY : sst_counter.o
-
-# target to build an object file
-sst_counter.cpp.o:
-	$(MAKE) -f CMakeFiles/libsst_counterSST.so.dir/build.make CMakeFiles/libsst_counterSST.so.dir/sst_counter.cpp.o
-.PHONY : sst_counter.cpp.o
-
-sst_counter.i: sst_counter.cpp.i
-
-.PHONY : sst_counter.i
-
-# target to preprocess a source file
-sst_counter.cpp.i:
-	$(MAKE) -f CMakeFiles/libsst_counterSST.so.dir/build.make CMakeFiles/libsst_counterSST.so.dir/sst_counter.cpp.i
-.PHONY : sst_counter.cpp.i
-
-sst_counter.s: sst_counter.cpp.s
-
-.PHONY : sst_counter.s
-
-# target to generate assembly for a file
-sst_counter.cpp.s:
-	$(MAKE) -f CMakeFiles/libsst_counterSST.so.dir/build.make CMakeFiles/libsst_counterSST.so.dir/sst_counter.cpp.s
-.PHONY : sst_counter.cpp.s
-
 sysc_counter.o: sysc_counter.cpp.o
 
 .PHONY : sysc_counter.o
@@ -227,9 +200,6 @@ help:
 	@echo "... edit_cache"
 	@echo "... sysc_counter_module.o"
 	@echo "... libsst_counterSST.so"
-	@echo "... sst_counter.o"
-	@echo "... sst_counter.i"
-	@echo "... sst_counter.s"
 	@echo "... sysc_counter.o"
 	@echo "... sysc_counter.i"
 	@echo "... sysc_counter.s"
