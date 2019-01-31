@@ -76,7 +76,7 @@ void sst_counter::setup() {
                 exit(-1);
             }
 
-            listen(m_sockfd, 5);
+            listen(m_sockfd, SOMAXCONN);
 
             m_clilen = sizeof(cli_addr);
 
