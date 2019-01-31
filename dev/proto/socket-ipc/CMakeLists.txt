@@ -11,7 +11,7 @@ add_executable(sysc_counter_module.o sysc_counter.cpp sysc_counter_tb.cpp)
 target_link_libraries(sysc_counter_module.o SystemC::systemc)
 
 set(SST_OBJ "libsst_counterSST.so")
-set(SST_SRC "sst_counter.cpp")
+set(SST_SRC "${PROJECT_SOURCE_DIR}/sst_counter.cpp")
 set(SST_CONFIG /home/sabbir/local/sstcore-8.0.0/bin/sst-config)
 execute_process(
         COMMAND ${SST_CONFIG} --ELEMENT_CXXFLAGS
