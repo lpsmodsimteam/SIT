@@ -4,7 +4,7 @@ default:
 	mkdir -p build && cd build && cmake .. && $(MAKE)
 
 run:
-	cd build && sst ../tests/counter.py
+	cd build && sst ../tests/${TEST}
 
 clean:
 	# remove all compiled objects
