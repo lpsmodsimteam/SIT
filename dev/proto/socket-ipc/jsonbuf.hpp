@@ -11,7 +11,7 @@ using json = nlohmann::json;
 // keep this just for dev
 #include <iostream>
 
-#define BUFSIZE 256
+#define BUFSIZE 1025
 
 template<typename T>
 std::string to_string(const T &value) {
@@ -35,8 +35,6 @@ void send_signal(const json &data, int sock_fd) {
 
 json recv_signal(char buffer[], int sock_fd) {
 
-    std::cout << buffer << ' ' << sock_fd << std::endl;
-
     if (sock_fd < 0) {
         perror("ERROR on accept");
     }
@@ -49,12 +47,14 @@ json recv_signal(char buffer[], int sock_fd) {
         perror("ERROR reading from socket");
     }
 
+    std::cout << buffer;
+
     try {
         return json::parse(buffer);
     } catch (json::parse_error &e) {
         std::cout << getpid() << ' ';
         perror("JSON PARSE ERROR");
-        exit(-1);
+//        exit(-1);
         // return json{};
     }
 

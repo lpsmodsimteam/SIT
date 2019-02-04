@@ -11,26 +11,26 @@
 
 int main(int argc, char *argv[]) {
 
-    int master_socket, new_socket, client_socket[30],
-            max_clients = 30, activity, valread, sd;
-    int max_sd;
-    struct sockaddr_in address;
+    struct sockaddr_in parent_addr;
 
-    char buffer[1025]; //data buffer of 1K
+    char m_buffer[1025]; //data m_buffer of 1K
 
     //set of socket descriptors
-    fd_set readfds;
+    fd_set read_fds;
 
     //a message
     std::string message("ECHO Daemon v1.0 \r\n");
 
-    //initialise all client_socket[] to 0 so not checked
+    int max_clients = 30;
+    int client_socket[max_clients];
+    // initialize all client_socket[] to 0 so not checked
     for (int i = 0; i < max_clients; i++) {
         client_socket[i] = 0;
     }
 
+    int master_sock;
     //create a master socket
-    if (!(master_socket = socket(AF_INET, SOCK_STREAM, 0))) {
+    if (!(master_sock = socket(AF_INET, SOCK_STREAM, 0))) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
@@ -38,41 +38,45 @@ int main(int argc, char *argv[]) {
     //set master socket to allow multiple connections ,
     //this is just a good habit, it will work without this
     int opt = 1;
-    if (setsockopt(master_socket, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
+    if (setsockopt(master_sock, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
                    sizeof(opt)) < 0) {
         perror("setsockopt");
         exit(EXIT_FAILURE);
     }
 
-    //type of socket created
-    address.sin_family = AF_INET;
-    address.sin_addr.s_addr = INADDR_ANY;
-    address.sin_port = htons(PORT);
+    // type of socket created
+    parent_addr.sin_family = AF_INET;
+    parent_addr.sin_addr.s_addr = INADDR_ANY;
+    parent_addr.sin_port = htons(PORT);
 
-    //bind the socket to localhost port 8888
-    if (bind(master_socket, (struct sockaddr *) &address, sizeof(address)) < 0) {
+    // bind the socket to localhost port 8888
+    if (bind(master_sock, (struct sockaddr *) &parent_addr, sizeof(parent_addr)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
-    printf("Listener on port %d \n", PORT);
+    printf("Listener on port %d\n", PORT);
 
     //try to specify maximum of 3 pending connections for the master socket
-    if (listen(master_socket, 3) < 0) {
+    if (listen(master_sock, 3) < 0) {
         perror("listen");
         exit(EXIT_FAILURE);
     }
 
     //accept the incoming connection
-    int addrlen = sizeof(address);
+    int addrlen = sizeof(parent_addr);
     puts("Waiting for connections ...");
+
+    int sd, max_sd;
+    int valread;
+    int new_socket;
 
     while (true) {
         //clear the socket set
-        FD_ZERO(&readfds);
+        FD_ZERO(&read_fds);
 
         //add master socket to set
-        FD_SET(master_socket, &readfds);
-        max_sd = master_socket;
+        FD_SET(master_sock, &read_fds);
+        max_sd = master_sock;
 
         //add child sockets to set
         for (int i = 0; i < max_clients; i++) {
@@ -80,37 +84,38 @@ int main(int argc, char *argv[]) {
             sd = client_socket[i];
 
             //if valid socket descriptor then add to read list
-            if (sd > 0)
-                FD_SET(sd, &readfds);
+            if (sd > 0) {
+                FD_SET(sd, &read_fds);
+            }
 
             //highest file descriptor number, need it for the select function
-            if (sd > max_sd)
+            if (sd > max_sd) {
                 max_sd = sd;
+            }
         }
 
-        //wait for an activity on one of the sockets , timeout is nullptr ,
-        //so wait indefinitely
-        activity = select(max_sd + 1, &readfds, nullptr, nullptr, nullptr);
-
-        if ((activity < 0) && (errno != EINTR)) {
+        // wait for an activity on one of the sockets , timeout is nullptr ,
+        // so wait indefinitely
+        if ((select(max_sd + 1, &read_fds, nullptr, nullptr, nullptr) < 0)
+            && (errno != EINTR)) {
             printf("select error");
         }
 
-        //If something happened on the master socket ,
-        //then its an incoming connection
-        if (FD_ISSET(master_socket, &readfds)) {
+        // If something happened on the master socket, then its an incoming connection
+        if (FD_ISSET(master_sock, &read_fds)) {
 
-            if ((new_socket = accept(master_socket, (struct sockaddr *) &address, (socklen_t * ) & addrlen)) < 0) {
+            if ((new_socket = accept(master_sock, (struct sockaddr *) &parent_addr,
+                                     (socklen_t * ) & addrlen)) < 0) {
                 perror("accept");
                 exit(EXIT_FAILURE);
             }
 
             //inform user of socket number - used in send and receive commands
             printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
-                   new_socket, inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+                   new_socket, inet_ntoa(parent_addr.sin_addr), ntohs(parent_addr.sin_port));
 
             //send new connection greeting message
-            if (send(new_socket, message.c_str(), message.length(), 0) != message.length()) {
+            if (write(new_socket, message.c_str(), message.length()) != message.length()) {
                 perror("send");
             }
 
@@ -133,32 +138,35 @@ int main(int argc, char *argv[]) {
         for (int i = 0; i < max_clients; i++) {
             sd = client_socket[i];
 
-            if (FD_ISSET(sd, &readfds)) {
+            if (FD_ISSET(sd, &read_fds)) {
                 //Check if it was for closing , and also read the
                 //incoming message
-                if (!(valread = read(sd, buffer, 1024))) {
+                if (!(valread = read(sd, m_buffer, 1024))) {
 
                     //Somebody disconnected, get his details and print
-                    getpeername(sd, (struct sockaddr *) &address, (socklen_t * ) & addrlen);
+                    getpeername(sd, (struct sockaddr *) &parent_addr, (socklen_t * ) & addrlen);
                     printf("Client disconnected, ip %s , port %d \n",
-                           inet_ntoa(address.sin_addr), ntohs(address.sin_port));
+                           inet_ntoa(parent_addr.sin_addr), ntohs(parent_addr.sin_port));
 
                     //Close the socket and mark as 0 in list for reuse
                     close(sd);
                     client_socket[i] = 0;
 
-                } else { //Echo back the message that came in
+                } else {  // Echo back the message that came in
 
-                    getpeername(sd, (struct sockaddr *) &address, (socklen_t * ) & addrlen);
+                    getpeername(sd, (struct sockaddr *) &parent_addr, (socklen_t * ) & addrlen);
                     printf("YO ip %s , port %d \n",
-                           inet_ntoa(address.sin_addr), ntohs(address.sin_port));
-                    buffer[valread] = '\0';
-                    send(sd, buffer, valread, 0);
+                           inet_ntoa(parent_addr.sin_addr), ntohs(parent_addr.sin_port));
+                    printf("BUF: %s\n", m_buffer);
+
+                    m_buffer[valread] = '\0';
+                    write(sd, m_buffer, valread);
 
                 }
 
             }
         }
+
     }
 
     return 0;

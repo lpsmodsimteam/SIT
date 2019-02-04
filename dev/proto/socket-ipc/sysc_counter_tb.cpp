@@ -20,7 +20,7 @@ int sc_main(int argc, char *argv[]) {
 
     char m_buffer[BUFSIZE];
     uint16_t portno = (uint16_t) std::stoi(argv[1]);
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     struct hostent *server = gethostbyname("work-vm01");
     struct sockaddr_in serv_addr{};
 
@@ -29,7 +29,7 @@ int sc_main(int argc, char *argv[]) {
     bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
     serv_addr.sin_port = htons(portno);
 
-    if (connect(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+    if (connect(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         perror("CHILD");
         exit(-1);
     }
@@ -38,29 +38,47 @@ int sc_main(int argc, char *argv[]) {
     json m_data_in;
     json m_data_out;
 
-    do {
+    std::cout << "CHILD PID: " << getpid() << '\n';
+
+//    do {
 
         sc_start(1, SC_NS);
 
-        m_data_in = recv_signal(m_buffer, sockfd);
+        if (sock_fd < 0) {
+            perror("ERROR on accept");
+        }
 
-        std::cout << "CHILD PID: " << getpid() << ' ' << portno << '\n';
+        // reset buffer
+        bzero(m_buffer, BUFSIZE);
 
-        clock = (int) (m_data_in["clock"]) % 2;
-        enable = (int) m_data_in["enable"];
-        reset = (int) m_data_in["reset"];
+        int valread;
 
-        m_data_out["counter_out"] = to_string(counter_out);
+        // read buffer from child process
+        if ((valread = read(sock_fd, m_buffer, BUFSIZE - 1)) < 0) {
+            perror("ERROR reading from socket");
+        }
 
-        send_signal(m_data_out, sockfd);
+        std::cout << getpid() << ' ' << m_buffer;
 
-        std::cout << "@" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
-                  " clock: " << clock << " enable: " << m_data_in["enable"]
-                  << " reset: " << m_data_in["reset"] << std::endl;
+        write(sock_fd, "HOHO Daemon v1.0 \r\n", valread);
+//        m_data_in = recv_signal(m_buffer, sock_fd);
+//
+//
+//        clock = (int) (m_data_in["clock"]) % 2;
+//        enable = (int) m_data_in["enable"];
+//        reset = (int) m_data_in["reset"];
+//
+//        m_data_out["counter_out"] = to_string(counter_out);
+//
+//        send_signal(m_data_out, sock_fd);
+//
+//        std::cout << "@" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
+//                  " clock: " << clock << " enable: " << m_data_in["enable"]
+//                  << " reset: " << m_data_in["reset"] << std::endl;
 
-    } while (m_data_in["on"]);
+//    } while (m_data_in["on"]);
 
-    close(sockfd);
+    close(sock_fd);
 
     return 0;  // Terminate simulation
 
