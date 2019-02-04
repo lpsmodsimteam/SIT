@@ -36,7 +36,7 @@ private:
 
     // parameters
     uint16_t m_port;
-    std::string m_sysc_counter1, m_sysc_counter2;
+    std::string m_sysc_counter;
 
     // local variables
     int done;

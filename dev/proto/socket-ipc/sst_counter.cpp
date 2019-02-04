@@ -14,7 +14,7 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
     m_output.init("module-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
     m_port = params.find<uint16_t>("port", 2000);
-    m_sysc_counter1 = params.find<std::string>("sysc_counter", "");
+    m_sysc_counter = params.find<std::string>("sysc_counter", "");
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_counter>(this, &sst_counter::tick));
@@ -38,13 +38,13 @@ void sst_counter::setup() {
 
     done = 0;
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 1; i++) {
 
         pids.push_back(fork());
 
         if (!pids.back()) {
 
-            char *args[] = {&m_sysc_counter1[0u], &(to_string(m_port + i))[0u], nullptr};
+            char *args[] = {&m_sysc_counter[0u], &(to_string(m_port + i))[0u], nullptr};
             m_output.verbose(
                     CALL_INFO, 1, 0,
                     "Forking process %s (pid: %d) on port: %d: \n", args[0],
@@ -52,12 +52,6 @@ void sst_counter::setup() {
             execvp(args[0], args);
 
         } else {
-
-//            std::cout << "PARENT PID: " << getpid() << " SIZE:" << pids.size() << " PIDS: ";
-//            for (auto j = pids.begin(); j != pids.end(); ++j) {
-//                std::cout << *j << ' ';
-//            }
-//            std::cout << '\n';
 
             m_sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -108,12 +102,6 @@ void sst_counter::finish() {
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
 bool sst_counter::tick(SST::Cycle_t current_cycle) {
-
-//    std::cout << "PARENT PID: " << getpid() << " SIZE:" << pids.size() << " PIDS: ";
-//    for (auto j = pids.begin(); j != pids.end(); ++j) {
-//        std::cout << *j << ' ';
-//    }
-//    std::cout << '\n';
 
     if (done) {
 
