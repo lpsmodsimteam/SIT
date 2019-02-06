@@ -31,27 +31,21 @@ sst_counter::~sst_counter() {
 //    close(m_sockfd);
 }
 
-// setup is called by SST after a component has been constructed and should be used
-// for initialization of variables
-void sst_counter::setup() {
-
-    m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
+int sst_counter::init_socks() {
 
     m_num_procs = 4;
 
-//    add new socket to array of sockets
+    // add new socket to array of sockets
     for (int i = 0; i < m_num_procs; i++) {
 
         m_client_socks[i] = {
+                {"proc", m_procs[i]},
                 {"fd",   0},
                 {"port", 0},
                 {"pid",  0}
         };
 
     }
-
-    //a message
-    std::string message("STOP");
 
     //create a master socket
     if (!(m_master_sock = socket(AF_INET, SOCK_STREAM, 0))) {
@@ -85,36 +79,20 @@ void sst_counter::setup() {
         perror("listen");
         exit(EXIT_FAILURE);
     }
-
     // accept the incoming connection
+    printf("Waiting for connections...\n");
+
+    return EXIT_SUCCESS;
+
+}
+
+int sst_counter::sync_procs() {
+
+
     int addrlen = sizeof(m_addr);
-    puts("Waiting for connections ...");
-
-    ///////////////////////////////////////////////
-
-
-    for (int i = 0; i < m_num_procs; i++) {
-
-        m_pids.push_back(fork());
-
-        if (!m_pids.back()) {
-
-            char *args[] = {&m_sysc_counter[0u], &(to_string(m_port))[0u], nullptr};
-            m_output.verbose(CALL_INFO, 1, 0,
-                             "Forking process %s (pid: %d)\n", args[0], getpid());
-            execvp(args[0], args);
-
-        }
-    }
-
-
-    //////////////////////////////////////////////
-
     int sd, max_sd;
     int valread;
     int connected_procs = 0;
-
-    std::cout << m_client_socks << std::endl;
 
     while (connected_procs < m_num_procs) {
 
@@ -158,29 +136,26 @@ void sst_counter::setup() {
             }
 
             //inform user of socket number - used in send and receive commands
-            printf("New connection , socket fd is %d , ip is : %s , port : %d\n",
-                   m_new_sock, inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
+            std::string ip = inet_ntoa(m_addr.sin_addr);
+            int port = ntohs(m_addr.sin_port);
+            printf("New connection: socket fd=%d, port=%s:%d\n", m_new_sock, ip.c_str(), port);
+            getpeername(m_new_sock, (struct sockaddr *) &m_addr, (socklen_t * ) & addrlen);
 
             if (!(valread = read(m_new_sock, m_buffer, BUFSIZE))) {
 
                 //Somebody disconnected, get his details and print
-                getpeername(m_new_sock, (struct sockaddr *) &m_addr, (socklen_t * ) & addrlen);
-                printf("Client disconnected, ip %s , port %d \n",
-                       inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
+                printf("Client disconnected, ip %s:%d\n", ip.c_str(), port);
 
                 //Close the socket and mark as 0 in list for reuse
                 close(m_new_sock);
                 m_client_socks[connected_procs]["fd"] = 0;
 
-
             } else {
 
-                getpeername(m_new_sock, (struct sockaddr *) &m_addr, (socklen_t * ) & addrlen);
                 m_buffer[valread] = '\0';
-                std::cout << m_buffer << std::endl;
 
                 m_client_socks[connected_procs]["fd"] = m_new_sock;
-                m_client_socks[connected_procs]["port"] = ntohs(m_addr.sin_port);
+                m_client_socks[connected_procs]["port"] = port;
                 m_client_socks[connected_procs]["pid"] = std::stoi(m_buffer);
                 connected_procs++;
 
@@ -193,57 +168,34 @@ void sst_counter::setup() {
     }
 
     std::cout << m_client_socks << std::endl;
-//    //else its some IO operation on some other socket
-//    int i = 0;
-//
-//    while (i < m_num_procs) {
-//
-//        sd = m_client_socks[i];
-//
-////        // If something happened on the master socket, then its an incoming connection
-////        if (FD_ISSET(m_master_sock, &m_read_fds)) {
-////
-////            //send new connection greeting message
-////            if (write(sd, message.c_str(), message.length()) != message.length()) {
-////                perror("send");
-////            }
-////
-////            printf("Welcome message sent successfully\n");
-////
-////        }
-//
-//        if (FD_ISSET(sd, &m_read_fds)) {
-//            printf("HERE NOW [%d]: %d\n", i, sd);
-//            //Check if it was for closing , and also read the
-//            //incoming message
-//            if (!(valread = read(sd, m_buffer, 1024))) {
-//
-//                //Somebody disconnected, get his details and print
-//                getpeername(sd, (struct sockaddr *) &m_addr, (socklen_t * ) & addrlen);
-//                printf("Client disconnected, ip %s , port %d \n",
-//                       inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
-//
-//                //Close the socket and mark as 0 in list for reuse
-//                close(sd);
-//                m_client_socks[i] = 0;
-//
-//            } else {  // Echo back the message that came in
-//
-//                getpeername(sd, (struct sockaddr *) &m_addr, (socklen_t * ) & addrlen);
-//                printf("YO ip %s , port %d \n",
-//                       inet_ntoa(m_addr.sin_addr), ntohs(m_addr.sin_port));
-//                printf("BUF: %s", m_buffer);
-//
-////                m_buffer[valread] = '\0';
-//                write(sd, message.c_str(), message.length());
-//                i++;
-//
-//            }
-//
-//        }
-//    }
 
-    //////////////////////////////////////////////
+
+    return EXIT_SUCCESS;
+}
+
+// setup is called by SST after a component has been constructed and should be used
+// for initialization of variables
+void sst_counter::setup() {
+
+    m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
+
+    init_socks();
+
+    for (int i = 0; i < m_num_procs; i++) {
+
+        m_pids.push_back(fork());
+
+        if (!m_pids.back()) {
+
+            char *args[] = {&m_sysc_counter[0u], &(to_string(m_port))[0u], nullptr};
+            m_output.verbose(CALL_INFO, 1, 0,
+                             "Forking process %s (pid: %d)\n", args[0], getpid());
+            execvp(args[0], args);
+
+        }
+    }
+
+    sync_procs();
 
 }
 
@@ -257,11 +209,6 @@ void sst_counter::finish() {
 // this function runs once every clock cycle
 bool sst_counter::tick(SST::Cycle_t current_cycle) {
 
-
-    ////////////////////////////////////////////
-
-
-    /////////////////////////////////////////////////
 
 //
 //    if (done) {

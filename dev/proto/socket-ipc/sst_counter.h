@@ -16,6 +16,10 @@ public:
 
     ~sst_counter();
 
+    int init_socks();
+
+    int sync_procs();
+
     void setup();
 
     void finish();
@@ -25,11 +29,11 @@ public:
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
             sst_counter, // class
-            "sst_counterSST", // element library
-            "sst_counter", // component
-            SST_ELI_ELEMENT_VERSION(1, 0, 0),
-            "Simple 4-bit Up-Counter Model with one clock",
-            COMPONENT_CATEGORY_UNCATEGORIZED
+    "sst_counterSST", // element library
+    "sst_counter", // component
+    SST_ELI_ELEMENT_VERSION(1, 0, 0),
+    "Simple 4-bit Up-Counter Model with one clock",
+    COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
 private:
@@ -40,6 +44,7 @@ private:
 
     // socket variables
     int m_num_procs;
+    std::string m_procs[4] = {"main", "lol", "fsjkdf", "fdjksf"};
     json m_client_socks;
     struct sockaddr_in m_addr;
     fd_set m_read_fds;  // set of socket descriptors

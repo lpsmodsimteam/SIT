@@ -40,45 +40,24 @@ int sc_main(int argc, char *argv[]) {
 
     std::cout << "CHILD PID: " << getpid() << '\n';
 
-//    do {
-
-    sc_start(1, SC_NS);
 
     if (sock_fd < 0) {
         perror("ERROR on accept");
     }
 
 
-    int valread;
     std::string pid = to_string(getpid());
     if (write(sock_fd, pid.c_str(), pid.size()) < 0) {
         perror("ERROR writing to socket");
     }
 
-//    while (!done) {
+//    int valread;
+//    while (m_data_in["on"]) {
 //
-//        std::cout << getpid() << " SENDING" << std::endl;
-//        valread = read(sock_fd, m_buffer, BUFSIZE - 1);
+//        sc_start(1, SC_NS);
 //
-//        // read buffer from child process
-//        if (valread < 0) {
-//            perror("ERROR reading from socket");
-//        } else if (!std::strcmp(m_buffer, "STOP")) {
-//
-//            std::cout << "STOPPING " << getpid() << ' ' << m_buffer << std::endl;
-//            // reset buffer
-//            bzero(m_buffer, BUFSIZE);
-//            done = 1;
-//
-//        }
-//
-//    }
-
-
-
 //        write(sock_fd, "HOHO Daemon v1.0 \r\n", valread);
 //        m_data_in = recv_signal(m_buffer, sock_fd);
-//
 //
 //        clock = (int) (m_data_in["clock"]) % 2;
 //        enable = (int) m_data_in["enable"];
@@ -91,8 +70,8 @@ int sc_main(int argc, char *argv[]) {
 //        std::cout << "@" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
 //                  " clock: " << clock << " enable: " << m_data_in["enable"]
 //                  << " reset: " << m_data_in["reset"] << std::endl;
-
-//    } while (m_data_in["on"]);
+//
+//    };
 
     close(sock_fd);
 

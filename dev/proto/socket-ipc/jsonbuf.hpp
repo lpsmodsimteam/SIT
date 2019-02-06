@@ -49,14 +49,12 @@ json recv_json(char buffer[], int sock_fd) {
         perror("ERROR reading from socket");
     }
 
-    std::cout << buffer;
-
     try {
         return json::parse(buffer);
     } catch (json::parse_error &e) {
         std::cout << getpid() << ' ';
         perror("JSON PARSE ERROR");
-//        exit(-1);
+        exit(-1);
         // return json{};
     }
 
