@@ -177,10 +177,11 @@ void sst_counter::setup() {
 
                 getpeername(m_new_sock, (struct sockaddr *) &m_addr, (socklen_t * ) & addrlen);
                 m_buffer[valread] = '\0';
+                std::cout << m_buffer << std::endl;
 
                 m_client_socks[connected_procs]["fd"] = m_new_sock;
                 m_client_socks[connected_procs]["port"] = ntohs(m_addr.sin_port);
-                m_client_socks[connected_procs]["pid"] = json::parse(m_buffer)["pid"];
+                m_client_socks[connected_procs]["pid"] = std::stoi(m_buffer);
                 connected_procs++;
 
             }

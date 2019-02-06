@@ -50,10 +50,10 @@ int sc_main(int argc, char *argv[]) {
 
 
     int valread;
-    int done = 0;
-    m_data_out["pid"] = to_string(getpid());
-    std::cout << "SENDING: " << m_data_out << std::endl;
-    send_json(m_data_out, sock_fd);
+    std::string pid = to_string(getpid());
+    if (write(sock_fd, pid.c_str(), pid.size()) < 0) {
+        perror("ERROR writing to socket");
+    }
 
 //    while (!done) {
 //
