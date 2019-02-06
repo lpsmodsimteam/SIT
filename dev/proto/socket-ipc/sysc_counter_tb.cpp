@@ -42,25 +42,41 @@ int sc_main(int argc, char *argv[]) {
 
 //    do {
 
-        sc_start(1, SC_NS);
+    sc_start(1, SC_NS);
 
-        if (sock_fd < 0) {
-            perror("ERROR on accept");
-        }
+    if (sock_fd < 0) {
+        perror("ERROR on accept");
+    }
 
-        // reset buffer
-        bzero(m_buffer, BUFSIZE);
 
-        int valread;
+    int valread;
+    int done = 0;
+    m_data_out["pid"] = to_string(getpid());
+    std::cout << "SENDING: " << m_data_out << std::endl;
+    send_json(m_data_out, sock_fd);
 
-        // read buffer from child process
-        if ((valread = read(sock_fd, m_buffer, BUFSIZE - 1)) < 0) {
-            perror("ERROR reading from socket");
-        }
+//    while (!done) {
+//
+//        std::cout << getpid() << " SENDING" << std::endl;
+//        valread = read(sock_fd, m_buffer, BUFSIZE - 1);
+//
+//        // read buffer from child process
+//        if (valread < 0) {
+//            perror("ERROR reading from socket");
+//        } else if (!std::strcmp(m_buffer, "STOP")) {
+//
+//            std::cout << "STOPPING " << getpid() << ' ' << m_buffer << std::endl;
+//            // reset buffer
+//            bzero(m_buffer, BUFSIZE);
+//            done = 1;
+//
+//        }
+//
+//    }
 
-        std::cout << getpid() << ' ' << m_buffer;
 
-        write(sock_fd, "HOHO Daemon v1.0 \r\n", valread);
+
+//        write(sock_fd, "HOHO Daemon v1.0 \r\n", valread);
 //        m_data_in = recv_signal(m_buffer, sock_fd);
 //
 //

@@ -38,16 +38,25 @@ private:
     uint16_t m_port;
     std::string m_sysc_counter;
 
+    // socket variables
+    int m_num_procs;
+    json m_client_socks;
+    struct sockaddr_in m_addr;
+    fd_set m_read_fds;  // set of socket descriptors
+
+    socklen_t m_clilen;
+    int m_master_sock, m_new_sock;
+    char m_buffer[BUFSIZE];
+
     // local variables
     int done;
-    std::vector<pid_t> pids;
+    std::vector<pid_t> m_pids;
+    std::vector<int> m_ports;
+    std::vector<int> m_sock_fds;
+
     SST::Output m_output;
-    json m_data_in;
-    json m_data_out;
-    struct sockaddr_in serv_addr, cli_addr;
-    socklen_t m_clilen;
-    int m_sockfd, m_newsockfd;
-    char m_buffer[BUFSIZE];
+    std::vector<json> m_data_in;
+    std::vector<json> m_data_out;
 
 };
 

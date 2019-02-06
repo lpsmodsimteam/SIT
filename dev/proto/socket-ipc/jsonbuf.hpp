@@ -23,17 +23,19 @@ std::string to_string(const T &value) {
 }
 
 
-void send_signal(const json &data, int sock_fd) {
+void send_json(const json &data, int sock_fd) {
 
     // convert JSON object to bytes to be transmitted via sockets
     std::string data_str = to_string(data);
+    std::cout << "CONVERTING: " << data_str << " SIZE: " << data_str.size() << std::endl;
+
     if (write(sock_fd, data_str.c_str(), data_str.size()) < 0) {
         perror("ERROR writing to socket");
     }
 
 }
 
-json recv_signal(char buffer[], int sock_fd) {
+json recv_json(char buffer[], int sock_fd) {
 
     if (sock_fd < 0) {
         perror("ERROR on accept");
