@@ -87,8 +87,7 @@ int sst_counter::init_socks() {
 }
 
 int sst_counter::sync_procs() {
-
-
+    
     int addrlen = sizeof(m_addr);
     int sd, max_sd;
     int valread;
@@ -210,60 +209,60 @@ void sst_counter::finish() {
 bool sst_counter::tick(SST::Cycle_t current_cycle) {
 
 
-//
-//    if (done) {
-//
-//        // ---------------- SYSTEMC MODULE TESTBENCH ----------------
-//
-//        // assign SST clock to SystemC clock
-//        m_data_out["clock"] = current_cycle;
-//
-//        // set reset to 1 at 4 ns
-//        if (current_cycle == 4) {
-//            std::cout << "RESET ON" << std::endl;
-//            m_data_out["reset"] = 1;
-//        }
-//
-//        // set reset to 0 at 8 ns
-//        if (current_cycle == 8) {
-//            std::cout << "RESET OFF" << std::endl;
-//            m_data_out["reset"] = 0;
-//        }
-//
-//        // set enable to 1 at 12 ns
-//        if (current_cycle == 12) {
-//            std::cout << "ENABLE ON" << std::endl;
-//            m_data_out["enable"] = 1;
-//        }
-//
-//        // set enable to 0 at 50 ns
-//        if (current_cycle == 50) {
-//            std::cout << "ENABLE OFF" << std::endl;
-//            m_data_out["enable"] = 0;
-//        }
-//
-//        // turn module off at 52 ns
-//        if (current_cycle == 52) {
-//            std::cout << "MODULE OFF" << std::endl;
-//            m_data_out["on"] = false;
-//        }
-//
-//        // ---------------- SOCKET COMMUNICATION ----------------
-//
-//        // ---------------- WRITE DATA ----------------
-//        send_signal(m_data_out, m_newsockfd);
-//
-//        // if module is on, dump the JSON object buffer
-//        if (m_data_out["on"]) {
-//
-//            // ---------------- READ DATA ----------------
-//            m_data_in = recv_signal(m_buffer, m_newsockfd);
-//
-//            m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n",
-//                             std::string(m_data_in["counter_out"]).c_str());
-//
-//        }
-//    }
+
+    if (done) {
+
+        // ---------------- SYSTEMC MODULE TESTBENCH ----------------
+
+        // assign SST clock to SystemC clock
+        m_data_out["clock"] = current_cycle;
+
+        // set reset to 1 at 4 ns
+        if (current_cycle == 4) {
+            std::cout << "RESET ON" << std::endl;
+            m_data_out["reset"] = 1;
+        }
+
+        // set reset to 0 at 8 ns
+        if (current_cycle == 8) {
+            std::cout << "RESET OFF" << std::endl;
+            m_data_out["reset"] = 0;
+        }
+
+        // set enable to 1 at 12 ns
+        if (current_cycle == 12) {
+            std::cout << "ENABLE ON" << std::endl;
+            m_data_out["enable"] = 1;
+        }
+
+        // set enable to 0 at 50 ns
+        if (current_cycle == 50) {
+            std::cout << "ENABLE OFF" << std::endl;
+            m_data_out["enable"] = 0;
+        }
+
+        // turn module off at 52 ns
+        if (current_cycle == 52) {
+            std::cout << "MODULE OFF" << std::endl;
+            m_data_out["on"] = false;
+        }
+
+        // ---------------- SOCKET COMMUNICATION ----------------
+
+        // ---------------- WRITE DATA ----------------
+        send_json(m_data_out, m_newsockfd);
+
+        // if module is on, dump the JSON object buffer
+        if (m_data_out["on"]) {
+
+            // ---------------- READ DATA ----------------
+            m_data_in = recv_signal(m_buffer, m_newsockfd);
+
+            m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n",
+                             std::string(m_data_in["counter_out"]).c_str());
+
+        }
+    }
 
     return false;
 

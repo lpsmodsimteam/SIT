@@ -54,7 +54,6 @@ private:
     char m_buffer[BUFSIZE];
 
     // local variables
-    int done;
     std::vector<pid_t> m_pids;
     std::vector<int> m_ports;
     std::vector<int> m_sock_fds;

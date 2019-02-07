@@ -1,4 +1,0 @@
-var classSST_1_1Core_1_1Serialization_1_1serialize_3_01SST_1_1SparseVectorMap_3_01keyT_00_01classT_01_4_01_4 =
-[
-    [ "operator()", "classSST_1_1Core_1_1Serialization_1_1serialize_3_01SST_1_1SparseVectorMap_3_01keyT_00_01classT_01_4_01_4.html#ab2e2a00c8bcd92007ecc96ced3983ba2", null ]
-];
