@@ -47,31 +47,34 @@ int sc_main(int argc, char *argv[]) {
 
 
     std::string pid = to_string(getpid());
-    if (write(sock_fd, pid.c_str(), pid.size()) < 0) {
+    if (write(sock_fd, pid.c_str(), pid.size()) != pid.size()) {
         perror("ERROR writing to socket");
     }
 
-//    int valread;
-//    while (m_data_in["on"]) {
-//
-//        sc_start(1, SC_NS);
-//
-//        write(sock_fd, "HOHO Daemon v1.0 \r\n", valread);
-//        m_data_in = recv_signal(m_buffer, sock_fd);
-//
-//        clock = (int) (m_data_in["clock"]) % 2;
-//        enable = (int) m_data_in["enable"];
-//        reset = (int) m_data_in["reset"];
-//
-//        m_data_out["counter_out"] = to_string(counter_out);
-//
-//        send_signal(m_data_out, sock_fd);
-//
-//        std::cout << "@" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
-//                  " clock: " << clock << " enable: " << m_data_in["enable"]
-//                  << " reset: " << m_data_in["reset"] << std::endl;
-//
-//    };
+//    m_data_in = recv_json(m_buffer, sock_fd);
+//    std::cout << "GOT EM " << m_data_in << std::endl;
+
+    do {
+
+        sc_start(1, SC_NS);
+
+        m_data_in = recv_json(m_buffer, sock_fd);
+
+        clock = (int) (m_data_in["clock"]) % 2;
+        enable = (int) m_data_in["enable"];
+        reset = (int) m_data_in["reset"];
+
+        m_data_out["counter_out"] = to_string(counter_out);
+
+        send_json(m_data_out, sock_fd);
+
+        printf("YO\n");
+
+        std::cout << "@" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
+                  " clock: " << clock << " enable: " << m_data_in["enable"]
+                  << " reset: " << m_data_in["reset"] << std::endl;
+
+    } while (m_data_in["on"]);
 
     close(sock_fd);
 

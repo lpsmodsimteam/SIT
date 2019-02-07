@@ -44,8 +44,8 @@ private:
 
     // socket variables
     int m_num_procs;
-    std::string m_procs[4] = {"main", "lol", "fsjkdf", "fdjksf"};
-    json m_client_socks;
+    std::string m_proc_names[4] = {"main", "lol", "fsjkdf", "fdjksf"};
+    json m_procs;
     struct sockaddr_in m_addr;
     fd_set m_read_fds;  // set of socket descriptors
 
@@ -59,8 +59,8 @@ private:
     std::vector<int> m_sock_fds;
 
     SST::Output m_output;
-    std::vector<json> m_data_in;
-    std::vector<json> m_data_out;
+    json m_data_in;
+    json m_data_out;
 
 };
 

@@ -53,7 +53,6 @@ SC_MODULE (sysc_counter) {
     } // End of Constructor
 
     ~sysc_counter() override {
-//        printf("CALLING DESTRUCTOR\n");
         std::cout << getpid() << " CALLING DESTRUCTOR\n";
     }
 

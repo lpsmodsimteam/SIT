@@ -27,9 +27,9 @@ void send_json(const json &data, int sock_fd) {
 
     // convert JSON object to bytes to be transmitted via sockets
     std::string data_str = to_string(data);
-    std::cout << "CONVERTING: " << data_str << " SIZE: " << data_str.size() << std::endl;
+    ulong buf_size = data_str.size();
 
-    if (write(sock_fd, data_str.c_str(), data_str.size()) < 0) {
+    if (write(sock_fd, data_str.c_str(), buf_size) != buf_size) {
         perror("ERROR writing to socket");
     }
 
@@ -37,26 +37,19 @@ void send_json(const json &data, int sock_fd) {
 
 json recv_json(char buffer[], int sock_fd) {
 
-    if (sock_fd < 0) {
-        perror("ERROR on accept");
+    ssize_t valread = read(sock_fd, buffer, BUFSIZE);
+    if (valread > 0) {
+        buffer[valread] = '\0';
+        try {
+            return json::parse(buffer);
+        } catch (json::parse_error &e) {
+            perror("JSON PARSE ERROR");
+            return json{};
+        }
     }
 
-    // reset buffer
-    bzero(buffer, BUFSIZE);
-
-    // read buffer from child process
-    if (read(sock_fd, buffer, BUFSIZE - 1) < 0) {
-        perror("ERROR reading from socket");
-    }
-
-    try {
-        return json::parse(buffer);
-    } catch (json::parse_error &e) {
-        std::cout << getpid() << ' ';
-        perror("JSON PARSE ERROR");
-        exit(-1);
-        // return json{};
-    }
+    printf("YOOOOOOOOOOOOOOOOO %zd\n", valread);
+//    return json{};
 
 }
 
