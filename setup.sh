@@ -2,7 +2,6 @@
 set -o errexit
 
 archive_dir='archives'
-sysc_min_ver=3
 systemc='systemc-2.3.3.gz'
 sst_ver='v8.0.0_Final/'
 sst_core=$sst_ver'sstcore-8.0.0.tar.gz'
