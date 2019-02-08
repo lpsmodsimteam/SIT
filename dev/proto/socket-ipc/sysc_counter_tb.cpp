@@ -52,7 +52,7 @@ int sc_main(int argc, char *argv[]) {
     }
 
 //    m_data_in = recv_json(m_buffer, sock_fd);
-    bool flag = false;
+    bool flag;
 
     try {
 
@@ -64,9 +64,9 @@ int sc_main(int argc, char *argv[]) {
 
 //            std::cout << getpid() << " GOT DATA " << m_data_in << std::endl;
             flag = m_data_in["on"].get<bool>();
-            clock = (int) (m_data_in["clock"]) % 2;
-            enable = (int) m_data_in["enable"];
-            reset = (int) m_data_in["reset"];
+            clock = (m_data_in["clock"].get<int>()) % 2;
+            enable = m_data_in["enable"].get<int>();
+            reset = m_data_in["reset"].get<int>();
 
             m_data_out["counter_out"] = to_string(counter_out);
 
@@ -76,13 +76,14 @@ int sc_main(int argc, char *argv[]) {
             std::cout << getpid() << " @" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
                       " clock: " << clock << " enable: " << m_data_in["enable"]
                       << " reset: " << m_data_in["reset"] << std::endl;
-            m_data_in.clear();
+            m_data_in = json{};
+            std::cout << getpid() << " @" << sc_time_stamp() << " buffer cleared: " << m_data_in << std::endl;
 
         } while (flag);
 
     } catch (json::type_error &e) {
 
-        std::cout << getpid() << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
+        std::cout << RED << getpid() << DEF << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
 
     }
 

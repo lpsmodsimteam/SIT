@@ -10,6 +10,11 @@ using json = nlohmann::json;
 
 // keep this just for dev
 #include <iostream>
+#include "cprint.hpp"
+
+Color::Modifier RED(Color::FG_RED);
+Color::Modifier BLUE(Color::FG_BLUE);
+Color::Modifier DEF(Color::FG_DEFAULT);
 
 #define BUFSIZE 1025
 
@@ -53,7 +58,8 @@ json recv_json(char buffer[], int sock_fd) {
 
         } catch (json::parse_error &e) {
 
-            std::cout << getpid() << " JSON PARSE ERROR " << e.what() << buffer << std::endl;
+            std::cout << BLUE << getpid() << DEF << " JSON PARSE ERROR " << e.what() << buffer << std::endl;
+            bzero(buffer, BUFSIZE);
             return json{};
 
         } catch (json::type_error &e) {

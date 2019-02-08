@@ -33,12 +33,14 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
 sst_counter::~sst_counter() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Closing master socket %d...\n", m_master_sock);
+    shutdown(m_master_sock, SHUT_RDWR);
     close(m_master_sock);
 
     int fd;
     for (int i = 0; i < m_num_procs; i++) {
         fd = m_procs[i][FD_STR].get<int>();
         m_output.verbose(CALL_INFO, 1, 0, "Closing child socket %d...\n", fd);
+        shutdown(fd, SHUT_RDWR);
         close(fd);
     }
 }
@@ -176,6 +178,7 @@ int sst_counter::sync_procs() {
                 m_data_out["reset"] = 0;
 
                 send_json(m_data_out, m_new_sock);
+                m_data_out.clear();
 
             }
 
@@ -234,7 +237,7 @@ bool sst_counter::tick(SST::Cycle_t current_cycle) {
 
 //        if (!m_procs[proc][PROC_STR].get<std::string>().compare("main")) {
 
-        // ---------------- SYSTEMC MODULE TESTBENCH ----------------
+        /* ---------------- SYSTEMC MODULE TESTBENCH ---------------- */
 
         m_data_out["on"] = true;
         m_data_out["enable"] = 0;
@@ -302,13 +305,20 @@ bool sst_counter::tick(SST::Cycle_t current_cycle) {
 
             }
 
-            m_data_out.clear();
-
         } catch (json::type_error &e) {
 
             std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out << std::endl;
 
         }
+
+        m_data_out.clear();
+        std::cout << "Master buffer cleared: " << m_data_out << std::endl;
+//        } else {
+//            m_data_out["on"] = false;
+//            send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
+//            m_data_out = json{};
+//
+//        }
 
     }
 
