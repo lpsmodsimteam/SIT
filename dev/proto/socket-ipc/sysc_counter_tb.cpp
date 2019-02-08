@@ -52,27 +52,40 @@ int sc_main(int argc, char *argv[]) {
     }
 
 //    m_data_in = recv_json(m_buffer, sock_fd);
+    bool flag = false;
 
-    do {
+    try {
 
-//        std::cout << "GOT EM " << m_data_in << std::endl;
-        sc_start(1, SC_NS);
+        do {
 
-        m_data_in = recv_json(m_buffer, sock_fd);
+            sc_start(1, SC_NS);
 
-        clock = (int) (m_data_in["clock"]) % 2;
-        enable = (int) m_data_in["enable"];
-        reset = (int) m_data_in["reset"];
+            m_data_in = recv_json(m_buffer, sock_fd);
 
-        m_data_out["counter_out"] = to_string(counter_out);
+//            std::cout << getpid() << " GOT DATA " << m_data_in << std::endl;
+            flag = m_data_in["on"].get<bool>();
+            clock = (int) (m_data_in["clock"]) % 2;
+            enable = (int) m_data_in["enable"];
+            reset = (int) m_data_in["reset"];
 
-        send_json(m_data_out, sock_fd);
+            m_data_out["counter_out"] = to_string(counter_out);
 
-        std::cout << getpid() << " @" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
-                  " clock: " << clock << " enable: " << m_data_in["enable"]
-                  << " reset: " << m_data_in["reset"] << std::endl;
+            send_json(m_data_out, sock_fd);
+            m_data_out.clear();
 
-    } while (m_data_in["on"]);
+            std::cout << getpid() << " @" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
+                      " clock: " << clock << " enable: " << m_data_in["enable"]
+                      << " reset: " << m_data_in["reset"] << std::endl;
+            m_data_in.clear();
+
+        } while (flag);
+
+    } catch (json::type_error &e) {
+
+        std::cout << getpid() << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
+
+    }
+
 
     close(sock_fd);
 

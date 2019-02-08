@@ -29,10 +29,14 @@ void send_json(const json &data, int sock_fd) {
     std::string data_str = to_string(data);
     ulong buf_size = data_str.size();
 
+//    std::cout << getpid() << " SENDING BEFORE: " << data_str << std::endl;
     if (write(sock_fd, data_str.c_str(), buf_size) != buf_size) {
         perror("ERROR writing to socket");
-//        std::cout << data_str << std::endl;
     }
+
+//    data.clear();
+    data_str.clear();
+//    std::cout << getpid() << " SENDING AFTER: " << data_str << std::endl;
 
 }
 
@@ -49,15 +53,12 @@ json recv_json(char buffer[], int sock_fd) {
 
         } catch (json::parse_error &e) {
 
-            bzero(buffer, BUFSIZE);
-            std::cout << getpid() << " JSON PARSE ERROR" << std::endl;
-            perror("JSON PARSE ERROR");
+            std::cout << getpid() << " JSON PARSE ERROR " << e.what() << buffer << std::endl;
             return json{};
 
         } catch (json::type_error &e) {
 
-            std::cout << getpid() << " TYPE ERROR " << buffer << std::endl;
-            perror("TYPE ERROR");
+            std::cout << getpid() << " JSON TYPE ERROR " << e.what() << buffer << std::endl;
             return json{};
 
         }
