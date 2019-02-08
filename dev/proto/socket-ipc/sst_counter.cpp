@@ -7,6 +7,10 @@ Simple 4-bit Up-Counter Model with one clock
 #include <sst/core/sst_config.h>
 #include <arpa/inet.h> // inet_ntoa
 
+#define PROC_STR "proc"
+#define FD_STR "fd"
+#define PORT_STR "port"
+#define PID_STR "pid"
 
 // Component Constructor
 sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
@@ -33,16 +37,16 @@ sst_counter::~sst_counter() {
 
 int sst_counter::init_socks() {
 
-    m_num_procs = 4;
+    m_num_procs = 2;
 
     // add new socket to array of sockets
     for (int i = 0; i < m_num_procs; i++) {
 
         m_procs[i] = {
-                {"proc", m_proc_names[i]},
-                {"fd",   0},
-                {"port", 0},
-                {"pid",  0}
+                {PROC_STR, m_proc_names[i]},
+                {FD_STR,   0},
+                {PORT_STR, 0},
+                {PID_STR,  0}
         };
 
     }
@@ -105,7 +109,7 @@ int sst_counter::sync_procs() {
         //add child sockets to set
         for (int i = 0; i < m_num_procs; i++) {
             //socket descriptor
-            sd = m_procs[i]["fd"];
+            sd = m_procs[i][FD_STR];
 
             //if valid socket descriptor then add to read list
             if (sd > 0) {
@@ -147,18 +151,21 @@ int sst_counter::sync_procs() {
 
                 //Close the socket and mark as 0 in list for reuse
                 close(m_new_sock);
-                m_procs[connected_procs]["fd"] = 0;
+                m_procs[connected_procs][FD_STR] = 0;
 
             } else {
 
                 m_buffer[valread] = '\0';
 
-                m_procs[connected_procs]["fd"] = m_new_sock;
-                m_procs[connected_procs]["port"] = port;
-                m_procs[connected_procs]["pid"] = std::stoi(m_buffer);
+                m_procs[connected_procs][FD_STR] = m_new_sock;
+                m_procs[connected_procs][PORT_STR] = port;
+                m_procs[connected_procs][PID_STR] = std::stoi(m_buffer);
                 connected_procs++;
 
-                m_data_out["on"] = false;
+                m_data_out["on"] = true;
+                m_data_out["clock"] = 0;
+                m_data_out["enable"] = 0;
+                m_data_out["reset"] = 0;
 
                 send_json(m_data_out, m_new_sock);
 //                if (write(m_new_sock, m_data_out, BUFSIZE) != BUFSIZE) {
@@ -195,7 +202,8 @@ void sst_counter::setup() {
 
             char *args[] = {&m_sysc_counter[0u], &(to_string(m_port))[0u], nullptr};
             m_output.verbose(CALL_INFO, 1, 0,
-                             "Forking process %s (pid: %d)\n", args[0], getpid());
+                             "Forking process %s (pid: %d) as \"%s\"...\n", args[0], getpid(),
+                             m_proc_names[i].c_str());
             execvp(args[0], args);
 
         }
@@ -216,64 +224,69 @@ void sst_counter::finish() {
 bool sst_counter::tick(SST::Cycle_t current_cycle) {
 
     for (int proc = 0; proc < m_num_procs; proc++) {
-        if (!m_procs[proc]["proc"].get<std::string>().compare("main")) {
-            printf("AY\n");
-        }
-    }
+
+//        if (!m_procs[proc][PROC_STR].get<std::string>().compare("main")) {
+
+            // ---------------- SYSTEMC MODULE TESTBENCH ----------------
+
+            // assign SST clock to SystemC clock
+            m_data_out["clock"] = current_cycle;
+
+            // set reset to 1 at 4 ns
+            if (current_cycle == 4) {
+                std::cout << "RESET ON" << std::endl;
+                m_data_out["reset"] = 1;
+            }
+
+            // set reset to 0 at 8 ns
+            if (current_cycle == 8) {
+                std::cout << "RESET OFF" << std::endl;
+                m_data_out["reset"] = 0;
+            }
+
+            // set enable to 1 at 12 ns
+            if (current_cycle == 12) {
+                std::cout << "ENABLE ON" << std::endl;
+                m_data_out["enable"] = 1;
+            }
+
+            // set enable to 0 at 50 ns
+            if (current_cycle == 50) {
+                std::cout << "ENABLE OFF" << std::endl;
+                m_data_out["enable"] = 0;
+            }
+
+            // turn module off at 52 ns
+            if (current_cycle == 52) {
+                std::cout << "MODULE OFF" << std::endl;
+                m_data_out["on"] = false;
+            }
+
+            // ---------------- SOCKET COMMUNICATION ----------------
+
+            // ---------------- WRITE DATA ----------------
+            send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
+
+            // if module is on, dump the JSON object buffer
+            if (m_data_out["on"]) {
+
+                // ---------------- READ DATA ----------------
+                m_data_in = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
+
+                m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n",
+                                 std::string(m_data_in["counter_out"]).c_str());
+
+            }
+
+//        } else {
 //
-//    if (strcmp()) {
-//
-//        // ---------------- SYSTEMC MODULE TESTBENCH ----------------
-//
-//        // assign SST clock to SystemC clock
-//        m_data_out["clock"] = current_cycle;
-//
-//        // set reset to 1 at 4 ns
-//        if (current_cycle == 4) {
-//            std::cout << "RESET ON" << std::endl;
-//            m_data_out["reset"] = 1;
-//        }
-//
-//        // set reset to 0 at 8 ns
-//        if (current_cycle == 8) {
-//            std::cout << "RESET OFF" << std::endl;
-//            m_data_out["reset"] = 0;
-//        }
-//
-//        // set enable to 1 at 12 ns
-//        if (current_cycle == 12) {
-//            std::cout << "ENABLE ON" << std::endl;
-//            m_data_out["enable"] = 1;
-//        }
-//
-//        // set enable to 0 at 50 ns
-//        if (current_cycle == 50) {
-//            std::cout << "ENABLE OFF" << std::endl;
-//            m_data_out["enable"] = 0;
-//        }
-//
-//        // turn module off at 52 ns
-//        if (current_cycle == 52) {
-//            std::cout << "MODULE OFF" << std::endl;
 //            m_data_out["on"] = false;
+//
+//            send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
+
 //        }
-//
-//        // ---------------- SOCKET COMMUNICATION ----------------
-//
-//        // ---------------- WRITE DATA ----------------
-//        send_json(m_data_out, m_newsockfd);
-//
-//        // if module is on, dump the JSON object buffer
-//        if (m_data_out["on"]) {
-//
-//            // ---------------- READ DATA ----------------
-//            m_data_in = recv_signal(m_buffer, m_newsockfd);
-//
-//            m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n",
-//                             std::string(m_data_in["counter_out"]).c_str());
-//
-//        }
-//    }
+
+    }
 
     return false;
 

@@ -52,10 +52,10 @@ int sc_main(int argc, char *argv[]) {
     }
 
 //    m_data_in = recv_json(m_buffer, sock_fd);
-//    std::cout << "GOT EM " << m_data_in << std::endl;
 
     do {
 
+//        std::cout << "GOT EM " << m_data_in << std::endl;
         sc_start(1, SC_NS);
 
         m_data_in = recv_json(m_buffer, sock_fd);
@@ -68,9 +68,7 @@ int sc_main(int argc, char *argv[]) {
 
         send_json(m_data_out, sock_fd);
 
-        printf("YO\n");
-
-        std::cout << "@" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
+        std::cout << getpid() << " @" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
                   " clock: " << clock << " enable: " << m_data_in["enable"]
                   << " reset: " << m_data_in["reset"] << std::endl;
 

@@ -31,25 +31,50 @@ void send_json(const json &data, int sock_fd) {
 
     if (write(sock_fd, data_str.c_str(), buf_size) != buf_size) {
         perror("ERROR writing to socket");
+//        std::cout << data_str << std::endl;
     }
 
 }
 
 json recv_json(char buffer[], int sock_fd) {
 
-    ssize_t valread = read(sock_fd, buffer, BUFSIZE);
-    if (valread > 0) {
-        buffer[valread] = '\0';
+    ssize_t read_bytes = read(sock_fd, buffer, BUFSIZE);
+
+    if (read_bytes > 0) {
+
         try {
+
+            buffer[read_bytes] = '\0';
             return json::parse(buffer);
+
         } catch (json::parse_error &e) {
+
+            bzero(buffer, BUFSIZE);
+            std::cout << getpid() << " JSON PARSE ERROR" << std::endl;
             perror("JSON PARSE ERROR");
             return json{};
+
+        } catch (json::type_error &e) {
+
+            std::cout << getpid() << " TYPE ERROR " << buffer << std::endl;
+            perror("TYPE ERROR");
+            return json{};
+
         }
+
+    } else if (read_bytes < 0) {
+
+        std::cout << getpid() << " BUFFER READ ERROR" << std::endl;
+        perror("BUFFER READ ERROR");
+
+    } else {
+
+        std::cout << getpid() << " EMPTY BUFFER" << std::endl;
+        perror("EMPTY BUFFER");
+
     }
 
-    printf("YOOOOOOOOOOOOOOOOO %zd\n", valread);
-//    return json{};
+    return json{};
 
 }
 
