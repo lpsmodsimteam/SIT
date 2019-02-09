@@ -36,9 +36,8 @@ sst_counter::~sst_counter() {
     shutdown(m_master_sock, SHUT_RDWR);
     close(m_master_sock);
 
-    int fd;
     for (int i = 0; i < m_num_procs; i++) {
-        fd = m_procs[i][FD_STR].get<int>();
+        int fd = m_procs[i][FD_STR].get<int>();
         m_output.verbose(CALL_INFO, 1, 0, "Closing child socket %d...\n", fd);
         shutdown(fd, SHUT_RDWR);
         close(fd);
@@ -103,7 +102,7 @@ int sst_counter::init_socks() {
 int sst_counter::sync_procs() {
 
     int addrlen = sizeof(m_addr);
-    int sd, max_sd;
+    int sd;
     int valread;
     int connected_procs = 0;
 
@@ -114,7 +113,7 @@ int sst_counter::sync_procs() {
 
         //add master socket to set
         FD_SET(m_master_sock, &m_read_fds);
-        max_sd = m_master_sock;
+        int max_sd = m_master_sock;
 
         //add child sockets to set
         for (int i = 0; i < m_num_procs; i++) {
@@ -190,8 +189,8 @@ int sst_counter::sync_procs() {
 
     std::cout << m_procs << std::endl;
 
-
     return EXIT_SUCCESS;
+
 }
 
 // setup is called by SST after a component has been constructed and should be used

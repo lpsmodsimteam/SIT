@@ -18,7 +18,6 @@ int sc_main(int argc, char *argv[]) {
     sysc_counter.enable(enable);
     sysc_counter.counter_out(counter_out);
 
-    char m_buffer[BUFSIZE];
     uint16_t portno = (uint16_t) std::stoi(argv[1]);
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     struct hostent *server = gethostbyname("work-vm01");
@@ -52,11 +51,14 @@ int sc_main(int argc, char *argv[]) {
     }
 
 //    m_data_in = recv_json(m_buffer, sock_fd);
-    bool flag;
 
     try {
 
+        bool flag;
+
         do {
+
+            char m_buffer[BUFSIZE];
 
             sc_start(1, SC_NS);
 
