@@ -10,5 +10,5 @@ counterComponent.addParams({
     "sysc_counter": os.path.join(os.getcwd(), "sysc_counter_module.o"),
     "sysc_inverter": os.path.join(os.getcwd(), "sysc_inverter_module.o"),
     "port": "2000",  # socket port number
-    "num_procs": "2"  # socket port number
+    "num_procs": "2"  # number of child modules
 })

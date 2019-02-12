@@ -64,15 +64,15 @@ int sc_main(int argc, char *argv[]) {
             send_json(m_data_out, sock_fd);
             m_data_out.clear();
 
-            std::cout << getpid() << " @" << sc_time_stamp() << ": " << m_data_in["clock"] <<
-                      " clock: " << clock << " data_in: " << m_data_in["data_in"] << std::endl;
+            std::cout << "\033[33mINVERTER\033[0m (pid: " << getpid() << ") -> clock: " << clock << " | data_in: "
+                      << m_data_in["data_in"] << std::endl;
             m_data_in.clear();
 
         } while (flag);
 
     } catch (json::type_error &e) {
 
-        std::cout << RED << getpid() << DEF << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
+        std::cout << getpid() << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
 
     }
 

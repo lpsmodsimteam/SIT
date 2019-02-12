@@ -16,7 +16,8 @@ Simple 4-bit Up-Counter Model with one clock
 sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
 
     // Initialize output
-    m_output.init("\033[32mmodule-" + getName() + " -> \033[0m", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[32mmodule-" + getName() + "\033[0m (pid: " + to_string(getpid()) + ") -> ", 1, 0,
+                  SST::Output::STDOUT);
 
     m_port = params.find<uint16_t>("port", 2000);
     m_num_procs = params.find<int>("num_procs", 1);
@@ -236,6 +237,8 @@ void sst_counter::finish() {
 // this function runs once every clock cycle
 bool sst_counter::tick(SST::Cycle_t current_cycle) {
 
+    std::cout << "----------------------------------------------------" << std::endl;
+
     int counter_out = 0;
 
     for (int proc = 0; proc < m_num_procs; proc++) {
@@ -249,7 +252,7 @@ bool sst_counter::tick(SST::Cycle_t current_cycle) {
             // turn module off at 52 ns
             if (current_cycle >= 52) {
                 if (current_cycle == 52) {
-                    std::cout << "MODULE OFF" << std::endl;
+                    std::cout << "INVERTER MODULE OFF" << std::endl;
                 }
                 m_data_out["on"] = false;
             }
@@ -266,7 +269,7 @@ bool sst_counter::tick(SST::Cycle_t current_cycle) {
                     m_data_in = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
 
                     m_output.verbose(CALL_INFO, 1, 0, "Inverter: %d\n",
-                            std::stoi(m_data_in["data_out"].get<std::string>()));
+                                     std::stoi(m_data_in["data_out"].get<std::string>()));
                     m_data_in.clear();
 
                 }
@@ -323,7 +326,7 @@ bool sst_counter::tick(SST::Cycle_t current_cycle) {
             // turn module off at 52 ns
             if (current_cycle >= 52) {
                 if (current_cycle == 52) {
-                    std::cout << "MODULE OFF" << std::endl;
+                    std::cout << "COUNTER MODULE OFF" << std::endl;
                 }
                 m_data_out["on"] = false;
             }
@@ -360,6 +363,8 @@ bool sst_counter::tick(SST::Cycle_t current_cycle) {
         }
 
     }
+
+    std::cout << "----------------------------------------------------" << std::endl;
 
     return false;
 

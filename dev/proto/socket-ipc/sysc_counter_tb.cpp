@@ -18,7 +18,6 @@ int sc_main(int argc, char *argv[]) {
     sysc_counter.enable(enable);
     sysc_counter.data_out(data_out);
 
-    uint16_t portno = (uint16_t) std::stoi(argv[1]);
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
     struct hostent *server = gethostbyname("work-vm01");
     struct sockaddr_in serv_addr{};
@@ -26,7 +25,7 @@ int sc_main(int argc, char *argv[]) {
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
-    serv_addr.sin_port = htons(portno);
+    serv_addr.sin_port = htons((uint16_t) std::stoi(argv[1]));
 
     if (connect(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         perror("CHILD");
@@ -72,9 +71,8 @@ int sc_main(int argc, char *argv[]) {
             send_json(m_data_out, sock_fd);
             m_data_out.clear();
 
-            std::cout << getpid() << " @" << sc_time_stamp() << ":" << m_data_in["clock"] <<
-                      " clock: " << clock << " enable: " << m_data_in["enable"]
-                      << " reset: " << m_data_in["reset"] << std::endl;
+            std::cout << "\033[33mCOUNTER\033[0m (pid: " << getpid() << ") -> clock: " << clock << " | enable: "
+                      << m_data_in["enable"] << " | reset: " << m_data_in["reset"] << std::endl;
             m_data_in.clear();
 //            std::cout << getpid() << " @" << sc_time_stamp() << " buffer cleared: " << m_data_in << std::endl;
 
@@ -82,7 +80,7 @@ int sc_main(int argc, char *argv[]) {
 
     } catch (json::type_error &e) {
 
-        std::cout << RED << getpid() << DEF << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
+        std::cout << getpid() << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
 
     }
 
