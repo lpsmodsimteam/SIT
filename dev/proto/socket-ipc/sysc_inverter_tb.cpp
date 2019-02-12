@@ -1,4 +1,4 @@
-#include "sysc_counter.cpp"
+#include "sysc_inverter.cpp"
 
 #include "sstsysc.hpp"
 #include <systemc.h>
@@ -7,16 +7,13 @@
 int sc_main(int argc, char *argv[]) {
 
     sc_signal<bool> clock;
-    sc_signal<bool> reset;
-    sc_signal<bool> enable;
+    sc_signal<sc_uint<4> > data_in;
     sc_signal<sc_uint<4> > data_out;
 
     // Connect the DUT
-    sysc_counter sysc_counter("COUNTER");
-    sysc_counter.clock(clock);
-    sysc_counter.reset(reset);
-    sysc_counter.enable(enable);
-    sysc_counter.data_out(data_out);
+    sysc_inverter sysc_inverter("INVERTER");
+    sysc_inverter.clock(clock);
+    sysc_inverter.data_out(data_out);
 
     uint16_t portno = (uint16_t) std::stoi(argv[1]);
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -37,9 +34,6 @@ int sc_main(int argc, char *argv[]) {
     json m_data_in;
     json m_data_out;
 
-    std::cout << "CHILD PID: " << getpid() << '\n';
-
-
     if (sock_fd < 0) {
         perror("ERROR on accept");
     }
@@ -49,8 +43,6 @@ int sc_main(int argc, char *argv[]) {
     if (write(sock_fd, pid.c_str(), pid.size()) != pid.size()) {
         perror("ERROR writing to socket");
     }
-
-//    m_data_in = recv_json(m_buffer, sock_fd);
 
     try {
 
@@ -64,11 +56,9 @@ int sc_main(int argc, char *argv[]) {
 
             m_data_in = recv_json(m_buffer, sock_fd);
 
-//            std::cout << getpid() << " GOT DATA " << m_data_in << std::endl;
             flag = m_data_in["on"].get<bool>();
             clock = (m_data_in["clock"].get<int>()) % 2;
-            enable = m_data_in["enable"].get<int>();
-            reset = m_data_in["reset"].get<int>();
+            data_in = m_data_in["data_in"].get<int>();
 
             m_data_out["data_out"] = to_string(data_out);
 
@@ -76,9 +66,8 @@ int sc_main(int argc, char *argv[]) {
             m_data_out.clear();
 
             std::cout << getpid() << " @" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
-                      " clock: " << clock << " enable: " << m_data_in["enable"]
-                      << " reset: " << m_data_in["reset"] << std::endl;
-            m_data_in = json{};
+                      " clock: " << clock << " data_in: " << m_data_in["data_in"] << std::endl;
+            m_data_in.clear();
             std::cout << getpid() << " @" << sc_time_stamp() << " buffer cleared: " << m_data_in << std::endl;
 
         } while (flag);

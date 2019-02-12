@@ -39,7 +39,6 @@ void send_json(const json &data, int sock_fd) {
         perror("ERROR writing to socket");
     }
 
-//    data.clear();
     data_str.clear();
 //    std::cout << getpid() << " SENDING AFTER: " << data_str << std::endl;
 

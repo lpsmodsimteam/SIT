@@ -41,6 +41,7 @@ private:
     // parameters
     uint16_t m_port;
     std::string m_sysc_counter;
+    std::string m_sysc_inverter;
 
     // socket variables
     int m_num_procs;

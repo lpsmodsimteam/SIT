@@ -20,6 +20,7 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
 
     m_port = params.find<uint16_t>("port", 2000);
     m_sysc_counter = params.find<std::string>("sysc_counter", "");
+    m_sysc_inverter = params.find<std::string>("sysc_inverter", "");
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_counter>(this, &sst_counter::tick));
@@ -92,8 +93,9 @@ int sst_counter::init_socks() {
         perror("listen");
         exit(EXIT_FAILURE);
     }
+
     // accept the incoming connection
-    printf("Waiting for connections...\n");
+    std::cout << "Waiting for connections..." << std::endl;
 
     return EXIT_SUCCESS;
 

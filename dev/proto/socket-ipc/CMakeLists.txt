@@ -13,6 +13,8 @@ set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 
 add_executable(sysc_counter_module.o sysc_counter.cpp sysc_counter_tb.cpp)
 target_link_libraries(sysc_counter_module.o SystemC::systemc)
+add_executable(sysc_inverter_module.o sysc_inverter.cpp sysc_inverter_tb.cpp)
+target_link_libraries(sysc_inverter_module.o SystemC::systemc)
 
 set(SST_OBJ "libsst_counterSST.so")
 set(SST_SRC "${PROJECT_SOURCE_DIR}/sst_counter.cpp")
