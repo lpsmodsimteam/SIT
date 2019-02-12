@@ -44,7 +44,7 @@ SC_MODULE (sysc_counter) {
     // edge of the clock and also when ever reset changes state
     SC_CTOR(sysc_counter) {
 
-        cout << "Executing new" << endl;
+        std::cout << "INSTANTIATING COUNTER" << std::endl;
 
         SC_METHOD(incr_count);
         sensitive << reset;
@@ -53,7 +53,7 @@ SC_MODULE (sysc_counter) {
     } // End of Constructor
 
     ~sysc_counter() override {
-        std::cout << getpid() << " CALLING DESTRUCTOR\n";
+        std::cout << getpid() << " DESTROYING COUNTER" << std::endl;
     }
 
 }; // End of Module counter

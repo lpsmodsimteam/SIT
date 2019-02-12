@@ -12,7 +12,7 @@ int sc_main(int argc, char *argv[]) {
 
     // Connect the DUT
     sysc_inverter sysc_inverter("INVERTER");
-    sysc_inverter.clock(clock);
+    sysc_inverter.data_in(data_in);
     sysc_inverter.data_out(data_out);
 
     uint16_t portno = (uint16_t) std::stoi(argv[1]);
@@ -57,7 +57,6 @@ int sc_main(int argc, char *argv[]) {
             m_data_in = recv_json(m_buffer, sock_fd);
 
             flag = m_data_in["on"].get<bool>();
-            clock = (m_data_in["clock"].get<int>()) % 2;
             data_in = m_data_in["data_in"].get<int>();
 
             m_data_out["data_out"] = to_string(data_out);
@@ -65,10 +64,9 @@ int sc_main(int argc, char *argv[]) {
             send_json(m_data_out, sock_fd);
             m_data_out.clear();
 
-            std::cout << getpid() << " @" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
+            std::cout << getpid() << " @" << sc_time_stamp() << ": " << m_data_in["clock"] <<
                       " clock: " << clock << " data_in: " << m_data_in["data_in"] << std::endl;
             m_data_in.clear();
-            std::cout << getpid() << " @" << sc_time_stamp() << " buffer cleared: " << m_data_in << std::endl;
 
         } while (flag);
 

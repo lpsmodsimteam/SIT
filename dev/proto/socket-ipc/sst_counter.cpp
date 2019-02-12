@@ -16,9 +16,10 @@ Simple 4-bit Up-Counter Model with one clock
 sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
 
     // Initialize output
-    m_output.init("module-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[32mmodule-" + getName() + " -> \033[0m", 1, 0, SST::Output::STDOUT);
 
     m_port = params.find<uint16_t>("port", 2000);
+    m_num_procs = params.find<int>("num_procs", 1);
     m_sysc_counter = params.find<std::string>("sysc_counter", "");
     m_sysc_inverter = params.find<std::string>("sysc_inverter", "");
 
@@ -47,8 +48,6 @@ sst_counter::~sst_counter() {
 
 int sst_counter::init_socks() {
 
-    m_num_procs = 4;
-
     // add new socket to array of sockets
     for (int i = 0; i < m_num_procs; i++) {
 
@@ -61,14 +60,14 @@ int sst_counter::init_socks() {
 
     }
 
-    //create a master socket
+    // create a master socket
     if (!(m_master_sock = socket(AF_INET, SOCK_STREAM, 0))) {
         perror("socket failed");
         exit(EXIT_FAILURE);
     }
 
-    //set master socket to allow multiple connections ,
-    //this is just a good habit, it will work without this
+    // set master socket to allow multiple connections ,
+    // this is just a good habit, it will work without this
     const int opt = 1;
     if (setsockopt(m_master_sock, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
                    sizeof(opt)) < 0) {
@@ -144,7 +143,7 @@ int sst_counter::sync_procs() {
         if (FD_ISSET(m_master_sock, &m_read_fds)) {
 
             if ((m_new_sock = accept(m_master_sock, (struct sockaddr *) &m_addr,
-                                     (socklen_t * ) & addrlen)) < 0) {
+                                     (socklen_t *) &addrlen)) < 0) {
                 perror("accept");
                 exit(EXIT_FAILURE);
             }
@@ -152,15 +151,16 @@ int sst_counter::sync_procs() {
             //inform user of socket number - used in send and receive commands
             std::string ip = inet_ntoa(m_addr.sin_addr);
             int port = ntohs(m_addr.sin_port);
-            printf("New connection: socket fd=%d, port=%s:%d\n", m_new_sock, ip.c_str(), port);
-            getpeername(m_new_sock, (struct sockaddr *) &m_addr, (socklen_t * ) & addrlen);
+            std::cout << "New connection: fd=" << m_new_sock << ", port=" << ip.c_str() << ":" << port << std::endl;
+            getpeername(m_new_sock, (struct sockaddr *) &m_addr, (socklen_t *) &addrlen);
 
             if (!(valread = read(m_new_sock, m_buffer, BUFSIZE))) {
 
                 //Somebody disconnected, get his details and print
-                printf("Client disconnected, ip %s:%d\n", ip.c_str(), port);
+                std::cout << ip.c_str() << ":" << port << " disconnected" << std::endl;
 
-                //Close the socket and mark as 0 in list for reuse
+                // Close the socket and mark as 0 in list for reuse
+                shutdown(m_new_sock, SHUT_RDWR);
                 close(m_new_sock);
                 m_procs[connected_procs][FD_STR] = 0;
 
@@ -172,14 +172,6 @@ int sst_counter::sync_procs() {
                 m_procs[connected_procs][PORT_STR] = port;
                 m_procs[connected_procs][PID_STR] = std::stoi(m_buffer);
                 connected_procs++;
-
-                m_data_out["on"] = true;
-                m_data_out["clock"] = 0;
-                m_data_out["enable"] = 0;
-                m_data_out["reset"] = 0;
-
-                send_json(m_data_out, m_new_sock);
-                m_data_out.clear();
 
             }
 
@@ -203,15 +195,25 @@ void sst_counter::setup() {
 
     init_socks();
 
-    printf("Master pid: %d\n", getpid());
+    std::cout << "Master pid: " << getpid() << std::endl;
 
     for (int i = 0; i < m_num_procs; i++) {
 
-        m_pids.push_back(fork());
+        if (!fork()) {
 
-        if (!m_pids.back()) {
+            char *proc;
 
-            char *args[] = {&m_sysc_counter[0u], &(to_string(m_port))[0u], nullptr};
+            if (i == 1) {
+
+                proc = &m_sysc_inverter[0u];
+
+            } else {
+
+                proc = &m_sysc_counter[0u];
+
+            }
+
+            char *args[] = {proc, &(to_string(m_port))[0u], nullptr};
             m_output.verbose(CALL_INFO, 1, 0,
                              "Forking process %s (pid: %d) as \"%s\"...\n", args[0], getpid(),
                              m_proc_names[i].c_str());
@@ -234,92 +236,128 @@ void sst_counter::finish() {
 // this function runs once every clock cycle
 bool sst_counter::tick(SST::Cycle_t current_cycle) {
 
+    int counter_out = 0;
+
     for (int proc = 0; proc < m_num_procs; proc++) {
 
-//        if (!m_procs[proc][PROC_STR].get<std::string>().compare("main")) {
+        if (!m_procs[proc][PROC_STR].get<std::string>().compare("inverter")) {
 
-        /* ---------------- SYSTEMC MODULE TESTBENCH ---------------- */
+            m_data_out["clock"] = current_cycle;
+            m_data_out["on"] = true;
+            m_data_out["data_in"] = counter_out;
 
-        m_data_out["on"] = true;
-        m_data_out["enable"] = 0;
-        m_data_out["reset"] = 0;
-
-        // assign SST clock to SystemC clock
-        m_data_out["clock"] = current_cycle;
-
-        // set reset to 1 at 4 ns
-        if (current_cycle >= 4) {
-            if (current_cycle == 4) {
-                std::cout << "RESET ON" << std::endl;
+            // turn module off at 52 ns
+            if (current_cycle >= 52) {
+                if (current_cycle == 52) {
+                    std::cout << "MODULE OFF" << std::endl;
+                }
+                m_data_out["on"] = false;
             }
-            m_data_out["reset"] = 1;
-        }
 
-        // set reset to 0 at 8 ns
-        if (current_cycle >= 8) {
-            if (current_cycle == 8) {
-                std::cout << "RESET OFF" << std::endl;
-            }
-            m_data_out["reset"] = 0;
-        }
+            // ---------------- WRITE DATA ----------------
+            send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
 
-        // set enable to 1 at 12 ns
-        if (current_cycle >= 12) {
-            if (current_cycle == 12) {
-                std::cout << "ENABLE ON" << std::endl;
-            }
-            m_data_out["enable"] = 1;
-        }
+            try {
 
-        // set enable to 0 at 50 ns
-        if (current_cycle >= 50) {
-            if (current_cycle == 50) {
-                std::cout << "ENABLE OFF" << std::endl;
-            }
-            m_data_out["enable"] = 0;
-        }
+                // if module is on, dump the JSON object buffer
+                if (m_data_out["on"].get<bool>()) {
 
-        // turn module off at 52 ns
-        if (current_cycle >= 52) {
-            if (current_cycle == 52) {
-                std::cout << "MODULE OFF" << std::endl;
-            }
-            m_data_out["on"] = false;
-        }
+                    // ---------------- READ DATA ----------------
+                    m_data_in = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
 
-        // ---------------- SOCKET COMMUNICATION ----------------
+                    m_output.verbose(CALL_INFO, 1, 0, "Inverter: %d\n",
+                            std::stoi(m_data_in["data_out"].get<std::string>()));
+                    m_data_in.clear();
 
-        // ---------------- WRITE DATA ----------------
-        send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
+                }
 
-        try {
+            } catch (json::type_error &e) {
 
-            // if module is on, dump the JSON object buffer
-            if (m_data_out["on"].get<bool>()) {
-
-                // ---------------- READ DATA ----------------
-                m_data_in = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
-
-                m_output.verbose(CALL_INFO, 1, 0, "Counter: %s \n",
-                                 std::string(m_data_in["counter_out"]).c_str());
-                m_data_in.clear();
+                std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out << std::endl;
 
             }
 
-        } catch (json::type_error &e) {
+            m_data_out.clear();
 
-            std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out << std::endl;
+        } else {
+
+            m_data_out["on"] = true;
+            m_data_out["enable"] = false;
+            m_data_out["reset"] = false;
+
+            // assign SST clock to SystemC clock
+            m_data_out["clock"] = current_cycle;
+
+            // set reset to 1 at 4 ns
+            if (current_cycle >= 4) {
+                if (current_cycle == 4) {
+                    std::cout << "RESET ON" << std::endl;
+                }
+                m_data_out["reset"] = true;
+            }
+
+            // set reset to 0 at 8 ns
+            if (current_cycle >= 8) {
+                if (current_cycle == 8) {
+                    std::cout << "RESET OFF" << std::endl;
+                }
+                m_data_out["reset"] = false;
+            }
+
+            // set enable to 1 at 12 ns
+            if (current_cycle >= 12) {
+                if (current_cycle == 12) {
+                    std::cout << "ENABLE ON" << std::endl;
+                }
+                m_data_out["enable"] = true;
+            }
+
+            // set enable to 0 at 50 ns
+            if (current_cycle >= 50) {
+                if (current_cycle == 50) {
+                    std::cout << "ENABLE OFF" << std::endl;
+                }
+                m_data_out["enable"] = false;
+            }
+
+            // turn module off at 52 ns
+            if (current_cycle >= 52) {
+                if (current_cycle == 52) {
+                    std::cout << "MODULE OFF" << std::endl;
+                }
+                m_data_out["on"] = false;
+            }
+
+            // ---------------- SOCKET COMMUNICATION ----------------
+
+            // ---------------- WRITE DATA ----------------
+            send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
+
+            try {
+
+                // if module is on, dump the JSON object buffer
+                if (m_data_out["on"].get<bool>()) {
+
+                    // ---------------- READ DATA ----------------
+                    m_data_in = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
+
+                    counter_out = std::stoi(m_data_in["data_out"].get<std::string>());
+
+                    m_output.verbose(CALL_INFO, 1, 0, "Counter: %d\n", counter_out);
+                    m_data_in.clear();
+
+                }
+
+            } catch (json::type_error &e) {
+
+                std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out << std::endl;
+
+            }
+
+            m_data_out.clear();
+
 
         }
-
-        m_data_out.clear();
-        std::cout << "Master buffer cleared: " << m_data_out << std::endl;
-//        } else {
-//            m_data_out["on"] = false;
-//            send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
-//            m_data_out = json{};
-//
-//        }
 
     }
 

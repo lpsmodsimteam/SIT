@@ -37,9 +37,6 @@ int sc_main(int argc, char *argv[]) {
     json m_data_in;
     json m_data_out;
 
-    std::cout << "CHILD PID: " << getpid() << '\n';
-
-
     if (sock_fd < 0) {
         perror("ERROR on accept");
     }
@@ -67,19 +64,19 @@ int sc_main(int argc, char *argv[]) {
 //            std::cout << getpid() << " GOT DATA " << m_data_in << std::endl;
             flag = m_data_in["on"].get<bool>();
             clock = (m_data_in["clock"].get<int>()) % 2;
-            enable = m_data_in["enable"].get<int>();
-            reset = m_data_in["reset"].get<int>();
+            enable = m_data_in["enable"].get<bool>();
+            reset = m_data_in["reset"].get<bool>();
 
             m_data_out["data_out"] = to_string(data_out);
 
             send_json(m_data_out, sock_fd);
             m_data_out.clear();
 
-            std::cout << getpid() << " @" << sc_time_stamp() << " sst-timestamp: " << m_data_in["clock"] <<
+            std::cout << getpid() << " @" << sc_time_stamp() << ":" << m_data_in["clock"] <<
                       " clock: " << clock << " enable: " << m_data_in["enable"]
                       << " reset: " << m_data_in["reset"] << std::endl;
-            m_data_in = json{};
-            std::cout << getpid() << " @" << sc_time_stamp() << " buffer cleared: " << m_data_in << std::endl;
+            m_data_in.clear();
+//            std::cout << getpid() << " @" << sc_time_stamp() << " buffer cleared: " << m_data_in << std::endl;
 
         } while (flag);
 

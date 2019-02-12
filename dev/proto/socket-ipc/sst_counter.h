@@ -45,7 +45,7 @@ private:
 
     // socket variables
     int m_num_procs;
-    std::string m_proc_names[4] = {"main", "lol", "fsjkdf", "fdjksf"};
+    std::string m_proc_names[4] = {"counter1", "inverter"};
     json m_procs;
     struct sockaddr_in m_addr;
     fd_set m_read_fds;  // set of socket descriptors
@@ -53,11 +53,6 @@ private:
     socklen_t m_clilen;
     int m_master_sock, m_new_sock;
     char m_buffer[BUFSIZE];
-
-    // local variables
-    std::vector<pid_t> m_pids;
-    std::vector<int> m_ports;
-    std::vector<int> m_sock_fds;
 
     SST::Output m_output;
     json m_data_in;

@@ -10,15 +10,18 @@
 
 SC_MODULE (sysc_inverter) {
 
-    sc_in_clk clock;      // Clock input of the design
     sc_in<sc_uint<4> > data_in; // 4 bit vector output of the inverter
     sc_out<sc_uint<4> > data_out; // 4 bit vector output of the inverter
+
+    //------------Local Variables Here---------------------
+    sc_bv<4> bv;
 
     //------------Code Starts Here-------------------------
     // Below function implements actual inverter logic
     void invert() {
 
-        data_out.write(data_in.read() ^ 1);
+        bv = ~data_in.read();
+        data_out.write(bv);
 
     } // End of function incr_count
 
@@ -31,7 +34,7 @@ SC_MODULE (sysc_inverter) {
         std::cout << "INSTANTIATING INVERTER" << std::endl;
 
         SC_METHOD(invert);
-        sensitive << clock.pos();
+        sensitive << data_in;
 
     } // End of Constructor
 
