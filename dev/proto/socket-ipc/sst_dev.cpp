@@ -2,7 +2,7 @@
 Simple 4-bit Up-Counter Model with one clock
 */
 
-#include "sst_counter.h"
+#include "sst_dev.h"
 
 #include <sst/core/sst_config.h>
 #include <arpa/inet.h> // inet_ntoa
@@ -13,7 +13,7 @@ Simple 4-bit Up-Counter Model with one clock
 #define PID_STR "pid"
 
 // Component Constructor
-sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
+sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
 
     // Initialize output
     m_output.init("\033[32mmodule-" + getName() + "\033[0m (pid: " + to_string(getpid()) + ") -> ", 1, 0,
@@ -25,7 +25,7 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
     m_sysc_inverter = params.find<std::string>("sysc_inverter", "");
 
     // Just register a plain clock for this simple example
-    registerClock("500MHz", new SST::Clock::Handler<sst_counter>(this, &sst_counter::tick));
+    registerClock("500MHz", new SST::Clock::Handler<sst_dev>(this, &sst_dev::tick));
 
     // Tell SST to wait until we authorize it to exit
     registerAsPrimaryComponent();
@@ -33,7 +33,7 @@ sst_counter::sst_counter(SST::ComponentId_t id, SST::Params &params) : SST::Comp
 
 }
 
-sst_counter::~sst_counter() {
+sst_dev::~sst_dev() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Closing master socket %d...\n", m_master_sock);
     shutdown(m_master_sock, SHUT_RDWR);
@@ -47,7 +47,7 @@ sst_counter::~sst_counter() {
     }
 }
 
-int sst_counter::init_socks() {
+int sst_dev::init_socks() {
 
     // add new socket to array of sockets
     for (int i = 0; i < m_num_procs; i++) {
@@ -101,7 +101,7 @@ int sst_counter::init_socks() {
 
 }
 
-int sst_counter::sync_procs() {
+int sst_dev::sync_procs() {
 
     int addrlen = sizeof(m_addr);
     int sd;
@@ -190,7 +190,7 @@ int sst_counter::sync_procs() {
 
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
-void sst_counter::setup() {
+void sst_dev::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
@@ -229,13 +229,13 @@ void sst_counter::setup() {
 
 // finish is called by SST before the simulation is ended and should be used
 // to clean up variables and memory
-void sst_counter::finish() {
+void sst_dev::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
-bool sst_counter::tick(SST::Cycle_t current_cycle) {
+bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "----------------------------------------------------" << std::endl;
 

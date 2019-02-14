@@ -8,13 +8,13 @@
 #include <vector>
 
 
-class sst_counter : public SST::Component {
+class sst_dev : public SST::Component {
 
 public:
 
-    sst_counter(SST::ComponentId_t, SST::Params &);
+    sst_dev(SST::ComponentId_t, SST::Params &);
 
-    ~sst_counter();
+    ~sst_dev();
 
     int init_socks();
 
@@ -28,9 +28,9 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-            sst_counter, // class
-    "sst_counterSST", // element library
-    "sst_counter", // component
+            sst_dev, // class
+    "sst_devSST", // element library
+    "sst_dev", // component
     SST_ELI_ELEMENT_VERSION(1, 0, 0),
     "Simple 4-bit Up-Counter Model with one clock",
     COMPONENT_CATEGORY_UNCATEGORIZED

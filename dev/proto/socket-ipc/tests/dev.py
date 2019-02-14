@@ -3,7 +3,7 @@ import os
 import sst
 
 # component counter from element counterSST (counterSST.counter) named "counter World"
-counterComponent = sst.Component("sst_counter", "sst_counterSST.sst_counter")
+counterComponent = sst.Component("sst_dev", "sst_devSST.sst_dev")
 sst.setProgramOption("stopAtCycle", "110ns")
 # overide default parameters
 counterComponent.addParams({

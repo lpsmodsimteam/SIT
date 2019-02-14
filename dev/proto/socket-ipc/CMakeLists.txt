@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+set(CMAKE_CXX_COMPILER /usr/bin/mpic++)
 project(sstsysc CXX)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -16,8 +16,8 @@ target_link_libraries(sysc_counter_module.o SystemC::systemc)
 add_executable(sysc_inverter_module.o sysc_inverter.cpp sysc_inverter_tb.cpp)
 target_link_libraries(sysc_inverter_module.o SystemC::systemc)
 
-set(SST_OBJ "libsst_counterSST.so")
-set(SST_SRC "${PROJECT_SOURCE_DIR}/sst_counter.cpp")
+set(SST_OBJ "libsst_devSST.so")
+set(SST_SRC "${PROJECT_SOURCE_DIR}/sst_dev.cpp")
 set(SST_CONFIG /home/sabbir/local/sstcore-8.0.0/bin/sst-config)
 execute_process(
     COMMAND ${SST_CONFIG} --ELEMENT_CXXFLAGS
