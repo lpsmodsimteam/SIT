@@ -44,7 +44,7 @@ void send_json(const json &data, int sock_fd) {
 
 }
 
-json recv_json(char buffer[], int sock_fd) {
+const json recv_json(char buffer[], int sock_fd) {
 
     ssize_t read_bytes = read(sock_fd, buffer, BUFSIZE);
 
@@ -53,7 +53,9 @@ json recv_json(char buffer[], int sock_fd) {
         try {
 
             buffer[read_bytes] = '\0';
-            return json::parse(buffer);
+            json parsed = json::parse(buffer);
+            std::cout << "SENDING " << parsed << " TO " << sock_fd << std::endl;
+            return parsed;
 
         } catch (json::parse_error &e) {
 

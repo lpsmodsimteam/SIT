@@ -19,6 +19,7 @@ int sc_main(int argc, char *argv[]) {
     sysc_counter.data_out(data_out);
 
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+//    int sock_fd = 25;
     struct hostent *server = gethostbyname("work-vm01");
     struct sockaddr_in serv_addr{};
 
@@ -46,8 +47,6 @@ int sc_main(int argc, char *argv[]) {
         perror("ERROR writing to socket");
     }
 
-//    m_data_in = recv_json(m_buffer, sock_fd);
-
     try {
 
         bool flag;
@@ -58,29 +57,27 @@ int sc_main(int argc, char *argv[]) {
 
             sc_start(1, SC_NS);
 
-            m_data_in = recv_json(m_buffer, sock_fd);
-
-//            std::cout << getpid() << " GOT DATA " << m_data_in << std::endl;
-            flag = m_data_in["on"].get<bool>();
-            clock = (m_data_in["clock"].get<int>()) % 2;
-            enable = m_data_in["enable"].get<bool>();
-            reset = m_data_in["reset"].get<bool>();
-
             m_data_out["data_out"] = to_string(data_out);
 
             send_json(m_data_out, sock_fd);
             m_data_out.clear();
 
+            m_data_in = recv_json(m_buffer, sock_fd);
+
+            flag = m_data_in["on"].get<bool>();
+            clock = (m_data_in["clock"].get<int>()) % 2;
+            enable = m_data_in["enable"].get<bool>();
+            reset = m_data_in["reset"].get<bool>();
+
             std::cout << "\033[33mCOUNTER\033[0m (pid: " << getpid() << ") -> clock: " << clock << " | enable: "
                       << m_data_in["enable"] << " | reset: " << m_data_in["reset"] << std::endl;
             m_data_in.clear();
-//            std::cout << getpid() << " @" << sc_time_stamp() << " buffer cleared: " << m_data_in << std::endl;
 
         } while (flag);
 
     } catch (json::type_error &e) {
 
-        std::cout << getpid() << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
+        std::cout << getpid() << " COUNTER JSON TYPE ERROR " << e.what() << m_data_in << " ON " << sock_fd << std::endl;
 
     }
 

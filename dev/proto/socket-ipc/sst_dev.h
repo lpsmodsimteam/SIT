@@ -56,7 +56,9 @@ private:
 
     SST::Output m_output;
     json m_data_in;
+    json m_data_in1;
     json m_data_out;
+    json m_data_out1;
 
 };
 

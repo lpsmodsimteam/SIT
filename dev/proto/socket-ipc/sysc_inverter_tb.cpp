@@ -15,15 +15,15 @@ int sc_main(int argc, char *argv[]) {
     sysc_inverter.data_in(data_in);
     sysc_inverter.data_out(data_out);
 
-    uint16_t portno = (uint16_t) std::stoi(argv[1]);
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+//    int sock_fd = 26;
     struct hostent *server = gethostbyname("work-vm01");
     struct sockaddr_in serv_addr{};
 
     bzero((char *) &serv_addr, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
     bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
-    serv_addr.sin_port = htons(portno);
+    serv_addr.sin_port = htons((uint16_t) std::stoi(argv[1]));
 
     if (connect(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         perror("CHILD");
@@ -54,15 +54,15 @@ int sc_main(int argc, char *argv[]) {
 
             sc_start(1, SC_NS);
 
-            m_data_in = recv_json(m_buffer, sock_fd);
-
-            flag = m_data_in["on"].get<bool>();
-            data_in = m_data_in["data_in"].get<int>();
-
             m_data_out["data_out"] = to_string(data_out);
 
             send_json(m_data_out, sock_fd);
             m_data_out.clear();
+
+            m_data_in = recv_json(m_buffer, sock_fd);
+
+            flag = m_data_in["on"].get<bool>();
+            data_in = m_data_in["data_in"].get<int>();
 
             std::cout << "\033[33mINVERTER\033[0m (pid: " << getpid() << ") -> clock: " << clock << " | data_in: "
                       << m_data_in["data_in"] << std::endl;
@@ -72,7 +72,7 @@ int sc_main(int argc, char *argv[]) {
 
     } catch (json::type_error &e) {
 
-        std::cout << getpid() << " CHILD JSON TYPE ERROR " << e.what() << m_data_in << std::endl;
+        std::cout << getpid() << " INVERTER JSON TYPE ERROR " << e.what() << m_data_in << " ON " << sock_fd << std::endl;
 
     }
 

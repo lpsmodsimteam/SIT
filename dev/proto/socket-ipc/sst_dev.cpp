@@ -238,49 +238,51 @@ void sst_dev::finish() {
 bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "----------------------------------------------------" << std::endl;
+    m_data_out.clear();
+    m_data_out1.clear();
 
     int counter_out = 0;
 
     for (int proc = 0; proc < m_num_procs; proc++) {
 
-        if (!m_procs[proc][PROC_STR].get<std::string>().compare("inverter")) {
+//        if (!m_procs[proc][PROC_STR].get<std::string>().compare("inverter")) {
+        if (proc) {
 
-            m_data_out["clock"] = current_cycle;
-            m_data_out["on"] = true;
-            m_data_out["data_in"] = counter_out;
+            m_data_out1["clock"] = current_cycle;
+            m_data_out1["on"] = true;
+            m_data_out1["data_in"] = counter_out;
 
             // turn module off at 52 ns
             if (current_cycle >= 52) {
                 if (current_cycle == 52) {
                     std::cout << "INVERTER MODULE OFF" << std::endl;
                 }
-                m_data_out["on"] = false;
+                m_data_out1["on"] = false;
             }
 
             // ---------------- WRITE DATA ----------------
-            send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
+            std::cout << "DATA 1: " << m_data_out1 << "ON: " << m_procs[proc][FD_STR].get<int>() << std::endl;
+            send_json(m_data_out1, m_procs[proc][FD_STR].get<int>());
 
             try {
 
                 // if module is on, dump the JSON object buffer
-                if (m_data_out["on"].get<bool>()) {
+                if (m_data_out1["on"].get<bool>()) {
 
                     // ---------------- READ DATA ----------------
-                    m_data_in = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
+                    m_data_in1 = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
 
                     m_output.verbose(CALL_INFO, 1, 0, "Inverter: %d\n",
-                                     std::stoi(m_data_in["data_out"].get<std::string>()));
-                    m_data_in.clear();
+                                     std::stoi(m_data_in1["data_out"].get<std::string>()));
+                    m_data_in1.clear();
 
                 }
 
             } catch (json::type_error &e) {
 
-                std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out << std::endl;
+                std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out1 << std::endl;
 
             }
-
-            m_data_out.clear();
 
         } else {
 
@@ -334,6 +336,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
             // ---------------- SOCKET COMMUNICATION ----------------
 
             // ---------------- WRITE DATA ----------------
+            std::cout << "DATA 0: " << m_data_out << "ON: " << m_procs[proc][FD_STR].get<int>() << std::endl;
             send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
 
             try {
@@ -356,8 +359,6 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out << std::endl;
 
             }
-
-            m_data_out.clear();
 
 
         }
