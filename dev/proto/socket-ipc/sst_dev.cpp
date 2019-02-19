@@ -12,8 +12,23 @@ Simple 4-bit Up-Counter Model with one clock
 #define PORT_STR "port"
 #define PID_STR "pid"
 
+#include <mpi.h>
+
 // Component Constructor
 sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
+
+    int done_already;
+    MPI_Initialized(&done_already);
+    if (!done_already) {
+        MPI_Init(nullptr, nullptr);
+    }
+
+    // Find out rank, size
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
 
     // Initialize output
     m_output.init("\033[32mmodule-" + getName() + "\033[0m (pid: " + to_string(getpid()) + ") -> ", 1, 0,
@@ -36,15 +51,19 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
 sst_dev::~sst_dev() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Closing master socket %d...\n", m_master_sock);
-    shutdown(m_master_sock, SHUT_RDWR);
-    close(m_master_sock);
+//    shutdown(m_master_sock, SHUT_RDWR);
+//    close(m_master_sock);
 
-    for (int i = 0; i < m_num_procs; i++) {
-        int fd = m_procs[i][FD_STR].get<int>();
-        m_output.verbose(CALL_INFO, 1, 0, "Closing child socket %d...\n", fd);
-        shutdown(fd, SHUT_RDWR);
-        close(fd);
-    }
+//    for (int i = 0; i < m_num_procs; i++) {
+//        int fd = m_procs[i][FD_STR].get<int>();
+//        m_output.verbose(CALL_INFO, 1, 0, "Closing child socket %d...\n", fd);
+//        shutdown(fd, SHUT_RDWR);
+//        close(fd);
+//    }
+
+//    MPI_Finalize();
+//    return;
+
 }
 
 int sst_dev::init_socks() {
@@ -194,36 +213,57 @@ void sst_dev::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
-    init_socks();
-
     std::cout << "Master pid: " << getpid() << std::endl;
 
-    for (int i = 0; i < m_num_procs; i++) {
+    int np[2] = {1, 1};
+    int errcodes[2];
+    MPI_Comm intercomm;
+    char *cmds[2] = {&m_sysc_counter[0u], &m_sysc_inverter[0u]};
+    MPI_Info infos[2] = {MPI_INFO_NULL, MPI_INFO_NULL};
 
-        if (!fork()) {
+    MPI_Comm_spawn_multiple(2, cmds, MPI_ARGVS_NULL, np, infos, 0, MPI_COMM_SELF, &intercomm, errcodes);
 
-            char *proc;
+    int sendbuf[2] = {1, -1};
+    int recvbuf[2];
 
-            if (i == 1) {
+    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_ROOT, intercomm);
+    printf("MASTER ONE=%d %d\n", *recvbuf, getpid());
+    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_ROOT, intercomm);
+    printf("MASTER TWO=%d %d\n", recvbuf[0], recvbuf[1]);
 
-                proc = &m_sysc_inverter[0u];
+    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_ROOT, intercomm);
+    printf("MASTER THREE=%d %d\n", *recvbuf, getpid());
+    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_ROOT, intercomm);
+    printf("MASTER FOUR=%d %d\n", recvbuf[0], recvbuf[1]);
 
-            } else {
-
-                proc = &m_sysc_counter[0u];
-
-            }
-
-            char *args[] = {proc, &(to_string(m_port))[0u], nullptr};
-            m_output.verbose(CALL_INFO, 1, 0,
-                             "Forking process %s (pid: %d) as \"%s\"...\n", args[0], getpid(),
-                             m_proc_names[i].c_str());
-            execvp(args[0], args);
-
-        }
-    }
-
-    sync_procs();
+//    init_socks();
+//
+//    for (int i = 0; i < m_num_procs; i++) {
+//
+//        if (!fork()) {
+//
+//            char *proc;
+//
+//            if (i == 1) {
+//
+//                proc = &m_sysc_inverter[0u];
+//
+//            } else {
+//
+//                proc = &m_sysc_counter[0u];
+//
+//            }
+//
+//            char *args[] = {proc, &(to_string(m_port))[0u], nullptr};
+//            m_output.verbose(CALL_INFO, 1, 0,
+//                             "Forking process %s (pid: %d) as \"%s\"...\n", args[0], getpid(),
+//                             m_proc_names[i].c_str());
+//            execvp(args[0], args);
+//
+//        }
+//    }
+//
+//     sync_procs();
 
 }
 
@@ -237,6 +277,7 @@ void sst_dev::finish() {
 // this function runs once every clock cycle
 bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
+    /*
     std::cout << "----------------------------------------------------" << std::endl;
     m_data_out.clear();
     m_data_out1.clear();
@@ -367,6 +408,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "----------------------------------------------------" << std::endl;
 
+     */
     return false;
 
 }

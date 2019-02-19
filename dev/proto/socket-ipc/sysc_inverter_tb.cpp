@@ -3,6 +3,7 @@
 #include "sstsysc.hpp"
 #include <systemc.h>
 
+#include <mpi.h>
 
 int sc_main(int argc, char *argv[]) {
 
@@ -15,6 +16,22 @@ int sc_main(int argc, char *argv[]) {
     sysc_inverter.data_in(data_in);
     sysc_inverter.data_out(data_out);
 
+    int done_already;
+    MPI_Initialized(&done_already);
+    if (!done_already) {
+        MPI_Init(nullptr, nullptr);
+    }
+
+    // Find out rank, size
+    int world_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    int world_size;
+    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
+
+    MPI_Comm intercomm;
+    MPI_Comm_get_parent(&intercomm);
+
+    /*
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
 //    int sock_fd = 26;
     struct hostent *server = gethostbyname("work-vm01");
@@ -80,5 +97,21 @@ int sc_main(int argc, char *argv[]) {
     close(sock_fd);
 
     return 0;  // Terminate simulation
+*/
+
+    int sendbuf[2] = {3, 6};
+    int recvbuf[2];
+
+    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
+    printf("INVERTER=%d WORLD=%d SIZE=%d PID=%d\n", *recvbuf, world_rank, world_size, getpid());
+    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
+
+    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
+    printf("INVERTER=%d WORLD=%d SIZE=%d PID=%d\n", *recvbuf, world_rank, world_size, getpid());
+    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
+
+    MPI_Finalize();
+    return 0;
+
 
 }
