@@ -34,74 +34,46 @@ int sc_main(int argc, char *argv[]) {
     MPI_Comm inter_com;
     MPI_Comm_get_parent(&inter_com);
 
-    /*
+    int pid = getpid();
+    MPI_Gather(&pid, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
+    MPI_Gather(&world_rank, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
 
     // create an empty structure (null)
     json m_data_in;
     json m_data_out;
 
+    bool flag;
 
-    std::string pid = to_string(getpid());
-    if (write(sock_fd, pid.c_str(), pid.size()) != pid.size()) {
-        perror("ERROR writing to socket");
-    }
+    do {
 
-    try {
+        char send_buf[BUFSIZE];
+        char recv_buf[BUFSIZE];
 
-        bool flag;
+        sc_start(1, SC_NS);
 
-        do {
+        MPI_Scatter(nullptr, BUFSIZE, MPI_CHAR, recv_buf, BUFSIZE, MPI_CHAR, 0, inter_com);
+        m_data_in = json::parse(recv_buf);
 
-            char m_buffer[BUFSIZE];
+        flag = m_data_in["on"].get<bool>();
+        clock = (m_data_in["clock"].get<int>()) % 2;
+        enable = m_data_in["enable"].get<bool>();
+        reset = m_data_in["reset"].get<bool>();
 
-            sc_start(1, SC_NS);
+        std::cout << "\033[33mCOUNTER\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp() << " | enable: "
+                  << m_data_in["enable"] << " | reset: " << m_data_in["reset"] << std::endl;
+        m_data_in.clear();
 
-            m_data_out["data_out"] = to_string(data_out);
+        m_data_out["cnt_out"] = to_string(data_out);
 
-            send_json(m_data_out, sock_fd);
-            m_data_out.clear();
+        strncpy(send_buf, to_string(m_data_out).c_str(), BUFSIZE);
+        MPI_Gather(send_buf, BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, 0, inter_com);
 
-            m_data_in = recv_json(m_buffer, sock_fd);
-
-            flag = m_data_in["on"].get<bool>();
-            clock = (m_data_in["clock"].get<int>()) % 2;
-            enable = m_data_in["enable"].get<bool>();
-            reset = m_data_in["reset"].get<bool>();
-
-            std::cout << "\033[33mCOUNTER\033[0m (pid: " << getpid() << ") -> clock: " << clock << " | enable: "
-                      << m_data_in["enable"] << " | reset: " << m_data_in["reset"] << std::endl;
-            m_data_in.clear();
-
-        } while (flag);
-
-    } catch (json::type_error &e) {
-
-        std::cout << getpid() << " COUNTER JSON TYPE ERROR " << e.what() << m_data_in << " ON " << sock_fd << std::endl;
-
-    }
+        m_data_out.clear();
 
 
-    close(sock_fd);
+    } while (flag);
 
-    return 0;  // Terminate simulation
-*/
-
-    int pid = getpid();
-    MPI_Gather(&pid, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
-    MPI_Gather(&world_rank, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
-
-    char sendbuf[BUFSIZE] = "cnt";
-    char recvbuf[BUFSIZE];
-
-    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-    printf("COUNTER=%s\n", recvbuf);
-    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-
-    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-    printf("COUNTER=%s\n", recvbuf);
-    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-
-//    MPI_Barrier(inter_com);
     MPI_Finalize();
     return 0;
+
 }

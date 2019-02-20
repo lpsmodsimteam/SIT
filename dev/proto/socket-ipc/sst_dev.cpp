@@ -28,12 +28,10 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
     int world_size;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-
     // Initialize output
     m_output.init("\033[32mmodule-" + getName() + "\033[0m (pid: " + to_string(getpid()) + ") -> ", 1, 0,
                   SST::Output::STDOUT);
 
-    m_port = params.find<uint16_t>("port", 2000);
     m_num_procs = params.find<int>("num_procs", 1);
     m_sysc_counter = params.find<std::string>("sysc_counter", "");
     m_sysc_inverter = params.find<std::string>("sysc_inverter", "");
@@ -49,164 +47,19 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
 
 sst_dev::~sst_dev() {
 
-    m_output.verbose(CALL_INFO, 1, 0, "Closing master socket %d...\n", m_master_sock);
-//    shutdown(m_master_sock, SHUT_RDWR);
-//    close(m_master_sock);
+    m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
 
-//    for (int i = 0; i < m_num_procs; i++) {
-//        int fd = m_procs[i][RANK_STR].get<int>();
-//        m_output.verbose(CALL_INFO, 1, 0, "Closing child socket %d...\n", fd);
-//        shutdown(fd, SHUT_RDWR);
-//        close(fd);
-//    }
+    delete[] np;
+    delete[] errcodes;
+    delete[] cmds;
+    delete[] infos;
 
-//    MPI_Finalize();
-//    return;
+    m_data_out.clear();
+    delete[] send_buf;
+    delete[] recv_buf;
 
 }
 
-/*
-int sst_dev::init_socks() {
-
-    // add new socket to array of sockets
-    for (int i = 0; i < m_num_procs; i++) {
-
-        m_procs[i] = {
-                {PROC_STR, m_proc_names[i]},
-                {RANK_STR,   0},
-                {PID_STR,  0}
-        };
-
-    }
-
-    // create a master socket
-    if (!(m_master_sock = socket(AF_INET, SOCK_STREAM, 0))) {
-        perror("socket failed");
-        exit(EXIT_FAILURE);
-    }
-
-    // set master socket to allow multiple connections ,
-    // this is just a good habit, it will work without this
-    const int opt = 1;
-    if (setsockopt(m_master_sock, SOL_SOCKET, SO_REUSEADDR, (char *) &opt,
-                   sizeof(opt)) < 0) {
-        perror("setsockopt");
-        exit(EXIT_FAILURE);
-    }
-
-    // type of socket created
-    m_addr.sin_family = AF_INET;
-    m_addr.sin_addr.s_addr = INADDR_ANY;
-    m_addr.sin_port = htons(m_port);
-
-    // bind the socket to localhost port 8888
-    if (bind(m_master_sock, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
-    }
-    printf("Listener on port %d\n", m_port);
-
-    //try to specify maximum of 3 pending connections for the master socket
-    if (listen(m_master_sock, m_num_procs * 10) < 0) {
-        perror("listen");
-        exit(EXIT_FAILURE);
-    }
-
-    // accept the incoming connection
-    std::cout << "Waiting for connections..." << std::endl;
-
-    return EXIT_SUCCESS;
-
-}
-
-int sst_dev::sync_procs() {
-
-    int addrlen = sizeof(m_addr);
-    int sd;
-    int valread;
-    int connected_procs = 0;
-
-    while (connected_procs < m_num_procs) {
-
-        //clear the socket set
-        FD_ZERO(&m_read_fds);
-
-        //add master socket to set
-        FD_SET(m_master_sock, &m_read_fds);
-        int max_sd = m_master_sock;
-
-        //add child sockets to set
-        for (int i = 0; i < m_num_procs; i++) {
-            //socket descriptor
-            sd = m_procs[i][RANK_STR];
-
-            //if valid socket descriptor then add to read list
-            if (sd > 0) {
-                FD_SET(sd, &m_read_fds);
-            }
-
-            //highest file descriptor number, need it for the select function
-            if (sd > max_sd) {
-                max_sd = sd;
-            }
-        }
-
-        // wait for an activity on one of the sockets , timeout is nullptr ,
-        // so wait indefinitely
-        if ((select(max_sd + 1, &m_read_fds, nullptr, nullptr, nullptr) < 0)
-            && (errno != EINTR)) {
-            printf("select error");
-        }
-
-        // If something happened on the master socket, then its an incoming connection
-        if (FD_ISSET(m_master_sock, &m_read_fds)) {
-
-            if ((m_new_sock = accept(m_master_sock, (struct sockaddr *) &m_addr,
-                                     (socklen_t *) &addrlen)) < 0) {
-                perror("accept");
-                exit(EXIT_FAILURE);
-            }
-
-            //inform user of socket number - used in send and receive commands
-            std::string ip = inet_ntoa(m_addr.sin_addr);
-            int port = ntohs(m_addr.sin_port);
-            std::cout << "New connection: fd=" << m_new_sock << ", port=" << ip.c_str() << ":" << port << std::endl;
-            getpeername(m_new_sock, (struct sockaddr *) &m_addr, (socklen_t *) &addrlen);
-
-            if (!(valread = read(m_new_sock, m_buffer, BUFSIZE))) {
-
-                //Somebody disconnected, get his details and print
-                std::cout << ip.c_str() << ":" << port << " disconnected" << std::endl;
-
-                // Close the socket and mark as 0 in list for reuse
-                shutdown(m_new_sock, SHUT_RDWR);
-                close(m_new_sock);
-                m_procs[connected_procs][RANK_STR] = 0;
-
-            } else {
-
-                m_buffer[valread] = '\0';
-
-                m_procs[connected_procs][RANK_STR] = m_new_sock;
-                m_procs[connected_procs][PORT_STR] = port;
-                m_procs[connected_procs][PID_STR] = std::stoi(m_buffer);
-                connected_procs++;
-
-            }
-
-
-        }
-
-
-    }
-
-    std::cout << m_procs << std::endl;
-
-    return EXIT_SUCCESS;
-
-}
-
-*/
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
 void sst_dev::setup() {
@@ -215,22 +68,25 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
-    int np[m_num_procs] = {1, 1};
-    int errcodes[m_num_procs];
-    MPI_Comm inter_com;
-    char *cmds[m_num_procs] = {&m_sysc_counter[0u], &m_sysc_inverter[0u]};
-    MPI_Info infos[m_num_procs] = {MPI_INFO_NULL, MPI_INFO_NULL};
+    m_proc_names = new std::string[m_num_procs]{"counter1", "inverter"};
 
-    MPI_Comm_spawn_multiple(m_num_procs, cmds, MPI_ARGVS_NULL, np, infos, 0, MPI_COMM_SELF, &inter_com, errcodes);
+    np = new int[m_num_procs]{1, 1};
+    errcodes = new int[m_num_procs];
+    cmds = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u]};
+    infos = new MPI_Info[m_num_procs]{MPI_INFO_NULL, MPI_INFO_NULL};
 
+    send_buf = new char[m_num_procs][BUFSIZE];
+    recv_buf = new char[m_num_procs][BUFSIZE];
+
+    MPI_Comm_spawn_multiple(m_num_procs, cmds, MPI_ARGVS_NULL, np, infos, 0, MPI_COMM_SELF, &m_inter_com, errcodes);
 
     int child_pids[m_num_procs];
     int child_ranks[m_num_procs];
 
-    MPI_Gather(nullptr, 1, MPI_INT, child_pids, 1, MPI_INT, MPI_ROOT, inter_com);
-    printf("MASTER RECEIVED={%d, %d}\n", child_pids[0], child_pids[1]);
-    MPI_Gather(nullptr, 1, MPI_INT, child_ranks, 1, MPI_INT, MPI_ROOT, inter_com);
-    printf("MASTER RECEIVED={%d, %d}\n", child_ranks[0], child_ranks[1]);
+    MPI_Gather(nullptr, 1, MPI_INT, child_pids, 1, MPI_INT, MPI_ROOT, m_inter_com);
+    printf("MASTER RECEIVED PIDS={%d, %d}\n", child_pids[0], child_pids[1]);
+    MPI_Gather(nullptr, 1, MPI_INT, child_ranks, 1, MPI_INT, MPI_ROOT, m_inter_com);
+    printf("MASTER RECEIVED RANKS={%d, %d}\n", child_ranks[0], child_ranks[1]);
 
     // add new socket to array of sockets
     for (int i = 0; i < m_num_procs; i++) {
@@ -240,53 +96,9 @@ void sst_dev::setup() {
                 {RANK_STR, child_ranks[i]},
                 {PID_STR,  child_pids[i]}
         };
+        m_data_out[i] = json{};
 
     }
-
-    std::cout << m_procs << std::endl;
-
-
-    char sendbuf[m_num_procs][BUFSIZE] = {"hello1", "hello2"};
-    char recvbuf[m_num_procs][BUFSIZE];
-
-    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, MPI_ROOT, inter_com);
-    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, MPI_ROOT, inter_com);
-    printf("MASTER RECEIVED={%s, %s}\n", recvbuf[0], recvbuf[1]);
-
-    strncpy(sendbuf[0], "helloagain1", BUFSIZE);
-    strncpy(sendbuf[1], "helloagain2", BUFSIZE);
-    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, MPI_ROOT, inter_com);
-    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, MPI_ROOT, inter_com);
-    printf("MASTER RECEIVED={%s, %s}\n", recvbuf[0], recvbuf[1]);
-
-//    init_socks();
-//
-//    for (int i = 0; i < m_num_procs; i++) {
-//
-//        if (!fork()) {
-//
-//            char *proc;
-//
-//            if (i == 1) {
-//
-//                proc = &m_sysc_inverter[0u];
-//
-//            } else {
-//
-//                proc = &m_sysc_counter[0u];
-//
-//            }
-//
-//            char *args[] = {proc, &(to_string(m_port))[0u], nullptr};
-//            m_output.verbose(CALL_INFO, 1, 0,
-//                             "Forking process %s (pid: %d) as \"%s\"...\n", args[0], getpid(),
-//                             m_proc_names[i].c_str());
-//            execvp(args[0], args);
-//
-//        }
-//    }
-//
-//     sync_procs();
 
 }
 
@@ -300,69 +112,42 @@ void sst_dev::finish() {
 // this function runs once every clock cycle
 bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
-    /*
     std::cout << "----------------------------------------------------" << std::endl;
-    m_data_out.clear();
-    m_data_out1.clear();
 
     int counter_out = 0;
+    int destroyed_mods = 0;
 
     for (int proc = 0; proc < m_num_procs; proc++) {
 
-//        if (!m_procs[proc][PROC_STR].get<std::string>().compare("inverter")) {
         if (proc) {
 
-            m_data_out1["clock"] = current_cycle;
-            m_data_out1["on"] = true;
-            m_data_out1["data_in"] = counter_out;
+            m_data_out[proc]["clock"] = current_cycle;
+            m_data_out[proc]["on"] = true;
+            m_data_out[proc]["data_in"] = counter_out;
 
             // turn module off at 52 ns
             if (current_cycle >= 52) {
                 if (current_cycle == 52) {
                     std::cout << "INVERTER MODULE OFF" << std::endl;
                 }
-                m_data_out1["on"] = false;
-            }
-
-            // ---------------- WRITE DATA ----------------
-            std::cout << "DATA 1: " << m_data_out1 << "ON: " << m_procs[proc][RANK_STR].get<int>() << std::endl;
-            send_json(m_data_out1, m_procs[proc][RANK_STR].get<int>());
-
-            try {
-
-                // if module is on, dump the JSON object buffer
-                if (m_data_out1["on"].get<bool>()) {
-
-                    // ---------------- READ DATA ----------------
-                    m_data_in1 = recv_json(m_buffer, m_procs[proc][RANK_STR].get<int>());
-
-                    m_output.verbose(CALL_INFO, 1, 0, "Inverter: %d\n",
-                                     std::stoi(m_data_in1["data_out"].get<std::string>()));
-                    m_data_in1.clear();
-
-                }
-
-            } catch (json::type_error &e) {
-
-                std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out1 << std::endl;
-
+                m_data_out[proc]["on"] = false;
             }
 
         } else {
 
-            m_data_out["on"] = true;
-            m_data_out["enable"] = false;
-            m_data_out["reset"] = false;
+            m_data_out[proc]["on"] = true;
+            m_data_out[proc]["enable"] = false;
+            m_data_out[proc]["reset"] = false;
 
             // assign SST clock to SystemC clock
-            m_data_out["clock"] = current_cycle;
+            m_data_out[proc]["clock"] = current_cycle;
 
             // set reset to 1 at 4 ns
             if (current_cycle >= 4) {
                 if (current_cycle == 4) {
                     std::cout << "RESET ON" << std::endl;
                 }
-                m_data_out["reset"] = true;
+                m_data_out[proc]["reset"] = true;
             }
 
             // set reset to 0 at 8 ns
@@ -370,7 +155,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 if (current_cycle == 8) {
                     std::cout << "RESET OFF" << std::endl;
                 }
-                m_data_out["reset"] = false;
+                m_data_out[proc]["reset"] = false;
             }
 
             // set enable to 1 at 12 ns
@@ -378,7 +163,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 if (current_cycle == 12) {
                     std::cout << "ENABLE ON" << std::endl;
                 }
-                m_data_out["enable"] = true;
+                m_data_out[proc]["enable"] = true;
             }
 
             // set enable to 0 at 50 ns
@@ -386,7 +171,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 if (current_cycle == 50) {
                     std::cout << "ENABLE OFF" << std::endl;
                 }
-                m_data_out["enable"] = false;
+                m_data_out[proc]["enable"] = false;
             }
 
             // turn module off at 52 ns
@@ -394,44 +179,24 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 if (current_cycle == 52) {
                     std::cout << "COUNTER MODULE OFF" << std::endl;
                 }
-                m_data_out["on"] = false;
+                m_data_out[proc]["on"] = false;
             }
+        }
 
-            // ---------------- SOCKET COMMUNICATION ----------------
-
-            // ---------------- WRITE DATA ----------------
-            std::cout << "DATA 0: " << m_data_out << "ON: " << m_procs[proc][RANK_STR].get<int>() << std::endl;
-            send_json(m_data_out, m_procs[proc][RANK_STR].get<int>());
-
-            try {
-
-                // if module is on, dump the JSON object buffer
-                if (m_data_out["on"].get<bool>()) {
-
-                    // ---------------- READ DATA ----------------
-                    m_data_in = recv_json(m_buffer, m_procs[proc][RANK_STR].get<int>());
-
-                    counter_out = std::stoi(m_data_in["data_out"].get<std::string>());
-
-                    m_output.verbose(CALL_INFO, 1, 0, "Counter: %d\n", counter_out);
-                    m_data_in.clear();
-
-                }
-
-            } catch (json::type_error &e) {
-
-                std::cout << getpid() << " MASTER JSON TYPE ERROR " << e.what() << m_data_out << std::endl;
-
-            }
-
-
+        strncpy(send_buf[proc], to_string(m_data_out[proc]).c_str(), BUFSIZE);
+        if (!m_data_out[proc]["on"]) {
+            destroyed_mods++;
         }
 
     }
 
+    MPI_Scatter(send_buf, BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, MPI_ROOT, m_inter_com);
+    if (destroyed_mods != m_num_procs) {
+        MPI_Gather(nullptr, BUFSIZE, MPI_CHAR, recv_buf, BUFSIZE, MPI_CHAR, MPI_ROOT, m_inter_com);
+        m_output.verbose(CALL_INFO, 1, 0, "{%s, %s}\n", recv_buf[0], recv_buf[1]);
+    }
     std::cout << "----------------------------------------------------" << std::endl;
 
-     */
     return false;
 
 }

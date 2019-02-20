@@ -7,7 +7,6 @@
 
 int sc_main(int argc, char *argv[]) {
 
-    sc_signal<bool> clock;
     sc_signal<sc_uint<4> > data_in;
     sc_signal<sc_uint<4> > data_out;
 
@@ -31,93 +30,44 @@ int sc_main(int argc, char *argv[]) {
     MPI_Comm inter_com;
     MPI_Comm_get_parent(&inter_com);
 
-
-    /*
-    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-//    int sock_fd = 26;
-    struct hostent *server = gethostbyname("work-vm01");
-    struct sockaddr_in serv_addr{};
-
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
-    serv_addr.sin_port = htons((uint16_t) std::stoi(argv[1]));
-
-    if (connect(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-        perror("CHILD");
-        exit(-1);
-    }
+    int pid = getpid();
+    MPI_Gather(&pid, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
+    MPI_Gather(&world_rank, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
 
     // create an empty structure (null)
     json m_data_in;
     json m_data_out;
 
-    if (sock_fd < 0) {
-        perror("ERROR on accept");
-    }
+    bool flag;
+
+    do {
+
+        char send_buf[BUFSIZE];
+        char recv_buf[BUFSIZE];
+
+        sc_start(1, SC_NS);
+
+        MPI_Scatter(nullptr, BUFSIZE, MPI_CHAR, recv_buf, BUFSIZE, MPI_CHAR, 0, inter_com);
+        m_data_in = json::parse(recv_buf);
+
+        flag = m_data_in["on"].get<bool>();
+        data_in = m_data_in["data_in"].get<int>();
+
+        std::cout << "\033[33mINVERTER\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp() << " | data_in: "
+                  << m_data_in["data_in"] << std::endl;
+        m_data_in.clear();
+
+        m_data_out["inv_out"] = to_string(data_out);
+
+        strncpy(send_buf, to_string(m_data_out).c_str(), BUFSIZE);
+        MPI_Gather(send_buf, BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, 0, inter_com);
+
+        m_data_out.clear();
 
 
-    std::string pid = to_string(getpid());
-    if (write(sock_fd, pid.c_str(), pid.size()) != pid.size()) {
-        perror("ERROR writing to socket");
-    }
-
-    try {
-
-        bool flag;
-
-        do {
-
-            char m_buffer[BUFSIZE];
-
-            sc_start(1, SC_NS);
-
-            m_data_out["data_out"] = to_string(data_out);
-
-            send_json(m_data_out, sock_fd);
-            m_data_out.clear();
-
-            m_data_in = recv_json(m_buffer, sock_fd);
-
-            flag = m_data_in["on"].get<bool>();
-            data_in = m_data_in["data_in"].get<int>();
-
-            std::cout << "\033[33mINVERTER\033[0m (pid: " << getpid() << ") -> clock: " << clock << " | data_in: "
-                      << m_data_in["data_in"] << std::endl;
-            m_data_in.clear();
-
-        } while (flag);
-
-    } catch (json::type_error &e) {
-
-        std::cout << getpid() << " INVERTER JSON TYPE ERROR " << e.what() << m_data_in << " ON " << sock_fd << std::endl;
-
-    }
-
-
-    close(sock_fd);
-
-    return 0;  // Terminate simulation
-*/
-
-    int pid = getpid();
-    MPI_Gather(&pid, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
-    MPI_Gather(&world_rank, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
-
-
-    char sendbuf[BUFSIZE] = "inv";
-    char recvbuf[BUFSIZE];
-
-    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-    printf("INVERTER=%s\n", recvbuf);
-    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-
-    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-    printf("INVERTER=%s\n", recvbuf);
-    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
+    } while (flag);
 
     MPI_Finalize();
     return 0;
-
 
 }

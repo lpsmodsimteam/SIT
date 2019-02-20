@@ -2,7 +2,7 @@
 #define JSON_BUF_HPP
 
 #include "json.hpp"
-
+#include <mpi.h>
 using json = nlohmann::json;
 
 #include <sstream>
@@ -27,22 +27,37 @@ std::string to_string(const T &value) {
 
 }
 
+void scatter_json(const json &data, char *send_buffer, char *recv_buffer,
+        int num_procs, bool send, MPI_Comm comm) {
 
-void send_json(const json &data, int sock_fd) {
-
-    // convert JSON object to bytes to be transmitted via sockets
-    std::string data_str = to_string(data);
-    ulong buf_size = data_str.size();
-
-//    std::cout << getpid() << " SENDING BEFORE: " << data_str << std::endl;
-    if (write(sock_fd, data_str.c_str(), buf_size) != buf_size) {
-        perror("ERROR writing to socket");
+    for (int i = 0; i < num_procs; i++) {
+        strncpy(&send_buffer[i], to_string(data[i]).c_str(), BUFSIZE);
     }
 
-    data_str.clear();
-//    std::cout << getpid() << " SENDING AFTER: " << data_str << std::endl;
+//    std::cout << &send_buffer[0] << std::endl;
+//
+//    if (send) {
+//        MPI_Scatter(send_buffer, BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, MPI_ROOT, comm);
+//        MPI_Gather(nullptr, BUFSIZE, MPI_CHAR, recv_buffer, BUFSIZE, MPI_CHAR, MPI_ROOT, comm);
+//    }
 
 }
+
+//void send_json(const json &data, int sock_fd) {
+//
+//    // convert JSON object to bytes to be transmitted via sockets
+//    std::string data_str = to_string(data);
+//    ulong buf_size = data_str.size();
+//
+////    std::cout << getpid() << " SENDING BEFORE: " << data_str << std::endl;
+//    if (write(sock_fd, data_str.c_str(), buf_size) != buf_size) {
+//        perror("ERROR writing to socket");
+//    }
+//
+//    data_str.clear();
+////    std::cout << getpid() << " SENDING AFTER: " << data_str << std::endl;
+//
+//}
 
 const json recv_json(char buffer[], int sock_fd) {
 

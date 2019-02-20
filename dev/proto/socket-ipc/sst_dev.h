@@ -39,26 +39,23 @@ public:
 private:
 
     // parameters
-    uint16_t m_port;
     std::string m_sysc_counter;
     std::string m_sysc_inverter;
-
-    // socket variables
     int m_num_procs;
-    std::string m_proc_names[4] = {"counter1", "inverter"};
+    std::string *m_proc_names;
     json m_procs;
-    struct sockaddr_in m_addr;
-    fd_set m_read_fds;  // set of socket descriptors
 
-    socklen_t m_clilen;
-    int m_master_sock, m_new_sock;
-    char m_buffer[BUFSIZE];
+    int *np;
+    int *errcodes;
+    MPI_Comm m_inter_com;
+    char **cmds;
+    MPI_Info *infos;
+
+    char (*send_buf)[BUFSIZE];
+    char (*recv_buf)[BUFSIZE];
 
     SST::Output m_output;
-    json m_data_in;
-    json m_data_in1;
     json m_data_out;
-    json m_data_out1;
 
 };
 
