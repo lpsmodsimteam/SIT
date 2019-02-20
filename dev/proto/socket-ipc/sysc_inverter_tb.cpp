@@ -28,8 +28,8 @@ int sc_main(int argc, char *argv[]) {
     int world_size;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-    MPI_Comm intercomm;
-    MPI_Comm_get_parent(&intercomm);
+    MPI_Comm inter_com;
+    MPI_Comm_get_parent(&inter_com);
 
     /*
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -99,16 +99,16 @@ int sc_main(int argc, char *argv[]) {
     return 0;  // Terminate simulation
 */
 
-    int sendbuf[2] = {3, 6};
-    int recvbuf[2];
+    char sendbuf[BUFSIZE] = "inv";
+    char recvbuf[2][BUFSIZE];
 
-    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
-    printf("INVERTER=%d WORLD=%d SIZE=%d PID=%d\n", *recvbuf, world_rank, world_size, getpid());
-    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
+    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
+    printf("INVERTER=%s\n", *recvbuf);
+    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
 
-    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
-    printf("INVERTER=%d WORLD=%d SIZE=%d PID=%d\n", *recvbuf, world_rank, world_size, getpid());
-    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
+    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
+    printf("INVERTER=%s\n", *recvbuf);
+    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
 
     MPI_Finalize();
     return 0;

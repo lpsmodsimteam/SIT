@@ -31,32 +31,14 @@ int sc_main(int argc, char *argv[]) {
     int world_size;
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
-    MPI_Comm intercomm;
-    MPI_Comm_get_parent(&intercomm);
+    MPI_Comm inter_com;
+    MPI_Comm_get_parent(&inter_com);
 
     /*
-    int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-//    int sock_fd = 25;
-    struct hostent *server = gethostbyname("work-vm01");
-    struct sockaddr_in serv_addr{};
-
-    bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    bcopy(server->h_addr, (char *) &serv_addr.sin_addr.s_addr, server->h_length);
-    serv_addr.sin_port = htons((uint16_t) std::stoi(argv[1]));
-
-    if (connect(sock_fd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-        perror("CHILD");
-        exit(-1);
-    }
 
     // create an empty structure (null)
     json m_data_in;
     json m_data_out;
-
-    if (sock_fd < 0) {
-        perror("ERROR on accept");
-    }
 
 
     std::string pid = to_string(getpid());
@@ -104,18 +86,18 @@ int sc_main(int argc, char *argv[]) {
     return 0;  // Terminate simulation
 */
 
-    int sendbuf[2] = {2, 5};
-    int recvbuf[2];
+    char sendbuf[BUFSIZE] = "cnt";
+    char recvbuf[2][BUFSIZE];
 
-    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
-    printf("COUNTER=%d WORLD=%d SIZE=%d PID=%d\n", *recvbuf, world_rank, world_size, getpid());
-    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
+    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
+    printf("COUNTER=%s\n", *recvbuf);
+    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
 
-    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
-    printf("COUNTER=%d WORLD=%d SIZE=%d PID=%d\n", *recvbuf, world_rank, world_size, getpid());
-    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, 0, intercomm);
+    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
+    printf("COUNTER=%s\n", *recvbuf);
+    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
 
-//    MPI_Barrier(intercomm);
+//    MPI_Barrier(inter_com);
     MPI_Finalize();
     return 0;
 }

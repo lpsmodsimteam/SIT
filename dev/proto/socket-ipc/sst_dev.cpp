@@ -215,26 +215,26 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
-    int np[2] = {1, 1};
-    int errcodes[2];
-    MPI_Comm intercomm;
-    char *cmds[2] = {&m_sysc_counter[0u], &m_sysc_inverter[0u]};
-    MPI_Info infos[2] = {MPI_INFO_NULL, MPI_INFO_NULL};
+    int np[m_num_procs] = {1, 1};
+    int errcodes[m_num_procs];
+    MPI_Comm inter_com;
+    char *cmds[m_num_procs] = {&m_sysc_counter[0u], &m_sysc_inverter[0u]};
+    MPI_Info infos[m_num_procs] = {MPI_INFO_NULL, MPI_INFO_NULL};
 
-    MPI_Comm_spawn_multiple(2, cmds, MPI_ARGVS_NULL, np, infos, 0, MPI_COMM_SELF, &intercomm, errcodes);
+    MPI_Comm_spawn_multiple(m_num_procs, cmds, MPI_ARGVS_NULL, np, infos, 0, MPI_COMM_SELF, &inter_com, errcodes);
 
-    int sendbuf[2] = {1, -1};
-    int recvbuf[2];
+    char sendbuf[m_num_procs][BUFSIZE] = {"hello1", "hello2"};
+    char recvbuf[m_num_procs][BUFSIZE];
 
-    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_ROOT, intercomm);
-    printf("MASTER ONE=%d %d\n", *recvbuf, getpid());
-    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_ROOT, intercomm);
-    printf("MASTER TWO=%d %d\n", recvbuf[0], recvbuf[1]);
+    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, MPI_ROOT, inter_com);
+    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, MPI_ROOT, inter_com);
+    printf("MASTER RECEIVED={%s, %s}\n", recvbuf[0], recvbuf[1]);
 
-    MPI_Scatter(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_ROOT, intercomm);
-    printf("MASTER THREE=%d %d\n", *recvbuf, getpid());
-    MPI_Gather(sendbuf, 1, MPI_INT, recvbuf, 1, MPI_INT, MPI_ROOT, intercomm);
-    printf("MASTER FOUR=%d %d\n", recvbuf[0], recvbuf[1]);
+    strncpy(sendbuf[0], "helloagain1", BUFSIZE);
+    strncpy(sendbuf[1], "helloagain2", BUFSIZE);
+    MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, MPI_ROOT, inter_com);
+    MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, MPI_ROOT, inter_com);
+    printf("MASTER RECEIVED={%s, %s}\n", recvbuf[0], recvbuf[1]);
 
 //    init_socks();
 //
