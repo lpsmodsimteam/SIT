@@ -55,6 +55,8 @@ sst_dev::~sst_dev() {
     delete[] infos;
 
     m_data_out.clear();
+    m_procs.clear();
+
     delete[] send_buf;
     delete[] recv_buf;
 
@@ -119,9 +121,11 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     for (int proc = 0; proc < m_num_procs; proc++) {
 
+        // assign SST clock to SystemC clock
+        m_data_out[proc]["clock"] = current_cycle;
+
         if (proc) {
 
-            m_data_out[proc]["clock"] = current_cycle;
             m_data_out[proc]["on"] = true;
             m_data_out[proc]["data_in"] = counter_out;
 
@@ -138,9 +142,6 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
             m_data_out[proc]["on"] = true;
             m_data_out[proc]["enable"] = false;
             m_data_out[proc]["reset"] = false;
-
-            // assign SST clock to SystemC clock
-            m_data_out[proc]["clock"] = current_cycle;
 
             // set reset to 1 at 4 ns
             if (current_cycle >= 4) {

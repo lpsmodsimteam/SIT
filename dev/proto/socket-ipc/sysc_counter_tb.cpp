@@ -43,11 +43,13 @@ int sc_main(int argc, char *argv[]) {
     json m_data_out;
 
     bool flag;
+    char *send_buf;
+    char *recv_buf;
 
     do {
 
-        char send_buf[BUFSIZE];
-        char recv_buf[BUFSIZE];
+        send_buf = new char[BUFSIZE];
+        recv_buf = new char[BUFSIZE];
 
         sc_start(1, SC_NS);
 
@@ -70,8 +72,10 @@ int sc_main(int argc, char *argv[]) {
 
         m_data_out.clear();
 
-
     } while (flag);
+
+    free(send_buf);
+    free(recv_buf);
 
     MPI_Finalize();
     return 0;
