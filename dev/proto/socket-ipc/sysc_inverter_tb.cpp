@@ -31,6 +31,7 @@ int sc_main(int argc, char *argv[]) {
     MPI_Comm inter_com;
     MPI_Comm_get_parent(&inter_com);
 
+
     /*
     int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
 //    int sock_fd = 26;
@@ -99,15 +100,20 @@ int sc_main(int argc, char *argv[]) {
     return 0;  // Terminate simulation
 */
 
+    int pid = getpid();
+    MPI_Gather(&pid, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
+    MPI_Gather(&world_rank, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
+
+
     char sendbuf[BUFSIZE] = "inv";
-    char recvbuf[2][BUFSIZE];
+    char recvbuf[BUFSIZE];
 
     MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-    printf("INVERTER=%s\n", *recvbuf);
+    printf("INVERTER=%s\n", recvbuf);
     MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
 
     MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-    printf("INVERTER=%s\n", *recvbuf);
+    printf("INVERTER=%s\n", recvbuf);
     MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
 
     MPI_Finalize();

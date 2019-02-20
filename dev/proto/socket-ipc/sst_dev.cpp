@@ -8,8 +8,7 @@ Simple 4-bit Up-Counter Model with one clock
 #include <arpa/inet.h> // inet_ntoa
 
 #define PROC_STR "proc"
-#define FD_STR "fd"
-#define PORT_STR "port"
+#define RANK_STR "rank"
 #define PID_STR "pid"
 
 #include <mpi.h>
@@ -55,7 +54,7 @@ sst_dev::~sst_dev() {
 //    close(m_master_sock);
 
 //    for (int i = 0; i < m_num_procs; i++) {
-//        int fd = m_procs[i][FD_STR].get<int>();
+//        int fd = m_procs[i][RANK_STR].get<int>();
 //        m_output.verbose(CALL_INFO, 1, 0, "Closing child socket %d...\n", fd);
 //        shutdown(fd, SHUT_RDWR);
 //        close(fd);
@@ -66,6 +65,7 @@ sst_dev::~sst_dev() {
 
 }
 
+/*
 int sst_dev::init_socks() {
 
     // add new socket to array of sockets
@@ -73,8 +73,7 @@ int sst_dev::init_socks() {
 
         m_procs[i] = {
                 {PROC_STR, m_proc_names[i]},
-                {FD_STR,   0},
-                {PORT_STR, 0},
+                {RANK_STR,   0},
                 {PID_STR,  0}
         };
 
@@ -139,7 +138,7 @@ int sst_dev::sync_procs() {
         //add child sockets to set
         for (int i = 0; i < m_num_procs; i++) {
             //socket descriptor
-            sd = m_procs[i][FD_STR];
+            sd = m_procs[i][RANK_STR];
 
             //if valid socket descriptor then add to read list
             if (sd > 0) {
@@ -182,13 +181,13 @@ int sst_dev::sync_procs() {
                 // Close the socket and mark as 0 in list for reuse
                 shutdown(m_new_sock, SHUT_RDWR);
                 close(m_new_sock);
-                m_procs[connected_procs][FD_STR] = 0;
+                m_procs[connected_procs][RANK_STR] = 0;
 
             } else {
 
                 m_buffer[valread] = '\0';
 
-                m_procs[connected_procs][FD_STR] = m_new_sock;
+                m_procs[connected_procs][RANK_STR] = m_new_sock;
                 m_procs[connected_procs][PORT_STR] = port;
                 m_procs[connected_procs][PID_STR] = std::stoi(m_buffer);
                 connected_procs++;
@@ -207,6 +206,7 @@ int sst_dev::sync_procs() {
 
 }
 
+*/
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
 void sst_dev::setup() {
@@ -222,6 +222,29 @@ void sst_dev::setup() {
     MPI_Info infos[m_num_procs] = {MPI_INFO_NULL, MPI_INFO_NULL};
 
     MPI_Comm_spawn_multiple(m_num_procs, cmds, MPI_ARGVS_NULL, np, infos, 0, MPI_COMM_SELF, &inter_com, errcodes);
+
+
+    int child_pids[m_num_procs];
+    int child_ranks[m_num_procs];
+
+    MPI_Gather(nullptr, 1, MPI_INT, child_pids, 1, MPI_INT, MPI_ROOT, inter_com);
+    printf("MASTER RECEIVED={%d, %d}\n", child_pids[0], child_pids[1]);
+    MPI_Gather(nullptr, 1, MPI_INT, child_ranks, 1, MPI_INT, MPI_ROOT, inter_com);
+    printf("MASTER RECEIVED={%d, %d}\n", child_ranks[0], child_ranks[1]);
+
+    // add new socket to array of sockets
+    for (int i = 0; i < m_num_procs; i++) {
+
+        m_procs[i] = {
+                {PROC_STR, m_proc_names[i]},
+                {RANK_STR, child_ranks[i]},
+                {PID_STR,  child_pids[i]}
+        };
+
+    }
+
+    std::cout << m_procs << std::endl;
+
 
     char sendbuf[m_num_procs][BUFSIZE] = {"hello1", "hello2"};
     char recvbuf[m_num_procs][BUFSIZE];
@@ -302,8 +325,8 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
             }
 
             // ---------------- WRITE DATA ----------------
-            std::cout << "DATA 1: " << m_data_out1 << "ON: " << m_procs[proc][FD_STR].get<int>() << std::endl;
-            send_json(m_data_out1, m_procs[proc][FD_STR].get<int>());
+            std::cout << "DATA 1: " << m_data_out1 << "ON: " << m_procs[proc][RANK_STR].get<int>() << std::endl;
+            send_json(m_data_out1, m_procs[proc][RANK_STR].get<int>());
 
             try {
 
@@ -311,7 +334,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 if (m_data_out1["on"].get<bool>()) {
 
                     // ---------------- READ DATA ----------------
-                    m_data_in1 = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
+                    m_data_in1 = recv_json(m_buffer, m_procs[proc][RANK_STR].get<int>());
 
                     m_output.verbose(CALL_INFO, 1, 0, "Inverter: %d\n",
                                      std::stoi(m_data_in1["data_out"].get<std::string>()));
@@ -377,8 +400,8 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
             // ---------------- SOCKET COMMUNICATION ----------------
 
             // ---------------- WRITE DATA ----------------
-            std::cout << "DATA 0: " << m_data_out << "ON: " << m_procs[proc][FD_STR].get<int>() << std::endl;
-            send_json(m_data_out, m_procs[proc][FD_STR].get<int>());
+            std::cout << "DATA 0: " << m_data_out << "ON: " << m_procs[proc][RANK_STR].get<int>() << std::endl;
+            send_json(m_data_out, m_procs[proc][RANK_STR].get<int>());
 
             try {
 
@@ -386,7 +409,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 if (m_data_out["on"].get<bool>()) {
 
                     // ---------------- READ DATA ----------------
-                    m_data_in = recv_json(m_buffer, m_procs[proc][FD_STR].get<int>());
+                    m_data_in = recv_json(m_buffer, m_procs[proc][RANK_STR].get<int>());
 
                     counter_out = std::stoi(m_data_in["data_out"].get<std::string>());
 

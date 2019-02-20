@@ -86,15 +86,19 @@ int sc_main(int argc, char *argv[]) {
     return 0;  // Terminate simulation
 */
 
+    int pid = getpid();
+    MPI_Gather(&pid, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
+    MPI_Gather(&world_rank, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
+
     char sendbuf[BUFSIZE] = "cnt";
-    char recvbuf[2][BUFSIZE];
+    char recvbuf[BUFSIZE];
 
     MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-    printf("COUNTER=%s\n", *recvbuf);
+    printf("COUNTER=%s\n", recvbuf);
     MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
 
     MPI_Scatter(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
-    printf("COUNTER=%s\n", *recvbuf);
+    printf("COUNTER=%s\n", recvbuf);
     MPI_Gather(sendbuf, BUFSIZE, MPI_CHAR, recvbuf, BUFSIZE, MPI_CHAR, 0, inter_com);
 
 //    MPI_Barrier(inter_com);
