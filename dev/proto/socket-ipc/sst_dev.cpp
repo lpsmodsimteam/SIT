@@ -46,11 +46,6 @@ sst_dev::~sst_dev() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
 
-    delete[] np;
-    delete[] errcodes;
-    delete[] cmds;
-    delete[] infos;
-
     m_data_out.clear();
     m_procs.clear();
 
@@ -67,37 +62,43 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
-    m_proc_names = new std::string[m_num_procs]{"counter1", "inverter"};
-
-    np = new int[m_num_procs]{1, 1};
-    errcodes = new int[m_num_procs];
-    cmds = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u]};
-    infos = new MPI_Info[m_num_procs]{MPI_INFO_NULL, MPI_INFO_NULL};
+    auto MAX_PROCS = new int[m_num_procs]{1, 1};
+    auto ERR_CODES = new int[m_num_procs];
+    auto PROCS = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u]};
+    auto INFOS = new MPI_Info[m_num_procs]{MPI_INFO_NULL, MPI_INFO_NULL};
 
     send_buf = new char[m_num_procs][BUFSIZE];
     recv_buf = new char[m_num_procs][BUFSIZE];
 
-    MPI_Comm_spawn_multiple(m_num_procs, cmds, MPI_ARGVS_NULL, np, infos, 0, MPI_COMM_SELF, &m_inter_com, errcodes);
+    MPI_Comm_spawn_multiple(m_num_procs, PROCS, MPI_ARGVS_NULL, MAX_PROCS, INFOS,
+            0, MPI_COMM_SELF, &m_inter_com, ERR_CODES);
 
     int child_pids[m_num_procs];
     int child_ranks[m_num_procs];
 
+    // gather PIDs of spawned processes
     MPI_Gather(nullptr, 1, MPI_INT, child_pids, 1, MPI_INT, MPI_ROOT, m_inter_com);
-    printf("MASTER RECEIVED PIDS={%d, %d}\n", child_pids[0], child_pids[1]);
+    // gather ranks of spawned processes
     MPI_Gather(nullptr, 1, MPI_INT, child_ranks, 1, MPI_INT, MPI_ROOT, m_inter_com);
-    printf("MASTER RECEIVED RANKS={%d, %d}\n", child_ranks[0], child_ranks[1]);
 
-    // add new socket to array of sockets
+    // construct a summary variable with PIDs, ranks and process names
     for (int i = 0; i < m_num_procs; i++) {
 
         m_procs[i] = {
-                {PROC_STR, m_proc_names[i]},
+                {PROC_STR, PROCS[i]},
                 {RANK_STR, child_ranks[i]},
                 {PID_STR,  child_pids[i]}
         };
-        m_data_out[i] = json{};
+        m_data_out[i] = json{};  // initialize empty JSON objects
 
     }
+
+    delete[] MAX_PROCS;
+    delete[] ERR_CODES;
+    delete[] PROCS;
+    delete[] INFOS;
+
+    std::cout << m_procs.dump(4) << std::endl;
 
 }
 

@@ -1,5 +1,5 @@
-#ifndef _counter_H
-#define _counter_H
+#ifndef _SST_DEV_H
+#define _SST_DEV_H
 
 #include "sstsysc.hpp"
 
@@ -37,23 +37,17 @@ public:
 
 private:
 
-    // parameters
+    // SST parameters
+    SST::Output m_output;
     std::string m_sysc_counter;
     std::string m_sysc_inverter;
     int m_num_procs;
-    std::string *m_proc_names;
-    json m_procs;
 
-    int *np;
-    int *errcodes;
+    // process variables
+    json m_procs;  // all details about child processes
     MPI_Comm m_inter_com;
-    char **cmds;
-    MPI_Info *infos;
-
     char (*send_buf)[BUFSIZE];
     char (*recv_buf)[BUFSIZE];
-
-    SST::Output m_output;
     json m_data_in;
     json m_data_out;
 
