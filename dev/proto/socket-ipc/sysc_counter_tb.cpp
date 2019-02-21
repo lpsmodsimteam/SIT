@@ -60,7 +60,7 @@ int sc_main(int argc, char *argv[]) {
                   << m_data_in["enable"] << " | reset: " << m_data_in["reset"] << std::endl;
         m_data_in.clear();
 
-        m_data_out["cnt_out"] = std::stoi(to_string(data_out));
+        m_data_out["cnt_out"] = _sc_signal_to_int(data_out);
 
         *send_buf = m_data_out.dump();
         // m_data_out.dump().c_str() is (const char *)

@@ -26,7 +26,7 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     // Initialize output
-    m_output.init("\033[32mmodule-" + getName() + "\033[0m (pid: " + to_string(getpid()) + ") -> ", 1, 0,
+    m_output.init("\033[32mmodule-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
                   SST::Output::STDOUT);
 
     m_num_procs = params.find<int>("num_procs", 1);
@@ -186,7 +186,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
             }
         }
 
-        strncpy(send_buf[proc], to_string(m_data_out[proc]).c_str(), BUFSIZE);
+        strncpy(send_buf[proc], m_data_out[proc].dump().c_str(), BUFSIZE);
         if (!m_data_out[proc]["on"]) {
             destroyed_mods++;
         }

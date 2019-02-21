@@ -11,12 +11,20 @@ using json = nlohmann::json;
 #define BUFSIZE 1025
 
 template<typename T>
-std::string to_string(const T &value) {
+std::string _to_string(const T &value) {
 
     std::ostringstream ss;
     ss << value;
     return ss.str();
 
 }
+
+template<typename T>
+int _sc_signal_to_int(const T &value) {
+
+    return std::stoi(_to_string(value));
+
+}
+
 
 #endif

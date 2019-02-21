@@ -45,7 +45,6 @@ int sc_main(int argc, char *argv[]) {
         sc_start(1, SC_NS);
 
         MPI_Scatter(nullptr, BUFSIZE, MPI_CHAR, recv_buf, BUFSIZE, MPI_CHAR, 0, inter_com);
-//        printf("YO %s\n", &recv_buf);
         m_data_in = json::parse(recv_buf);
 
         flag = m_data_in["on"].get<bool>();
@@ -55,10 +54,10 @@ int sc_main(int argc, char *argv[]) {
                   << m_data_in["data_in"] << std::endl;
         m_data_in.clear();
 
-        m_data_out["inv_out"] = to_string(data_out);
+        m_data_out["inv_out"] = _sc_signal_to_int(data_out);
 
         *send_buf = m_data_out.dump();
-//        strncpy(send_buf, to_string(m_data_out).c_str(), BUFSIZE);
+//        strncpy(send_buf, _to_string(m_data_out).c_str(), BUFSIZE);
         MPI_Gather(send_buf->c_str(), BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, 0, inter_com);
 
         m_data_out.clear();
