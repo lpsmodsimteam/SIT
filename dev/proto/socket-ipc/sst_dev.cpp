@@ -187,7 +187,8 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
             }
         }
 
-        strncpy(send_buf[proc], m_data_out[proc].dump().c_str(), BUFSIZE);
+        snprintf(send_buf[proc], sizeof(send_buf[proc]), "%s",
+                m_data_out[proc].dump().c_str());
         if (!m_data_out[proc]["on"]) {
             destroyed_mods++;
         }
