@@ -1,6 +1,6 @@
 #ifndef SSTSYSC_HPP
 #define SSTSYSC_HPP
 
-#include "jsonbuf.hpp"
+#include "sigutils.hpp"
 
 #endif

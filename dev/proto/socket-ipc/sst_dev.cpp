@@ -13,11 +13,7 @@ Simple 4-bit Up-Counter Model with one clock
 // Component Constructor
 sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
 
-    int done_already;
-    MPI_Initialized(&done_already);
-    if (!done_already) {
-        MPI_Init(nullptr, nullptr);
-    }
+    init_MPI();
 
     // Find out rank, size
     int world_rank;
@@ -195,9 +191,9 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     }
 
-    MPI_Scatter(send_buf, BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, MPI_ROOT, m_inter_com);
+    transmit_signals(*send_buf, m_inter_com);
     if (destroyed_mods != m_num_procs) {
-        MPI_Gather(nullptr, BUFSIZE, MPI_CHAR, recv_buf, BUFSIZE, MPI_CHAR, MPI_ROOT, m_inter_com);
+        receive_signals(*recv_buf, m_inter_com);
         counter_out = json::parse(recv_buf[0])["cnt_out"].get<int>();
         m_output.verbose(CALL_INFO, 1, 0, "{%s, %s}\n", recv_buf[0], recv_buf[1]);
     }

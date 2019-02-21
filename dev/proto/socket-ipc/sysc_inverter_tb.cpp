@@ -13,17 +13,11 @@ int sc_main(int argc, char *argv[]) {
     sysc_inverter.data_in(data_in);
     sysc_inverter.data_out(data_out);
 
-    int done_already;
-    MPI_Initialized(&done_already);
-    if (!done_already) {
-        MPI_Init(nullptr, nullptr);
-    }
+    init_MPI();
 
     // Find out rank, size
     int world_rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-    int world_size;
-    MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
     MPI_Comm inter_com;
     MPI_Comm_get_parent(&inter_com);
@@ -44,7 +38,7 @@ int sc_main(int argc, char *argv[]) {
 
         sc_start(1, SC_NS);
 
-        MPI_Scatter(nullptr, BUFSIZE, MPI_CHAR, recv_buf, BUFSIZE, MPI_CHAR, 0, inter_com);
+        receive_signals(recv_buf, inter_com, false);
         m_data_in = json::parse(recv_buf);
 
         flag = m_data_in["on"].get<bool>();
@@ -57,8 +51,8 @@ int sc_main(int argc, char *argv[]) {
         m_data_out["inv_out"] = _sc_signal_to_int(data_out);
 
         *send_buf = m_data_out.dump();
-//        strncpy(send_buf, _to_string(m_data_out).c_str(), BUFSIZE);
-        MPI_Gather(send_buf->c_str(), BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, 0, inter_com);
+        // m_data_out.dump().c_str() is (const char *)
+        transmit_signals(send_buf->c_str(), inter_com, false);
 
         m_data_out.clear();
 
