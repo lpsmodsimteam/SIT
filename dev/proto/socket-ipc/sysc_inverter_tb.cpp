@@ -3,8 +3,6 @@
 #include "sstsysc.hpp"
 #include <systemc.h>
 
-#include <mpi.h>
-
 int sc_main(int argc, char *argv[]) {
 
     sc_signal<sc_uint<4> > data_in;
@@ -39,17 +37,15 @@ int sc_main(int argc, char *argv[]) {
     json m_data_out;
 
     bool flag;
-    char *send_buf;
-    char *recv_buf;
+    auto *send_buf = new std::string;
+    auto *recv_buf = new char[BUFSIZE];
 
     do {
-
-        send_buf = new char[BUFSIZE];
-        recv_buf = new char[BUFSIZE];
 
         sc_start(1, SC_NS);
 
         MPI_Scatter(nullptr, BUFSIZE, MPI_CHAR, recv_buf, BUFSIZE, MPI_CHAR, 0, inter_com);
+//        printf("YO %s\n", &recv_buf);
         m_data_in = json::parse(recv_buf);
 
         flag = m_data_in["on"].get<bool>();
@@ -61,14 +57,16 @@ int sc_main(int argc, char *argv[]) {
 
         m_data_out["inv_out"] = to_string(data_out);
 
-        strncpy(send_buf, to_string(m_data_out).c_str(), BUFSIZE);
-        MPI_Gather(send_buf, BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, 0, inter_com);
+        *send_buf = m_data_out.dump();
+//        strncpy(send_buf, to_string(m_data_out).c_str(), BUFSIZE);
+        MPI_Gather(send_buf->c_str(), BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, 0, inter_com);
 
         m_data_out.clear();
 
     } while (flag);
 
-    free(send_buf);
+//    free(send_buf);
+    send_buf = nullptr;
     free(recv_buf);
 
     MPI_Finalize();

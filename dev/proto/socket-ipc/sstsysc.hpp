@@ -3,7 +3,4 @@
 
 #include "jsonbuf.hpp"
 
-#include <netdb.h>
-#include <sys/socket.h>
-
 #endif

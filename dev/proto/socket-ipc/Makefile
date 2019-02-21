@@ -1,6 +1,6 @@
-all: default
+all: compile
 
-default:
+compile:
 	mkdir -p build && cd build && cmake .. && $(MAKE)
 
 NPROCS ?= 1

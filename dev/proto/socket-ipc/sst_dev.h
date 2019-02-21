@@ -5,7 +5,6 @@
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
-#include <vector>
 
 
 class sst_dev : public SST::Component {
@@ -55,6 +54,7 @@ private:
     char (*recv_buf)[BUFSIZE];
 
     SST::Output m_output;
+    json m_data_in;
     json m_data_out;
 
 };

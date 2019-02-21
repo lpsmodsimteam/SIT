@@ -5,13 +5,10 @@ Simple 4-bit Up-Counter Model with one clock
 #include "sst_dev.h"
 
 #include <sst/core/sst_config.h>
-#include <arpa/inet.h> // inet_ntoa
 
 #define PROC_STR "proc"
 #define RANK_STR "rank"
 #define PID_STR "pid"
-
-#include <mpi.h>
 
 // Component Constructor
 sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
@@ -116,7 +113,12 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "----------------------------------------------------" << std::endl;
 
-    int counter_out = 0;
+    int counter_out;
+
+    if (!current_cycle) {
+        counter_out = 0;
+    }
+
     int destroyed_mods = 0;
 
     for (int proc = 0; proc < m_num_procs; proc++) {
@@ -194,6 +196,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
     MPI_Scatter(send_buf, BUFSIZE, MPI_CHAR, nullptr, BUFSIZE, MPI_CHAR, MPI_ROOT, m_inter_com);
     if (destroyed_mods != m_num_procs) {
         MPI_Gather(nullptr, BUFSIZE, MPI_CHAR, recv_buf, BUFSIZE, MPI_CHAR, MPI_ROOT, m_inter_com);
+        counter_out = json::parse(recv_buf[0])["cnt_out"].get<int>();
         m_output.verbose(CALL_INFO, 1, 0, "{%s, %s}\n", recv_buf[0], recv_buf[1]);
     }
     std::cout << "----------------------------------------------------" << std::endl;
