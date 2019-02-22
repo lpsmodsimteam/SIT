@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.13)
-#set(CMAKE_CXX_COMPILER /usr/bin/clang++)
+set(ENV{OMPI_CXX} clang++)
 set(CMAKE_CXX_COMPILER /usr/bin/mpic++)
 project(sstsysc CXX)
 
