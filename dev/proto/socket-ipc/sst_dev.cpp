@@ -28,6 +28,7 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
     m_num_procs = params.find<int>("num_procs", 1);
     m_sysc_counter = params.find<std::string>("sysc_counter", "");
     m_sysc_inverter = params.find<std::string>("sysc_inverter", "");
+    m_sysc_sr = params.find<std::string>("sysc_sr", "");
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_dev>(this, &sst_dev::tick));
@@ -58,10 +59,11 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
-    auto MAX_PROCS = new int[m_num_procs]{1, 1};
+    auto MAX_PROCS = new int[m_num_procs]{1, 1, 1};
     auto ERR_CODES = new int[m_num_procs];
-    auto PROCS = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u]};
-    auto INFOS = new MPI_Info[m_num_procs]{MPI_INFO_NULL, MPI_INFO_NULL};
+    auto PROCS = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u],
+                                         &m_sysc_sr[0u]};
+    auto INFOS = new MPI_Info[m_num_procs]{MPI_INFO_NULL, MPI_INFO_NULL, MPI_INFO_NULL};
 
     send_buf = new char[m_num_procs][BUFSIZE];
     recv_buf = new char[m_num_procs][BUFSIZE];
@@ -110,10 +112,11 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "----------------------------------------------------" << std::endl;
 
-    int counter_out;
+    int counter_out, sr_out;
 
-    if (!current_cycle) {
+    if (current_cycle == 1) {
         counter_out = 0;
+        sr_out = 1;
     }
 
     int destroyed_mods = 0;
@@ -123,7 +126,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
         // assign SST clock to SystemC clock
         m_data_out[proc]["clock"] = current_cycle;
 
-        if (proc) {
+        if (proc == 1) {
 
             m_data_out[proc]["on"] = true;
             m_data_out[proc]["data_in"] = counter_out;
@@ -136,7 +139,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 m_data_out[proc]["on"] = false;
             }
 
-        } else {
+        } else if (proc == 0) {
 
             m_data_out[proc]["on"] = true;
             m_data_out[proc]["enable"] = false;
@@ -181,6 +184,20 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 }
                 m_data_out[proc]["on"] = false;
             }
+
+        } else if (proc == 2) {
+
+            m_data_out[proc]["on"] = true;
+            m_data_out[proc]["data_in"] = sr_out;
+
+            // turn module off at 52 ns
+            if (current_cycle >= 52) {
+                if (current_cycle == 52) {
+                    std::cout << "SHIFT REGISTER MODULE OFF" << std::endl;
+                }
+                m_data_out[proc]["on"] = false;
+            }
+
         }
 
         snprintf(send_buf[proc], sizeof(send_buf[proc]), "%s",
@@ -195,7 +212,8 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
     if (destroyed_mods != m_num_procs) {
         receive_signals(*recv_buf, m_inter_com);
         counter_out = json::parse(recv_buf[0])["cnt_out"].get<int>();
-        m_output.verbose(CALL_INFO, 1, 0, "{%s, %s}\n", recv_buf[0], recv_buf[1]);
+        sr_out = json::parse(recv_buf[2])["sr_out"].get<int>();
+        m_output.verbose(CALL_INFO, 1, 0, "{%s, %s, %s}\n", recv_buf[0], recv_buf[1], recv_buf[2]);
     }
     std::cout << "----------------------------------------------------" << std::endl;
 

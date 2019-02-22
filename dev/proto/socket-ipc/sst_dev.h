@@ -41,6 +41,7 @@ private:
     SST::Output m_output;
     std::string m_sysc_counter;
     std::string m_sysc_inverter;
+    std::string m_sysc_sr;
     int m_num_procs;
 
     // process variables
