@@ -1,17 +1,20 @@
-#include "sysc_inverter.cpp"
+#include "sysc_counter.cpp"
 
-#include "sstsysc.hpp"
-#include <systemc.h>
+#include "sstscit.hpp"
 
 int sc_main(int argc, char *argv[]) {
 
-    sc_signal<sc_uint<4> > data_in;
+    sc_signal<bool> clock;
+    sc_signal<bool> reset;
+    sc_signal<bool> enable;
     sc_signal<sc_uint<4> > data_out;
 
     // Connect the DUT
-    sysc_inverter sysc_inverter("INVERTER");
-    sysc_inverter.data_in(data_in);
-    sysc_inverter.data_out(data_out);
+    sysc_counter sysc_counter("COUNTER");
+    sysc_counter.clock(clock);
+    sysc_counter.reset(reset);
+    sysc_counter.enable(enable);
+    sysc_counter.data_out(data_out);
 
     init_MPI();
 
@@ -31,7 +34,6 @@ int sc_main(int argc, char *argv[]) {
     json m_data_out;
 
     bool flag;
-    auto *send_buf = new std::string;
     auto *recv_buf = new char[BUFSIZE];
 
     do {
@@ -42,25 +44,24 @@ int sc_main(int argc, char *argv[]) {
         m_data_in = json::parse(recv_buf);
 
         flag = m_data_in["on"].get<bool>();
-        data_in = m_data_in["data_in"].get<int>();
+        clock = (m_data_in["clock"].get<int>()) % 2;
+        enable = m_data_in["enable"].get<bool>();
+        reset = m_data_in["reset"].get<bool>();
 
-        std::cout << "\033[33mINVERTER\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp() << " | data_in: "
-                  << m_data_in["data_in"] << std::endl;
+        std::cout << "\033[33mCOUNTER\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp() << " | enable: "
+                  << m_data_in["enable"] << " | reset: " << m_data_in["reset"] << std::endl;
         m_data_in.clear();
 
-        m_data_out["inv_out"] = _sc_signal_to_int(data_out);
+        m_data_out["cnt_out"] = _sc_signal_to_int(data_out);
 
-        *send_buf = m_data_out.dump();
         // m_data_out.dump().c_str() is (const char *)
-        transmit_signals(send_buf->c_str(), inter_com, false);
-
+        transmit_signals(m_data_out.dump().c_str(), inter_com, false);
         m_data_out.clear();
 
     } while (flag);
 
-//    free(send_buf);
-    send_buf = nullptr;
-    free(recv_buf);
+    delete[] recv_buf;
+    recv_buf = nullptr;
 
     MPI_Finalize();
     return 0;

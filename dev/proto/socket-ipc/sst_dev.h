@@ -1,7 +1,7 @@
 #ifndef _SST_DEV_H
 #define _SST_DEV_H
 
-#include "sstsysc.hpp"
+#include "sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>

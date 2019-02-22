@@ -15,9 +15,9 @@ set(CMAKE_PREFIX_PATH /opt/systemc)
 find_package(SystemCLanguage CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 
-add_executable(sysc_counter_module.o sysc_counter.cpp sysc_counter_tb.cpp)
+add_executable(sysc_counter_module.o sysc_counter.cpp sysc_counter_driver.cpp)
 target_link_libraries(sysc_counter_module.o SystemC::systemc)
-add_executable(sysc_inverter_module.o sysc_inverter.cpp sysc_inverter_tb.cpp)
+add_executable(sysc_inverter_module.o sysc_inverter.cpp sysc_inverter_driver.cpp)
 target_link_libraries(sysc_inverter_module.o SystemC::systemc)
 
 set(SST_OBJ "libsst_devSST.so")
