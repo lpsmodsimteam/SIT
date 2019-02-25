@@ -4,17 +4,19 @@ SC_MODULE (galois_lfsr) {
 
     sc_in<bool> clock;
     sc_in<bool> reset;
-    sc_in<bool> feedback;
+    sc_in<sc_uint<4> > data_in;
 
     sc_out<sc_uint<4> > data_out;
     sc_bv<4> din_bv;
     sc_bv<4> mask = "1001";
 
-    void shift() {
+    void lfsr() {
 
+        std::cout << "GETTING: " << (sc_bv<4>) data_in << " SHOULD BE " <<
+                  ("0", din_bv.range(3, 1)) << std::endl;
         if (reset.read()) {
 
-            din_bv = "0001";
+            din_bv = data_in;
 
         } else {
 
@@ -33,7 +35,7 @@ SC_MODULE (galois_lfsr) {
     // Constructor
     SC_CTOR(galois_lfsr) {
         std::cout << "INSTANTIATING GALOIS LFSR" << std::endl;
-        SC_METHOD(shift);
+        SC_METHOD(lfsr);
         sensitive << clock.pos();
     }
 

@@ -4,11 +4,13 @@
 
 int sc_main(int argc, char *argv[]) {
 
+    sc_signal<bool> clock;
     sc_signal<sc_uint<4>> in;
     sc_signal<sc_uint<4>> data_out;
 
     // Connect the DUT
     lrs dut("shift_register");
+    dut.clock(clock);
     dut.in(in);
     dut.out(data_out);
 
@@ -40,13 +42,14 @@ int sc_main(int argc, char *argv[]) {
         _data_in = json::parse(recv_buf);
 
         flag = _data_in["on"].get<bool>();
+        clock = (_data_in["clock"].get<int>()) % 2;
         in = _data_in["data_in"].get<int>();
 
         std::cout << "\033[33mSHIFT REGISTER\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-                  << " | data_in: " << _data_in["data_in"] << " -> lsr_out: " << data_out << std::endl;
+                  << " | data_in: " << _data_in["data_in"] << " -> lrs_out: " << data_out << std::endl;
         _data_in.clear();
 
-        _data_out["lsr_out"] = _sc_signal_to_int(data_out);
+        _data_out["lrs_out"] = _sc_signal_to_int(data_out);
 
         // _data_out.dump().c_str() is (const char *)
         transmit_signals(_data_out.dump().c_str(), inter_com, false);

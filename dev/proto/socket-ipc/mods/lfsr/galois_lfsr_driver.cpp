@@ -6,14 +6,14 @@ int sc_main(int argc, char *argv[]) {
 
     sc_signal<bool> clock;
     sc_signal<bool> reset;
-    sc_signal<bool> feedback;
+    sc_signal<sc_uint<4>> data_in;
     sc_signal<sc_uint<4> > data_out;
 
     // Connect the DUT
     galois_lfsr DUT("galois_lfsr");
     DUT.clock(clock);
     DUT.reset(reset);
-    DUT.feedback(feedback);
+    DUT.data_in(data_in);
     DUT.data_out(data_out);
 
     init_MPI();
@@ -46,10 +46,11 @@ int sc_main(int argc, char *argv[]) {
         flag = _data_in["on"].get<bool>();
         clock = (_data_in["clock"].get<int>()) % 2;
         reset = _data_in["reset"].get<bool>();
-//        data_in = _data_in["data_in"].get<int>();
+        data_in = _data_in["data_in"].get<int>();
 
         std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-        << " | reset: " << _data_in["reset"] << " -> galois_lfsr_out: " << data_out << std::endl;
+                  << " | reset: " << _data_in["reset"] << " | data_in: " << _data_in["data_in"]
+                  << " -> galois_lfsr_out: " << data_out << std::endl;
         _data_in.clear();
 
         _data_out["galois_lfsr"] = _sc_signal_to_int(data_out);

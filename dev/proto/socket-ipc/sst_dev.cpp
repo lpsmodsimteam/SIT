@@ -26,7 +26,7 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
                   SST::Output::STDOUT);
 
     m_num_procs = params.find<int>("num_procs", 1);
-    m_sysc_counter = params.find<std::string>("counter", "");
+//    m_sysc_counter = params.find<std::string>("template", "");
 //    m_sysc_inverter = params.find<std::string>("inverter", "");
     m_sc_lrs = params.find<std::string>("lrs", "");
     m_sc_galois_lfsr = params.find<std::string>("galois_lfsr", "");
@@ -60,9 +60,10 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
+//    auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u], &m_sc_galois_lfsr[0u],
+//                                         &m_sc_lrs[0u]};
     auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u], &m_sc_galois_lfsr[0u],
-                                         &m_sysc_counter[0u]};
-//    auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u], &m_sc_galois_lfsr[0u]};
+                                         &m_sc_lrs[0u]};
     auto MAX_PROCS = new int[m_num_procs];
     auto ERR_CODES = new int[m_num_procs];
     auto INFOS = new MPI_Info[m_num_procs];
@@ -70,6 +71,7 @@ void sst_dev::setup() {
     for (int i = 0; i < m_num_procs; i++) {
         MAX_PROCS[i] = 1;
         INFOS[i] = MPI_INFO_NULL;
+        std::cout << m_num_procs << ' ' << PROCS[i] << std::endl;
     }
 
     send_buf = new char[m_num_procs][BUFSIZE];
@@ -119,11 +121,12 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
-    int counter_out, sr_out;
+    int counter_out, galois_lfsr_out, lrs_out;
 
     if (current_cycle == 1) {
         counter_out = 0;
-        sr_out = 1;
+        lrs_out = 1;
+        galois_lfsr_out = 1;
     }
 
     int destroyed_mods = 0;
@@ -137,7 +140,15 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
         if (proc == 0) {
 
             m_data_out[proc]["on"] = true;
-            m_data_out[proc]["data_in"] = 15;
+            m_data_out[proc]["data_in"] = 0;
+
+            // turn module off at 52 ns
+            if (current_cycle >= 2) {
+                if (current_cycle == 2) {
+                    std::cout << "RESET OFF" << std::endl;
+                }
+                m_data_out[proc]["data_in"] = galois_lfsr_out;
+            }
 
             // turn module off at 52 ns
             if (current_cycle >= 38) {
@@ -152,15 +163,15 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
             m_data_out[proc]["on"] = true;
             m_data_out[proc]["reset"] = true;
+            m_data_out[proc]["data_in"] = lrs_out;
 
             // turn module off at 52 ns
-            if (current_cycle >= 4) {
-                if (current_cycle == 4) {
+            if (current_cycle >= 3) {
+                if (current_cycle == 3) {
                     std::cout << "RESET OFF" << std::endl;
                 }
                 m_data_out[proc]["reset"] = false;
             }
-
 
             // turn module off at 52 ns
             if (current_cycle >= 38) {
@@ -172,9 +183,16 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
         } else {
 
-            m_data_out[proc]["on"] = false;
-            m_data_out[proc]["enable"] = false;
-            m_data_out[proc]["reset"] = false;
+            m_data_out[proc]["on"] = true;
+            m_data_out[proc]["data_in"] = 15;
+
+            // turn module off at 52 ns
+            if (current_cycle >= 38) {
+                if (current_cycle == 38) {
+                    std::cout << "SHIFT REGISTER MODULE OFF" << std::endl;
+                }
+                m_data_out[proc]["on"] = false;
+            }
 
         }
 
@@ -189,8 +207,9 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
     transmit_signals(*send_buf, m_inter_com);
     if (destroyed_mods != m_num_procs) {
         receive_signals(*recv_buf, m_inter_com);
-        sr_out = json::parse(recv_buf[1])["galois_lfsr"].get<int>();
-        m_output.verbose(CALL_INFO, 1, 0, "{%s}\n", recv_buf[1]);
+        lrs_out = json::parse(recv_buf[0])["lrs_out"].get<int>();
+        galois_lfsr_out = json::parse(recv_buf[1])["galois_lfsr"].get<int>();
+        m_output.verbose(CALL_INFO, 1, 0, "{%s, %s}\n", recv_buf[0], recv_buf[1]);
     }
     std::cout << "---------------------------------------------------->" << std::endl;
 

@@ -2,6 +2,7 @@
 
 SC_MODULE (lrs) {
 
+    sc_in<bool> clock;
     sc_in<sc_uint<4>> in;
 
     sc_out<sc_uint<4>> out;
