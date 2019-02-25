@@ -26,6 +26,8 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
                   SST::Output::STDOUT);
 
     m_num_procs = params.find<int>("num_procs", 1);
+    m_sysc_counter = params.find<std::string>("counter", "");
+//    m_sysc_inverter = params.find<std::string>("inverter", "");
     m_sc_lrs = params.find<std::string>("lrs", "");
     m_sc_galois_lfsr = params.find<std::string>("galois_lfsr", "");
 
@@ -58,9 +60,9 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
-//    auto PROCS = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u],
-//                                         &m_sc_galois_lfsr[0u]};
-    auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u],&m_sc_galois_lfsr[0u]};
+    auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u], &m_sc_galois_lfsr[0u],
+                                         &m_sysc_counter[0u]};
+//    auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u], &m_sc_galois_lfsr[0u]};
     auto MAX_PROCS = new int[m_num_procs];
     auto ERR_CODES = new int[m_num_procs];
     auto INFOS = new MPI_Info[m_num_procs];
@@ -132,7 +134,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
         m_data_out[proc]["clock"] = current_cycle;
 
         // 4-bit logical right shifter
-        if (proc == 1) {
+        if (proc == 0) {
 
             m_data_out[proc]["on"] = true;
             m_data_out[proc]["data_in"] = 15;
@@ -146,7 +148,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
             }
 
             // Galois LFSR
-        } else if (proc == 0) {
+        } else if (proc == 1) {
 
             m_data_out[proc]["on"] = true;
             m_data_out[proc]["reset"] = true;
@@ -168,6 +170,12 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 m_data_out[proc]["on"] = false;
             }
 
+        } else {
+
+            m_data_out[proc]["on"] = false;
+            m_data_out[proc]["enable"] = false;
+            m_data_out[proc]["reset"] = false;
+
         }
 
         snprintf(send_buf[proc], sizeof(send_buf[proc]), "%s",
@@ -181,9 +189,8 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
     transmit_signals(*send_buf, m_inter_com);
     if (destroyed_mods != m_num_procs) {
         receive_signals(*recv_buf, m_inter_com);
-//        counter_out = json::parse(recv_buf[0])["cnt_out"].get<int>();
-        sr_out = json::parse(recv_buf[0])["galois_lfsr"].get<int>();
-        m_output.verbose(CALL_INFO, 1, 0, "{%s}\n", recv_buf[0]);
+        sr_out = json::parse(recv_buf[1])["galois_lfsr"].get<int>();
+        m_output.verbose(CALL_INFO, 1, 0, "{%s}\n", recv_buf[1]);
     }
     std::cout << "---------------------------------------------------->" << std::endl;
 

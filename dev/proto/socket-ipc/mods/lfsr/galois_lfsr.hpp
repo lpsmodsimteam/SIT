@@ -32,6 +32,7 @@ SC_MODULE (galois_lfsr) {
 
     // Constructor
     SC_CTOR(galois_lfsr) {
+        std::cout << "INSTANTIATING GALOIS LFSR" << std::endl;
         SC_METHOD(shift);
         sensitive << clock.pos();
     }

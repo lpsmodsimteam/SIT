@@ -17,6 +17,7 @@ SC_MODULE (lrs) {
 
     // Constructor
     SC_CTOR(lrs) {
+        std::cout << "INSTANTIATING LOGICAL RIGHT SHIFTER" << std::endl;
         SC_METHOD(func);
         sensitive << in;
     }
