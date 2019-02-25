@@ -1,4 +1,4 @@
-#include "shift_register.hpp"
+#include "xor2.hpp"
 
 #include "../../sstscit.hpp"
 
@@ -7,14 +7,16 @@ int sc_main(int argc, char *argv[]) {
     sc_signal<bool> clock;
     sc_signal<bool> reset;
     sc_signal<bool> feedback;
+    sc_signal<sc_uint<4> > data_in;
     sc_signal<sc_uint<4> > data_out;
 
     // Connect the DUT
-    shift_register DUT("shift_register");
-    DUT.clock(clock);
-    DUT.reset(reset);
-    DUT.feedback(feedback);
-    DUT.data_out(data_out);
+    shift_register sysc_shift_register("shift_register");
+    sysc_shift_register.clock(clock);
+    sysc_shift_register.reset(reset);
+    sysc_shift_register.feedback(feedback);
+    sysc_shift_register.data_in(data_in);
+    sysc_shift_register.data_out(data_out);
 
     init_MPI();
 
@@ -45,11 +47,10 @@ int sc_main(int argc, char *argv[]) {
 
         flag = _data_in["on"].get<bool>();
         clock = (_data_in["clock"].get<int>()) % 2;
-        reset = _data_in["reset"].get<bool>();
-//        data_in = _data_in["data_in"].get<int>();
+        data_in = _data_in["data_in"].get<int>();
 
-        std::cout << "\033[33mSHIFT REGISTER\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-        << " | reset: " << _data_in["reset"] << " -> sr_out: " << data_out << std::endl;
+        std::cout << "\033[33mSHIFT REGISTER\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp() << " | data_in: "
+                  << _data_in["data_in"] << std::endl;
         _data_in.clear();
 
         _data_out["sr_out"] = _sc_signal_to_int(data_out);

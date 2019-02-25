@@ -59,8 +59,9 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
-    auto PROCS = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u],
-                                         &m_sysc_sr[0u]};
+//    auto PROCS = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u],
+//                                         &m_sysc_sr[0u]};
+    auto PROCS = new char *[m_num_procs]{&m_sysc_sr[0u]};
     auto MAX_PROCS = new int[m_num_procs];
     auto ERR_CODES = new int[m_num_procs];
     auto INFOS = new MPI_Info[m_num_procs];
@@ -69,12 +70,12 @@ void sst_dev::setup() {
         MAX_PROCS[i] = 1;
         INFOS[i] = MPI_INFO_NULL;
     }
-    
+
     send_buf = new char[m_num_procs][BUFSIZE];
     recv_buf = new char[m_num_procs][BUFSIZE];
 
     MPI_Comm_spawn_multiple(m_num_procs, PROCS, MPI_ARGVS_NULL, MAX_PROCS, INFOS,
-            0, MPI_COMM_SELF, &m_inter_com, ERR_CODES);
+                            0, MPI_COMM_SELF, &m_inter_com, ERR_CODES);
 
     int child_pids[m_num_procs];
     int child_ranks[m_num_procs];
@@ -115,7 +116,7 @@ void sst_dev::finish() {
 // this function runs once every clock cycle
 bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
-    std::cout << "----------------------------------------------------" << std::endl;
+    std::cout << "<----------------------------------------------------" << std::endl;
 
     int counter_out, sr_out;
 
@@ -133,71 +134,80 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
         if (proc == 1) {
 
-            m_data_out[proc]["on"] = true;
-            m_data_out[proc]["data_in"] = counter_out;
+//            m_data_out[proc]["on"] = true;
+//            m_data_out[proc]["data_in"] = counter_out;
+//
+//            // turn module off at 52 ns
+//            if (current_cycle >= 52) {
+//                if (current_cycle == 52) {
+//                    std::cout << "INVERTER MODULE OFF" << std::endl;
+//                }
+//                m_data_out[proc]["on"] = false;
+//            }
 
-            // turn module off at 52 ns
-            if (current_cycle >= 52) {
-                if (current_cycle == 52) {
-                    std::cout << "INVERTER MODULE OFF" << std::endl;
-                }
-                m_data_out[proc]["on"] = false;
-            }
+        } else if (proc == 2) {
+//
+//            m_data_out[proc]["on"] = true;
+//            m_data_out[proc]["enable"] = false;
+//            m_data_out[proc]["reset"] = false;
+//
+//            // set reset to 1 at 4 ns
+//            if (current_cycle >= 4) {
+//                if (current_cycle == 4) {
+//                    std::cout << "RESET ON" << std::endl;
+//                }
+//                m_data_out[proc]["reset"] = true;
+//            }
+//
+//            // set reset to 0 at 8 ns
+//            if (current_cycle >= 8) {
+//                if (current_cycle == 8) {
+//                    std::cout << "RESET OFF" << std::endl;
+//                }
+//                m_data_out[proc]["reset"] = false;
+//            }
+//
+//            // set enable to 1 at 12 ns
+//            if (current_cycle >= 12) {
+//                if (current_cycle == 12) {
+//                    std::cout << "ENABLE ON" << std::endl;
+//                }
+//                m_data_out[proc]["enable"] = true;
+//            }
+//
+//            // set enable to 0 at 50 ns
+//            if (current_cycle >= 50) {
+//                if (current_cycle == 50) {
+//                    std::cout << "ENABLE OFF" << std::endl;
+//                }
+//                m_data_out[proc]["enable"] = false;
+//            }
+//
+//            // turn module off at 52 ns
+//            if (current_cycle >= 52) {
+//                if (current_cycle == 52) {
+//                    std::cout << "COUNTER MODULE OFF" << std::endl;
+//                }
+//                m_data_out[proc]["on"] = false;
+//            }
 
         } else if (proc == 0) {
 
             m_data_out[proc]["on"] = true;
-            m_data_out[proc]["enable"] = false;
-            m_data_out[proc]["reset"] = false;
+            m_data_out[proc]["reset"] = true;
 
-            // set reset to 1 at 4 ns
+            // turn module off at 52 ns
             if (current_cycle >= 4) {
                 if (current_cycle == 4) {
-                    std::cout << "RESET ON" << std::endl;
-                }
-                m_data_out[proc]["reset"] = true;
-            }
-
-            // set reset to 0 at 8 ns
-            if (current_cycle >= 8) {
-                if (current_cycle == 8) {
                     std::cout << "RESET OFF" << std::endl;
                 }
                 m_data_out[proc]["reset"] = false;
             }
 
-            // set enable to 1 at 12 ns
-            if (current_cycle >= 12) {
-                if (current_cycle == 12) {
-                    std::cout << "ENABLE ON" << std::endl;
-                }
-                m_data_out[proc]["enable"] = true;
-            }
-
-            // set enable to 0 at 50 ns
-            if (current_cycle >= 50) {
-                if (current_cycle == 50) {
-                    std::cout << "ENABLE OFF" << std::endl;
-                }
-                m_data_out[proc]["enable"] = false;
-            }
 
             // turn module off at 52 ns
-            if (current_cycle >= 52) {
-                if (current_cycle == 52) {
-                    std::cout << "COUNTER MODULE OFF" << std::endl;
-                }
-                m_data_out[proc]["on"] = false;
-            }
-
-        } else if (proc == 2) {
-
-            m_data_out[proc]["on"] = true;
-            m_data_out[proc]["data_in"] = sr_out;
-
-            // turn module off at 52 ns
-            if (current_cycle >= 52) {
-                if (current_cycle == 52) {
+            if (current_cycle >= 38) {
+                if (current_cycle == 38) {
                     std::cout << "SHIFT REGISTER MODULE OFF" << std::endl;
                 }
                 m_data_out[proc]["on"] = false;
@@ -206,7 +216,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
         }
 
         snprintf(send_buf[proc], sizeof(send_buf[proc]), "%s",
-                m_data_out[proc].dump().c_str());
+                 m_data_out[proc].dump().c_str());
         if (!m_data_out[proc]["on"]) {
             destroyed_mods++;
         }
@@ -216,11 +226,11 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
     transmit_signals(*send_buf, m_inter_com);
     if (destroyed_mods != m_num_procs) {
         receive_signals(*recv_buf, m_inter_com);
-        counter_out = json::parse(recv_buf[0])["cnt_out"].get<int>();
-        sr_out = json::parse(recv_buf[2])["sr_out"].get<int>();
-        m_output.verbose(CALL_INFO, 1, 0, "{%s, %s, %s}\n", recv_buf[0], recv_buf[1], recv_buf[2]);
+//        counter_out = json::parse(recv_buf[0])["cnt_out"].get<int>();
+        sr_out = json::parse(recv_buf[0])["sr_out"].get<int>();
+        m_output.verbose(CALL_INFO, 1, 0, "{%s}\n", recv_buf[0]);
     }
-    std::cout << "----------------------------------------------------" << std::endl;
+    std::cout << "---------------------------------------------------->" << std::endl;
 
     return false;
 

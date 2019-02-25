@@ -19,7 +19,7 @@ add_executable(sysc_counter_module.o mods/simple-counter/counter.cpp mods/simple
 target_link_libraries(sysc_counter_module.o SystemC::systemc)
 add_executable(sysc_inverter_module.o mods/simple-counter/inverter.cpp mods/simple-counter/inverter_driver.cpp)
 target_link_libraries(sysc_inverter_module.o SystemC::systemc)
-add_executable(sysc_sr_module.o mods/lfsr/shift_register.cpp mods/lfsr/shift_register_driver.cpp)
+add_executable(sysc_sr_module.o mods/lfsr/shift_register.hpp mods/lfsr/shift_register_driver.cpp)
 target_link_libraries(sysc_sr_module.o SystemC::systemc)
 
 set(SST_OBJ "libsst_devSST.so")
