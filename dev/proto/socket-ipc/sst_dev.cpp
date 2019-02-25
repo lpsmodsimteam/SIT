@@ -59,12 +59,17 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
-    auto MAX_PROCS = new int[m_num_procs]{1, 1, 1};
-    auto ERR_CODES = new int[m_num_procs];
     auto PROCS = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u],
                                          &m_sysc_sr[0u]};
-    auto INFOS = new MPI_Info[m_num_procs]{MPI_INFO_NULL, MPI_INFO_NULL, MPI_INFO_NULL};
+    auto MAX_PROCS = new int[m_num_procs];
+    auto ERR_CODES = new int[m_num_procs];
+    auto INFOS = new MPI_Info[m_num_procs];
 
+    for (int i = 0; i < m_num_procs; i++) {
+        MAX_PROCS[i] = 1;
+        INFOS[i] = MPI_INFO_NULL;
+    }
+    
     send_buf = new char[m_num_procs][BUFSIZE];
     recv_buf = new char[m_num_procs][BUFSIZE];
 
