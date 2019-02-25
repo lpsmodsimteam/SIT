@@ -1,6 +1,6 @@
 #include "systemc.h"
 
-SC_MODULE (shift_register) {
+SC_MODULE (galois_lfsr) {
 
     sc_in<bool> clock;
     sc_in<bool> reset;
@@ -31,13 +31,13 @@ SC_MODULE (shift_register) {
     }
 
     // Constructor
-    SC_CTOR(shift_register) {
+    SC_CTOR(galois_lfsr) {
         SC_METHOD(shift);
         sensitive << clock.pos();
     }
 
-    ~shift_register() override {
+    ~galois_lfsr() override {
         std::cout << getpid() << " DESTROYING SHIFT REGISTER" << std::endl;
     }
 
-}; // End of Module shift_register
+}; // End of Module galois_lfsr

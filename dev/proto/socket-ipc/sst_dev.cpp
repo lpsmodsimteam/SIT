@@ -26,9 +26,8 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
                   SST::Output::STDOUT);
 
     m_num_procs = params.find<int>("num_procs", 1);
-    m_sysc_counter = params.find<std::string>("sysc_counter", "");
-    m_sysc_inverter = params.find<std::string>("sysc_inverter", "");
-    m_sysc_sr = params.find<std::string>("sysc_sr", "");
+    m_sc_lrs = params.find<std::string>("lrs", "");
+    m_sc_galois_lfsr = params.find<std::string>("galois_lfsr", "");
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_dev>(this, &sst_dev::tick));
@@ -60,8 +59,8 @@ void sst_dev::setup() {
     std::cout << "Master pid: " << getpid() << std::endl;
 
 //    auto PROCS = new char *[m_num_procs]{&m_sysc_counter[0u], &m_sysc_inverter[0u],
-//                                         &m_sysc_sr[0u]};
-    auto PROCS = new char *[m_num_procs]{&m_sysc_sr[0u]};
+//                                         &m_sc_galois_lfsr[0u]};
+    auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u],&m_sc_galois_lfsr[0u]};
     auto MAX_PROCS = new int[m_num_procs];
     auto ERR_CODES = new int[m_num_procs];
     auto INFOS = new MPI_Info[m_num_procs];
@@ -132,65 +131,21 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
         // assign SST clock to SystemC clock
         m_data_out[proc]["clock"] = current_cycle;
 
+        // 4-bit logical right shifter
         if (proc == 1) {
 
-//            m_data_out[proc]["on"] = true;
-//            m_data_out[proc]["data_in"] = counter_out;
-//
-//            // turn module off at 52 ns
-//            if (current_cycle >= 52) {
-//                if (current_cycle == 52) {
-//                    std::cout << "INVERTER MODULE OFF" << std::endl;
-//                }
-//                m_data_out[proc]["on"] = false;
-//            }
+            m_data_out[proc]["on"] = true;
+            m_data_out[proc]["data_in"] = 15;
 
-        } else if (proc == 2) {
-//
-//            m_data_out[proc]["on"] = true;
-//            m_data_out[proc]["enable"] = false;
-//            m_data_out[proc]["reset"] = false;
-//
-//            // set reset to 1 at 4 ns
-//            if (current_cycle >= 4) {
-//                if (current_cycle == 4) {
-//                    std::cout << "RESET ON" << std::endl;
-//                }
-//                m_data_out[proc]["reset"] = true;
-//            }
-//
-//            // set reset to 0 at 8 ns
-//            if (current_cycle >= 8) {
-//                if (current_cycle == 8) {
-//                    std::cout << "RESET OFF" << std::endl;
-//                }
-//                m_data_out[proc]["reset"] = false;
-//            }
-//
-//            // set enable to 1 at 12 ns
-//            if (current_cycle >= 12) {
-//                if (current_cycle == 12) {
-//                    std::cout << "ENABLE ON" << std::endl;
-//                }
-//                m_data_out[proc]["enable"] = true;
-//            }
-//
-//            // set enable to 0 at 50 ns
-//            if (current_cycle >= 50) {
-//                if (current_cycle == 50) {
-//                    std::cout << "ENABLE OFF" << std::endl;
-//                }
-//                m_data_out[proc]["enable"] = false;
-//            }
-//
-//            // turn module off at 52 ns
-//            if (current_cycle >= 52) {
-//                if (current_cycle == 52) {
-//                    std::cout << "COUNTER MODULE OFF" << std::endl;
-//                }
-//                m_data_out[proc]["on"] = false;
-//            }
+            // turn module off at 52 ns
+            if (current_cycle >= 38) {
+                if (current_cycle == 38) {
+                    std::cout << "SHIFT REGISTER MODULE OFF" << std::endl;
+                }
+                m_data_out[proc]["on"] = false;
+            }
 
+            // Galois LFSR
         } else if (proc == 0) {
 
             m_data_out[proc]["on"] = true;
@@ -208,7 +163,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
             // turn module off at 52 ns
             if (current_cycle >= 38) {
                 if (current_cycle == 38) {
-                    std::cout << "SHIFT REGISTER MODULE OFF" << std::endl;
+                    std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
                 }
                 m_data_out[proc]["on"] = false;
             }
@@ -227,7 +182,7 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
     if (destroyed_mods != m_num_procs) {
         receive_signals(*recv_buf, m_inter_com);
 //        counter_out = json::parse(recv_buf[0])["cnt_out"].get<int>();
-        sr_out = json::parse(recv_buf[0])["sr_out"].get<int>();
+        sr_out = json::parse(recv_buf[0])["galois_lfsr"].get<int>();
         m_output.verbose(CALL_INFO, 1, 0, "{%s}\n", recv_buf[0]);
     }
     std::cout << "---------------------------------------------------->" << std::endl;

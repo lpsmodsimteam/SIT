@@ -39,9 +39,8 @@ private:
 
     // SST parameters
     SST::Output m_output;
-    std::string m_sysc_counter;
-    std::string m_sysc_inverter;
-    std::string m_sysc_sr;
+    std::string m_sc_lrs;
+    std::string m_sc_galois_lfsr;
     int m_num_procs;
 
     // process variables
