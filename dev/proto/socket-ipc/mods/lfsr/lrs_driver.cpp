@@ -31,17 +31,16 @@ int sc_main(int argc, char *argv[]) {
     json _data_in;
     json _data_out;
 
-    bool flag;
     auto *recv_buf = new char[BUFSIZE];
 
-    do {
+    while (1) {
 
         sc_start(1, SC_NS);
 
         receive_signals(recv_buf, inter_com, false);
         _data_in = json::parse(recv_buf);
 
-        flag = _data_in["on"].get<bool>();
+        bool flag = _data_in["on"].get<bool>();
         clock = (_data_in["clock"].get<int>()) % 2;
         in = _data_in["data_in"].get<int>();
 
@@ -49,15 +48,16 @@ int sc_main(int argc, char *argv[]) {
                   << " | data_in: " << _data_in["data_in"] << " -> lrs_out: " << data_out << std::endl;
         _data_in.clear();
 
-        if (flag) {
-            _data_out["lrs_out"] = _sc_signal_to_int(data_out);
-
-            // _data_out.dump().c_str() is (const char *)
-            transmit_signals(_data_out.dump().c_str(), inter_com, false);
-            _data_out.clear();            
+        if (!flag) {
+            break;
         }
+        _data_out["lrs_out"] = _sc_signal_to_int(data_out);
 
-    } while (flag);
+        // _data_out.dump().c_str() is (const char *)
+        transmit_signals(_data_out.dump().c_str(), inter_com, false);
+        _data_out.clear();            
+
+    }
 
     _data_in = nullptr;
     _data_out = nullptr;
