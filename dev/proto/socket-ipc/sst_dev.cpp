@@ -3,7 +3,7 @@ Simple 4-bit Up-Counter Model with one clock
 */
 
 #include "sst_dev.h"
-
+#include <vector>
 #include <sst/core/sst_config.h>
 
 #define PROC_STR "proc"
@@ -26,8 +26,8 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
                   SST::Output::STDOUT);
 
     m_num_procs = params.find<int>("num_procs", 1);
-//    m_sysc_counter = params.find<std::string>("template", "");
-//    m_sysc_inverter = params.find<std::string>("inverter", "");
+    std::vector<std::string> mods;
+    params.find_array<std::string>("mods", mods);
     m_sc_lrs = params.find<std::string>("lrs", "");
     m_sc_galois_lfsr = params.find<std::string>("galois_lfsr", "");
 

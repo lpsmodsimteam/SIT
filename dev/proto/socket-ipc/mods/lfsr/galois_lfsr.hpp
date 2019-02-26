@@ -40,7 +40,7 @@ SC_MODULE (galois_lfsr) {
     }
 
     ~galois_lfsr() override {
-        std::cout << getpid() << " DESTROYING SHIFT REGISTER" << std::endl;
+        std::cout << getpid() << " DESTROYING GALOIS LFSR" << std::endl;
     }
 
 }; // End of Module galois_lfsr

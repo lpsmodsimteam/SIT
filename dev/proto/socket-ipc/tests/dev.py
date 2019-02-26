@@ -8,6 +8,7 @@ sst.setProgramOption("stopAtCycle", "80ns")
 BASE_PATH = os.getcwd()
 # overide default parameters
 counterComponent.addParams({
+    "mods": [os.path.join(BASE_PATH, "lrs.o"), os.path.join(BASE_PATH, "galois_lfsr.o")],
     "lrs": os.path.join(BASE_PATH, "lrs.o"),
     "galois_lfsr": os.path.join(BASE_PATH, "galois_lfsr.o"),
     "num_procs": 3  # number of child modules
