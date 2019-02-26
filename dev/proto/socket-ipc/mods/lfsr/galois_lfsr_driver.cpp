@@ -53,11 +53,13 @@ int sc_main(int argc, char *argv[]) {
                   << " -> galois_lfsr_out: " << data_out << std::endl;
         _data_in.clear();
 
-        _data_out["galois_lfsr"] = _sc_signal_to_int(data_out);
+        if (flag) {
+            _data_out["galois_lfsr"] = _sc_signal_to_int(data_out);
 
-        // _data_out.dump().c_str() is (const char *)
-        transmit_signals(_data_out.dump().c_str(), inter_com, false);
-        _data_out.clear();
+            // _data_out.dump().c_str() is (const char *)
+            transmit_signals(_data_out.dump().c_str(), inter_com, false);
+            _data_out.clear();            
+        }
 
     } while (flag);
 

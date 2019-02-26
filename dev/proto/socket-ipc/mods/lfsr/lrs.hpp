@@ -1,3 +1,4 @@
+#include <unistd.h>
 #include "systemc.h"
 
 SC_MODULE (lrs) {

@@ -3,7 +3,6 @@ Simple 4-bit Up-Counter Model with one clock
 */
 
 #include "sst_dev.h"
-#include <vector>
 #include <sst/core/sst_config.h>
 
 #define PROC_STR "proc"
@@ -26,10 +25,16 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
                   SST::Output::STDOUT);
 
     m_num_procs = params.find<int>("num_procs", 1);
-    std::vector<std::string> mods;
-    params.find_array<std::string>("mods", mods);
-    m_sc_lrs = params.find<std::string>("lrs", "");
-    m_sc_galois_lfsr = params.find<std::string>("galois_lfsr", "");
+    params.find_array<std::string>("mods", m_modules);
+
+    for (int i = 0; i < m_modules.size(); i++) {
+        if (!i) {
+            m_modules[i] = m_modules[i].substr(1, m_modules[i].size() - 2);
+        } else {
+            m_modules[i] = m_modules[i].substr(2, m_modules[i].size() - 3);
+        }
+        std::cout << m_modules[i] << std::endl;
+    }
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_dev>(this, &sst_dev::tick));
@@ -60,10 +65,13 @@ void sst_dev::setup() {
 
     std::cout << "Master pid: " << getpid() << std::endl;
 
-//    auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u], &m_sc_galois_lfsr[0u],
-//                                         &m_sc_lrs[0u]};
-    auto PROCS = new char *[m_num_procs]{&m_sc_lrs[0u], &m_sc_galois_lfsr[0u],
-                                         &m_sc_lrs[0u]};
+    std::vector<char*> PROCS;
+    PROCS.reserve(m_modules.size());
+
+    for(size_t i = 0; i < m_modules.size(); ++i) {
+        PROCS.push_back(&m_modules[i][0u]);
+    }
+
     auto MAX_PROCS = new int[m_num_procs];
     auto ERR_CODES = new int[m_num_procs];
     auto INFOS = new MPI_Info[m_num_procs];
@@ -71,13 +79,12 @@ void sst_dev::setup() {
     for (int i = 0; i < m_num_procs; i++) {
         MAX_PROCS[i] = 1;
         INFOS[i] = MPI_INFO_NULL;
-        std::cout << m_num_procs << ' ' << PROCS[i] << std::endl;
     }
 
     send_buf = new char[m_num_procs][BUFSIZE];
     recv_buf = new char[m_num_procs][BUFSIZE];
 
-    MPI_Comm_spawn_multiple(m_num_procs, PROCS, MPI_ARGVS_NULL, MAX_PROCS, INFOS,
+    MPI_Comm_spawn_multiple(m_num_procs, &PROCS[0u], MPI_ARGVS_NULL, MAX_PROCS, INFOS,
                             0, MPI_COMM_SELF, &m_inter_com, ERR_CODES);
 
     int child_pids[m_num_procs];
@@ -100,9 +107,10 @@ void sst_dev::setup() {
 
     }
 
+    PROCS.clear();
     delete[] MAX_PROCS;
     delete[] ERR_CODES;
-    delete[] PROCS;
+    // delete[] PROCS;
     delete[] INFOS;
 
     std::cout << m_procs.dump(4) << std::endl;

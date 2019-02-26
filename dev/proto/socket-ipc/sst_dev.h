@@ -6,6 +6,8 @@
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
 
+#include <vector>
+
 
 class sst_dev : public SST::Component {
 
@@ -39,10 +41,7 @@ private:
 
     // SST parameters
     SST::Output m_output;
-    std::string m_sysc_counter;
-    std::string m_sysc_inverter;
-    std::string m_sc_lrs;
-    std::string m_sc_galois_lfsr;
+    std::vector<std::string> m_modules;
     int m_num_procs;
 
     // process variables
