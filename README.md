@@ -4,12 +4,15 @@
 A library to provide interoperability between
 [Structural Simulation Toolkit (SST) 8.0.0](https://github.com/sstsimulator/sst-core)
 (with [SST Elements 8.0.0](https://github.com/sstsimulator/sst-elements)) and
-[SystemC 2.3.2](http://www.accellera.org/downloads/standards/systemc)
+[SystemC 2.3.3](http://www.accellera.org/downloads/standards/systemc)
 (with [Transaction-Level Modeling Library (TLM 2.0.3)](https://www.doulos.com/knowhow/systemc/tlm2/))
 
 ## Requirements
 
 `src/CMakeLists.txt` contains all the requirements to build the library. 
+- C++14
+- CMake
+- OpenMPI / MPICH
 
 ## Build the prototype
 Run `make` on the top level Makefile
