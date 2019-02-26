@@ -48,6 +48,7 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
 sst_dev::~sst_dev() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
+    MPI_Comm_free(&m_inter_com);
 
     m_data_out.clear();
     m_procs.clear();
@@ -129,14 +130,6 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
-    int counter_out, galois_lfsr_out, lrs_out;
-
-    if (current_cycle == 1) {
-        counter_out = 0;
-        lrs_out = 1;
-        galois_lfsr_out = 1;
-    }
-
     int destroyed_mods = 0;
 
     for (int proc = 0; proc < m_num_procs; proc++) {
@@ -148,20 +141,20 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
         if (proc == 0) {
 
             m_data_out[proc]["on"] = true;
-            m_data_out[proc]["data_in"] = 0;
+            m_data_out[proc]["reset"] = true;
 
             // turn module off at 52 ns
-            if (current_cycle >= 2) {
-                if (current_cycle == 2) {
+            if (current_cycle >= 3) {
+                if (current_cycle == 3) {
                     std::cout << "RESET OFF" << std::endl;
                 }
-                m_data_out[proc]["data_in"] = galois_lfsr_out;
+                m_data_out[proc]["reset"] = false;
             }
 
             // turn module off at 52 ns
             if (current_cycle >= 38) {
                 if (current_cycle == 38) {
-                    std::cout << "SHIFT REGISTER MODULE OFF" << std::endl;
+                    std::cout << "FIBONACCI LFSR MODULE OFF" << std::endl;
                 }
                 m_data_out[proc]["on"] = false;
             }
@@ -171,7 +164,6 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
             m_data_out[proc]["on"] = true;
             m_data_out[proc]["reset"] = true;
-            m_data_out[proc]["data_in"] = lrs_out;
 
             // turn module off at 52 ns
             if (current_cycle >= 3) {
@@ -189,19 +181,6 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
                 m_data_out[proc]["on"] = false;
             }
 
-        } else {
-
-            m_data_out[proc]["on"] = true;
-            m_data_out[proc]["data_in"] = 15;
-
-            // turn module off at 52 ns
-            if (current_cycle >= 38) {
-                if (current_cycle == 38) {
-                    std::cout << "SHIFT REGISTER MODULE OFF" << std::endl;
-                }
-                m_data_out[proc]["on"] = false;
-            }
-
         }
 
         snprintf(send_buf[proc], sizeof(send_buf[proc]), "%s",
@@ -215,8 +194,8 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
     transmit_signals(*send_buf, m_inter_com);
     if (destroyed_mods != m_num_procs) {
         receive_signals(*recv_buf, m_inter_com);
-        lrs_out = json::parse(recv_buf[0])["lrs_out"].get<int>();
-        galois_lfsr_out = json::parse(recv_buf[1])["galois_lfsr"].get<int>();
+        // fib_lfsr_out = json::parse(recv_buf[0])["fib_lfsr_out"].get<int>();
+        // galois_lfsr_out = json::parse(recv_buf[1])["galois_lfsr"].get<int>();
         m_output.verbose(CALL_INFO, 1, 0, "{%s, %s}\n", recv_buf[0], recv_buf[1]);
     }
     std::cout << "---------------------------------------------------->" << std::endl;

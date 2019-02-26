@@ -21,10 +21,10 @@ add_executable(
 )
 target_link_libraries(galois_lfsr.o SystemC::systemc)
 add_executable(
-        lrs.o
-        mods/lfsr/lrs.hpp mods/lfsr/lrs_driver.cpp
+        fib_lfsr.o
+        mods/lfsr/fib_lfsr.hpp mods/lfsr/fib_lfsr_driver.cpp
 )
-target_link_libraries(lrs.o SystemC::systemc)
+target_link_libraries(fib_lfsr.o SystemC::systemc)
 
 include_directories(/usr/include/mpi/)
 include_directories(/include/sst/)

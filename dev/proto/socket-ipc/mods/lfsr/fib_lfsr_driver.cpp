@@ -1,4 +1,4 @@
-#include "xor2.hpp"
+#include "fib_lfsr.hpp"
 
 #include "../../sstscit.hpp"
 
@@ -6,17 +6,13 @@ int sc_main(int argc, char *argv[]) {
 
     sc_signal<bool> clock;
     sc_signal<bool> reset;
-    sc_signal<bool> feedback;
-    sc_signal<sc_uint<4> > data_in;
     sc_signal<sc_uint<4> > data_out;
 
     // Connect the DUT
-    shift_register sysc_shift_register("shift_register");
-    sysc_shift_register.clock(clock);
-    sysc_shift_register.reset(reset);
-    sysc_shift_register.feedback(feedback);
-    sysc_shift_register.data_in(data_in);
-    sysc_shift_register.data_out(data_out);
+    fib_lfsr DUT("FIBONACCI LFSR");
+    DUT.clock(clock);
+    DUT.reset(reset);
+    DUT.data_out(data_out);
 
     init_MPI();
 
@@ -35,36 +31,38 @@ int sc_main(int argc, char *argv[]) {
     json _data_in;
     json _data_out;
 
-    bool flag;
     auto *recv_buf = new char[BUFSIZE];
 
-    do {
+    while (1) {
 
         sc_start(1, SC_NS);
 
         receive_signals(recv_buf, inter_com, false);
         _data_in = json::parse(recv_buf);
 
-        flag = _data_in["on"].get<bool>();
+        if (!_data_in["on"].get<bool>()) {
+            break;
+        }
         clock = (_data_in["clock"].get<int>()) % 2;
-        data_in = _data_in["data_in"].get<int>();
+        reset = _data_in["reset"].get<bool>();
 
-        std::cout << "\033[33mSHIFT REGISTER\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp() << " | data_in: "
-                  << _data_in["data_in"] << std::endl;
+        std::cout << "\033[33mFIBONACCI LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
+                  << " | reset: " << _data_in["reset"] << " -> fib_lfsr_out: " << data_out << std::endl;
         _data_in.clear();
 
-        _data_out["sr_out"] = _sc_signal_to_int(data_out);
-//        _data_out["sr_out"] = _to_string(data_out);
+        _data_out["fib_lfsr_out"] = _sc_signal_to_int(data_out);
 
         // _data_out.dump().c_str() is (const char *)
         transmit_signals(_data_out.dump().c_str(), inter_com, false);
-        _data_out.clear();
+        _data_out.clear();            
 
-    } while (flag);
+    }
 
+    _data_in.clear();
+    _data_out.clear();
+    delete[] recv_buf;
     _data_in = nullptr;
     _data_out = nullptr;
-    delete[] recv_buf;
     recv_buf = nullptr;
 
     MPI_Finalize();

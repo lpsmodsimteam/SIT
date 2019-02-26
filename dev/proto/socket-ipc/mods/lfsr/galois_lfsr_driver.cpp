@@ -6,14 +6,12 @@ int sc_main(int argc, char *argv[]) {
 
     sc_signal<bool> clock;
     sc_signal<bool> reset;
-    sc_signal<sc_uint<4>> data_in;
     sc_signal<sc_uint<4> > data_out;
 
     // Connect the DUT
-    galois_lfsr DUT("galois_lfsr");
+    galois_lfsr DUT("GALOIS LFSR");
     DUT.clock(clock);
     DUT.reset(reset);
-    DUT.data_in(data_in);
     DUT.data_out(data_out);
 
     init_MPI();
@@ -42,19 +40,15 @@ int sc_main(int argc, char *argv[]) {
         receive_signals(recv_buf, inter_com, false);
         _data_in = json::parse(recv_buf);
 
-        bool flag = _data_in["on"].get<bool>();
-        clock = (_data_in["clock"].get<int>()) % 2;
-        reset = _data_in["reset"].get<bool>();
-        data_in = _data_in["data_in"].get<int>();
-
-        std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-                  << " | reset: " << _data_in["reset"] << " | data_in: " << _data_in["data_in"]
-                  << " -> galois_lfsr_out: " << data_out << std::endl;
-        _data_in.clear();
-
-        if (!flag) {
+        if (!_data_in["on"].get<bool>()) {
             break;
         }
+        clock = (_data_in["clock"].get<int>()) % 2;
+        reset = _data_in["reset"].get<bool>();
+
+        std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
+                  << " | reset: " << _data_in["reset"] << " -> galois_lfsr_out: " << data_out << std::endl;
+        _data_in.clear();
 
         _data_out["galois_lfsr"] = _sc_signal_to_int(data_out);
 
@@ -64,9 +58,11 @@ int sc_main(int argc, char *argv[]) {
 
     }
 
+    _data_in.clear();
+    _data_out.clear();
+    delete[] recv_buf;
     _data_in = nullptr;
     _data_out = nullptr;
-    delete[] recv_buf;
     recv_buf = nullptr;
 
     MPI_Finalize();
