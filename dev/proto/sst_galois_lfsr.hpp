@@ -13,11 +13,11 @@ public:
 
     sst_galois_lfsr(SST::ComponentId_t, SST::Params &);
 
-    ~sst_galois_lfsr();
+    ~sst_galois_lfsr() override;
 
-    void setup();
+    void setup() override;
 
-    void finish();
+    void finish() override;
 
     bool tick(SST::Cycle_t);
 
@@ -36,6 +36,12 @@ private:
     // SST parameters
     SST::Output m_output;
     std::string m_proc;
+
+    //  Prepare our context and socket
+    zmq::context_t m_context;
+    zmq::socket_t m_socket;
+
+    json m_data_in, m_data_out;
 
 };
 
