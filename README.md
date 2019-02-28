@@ -10,29 +10,14 @@ A library to provide interoperability between
 ## Requirements
 
 `src/CMakeLists.txt` contains all the requirements to build the library. 
-- C++14
-- OpenMPI / MPICH
-- [SystemC 2.3.3](http://www.accellera.org/downloads/standards/systemc)
-- [Structural Simulation Toolkit (SST) 8.0.0](https://github.com/sstsimulator/sst-core)
-
-### CMake
-Sources for stable CMake releases can be downloaded [here](https://cmake.org/download/).
-
-Download and untar the source:
-```tar -xvf cmake-<ver>.tar.gz```
-
-Run the bootstrap script, then install
-```shell
-./bootstrap
-make
-sudo make install
-```
 
 ### SystemC
 Sources for stable SystemC releases can be downloaded [here](https://www.accellera.org/downloads/standards/systemc).
 
 Download and untar the source:
-```tar -xvf systemc-<ver>.tar.gz```
+```shell
+tar -xvf systemc-<ver>.tar.gz
+```
 
 Install using CMake and CCMake
 ```shell
@@ -46,22 +31,16 @@ sudo make install
 ```
 
 ### SST
+Sources for stable SST releases can be downloaded [here](http://sst-simulator.org/SSTPages/SSTMainDownloads/).
 
 Install the dependencies
-```sudo apt install libopenmpi-dev autoconf libtool-bin```
+```shell
+sudo apt install libopenmpi-dev
+```
 
 Download and untar the sources:
 ```shell
 tar -xvf sstcore-<ver>.tar.gz && tar -xvf sstelements-<ver>.tar.gz
-```
-
-Set up the environment variables
-```shell
-# sst simulator start #
-export SST_CORE_HOME=$HOME/local/sstcore-<ver>
-export SST_ELEMENTS_HOME=$HOME/local/sstelements-<ver>
-export PATH=$SST_CORE_HOME/bin:$SST_ELEMENTS_HOME/bin:$PATH
-# sst simulator stop #
 ```
 
 Build and install SST Core
