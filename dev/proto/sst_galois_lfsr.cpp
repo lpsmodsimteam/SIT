@@ -53,7 +53,7 @@ void sst_galois_lfsr::setup() {
 
         m_socket.bind("ipc:///tmp/zero");
 
-        recv_sigs(m_socket, m_unpacked_buf, m_buf_in, m_data_in);
+        m_data_in.recv();
         std::cout << "[oid]=" << m_data_in["pid"] << std::endl;
 
     }
@@ -102,7 +102,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
 
     if (keep_send | keep_recv) {
 
-        send_sigs(m_socket, m_packer, m_sbuf, m_buf_out, m_data_out);
+        m_data_out.send();
 
         if (!keep_send) {
 
@@ -110,7 +110,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
 
         } else {
 
-            recv_sigs(m_socket, m_unpacked_buf, m_buf_in, m_data_in);
+            m_data_in.recv();
             m_output.verbose(CALL_INFO, 1, 0, "%s\n", m_data_in["galois_lfsr"].c_str());
         }
 

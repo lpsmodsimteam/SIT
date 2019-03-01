@@ -13,22 +13,33 @@ class SignalHandler {
 private:
 
     zmq::socket_t &m_socket;
+    zmq::message_t m_buf;
+    msgpack::packer<msgpack::sbuffer> m_packer;
+    msgpack::unpacked m_unpacker;
+    msgpack::sbuffer m_sbuf;
     std::unordered_map<std::string, std::string> m_data;
 
 public:
 
     MSGPACK_DEFINE (m_data);
+
     explicit SignalHandler(zmq::socket_t &);
 
     ~SignalHandler();
+
+    void send();
+
+    void recv();
 
     std::string &operator[](std::string);
 
 
 };
 
-SignalHandler::SignalHandler(zmq::socket_t &socket) : m_socket(socket) {
+/* -------------------- IMPLEMENTATIONS -------------------- */
 
+SignalHandler::SignalHandler(zmq::socket_t &socket) :
+        m_socket(socket), m_packer(&m_sbuf) {
 }
 
 SignalHandler::~SignalHandler() {
@@ -43,42 +54,32 @@ std::string &SignalHandler::operator[](const std::string index) {
 
 }
 
+
+void SignalHandler::send() {
+
+    m_packer.pack(*this);
+    m_buf.rebuild(m_sbuf.size());
+    std::memcpy(m_buf.data(), m_sbuf.data(), m_sbuf.size());
+    m_socket.send(m_buf);
+    m_sbuf.clear();
+
+}
+
+void SignalHandler::recv() {
+
+    m_socket.recv(&m_buf);
+    msgpack::unpack(m_unpacker, (char *) (m_buf.data()), m_buf.size());
+    m_unpacker.get().convert(*this);
+
+}
+
 /* -------------------- DECLARATIONS -------------------- */
-
-void send_sigs(zmq::socket_t &, msgpack::packer<msgpack::sbuffer> &,
-               msgpack::sbuffer &, zmq::message_t &, SignalHandler &);
-
-void recv_sigs(zmq::socket_t &, msgpack::unpacked &, zmq::message_t &,
-               SignalHandler &);
 
 template<typename T>
 std::string _to_string(const T &);
 
 template<typename T>
 int _sc_signal_to_int(const T &);
-
-/* -------------------- IMPLEMENTATIONS -------------------- */
-
-
-void send_sigs(zmq::socket_t &socket, msgpack::packer<msgpack::sbuffer> &packer,
-               msgpack::sbuffer &sbuf, zmq::message_t &buf_out, SignalHandler &data_out) {
-
-    packer.pack(data_out);
-    buf_out.rebuild(sbuf.size());
-    std::memcpy(buf_out.data(), sbuf.data(), sbuf.size());
-    socket.send(buf_out);
-    sbuf.clear();
-
-}
-
-void recv_sigs(zmq::socket_t &socket, msgpack::unpacked &unpacker, zmq::message_t &buf_in,
-               SignalHandler &data_in) {
-
-    socket.recv(&buf_in);
-    msgpack::unpack(unpacker, (char *) (buf_in.data()), buf_in.size());
-    unpacker.get().convert(data_in);
-
-}
 
 
 template<typename T>

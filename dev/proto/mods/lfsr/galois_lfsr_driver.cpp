@@ -24,27 +24,19 @@ int sc_main(int argc, char *argv[]) {
     socket.connect("ipc:///tmp/zero");
 
     SignalHandler _data_in(socket), _data_out(socket);
-    zmq::message_t buf_in, buf_out;
-    msgpack::sbuffer _sbuf;
-    msgpack::packer<msgpack::sbuffer> _packer(&_sbuf);
-    msgpack::unpacked _unpacker;
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
     _data_out["pid"] = std::to_string(getpid());  // new element inserted
-    send_sigs(socket, _packer, _sbuf, buf_out, _data_out);
+    _data_out.send();
     // ---------- INITIAL HANDSHAKE ---------- //
-
-    SignalHandler yo(socket);
-    yo["test"] = "bob";
-    std::cout << yo["test"] << std::endl;
 
     while (true) {
 
         sc_start(1, SC_NS);
 
         // RECEIVING
-        recv_sigs(socket, _unpacker, buf_in, _data_in);
+        _data_in.recv();
 
         if (!std::stoi(_data_in["on"])) {
             break;
@@ -56,7 +48,7 @@ int sc_main(int argc, char *argv[]) {
 
         // SENDING
         _data_out["galois_lfsr"] = std::to_string(_sc_signal_to_int(data_out));
-        send_sigs(socket, _packer, _sbuf, buf_out, _data_out);
+        _data_out.send();
 
     }
 
