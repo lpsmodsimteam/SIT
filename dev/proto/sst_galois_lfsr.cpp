@@ -51,11 +51,7 @@ void sst_galois_lfsr::setup() {
 
         m_socket.bind("ipc:///tmp/zero");
 
-        // RECEIVING
-        m_socket.recv(&m_buf_in);
-
-        msgpack::unpack(m_unpacked_buf, (char *) (m_buf_in.data()), m_buf_in.size());
-        m_unpacked_buf.get().convert(m_data_in);
+        recv_sigs(m_socket, m_unpacked_buf, m_buf_in, m_data_in);
         std::cout << "[oid]=" << m_data_in.data["pid"] << std::endl;
 
     }
@@ -104,13 +100,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
 
     if (keep_send | keep_recv) {
 
-        // SENDING
-        m_sbuf.clear();
-        m_packer.pack(m_data_out);
-
-        m_buf_out.rebuild(m_sbuf.size());
-        std::memcpy(m_buf_out.data(), m_sbuf.data(), m_sbuf.size());
-        m_socket.send(m_buf_out);
+        send_sigs(m_socket, m_packer, m_sbuf, m_buf_out, m_data_out);
 
         if (!keep_send) {
 
@@ -118,12 +108,8 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
 
         } else {
 
-            // RECEIVING
-            m_socket.recv(&m_buf_in);
-
-            msgpack::unpack(m_unpacked_buf, (char *) (m_buf_in.data()), m_buf_in.size());
-            m_unpacked_buf.get().convert(m_data_in);
-            std::cout << "PARENT READ: [galois_lfsr]=" << m_data_in.data["galois_lfsr"] << std::endl;
+            recv_sigs(m_socket, m_unpacked_buf, m_buf_in, m_data_in);
+            m_output.verbose(CALL_INFO, 1, 0, "%s\n", m_data_in.data["galois_lfsr"].c_str());
         }
 
     }
