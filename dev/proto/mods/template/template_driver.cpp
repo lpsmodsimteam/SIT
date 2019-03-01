@@ -1,53 +1,59 @@
-#include "systemc.h"
+#include "galois_lfsr.hpp"
+
 #include "../../sstscit.hpp"
 
 int sc_main(int argc, char *argv[]) {
 
-    init_MPI();
+    // ---------- SYSTEMC UUT INIT ---------- //
+    sc_signal<bool> clock;
+    sc_signal<bool> reset;
+    sc_signal<sc_uint<4> > data_out;
 
-    // Find out rank, size
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    // Connect the DUT
+    galois_lfsr DUT("GALOIS_LFSR");
+    DUT.clock(clock);
+    DUT.reset(reset);
+    DUT.data_out(data_out);
+    // ---------- SYSTEMC UUT INIT ---------- //
 
-    MPI_Comm inter_com;
-    MPI_Comm_get_parent(&inter_com);
+    // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
+    zmq::context_t context(1);
 
-    int pid = getpid();
-    MPI_Gather(&pid, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
-    MPI_Gather(&world_rank, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
+    //  Socket to talk to server
+    zmq::socket_t socket(context, ZMQ_REQ);
+    socket.connect("ipc:///tmp/zero");
 
-    // create an empty structure (null)
-    json _data_in;
-    json _data_out;
+    SignalHandler _data_in(socket), _data_out(socket);
+    // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
-    bool flag;
-    auto *recv_buf = new char[BUFSIZE];
-//
-//    do {
-//
-//        sc_start(1, SC_NS);
-//
-//        receive_signals(recv_buf, inter_com, false);
-//        _data_in = json::parse(recv_buf);
-//
-//        flag = _data_in["on"].get<bool>();
-//
-//        _data_in.clear();
-//
-//        _data_out["lsr_out"] = _sc_signal_to_int(data_out);
-//
-//        // _data_out.dump().c_str() is (const char *)
-//        transmit_signals(_data_out.dump().c_str(), inter_com, false);
-//        _data_out.clear();
-//
-//    } while (flag);
+    // ---------- INITIAL HANDSHAKE ---------- //
+    _data_out["pid"] = std::to_string(getpid());  // new element inserted
+    _data_out.send();
+    // ---------- INITIAL HANDSHAKE ---------- //
 
-    _data_in = nullptr;
-    _data_out = nullptr;
-    delete[] recv_buf;
-    recv_buf = nullptr;
+    while (true) {
 
-    MPI_Finalize();
+        sc_start(1, SC_NS);
+
+        // RECEIVING
+        _data_in.recv();
+
+        if (!std::stoi(_data_in["on"])) {
+            break;
+        }
+        clock = (std::stoi(_data_in["clock"])) % 2;
+        reset = std::stoi(_data_in["reset"]);
+        std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
+                  << " | reset: " << _data_in["reset"] << " -> galois_lfsr_out: " << data_out << std::endl;
+
+        // SENDING
+        _data_out["galois_lfsr"] = std::to_string(_sc_signal_to_int(data_out));
+        _data_out.send();
+
+    }
+
+    socket.close();
+
     return 0;
 
 }
