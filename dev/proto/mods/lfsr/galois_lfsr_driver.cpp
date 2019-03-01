@@ -16,68 +16,58 @@ int sc_main(int argc, char *argv[]) {
 
     int pid = getpid();
 
-    auto *recv_buf = new char[BUFSIZE];
-
     zmq::context_t context(1);
 
     //  Socket to talk to server
-    zmq::socket_t sock(context, ZMQ_REQ);
-    //sock.connect("tcp://localhost:5555");
-    sock.connect("ipc:///tmp/zero");
+    zmq::socket_t socket(context, ZMQ_REQ);
+    socket.connect("ipc:///tmp/zero");
 
-    // HANDSHAKING
-    zmq::message_t request((void *) "HELLO", 5, nullptr);
-    printf("Sending request from client ...\n");
-    sock.send(request);
+    signal_packet _msg_in, _msg_out;
+    _msg_out.data["pid"] = std::to_string(pid);  // new element inserted
 
-//    zmq::message_t reply;
-//    sock.recv(&reply, 0);
-//    printf("Received acknowledgement from server: %s\n", (char *) reply.data());
-//
-//    printf("Sending request again from client ...\n");
-//    sock.send(request);
+    msgpack::sbuffer _sbuf;
+    msgpack::packer<msgpack::sbuffer> _packer(&_sbuf);
 
-    // create an empty structure (null)
-    json _data_in;
-    json _data_out;
+    _packer.pack(_msg_out);
 
-    while (1) {
+    zmq::message_t _data_in, _data_out;
+    _data_out.rebuild(_sbuf.size());
+    std::memcpy(_data_out.data(), _sbuf.data(), _sbuf.size());
+    socket.send(_data_out);
+    msgpack::unpacked _unpacker;
+
+    while (true) {
 
         sc_start(1, SC_NS);
 
-        zmq::message_t reply;
-        sock.recv(&reply, 0);
-        std::cout << "CHILD RECEIVING " << reply.data() << std::endl;
-//        _data_in = json::parse(std::string((char *) reply.data(), reply.size()));
-//
-//        if (!_data_in["on"].get<bool>()) {
-//            break;
-//        }
-//        clock = (_data_in["clock"].get<int>()) % 2;
-//        reset = _data_in["reset"].get<bool>();
-//
-//        std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-//                  << " | reset: " << _data_in["reset"] << " -> galois_lfsr_out: " << data_out << std::endl;
-//        _data_in.clear();
-//
-//        _data_out["galois_lfsr"] = _sc_signal_to_int(data_out);
-//
-//        char *s = &(_data_out.dump())[0u];
+        // RECEIVING
+        socket.recv(&_data_in);
 
-        std::cout << "CHILD SENDING " << _data_out.dump() << std::endl;
-        zmq::message_t request((void *) "HELLO2", BUFSIZE, nullptr);
-        sock.send(request, 0);
-        _data_out.clear();
+        msgpack::unpack(_unpacker, (char *) (_data_in.data()), _data_in.size());
+        _unpacker.get().convert(_msg_in);
+
+        if (!std::stoi(_msg_in.data["on"])) {
+            break;
+        }
+        clock = (std::stoi(_msg_in.data["clock"])) % 2;
+        reset = std::stoi(_msg_in.data["reset"]);
+        std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
+                  << " | reset: " << _msg_in.data["reset"] << " -> galois_lfsr_out: " << data_out << std::endl;
+
+        // SENDING
+        _msg_out.data["galois_lfsr"] = std::to_string(_sc_signal_to_int(data_out));
+
+        _sbuf.clear();
+        _packer.pack(_msg_out);
+
+        _data_out.rebuild(_sbuf.size());
+        std::memcpy(_data_out.data(), _sbuf.data(), _sbuf.size());
+        std::cout << "CHILD SEND: [galois_lfsr]=" << _msg_out.data["galois_lfsr"] << std::endl;
+        socket.send(_data_out);
 
     }
 
-    sock.close();
-    _data_in.clear();
-    _data_out.clear();
-    delete[] recv_buf;
-    _data_in = nullptr;
-    _data_out = nullptr;
-    recv_buf = nullptr;
+    socket.close();
 
     return 0;
 

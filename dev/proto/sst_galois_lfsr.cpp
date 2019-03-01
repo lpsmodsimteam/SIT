@@ -7,7 +7,7 @@ Simple 4-bit Up-Counter Model with one clock
 
 // Component Constructor
 sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
-        : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP) {
+        : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP), m_packer(&m_sbuf) {
 
     // Initialize output
     m_output.init("\033[32mgalois_lfsr-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
@@ -27,6 +27,7 @@ sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
 sst_galois_lfsr::~sst_galois_lfsr() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
+    m_socket.close();
 
 }
 
@@ -48,19 +49,14 @@ void sst_galois_lfsr::setup() {
 
     } else {
 
-        //socket.bind ("tcp://*:5555");
         m_socket.bind("ipc:///tmp/zero");
 
-        zmq::message_t request;
+        // RECEIVING
+        m_socket.recv(&m_buf_in);
 
-        //  Wait for next request from client
-        m_socket.recv(&request);
-        printf("Received request from client: %s\n", (char *) request.data());
-
-//        //  Send reply back to client
-//        zmq::message_t reply((void *) "SHHHH", 5, nullptr);
-//        printf("Sending acknowledgement to client...\n");
-//        m_socket.send(reply);
+        msgpack::unpack(m_unpacked_buf, (char *) (m_buf_in.data()), m_buf_in.size());
+        m_unpacked_buf.get().convert(m_data_in);
+        std::cout << "[oid]=" << m_data_in.data["pid"] << std::endl;
 
     }
 
@@ -78,15 +74,22 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
-    m_data_out["on"] = true;
-    m_data_out["reset"] = true;
+    uint8_t keep_send, keep_recv;
+    if (current_cycle == 1) {
+        keep_send = 1;
+        keep_recv = 1;
+    }
+
+    m_data_out.data["clock"] = std::to_string(current_cycle);
+    m_data_out.data["on"] = "1";
+    m_data_out.data["reset"] = "1";
 
     // turn module off at 52 ns
     if (current_cycle >= 3) {
         if (current_cycle == 3) {
             std::cout << "RESET OFF" << std::endl;
         }
-        m_data_out["reset"] = false;
+        m_data_out.data["reset"] = "0";
     }
 
     // turn module off at 52 ns
@@ -94,19 +97,36 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         if (current_cycle == 38) {
             std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
         }
-        m_data_out["on"] = false;
+        m_data_out.data["on"] = "0";
+        keep_send = 0;
     }
 
-    char *s = &(m_data_out.dump())[0u];
 
-    std::cout << "MASTER SENDING " << m_data_out.dump() << std::endl;
-    zmq::message_t request((void *) "HELLO1", BUFSIZE, nullptr);
-    m_socket.send(request);
+    if (keep_send | keep_recv) {
 
-    zmq::message_t reply;
-    m_socket.recv(&reply, 0);
-//    m_data_in = json::parse(std::string((char *) reply.data(), reply.size()));
-    std::cout << "MASTER RECEIVING " << reply.data() << std::endl;
+        // SENDING
+        m_sbuf.clear();
+        m_packer.pack(m_data_out);
+
+        m_buf_out.rebuild(m_sbuf.size());
+        std::memcpy(m_buf_out.data(), m_sbuf.data(), m_sbuf.size());
+        m_socket.send(m_buf_out);
+
+        if (!keep_send) {
+
+            keep_recv = 0;
+
+        } else {
+
+            // RECEIVING
+            m_socket.recv(&m_buf_in);
+
+            msgpack::unpack(m_unpacked_buf, (char *) (m_buf_in.data()), m_buf_in.size());
+            m_unpacked_buf.get().convert(m_data_in);
+            std::cout << "PARENT READ: [galois_lfsr]=" << m_data_in.data["galois_lfsr"] << std::endl;
+        }
+
+    }
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

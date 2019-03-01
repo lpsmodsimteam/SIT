@@ -5163,7 +5163,7 @@ class parser
 
                     case token_type::parse_error:
                     {
-                        // using "uninitialized" to avoid "expected" message
+                        // using "uninitialized" to avoid "expected" signal_packet
                         return sax->parse_error(m_lexer.get_position(),
                                                 m_lexer.get_token_string(),
                                                 parse_error::create(101, m_lexer.get_position(),
@@ -19827,7 +19827,7 @@ class basic_json
                 // find value
                 auto it = val.m_value.object->find(member);
 
-                // context-sensitive error message
+                // context-sensitive error signal_packet
                 const auto error_msg = (op == "op") ? "operation" : "operation '" + op + "'";
 
                 // check if desired value is present

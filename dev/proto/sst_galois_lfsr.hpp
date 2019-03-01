@@ -1,5 +1,5 @@
-#ifndef _sst_galois_lfsr_H
-#define _sst_galois_lfsr_H
+#ifndef SST_GALOIS_LFSR_HPP
+#define SST_GALOIS_LFSR_HPP
 
 #include "sstscit.hpp"
 
@@ -41,7 +41,12 @@ private:
     zmq::context_t m_context;
     zmq::socket_t m_socket;
 
-    json m_data_in, m_data_out;
+    zmq::message_t m_buf_in, m_buf_out;
+    signal_packet m_data_in, m_data_out;
+
+    msgpack::sbuffer m_sbuf;
+    msgpack::packer<msgpack::sbuffer> m_packer;
+    msgpack::unpacked m_unpacked_buf;
 
 };
 
