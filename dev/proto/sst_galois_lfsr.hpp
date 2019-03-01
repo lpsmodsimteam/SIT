@@ -42,7 +42,7 @@ private:
     zmq::socket_t m_socket;
 
     zmq::message_t m_buf_in, m_buf_out;
-    signal_packet m_data_in, m_data_out;
+    SignalHandler m_data_in, m_data_out;
 
     msgpack::sbuffer m_sbuf;
     msgpack::packer<msgpack::sbuffer> m_packer;

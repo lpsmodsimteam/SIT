@@ -7,7 +7,8 @@ Simple 4-bit Up-Counter Model with one clock
 
 // Component Constructor
 sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
-        : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP), m_packer(&m_sbuf) {
+        : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP), m_packer(&m_sbuf),
+          m_data_in(m_socket), m_data_out(m_socket) {
 
     // Initialize output
     m_output.init("\033[32mgalois_lfsr-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
@@ -28,6 +29,7 @@ sst_galois_lfsr::~sst_galois_lfsr() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
     m_socket.close();
+
 
 }
 
@@ -52,7 +54,7 @@ void sst_galois_lfsr::setup() {
         m_socket.bind("ipc:///tmp/zero");
 
         recv_sigs(m_socket, m_unpacked_buf, m_buf_in, m_data_in);
-        std::cout << "[oid]=" << m_data_in.data["pid"] << std::endl;
+        std::cout << "[oid]=" << m_data_in["pid"] << std::endl;
 
     }
 
@@ -76,16 +78,16 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         keep_recv = 1;
     }
 
-    m_data_out.data["clock"] = std::to_string(current_cycle);
-    m_data_out.data["on"] = "1";
-    m_data_out.data["reset"] = "1";
+    m_data_out["clock"] = std::to_string(current_cycle);
+    m_data_out["on"] = "1";
+    m_data_out["reset"] = "1";
 
     // turn module off at 52 ns
     if (current_cycle >= 3) {
         if (current_cycle == 3) {
             std::cout << "RESET OFF" << std::endl;
         }
-        m_data_out.data["reset"] = "0";
+        m_data_out["reset"] = "0";
     }
 
     // turn module off at 52 ns
@@ -93,7 +95,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         if (current_cycle == 38) {
             std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
         }
-        m_data_out.data["on"] = "0";
+        m_data_out["on"] = "0";
         keep_send = 0;
     }
 
@@ -109,7 +111,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         } else {
 
             recv_sigs(m_socket, m_unpacked_buf, m_buf_in, m_data_in);
-            m_output.verbose(CALL_INFO, 1, 0, "%s\n", m_data_in.data["galois_lfsr"].c_str());
+            m_output.verbose(CALL_INFO, 1, 0, "%s\n", m_data_in["galois_lfsr"].c_str());
         }
 
     }
