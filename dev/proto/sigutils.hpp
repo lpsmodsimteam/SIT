@@ -33,7 +33,6 @@ public:
 
     std::string &operator[](std::string);
 
-
 };
 
 /* -------------------- IMPLEMENTATIONS -------------------- */
@@ -45,6 +44,8 @@ SignalHandler::SignalHandler(zmq::socket_t &socket) :
 SignalHandler::~SignalHandler() {
 
     m_data.clear();
+    m_socket.close();
+    m_sbuf.clear();
 
 }
 
