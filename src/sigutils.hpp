@@ -39,12 +39,12 @@ public:
 
 SignalHandler::SignalHandler(zmq::socket_t &socket) :
         m_socket(socket), m_packer(&m_sbuf) {
+    // do nothing
 }
 
 SignalHandler::~SignalHandler() {
 
     m_data.clear();
-    m_socket.close();
     m_sbuf.clear();
 
 }

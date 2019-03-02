@@ -7,7 +7,7 @@ Simple 4-bit Up-Counter Model with one clock
 
 // Component Constructor
 sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
-        : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP), m_packer(&m_sbuf),
+        : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
           m_data_in(m_socket), m_data_out(m_socket) {
 
     // Initialize output
@@ -29,7 +29,6 @@ sst_galois_lfsr::~sst_galois_lfsr() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
     m_socket.close();
-
 
 }
 
@@ -54,7 +53,7 @@ void sst_galois_lfsr::setup() {
         m_socket.bind("ipc:///tmp/zero");
 
         m_data_in.recv();
-        std::cout << "[oid]=" << m_data_in["pid"] << std::endl;
+        std::cout << "[pid]=" << m_data_in["pid"] << std::endl;
 
     }
 

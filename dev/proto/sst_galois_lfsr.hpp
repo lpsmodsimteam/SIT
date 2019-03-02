@@ -41,12 +41,7 @@ private:
     zmq::context_t m_context;
     zmq::socket_t m_socket;
 
-    zmq::message_t m_buf_in, m_buf_out;
     SignalHandler m_data_in, m_data_out;
-
-    msgpack::sbuffer m_sbuf;
-    msgpack::packer<msgpack::sbuffer> m_packer;
-    msgpack::unpacked m_unpacked_buf;
 
 };
 

@@ -1,4 +1,4 @@
-# SystemC-SST Interoperability Toolkit
+# SST-SystemC Interoperability Toolkit
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/88c38abb1f2a4a369b4a6f9c49e8d237)](https://www.codacy.com/app/sabbirahm3d/systemc-sst?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sabbirahm3d/systemc-sst&amp;utm_campaign=Badge_Grade)
 
 A library to provide interoperability between
@@ -60,7 +60,6 @@ sudo make install
 ### cppzmq
 
 ### msgpack
-
 
 ## Build the prototype
 Run `make` on the top level Makefile
