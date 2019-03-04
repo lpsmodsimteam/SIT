@@ -1,7 +1,7 @@
-all: compile
+_CXX ?= /usr/bin/clang++
 
 compile:
-	mkdir -p build && cd build && cmake .. && $(MAKE)
+	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} .. && $(MAKE)
 
 run:
 	# execute an SST process using MPI
