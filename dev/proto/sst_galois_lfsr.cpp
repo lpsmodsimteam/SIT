@@ -53,7 +53,7 @@ void sst_galois_lfsr::setup() {
         m_socket.bind("ipc:///tmp/zero");
 
         m_data_in.recv();
-        std::cout << "[pid]=" << m_data_in["pid"] << std::endl;
+        std::cout << "[pid]=" << m_data_in.get<int>("pid") << std::endl;
 
     }
 
@@ -77,16 +77,16 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         keep_recv = 1;
     }
 
-    m_data_out["clock"] = std::to_string(current_cycle);
-    m_data_out["on"] = "1";
-    m_data_out["reset"] = "1";
+    m_data_out.set("clock", std::to_string(current_cycle), SC_UINT_T);
+    m_data_out.set("on", "1");
+    m_data_out.set("reset", "1");
 
     // turn module off at 52 ns
     if (current_cycle >= 3) {
         if (current_cycle == 3) {
             std::cout << "RESET OFF" << std::endl;
         }
-        m_data_out["reset"] = "0";
+        m_data_out.set("reset", "0");
     }
 
     // turn module off at 52 ns
@@ -94,7 +94,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         if (current_cycle == 38) {
             std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
         }
-        m_data_out["on"] = "0";
+        m_data_out.set("on", "0");
         keep_send = 0;
     }
 
@@ -110,7 +110,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         } else {
 
             m_data_in.recv();
-            m_output.verbose(CALL_INFO, 1, 0, "%s\n", m_data_in["galois_lfsr"].c_str());
+            m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_data_in.get<int>("galois_lfsr"));
         }
 
     }

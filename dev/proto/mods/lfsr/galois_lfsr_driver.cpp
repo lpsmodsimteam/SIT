@@ -27,7 +27,7 @@ int sc_main(int argc, char *argv[]) {
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    _data_out["pid"] = std::to_string(getpid());  // new element inserted
+    _data_out.set("pid", getpid(), SC_UINT_T);  // new element inserted
     _data_out.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -38,16 +38,16 @@ int sc_main(int argc, char *argv[]) {
         // RECEIVING
         _data_in.recv();
 
-        if (!std::stoi(_data_in["on"])) {
+        if (!_data_in.get<bool>("on")) {
             break;
         }
-        clock = (std::stoi(_data_in["clock"])) % 2;
-        reset = std::stoi(_data_in["reset"]);
+        clock = (_data_in.get<int>("clock")) % 2;
+        reset = _data_in.get<bool>("reset");
         std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-                  << " | reset: " << _data_in["reset"] << " -> galois_lfsr_out: " << data_out << std::endl;
+                  << " | reset: " << _data_in.get<bool>("reset") << " -> galois_lfsr_out: " << data_out << std::endl;
 
         // SENDING
-        _data_out["galois_lfsr"] = std::to_string(_sc_signal_to_int(data_out));
+        _data_out.set("galois_lfsr", data_out, SC_UINT_T);
         _data_out.send();
 
     }

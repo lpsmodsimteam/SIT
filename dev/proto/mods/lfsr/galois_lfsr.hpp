@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include "systemc.h"
+#include <systemc.h>
 
 SC_MODULE (galois_lfsr) {
 

@@ -12,18 +12,22 @@ set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
 
 # -------------------- SST CONFIGS --------------------
-# set(SST_CONFIG /usr/local/bin/sst-config)
 execute_process(
-    COMMAND ${SST_CONFIG} --ELEMENT_CXXFLAGS    
-    OUTPUT_VARIABLE SST_FLAGS   
-    OUTPUT_STRIP_TRAILING_WHITESPACE    
-)   
-execute_process(    
-    COMMAND ${SST_CONFIG} --ELEMENT_LDFLAGS 
-    OUTPUT_VARIABLE SST_LDFLAGS 
-    OUTPUT_STRIP_TRAILING_WHITESPACE    
-)   
-separate_arguments(SST_FLAGS)   
+    COMMAND which sst-config
+    OUTPUT_VARIABLE SST_CONFIG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+    COMMAND ${SST_CONFIG} --ELEMENT_CXXFLAGS
+    OUTPUT_VARIABLE SST_FLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+    COMMAND ${SST_CONFIG} --ELEMENT_LDFLAGS
+    OUTPUT_VARIABLE SST_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+separate_arguments(SST_FLAGS)
 separate_arguments(SST_LDFLAGS)
 
 macro(_sst_compile_link _name)
@@ -53,8 +57,8 @@ add_executable(libsst_galois_lfsrSST.so sst_galois_lfsr.cpp)
 _sst_compile_link(libsst_galois_lfsrSST.so)
 
 add_executable(
-        galois_lfsr.o
-        mods/lfsr/galois_lfsr.hpp mods/lfsr/galois_lfsr_driver.cpp
+    galois_lfsr.o
+    mods/lfsr/galois_lfsr.hpp mods/lfsr/galois_lfsr_driver.cpp
 )
 target_link_libraries(galois_lfsr.o SystemC::systemc)
 # -------------------- EXECUTABLES --------------------
