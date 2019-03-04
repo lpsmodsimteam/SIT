@@ -2,23 +2,23 @@
 Simple 4-bit Up-Counter Model with one clock
 */
 
-#include "sst_galois_lfsr.hpp"
+#include "sst_fib_lfsr.hpp"
 #include <sst/core/sst_config.h>
 
 // Component Constructor
-sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
+sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
         : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
           m_sh_in(m_socket), m_sh_out(m_socket) {
 
     // Initialize output
-    m_output.init("\033[32mgalois_lfsr-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
+    m_output.init("\033[32mfib_lfsr-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
                   SST::Output::STDOUT);
 
     m_proc = params.find<std::string>("proc", "");
     m_port = params.find<std::string>("port", "");
 
     // Just register a plain clock for this simple example
-    registerClock("500MHz", new SST::Clock::Handler<sst_galois_lfsr>(this, &sst_galois_lfsr::tick));
+    registerClock("500MHz", new SST::Clock::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::tick));
 
     // Tell SST to wait until we authorize it to exit
     registerAsPrimaryComponent();
@@ -26,7 +26,7 @@ sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
 
 }
 
-sst_galois_lfsr::~sst_galois_lfsr() {
+sst_fib_lfsr::~sst_fib_lfsr() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
     m_socket.close();
@@ -35,7 +35,7 @@ sst_galois_lfsr::~sst_galois_lfsr() {
 
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
-void sst_galois_lfsr::setup() {
+void sst_fib_lfsr::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
@@ -62,13 +62,13 @@ void sst_galois_lfsr::setup() {
 
 // finish is called by SST before the simulation is ended and should be used
 // to clean up variables and memory
-void sst_galois_lfsr::finish() {
+void sst_fib_lfsr::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
-bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
+bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
@@ -93,7 +93,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
     // turn module off at 52 ns
     if (current_cycle >= 38) {
         if (current_cycle == 38) {
-            std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
+            std::cout << "FIBONACCI LFSR MODULE OFF" << std::endl;
         }
         m_sh_out.set("on", 0);
         keep_send = 0;
@@ -111,7 +111,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         } else {
 
             m_sh_in.recv();
-            m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("galois_lfsr"));
+            m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("fib_lfsr"));
         }
 
     }

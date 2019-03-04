@@ -1,5 +1,5 @@
-#ifndef SST_GALOIS_LFSR_HPP
-#define SST_GALOIS_LFSR_HPP
+#ifndef SST_FIB_LFSR_HPP
+#define SST_FIB_LFSR_HPP
 
 #include "sstscit.hpp"
 
@@ -7,13 +7,13 @@
 #include <sst/core/elementinfo.h>
 
 
-class sst_galois_lfsr : public SST::Component {
+class sst_fib_lfsr : public SST::Component {
 
 public:
 
-    sst_galois_lfsr(SST::ComponentId_t, SST::Params &);
+    sst_fib_lfsr(SST::ComponentId_t, SST::Params &);
 
-    ~sst_galois_lfsr() override;
+    ~sst_fib_lfsr() override;
 
     void setup() override;
 
@@ -23,11 +23,11 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-            sst_galois_lfsr, // class
-            "sst_galois_lfsrSST", // element library
-            "sst_galois_lfsr", // component
+            sst_fib_lfsr, // class
+            "sst_fib_lfsrSST", // element library
+            "sst_fib_lfsr", // component
             SST_ELI_ELEMENT_VERSION(1, 0, 0),
-            "Simple 4-bit Galois Linear Feedback Shift Register",
+            "Simple 4-bit Fibonacci Linear Feedback Shift Register",
             COMPONENT_CATEGORY_UNCATEGORIZED
     )
 

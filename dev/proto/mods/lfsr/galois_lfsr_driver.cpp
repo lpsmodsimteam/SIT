@@ -21,14 +21,14 @@ int sc_main(int argc, char *argv[]) {
 
     //  Socket to talk to server
     zmq::socket_t socket(context, ZMQ_REQ);
-    socket.connect("ipc:///tmp/zero");
+    socket.connect(&argv[1][0u]);
 
-    SignalHandler _data_in(socket), _data_out(socket);
+    SignalHandler sh_in(socket), sh_out(socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    _data_out.set("pid", getpid(), SC_UINT_T);
-    _data_out.send();
+    sh_out.set("pid", getpid(), SC_UINT_T);
+    sh_out.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
     while (true) {
@@ -36,19 +36,19 @@ int sc_main(int argc, char *argv[]) {
         sc_start(1, SC_NS);
 
         // RECEIVING
-        _data_in.recv();
+        sh_in.recv();
 
-        if (!_data_in.get<bool>("on")) {
+        if (!sh_in.get<bool>("on")) {
             break;
         }
-        clock = (_data_in.get<int>("clock")) % 2;
-        reset = _data_in.get<bool>("reset");
+        clock = sh_in.get_clock_pulse("clock");
+        reset = sh_in.get<bool>("reset");
         std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-                  << " | reset: " << _data_in.get<bool>("reset") << " -> galois_lfsr_out: " << data_out << std::endl;
+                  << " | reset: " << sh_in.get<bool>("reset") << " -> galois_lfsr_out: " << data_out << std::endl;
 
         // SENDING
-        _data_out.set("galois_lfsr", data_out, SC_UINT_T);
-        _data_out.send();
+        sh_out.set("galois_lfsr", data_out, SC_UINT_T);
+        sh_out.send();
 
     }
 

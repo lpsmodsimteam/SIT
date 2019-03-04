@@ -4,7 +4,6 @@
 #include <msgpack.hpp>
 #include <zmq.hpp>
 
-#include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <unordered_map>
@@ -45,6 +44,9 @@ public:
 
     void recv();
 
+    // Converts SST clock cycles to pulses for SystemC modules
+    bool get_clock_pulse(const std::string &);
+
 };
 
 
@@ -60,6 +62,12 @@ SignalHandler::~SignalHandler() {
 
     m_data.clear();
     m_sbuf.clear();
+
+}
+
+bool SignalHandler::get_clock_pulse(const std::string &key) {
+
+    return (this->get<int>(key)) % 2;
 
 }
 

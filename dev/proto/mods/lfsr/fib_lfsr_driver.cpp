@@ -4,68 +4,56 @@
 
 int sc_main(int argc, char *argv[]) {
 
+    // ---------- SYSTEMC UUT INIT ---------- //
     sc_signal<bool> clock;
     sc_signal<bool> reset;
     sc_signal<sc_uint<4> > data_out;
 
     // Connect the DUT
-    fib_lfsr DUT("FIBONACCI LFSR");
+    fib_lfsr DUT("FIB_LFSR");
     DUT.clock(clock);
     DUT.reset(reset);
     DUT.data_out(data_out);
+    // ---------- SYSTEMC UUT INIT ---------- //
 
-    init_MPI();
+    // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
+    zmq::context_t context(1);
 
-    // Find out rank, size
-    int world_rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
+    //  Socket to talk to server
+    zmq::socket_t socket(context, ZMQ_REQ);
+    socket.connect(&argv[1][0u]);
 
-    MPI_Comm inter_com;
-    MPI_Comm_get_parent(&inter_com);
+    SignalHandler sh_in(socket), sh_out(socket);
+    // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
-    int pid = getpid();
-    MPI_Gather(&pid, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
-    MPI_Gather(&world_rank, 1, MPI_INT, nullptr, 1, MPI_INT, 0, inter_com);
+    // ---------- INITIAL HANDSHAKE ---------- //
+    sh_out.set("pid", getpid(), SC_UINT_T);
+    sh_out.send();
+    // ---------- INITIAL HANDSHAKE ---------- //
 
-    // create an empty structure (null)
-    json _data_in;
-    json _data_out;
-
-    auto *recv_buf = new char[BUFSIZE];
-
-    while (1) {
+    while (true) {
 
         sc_start(1, SC_NS);
 
-        receive_signals(recv_buf, inter_com, false);
-        _data_in = json::parse(recv_buf);
+        // RECEIVING
+        sh_in.recv();
 
-        if (!_data_in["on"].get<bool>()) {
+        if (!sh_in.get<bool>("on")) {
             break;
         }
-        clock = (_data_in["clock"].get<int>()) % 2;
-        reset = _data_in["reset"].get<bool>();
+        clock = sh_in.get_clock_pulse("clock");
+        reset = sh_in.get<bool>("reset");
+        std::cout << "\033[33mFIB LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
+                  << " | reset: " << sh_in.get<bool>("reset") << " -> fib_lfsr_out: " << data_out << std::endl;
 
-        std::cout << "\033[33mFIBONACCI LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-                  << " | reset: " << _data_in["reset"] << " -> fib_lfsr_out: " << data_out << std::endl;
-        _data_in.clear();
-
-        _data_out["fib_lfsr_out"] = _sc_signal_to_int(data_out);
-
-        // _data_out.dump().c_str() is (const char *)
-        transmit_signals(_data_out.dump().c_str(), inter_com, false);
-        _data_out.clear();            
+        // SENDING
+        sh_out.set("fib_lfsr", data_out, SC_UINT_T);
+        sh_out.send();
 
     }
 
-    _data_in.clear();
-    _data_out.clear();
-    delete[] recv_buf;
-    _data_in = nullptr;
-    _data_out = nullptr;
-    recv_buf = nullptr;
+    socket.close();
 
-    MPI_Finalize();
     return 0;
 
 }
