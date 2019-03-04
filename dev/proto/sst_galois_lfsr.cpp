@@ -77,16 +77,16 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         keep_recv = 1;
     }
 
-    m_data_out.set("clock", std::to_string(current_cycle), SC_UINT_T);
-    m_data_out.set("on", "1");
-    m_data_out.set("reset", "1");
+    m_data_out.set("clock", current_cycle, SC_UINT_T);
+    m_data_out.set("on", 1);
+    m_data_out.set("reset", 1);
 
     // turn module off at 52 ns
     if (current_cycle >= 3) {
         if (current_cycle == 3) {
             std::cout << "RESET OFF" << std::endl;
         }
-        m_data_out.set("reset", "0");
+        m_data_out.set("reset", 0);
     }
 
     // turn module off at 52 ns
@@ -94,7 +94,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         if (current_cycle == 38) {
             std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
         }
-        m_data_out.set("on", "0");
+        m_data_out.set("on", 0);
         keep_send = 0;
     }
 
