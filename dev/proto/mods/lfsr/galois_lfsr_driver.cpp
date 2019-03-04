@@ -27,7 +27,7 @@ int sc_main(int argc, char *argv[]) {
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    _data_out.set("pid", getpid(), SC_UINT_T);  // new element inserted
+    _data_out.set("pid", getpid(), SC_UINT_T);
     _data_out.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 

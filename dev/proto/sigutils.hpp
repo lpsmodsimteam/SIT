@@ -83,10 +83,10 @@ void SignalHandler::set(const std::string &key, const T &value, uint8_t data_typ
 
 
 template<typename T>
-T SignalHandler::get(const std::string &index) {
+T SignalHandler::get(const std::string &key) {
 
-    std::string value = m_data[index].first;
-    uint8_t data_t = m_data[index].second;
+    std::string value = m_data[key].first;
+    uint8_t data_t = m_data[key].second;
 
     switch (data_t) {
         case SC_BIT_T:
