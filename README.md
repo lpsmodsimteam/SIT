@@ -21,11 +21,8 @@ tar -xvf systemc-<ver>.tar.gz
 
 Install using CMake and CCMake
 ```shell
-# to install ccmake
-sudo apt install cmake-curses-gui
 mkdir build && cd build
-# run CCMake to configure the file generation to change the C++ standard from 98 to 14
-ccmake ..
+cmake -DCMAKE_CXX_STANDARD=14 ..
 make && make check
 sudo make install
 ```
@@ -45,21 +42,48 @@ tar -xvf sstcore-<ver>.tar.gz && tar -xvf sstelements-<ver>.tar.gz
 
 Build and install SST Core
 ```shell
-./configure --prefix=$SST_CORE_HOME
+./configure
 make all
 sudo make install
 ```
 
 Build and install SST Elements Library
 ```shell
-./configure --prefix=$SST_ELEMENTS_HOME --with-sst-core=$SST_CORE_HOME
+./configure
 make all
 sudo make install
 ```
 
+Initialize the library
+```shell
+mkdir ~/.sst
+touch ~/.sst/sstsimulator.conf
+```
+
 ### cppzmq
+`libzmq` is required to build cppzmq. Sources for stable libzmq releases can be downloaded [here](https://github.com/zeromq/libzmq), and zppzmq [here](https://github.com/zeromq/cppzmq).
+
+Build and install the library:
+```shell
+cd libzmq
+mkdir build && cd build
+cmake ..
+sudo make -j4 install
+
+cd cppzmq
+mkdir build && cd build
+cmake ..
+sudo make -j4 install
+```
 
 ### msgpack
+Sources for stable msgpack releases can be downloaded [here](https://github.com/msgpack/msgpack-c).
+
+```shell
+cd msgpack-c
+cmake -DMSGPACK_CXX11=ON .
+sudo make install
+```
 
 ## Build the prototype
 Run `make` on the top level Makefile

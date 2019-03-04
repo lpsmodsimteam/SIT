@@ -1,7 +1,8 @@
-all: compile
+_CXX ?= /usr/bin/clang++
+SST_CONFIG = $(shell which sst-config)
 
 compile:
-	mkdir -p build && cd build && cmake .. && $(MAKE)
+	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DSST_CONFIG=${SST_CONFIG} .. && $(MAKE)
 
 run:
 	# execute an SST process using MPI

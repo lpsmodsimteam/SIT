@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.13)
-set(CMAKE_CXX_COMPILER /usr/bin/g++)
 project(sstscit CXX)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -13,17 +12,25 @@ set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
 
 # -------------------- SST CONFIGS --------------------
+# set(SST_CONFIG /usr/local/bin/sst-config)
+execute_process(
+    COMMAND ${SST_CONFIG} --ELEMENT_CXXFLAGS    
+    OUTPUT_VARIABLE SST_FLAGS   
+    OUTPUT_STRIP_TRAILING_WHITESPACE    
+)   
+execute_process(    
+    COMMAND ${SST_CONFIG} --ELEMENT_LDFLAGS 
+    OUTPUT_VARIABLE SST_LDFLAGS 
+    OUTPUT_STRIP_TRAILING_WHITESPACE    
+)   
+separate_arguments(SST_FLAGS)   
+separate_arguments(SST_LDFLAGS)
+
 macro(_sst_compile_link _name)
     if (TARGET ${_name})
         target_compile_definitions(${_name} PRIVATE)
-        target_compile_options(
-                ${_name} PRIVATE
-                -D__STDC_FORMAT_MACROS -fPIC -DHAVE_CONFIG_H -I/include
-        )
-        target_link_options(
-                ${_name} PRIVATE
-                -shared -fno-common -Wl,-undefined -Wl,dynamic_lookup
-        )
+        target_compile_options(${_name} PRIVATE ${SST_FLAGS})
+        target_link_options(${_name} PRIVATE ${SST_LDFLAGS})
     endif ()
 endmacro()
 # -------------------- SST CONFIGS --------------------
