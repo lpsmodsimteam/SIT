@@ -17,8 +17,9 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
     registerClock("500MHz", new SST::Clock::Handler<sst_dev>(this, &sst_dev::tick));
 
     // Configure our port
-    port = configureLink("port", new SST::Event::Handler<sst_dev>(this, &sst_dev::handleEvent));
-    if (!port) {
+    port0 = configureLink("port0", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_lfsr));
+    port1 = configureLink("port1", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_lfsr));
+    if (!(port0 && port1)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
 
@@ -50,12 +51,20 @@ void sst_dev::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
-// Receive events that contain the CarType, add the cars to the queue
-void sst_dev::handleEvent(SST::Event *ev) {
+void sst_dev::handle_galois_lfsr(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
-        port->send(new SST::Interfaces::StringEvent(std::to_string(10)));
+        port0->send(new SST::Interfaces::StringEvent("HELLO GALOIS"));
+    }
+    delete ev;
+}
+
+void sst_dev::handle_fib_lfsr(SST::Event *ev) {
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+        std::cout << se->getString() << std::endl;
+        port1->send(new SST::Interfaces::StringEvent("HELLO FIB"));
     }
     delete ev;
 }

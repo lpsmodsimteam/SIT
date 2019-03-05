@@ -16,13 +16,13 @@ sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
                   SST::Output::STDOUT);
 
     m_proc = params.find<std::string>("proc", "");
-    m_port = params.find<std::string>("port", "");
+    m_port = params.find<std::string>("_port", "");
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_galois_lfsr>(this, &sst_galois_lfsr::tick));
 
     // Configure our port
-    port = configureLink("port", new SST::Event::Handler<sst_galois_lfsr>(this, &sst_galois_lfsr::handleEvent));
+    port = configureLink("port0", new SST::Event::Handler<sst_galois_lfsr>(this, &sst_galois_lfsr::handleEvent));
     if (!port) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }

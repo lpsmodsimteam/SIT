@@ -4,7 +4,6 @@
 #include <msgpack.hpp>
 #include <zmq.hpp>
 
-#include <iostream>  // for debug only
 #include <sstream>
 #include <unistd.h>
 #include <unordered_map>
@@ -84,7 +83,6 @@ inline SignalReceiver::SignalReceiver(zmq::socket_t &socket) :
 
 inline SignalReceiver::~SignalReceiver() {
 
-    std::cout << getpid() << " DESTROYING RECEIVER" << std::endl;
     m_data.clear();
 
 }
@@ -128,7 +126,6 @@ T SignalReceiver::get(const std::string &key) {
 
 inline void SignalReceiver::recv() {
 
-    std::cout << getpid() << " RECEIVING" << std::endl;
     m_socket.recv(&m_buf);
     msgpack::unpack(m_unpacker, (char *) (m_buf.data()), m_buf.size());
     m_unpacker.get().convert(*this);
@@ -143,7 +140,6 @@ inline SignalTransmitter::SignalTransmitter(zmq::socket_t &socket) :
 
 inline SignalTransmitter::~SignalTransmitter() {
 
-    std::cout << getpid() << " DESTROYING TRANSMITTER" << std::endl;
     m_data.clear();
     m_sbuf.clear();
 
@@ -171,7 +167,6 @@ void SignalTransmitter::set(const std::string &key, const T &value, uint8_t data
 
 inline void SignalTransmitter::send() {
 
-    std::cout << getpid() << " SENDING" << std::endl;
     m_packer.pack(*this);
     m_buf.rebuild(m_sbuf.size());
     std::memcpy(m_buf.data(), m_sbuf.data(), m_sbuf.size());

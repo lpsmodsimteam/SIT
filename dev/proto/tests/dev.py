@@ -12,21 +12,21 @@ galois_lfsr_comp = sst.Component("sst_galois_lfsr", "proto.sst_galois_lfsr")
 # overide default parameters
 galois_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "galois_lfsr.o"),
-    "port": "ipc:///tmp/galois",
+    "_port": "ipc:///tmp/galois",
 })
 
 fib_lfsr_comp = sst.Component("sst_fib_lfsr", "proto.sst_fib_lfsr")
 # overide default parameters
 fib_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "fib_lfsr.o"),
-    "port": "ipc:///tmp/fib",
+    "_port": "ipc:///tmp/fib",
 })
 
-sst.Link("Road").connect(
-    (galois_lfsr_comp, "port", "1ps"),
-    (proto_comp, "port", "1ps"),
+sst.Link("road0").connect(
+    (galois_lfsr_comp, "port0", "1ps"),
+    (proto_comp, "port0", "1ps"),
 )
-sst.Link("Road2").connect(
-    (fib_lfsr_comp, "port", "1ps"),
-    (proto_comp, "port", "1ps"),
+sst.Link("road1").connect(
+    (fib_lfsr_comp, "port1", "1ps"),
+    (proto_comp, "port1", "1ps"),
 )

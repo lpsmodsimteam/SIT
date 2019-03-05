@@ -35,7 +35,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-            { "port", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
+            { "port0", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
     )
 
 private:

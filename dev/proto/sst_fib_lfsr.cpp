@@ -16,13 +16,13 @@ sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
                   SST::Output::STDOUT);
 
     m_proc = params.find<std::string>("proc", "");
-    m_port = params.find<std::string>("port", "");
+    m_port = params.find<std::string>("_port", "");
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::tick));
 
     // Configure our port
-    port = configureLink("port", new SST::Event::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::handleEvent));
+    port = configureLink("port1", new SST::Event::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::handleEvent));
     if (!port) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
