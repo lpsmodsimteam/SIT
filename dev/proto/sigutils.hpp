@@ -77,12 +77,12 @@ public:
 /* -------------------- IMPLEMENTATIONS -------------------- */
 
 
-SignalReceiver::SignalReceiver(zmq::socket_t &socket) :
+inline SignalReceiver::SignalReceiver(zmq::socket_t &socket) :
         m_socket(socket) {
     // do nothing
 }
 
-SignalReceiver::~SignalReceiver() {
+inline SignalReceiver::~SignalReceiver() {
 
     std::cout << getpid() << " DESTROYING RECEIVER" << std::endl;
     m_data.clear();
@@ -90,19 +90,19 @@ SignalReceiver::~SignalReceiver() {
 }
 
 
-bool SignalReceiver::get_clock_pulse(const std::string &key) {
+inline bool SignalReceiver::get_clock_pulse(const std::string &key) {
 
     return (this->get<int>(key)) % 2;
 
 }
 
-bool SignalReceiver::alive() {
+inline bool SignalReceiver::alive() {
 
     return (this->get<bool>("__on__"));
 
 }
 
-void SignalTransmitter::set_state(bool state) {
+inline void SignalTransmitter::set_state(bool state) {
 
     this->set("__on__", state);
 
@@ -126,7 +126,7 @@ T SignalReceiver::get(const std::string &key) {
 
 }
 
-void SignalReceiver::recv() {
+inline void SignalReceiver::recv() {
 
     std::cout << getpid() << " RECEIVING" << std::endl;
     m_socket.recv(&m_buf);
@@ -136,12 +136,12 @@ void SignalReceiver::recv() {
 }
 
 
-SignalTransmitter::SignalTransmitter(zmq::socket_t &socket) :
+inline SignalTransmitter::SignalTransmitter(zmq::socket_t &socket) :
         m_socket(socket), m_packer(&m_sbuf) {
     // do nothing
 }
 
-SignalTransmitter::~SignalTransmitter() {
+inline SignalTransmitter::~SignalTransmitter() {
 
     std::cout << getpid() << " DESTROYING TRANSMITTER" << std::endl;
     m_data.clear();
@@ -169,7 +169,7 @@ void SignalTransmitter::set(const std::string &key, const T &value, uint8_t data
 }
 
 
-void SignalTransmitter::send() {
+inline void SignalTransmitter::send() {
 
     std::cout << getpid() << " SENDING" << std::endl;
     m_packer.pack(*this);

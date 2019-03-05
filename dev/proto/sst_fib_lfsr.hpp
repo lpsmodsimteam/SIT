@@ -4,6 +4,7 @@
 #include "sstscit.hpp"
 
 #include <sst/core/component.h>
+#include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
 
 
@@ -21,17 +22,25 @@ public:
 
     bool tick(SST::Cycle_t);
 
+    void handleEvent(SST::Event *);
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
             sst_fib_lfsr, // class
-            "proto2", // element library
+            "proto", // element library
             "sst_fib_lfsr", // component
             SST_ELI_ELEMENT_VERSION(1, 0, 0),
-            "Simple 4-bit Fibonacci Linear Feedback Shift Register",
+            "Simple 4-bit Galois Linear Feedback Shift Register",
             COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
+    // Port name, description, event type
+    SST_ELI_DOCUMENT_PORTS(
+            { "port", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
+    )
+
 private:
+
+    SST::Link *port;
 
     // SST parameters
     SST::Output m_output;

@@ -1,5 +1,5 @@
-#ifndef SSTSYSC_HPP
-#define SSTSYSC_HPP
+#ifndef SSTSCIT_HPP
+#define SSTSCIT_HPP
 
 #include "sigutils.hpp"
 

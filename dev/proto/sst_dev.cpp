@@ -54,7 +54,8 @@ void sst_dev::finish() {
 void sst_dev::handleEvent(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        std::cout << atoi(&(se->getString().c_str()[0])) << std::endl;
+        std::cout << se->getString() << std::endl;
+        port->send(new SST::Interfaces::StringEvent(std::to_string(10)));
     }
     delete ev;
 }

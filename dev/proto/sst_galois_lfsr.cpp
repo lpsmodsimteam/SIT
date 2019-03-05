@@ -22,7 +22,7 @@ sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
     registerClock("500MHz", new SST::Clock::Handler<sst_galois_lfsr>(this, &sst_galois_lfsr::tick));
 
     // Configure our port
-    port = configureLink("port");
+    port = configureLink("port", new SST::Event::Handler<sst_galois_lfsr>(this, &sst_galois_lfsr::handleEvent));
     if (!port) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
@@ -73,6 +73,16 @@ void sst_galois_lfsr::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
+// Receive events that contain the CarType, add the cars to the queue
+void sst_galois_lfsr::handleEvent(SST::Event *ev) {
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+        std::cout << se->getString() << std::endl;
+    }
+    delete ev;
+}
+
+
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
 bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
@@ -114,8 +124,7 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
         m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("galois_lfsr"));
     }
 
-
-    port->send(new SST::Interfaces::StringEvent(std::to_string(m_sh_in.get<int>("galois_lfsr"))));
+    port->send(new SST::Interfaces::StringEvent("galois " + std::to_string(m_sh_in.get<int>("galois_lfsr"))));
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

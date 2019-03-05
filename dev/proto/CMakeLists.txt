@@ -53,13 +53,11 @@ endmacro()
 # -------------------- EXTERNAL LIBRARIES --------------------
 
 # -------------------- EXECUTABLES --------------------
-add_executable(libproto1.so sst_dev.cpp sst_galois_lfsr.cpp)
-_sst_compile_link(libproto1.so)
-#add_executable(libproto2.so sst_fib_lfsr.cpp)
-#_sst_compile_link(libproto2.so)
+add_executable(libproto.so sst_dev.cpp sst_galois_lfsr.cpp sst_fib_lfsr.cpp)
+_sst_compile_link(libproto.so)
 
 add_executable(galois_lfsr.o mods/lfsr/galois_lfsr_driver.cpp)
 target_link_libraries(galois_lfsr.o SystemC::systemc)
-#add_executable(fib_lfsr.o mods/lfsr/fib_lfsr_driver.cpp)
-#target_link_libraries(fib_lfsr.o SystemC::systemc)
+add_executable(fib_lfsr.o mods/lfsr/fib_lfsr_driver.cpp)
+target_link_libraries(fib_lfsr.o SystemC::systemc)
 # -------------------- EXECUTABLES --------------------

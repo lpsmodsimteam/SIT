@@ -4,6 +4,7 @@ Simple 4-bit Up-Counter Model with one clock
 
 #include "sst_fib_lfsr.hpp"
 #include <sst/core/sst_config.h>
+#include <sst/core/interfaces/stringEvent.h>
 
 // Component Constructor
 sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
@@ -11,14 +12,20 @@ sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
           m_sh_in(m_socket), m_sh_out(m_socket) {
 
     // Initialize output
-    m_output.init("\033[32mfib_lfsr-" + getName() + "\033[0m (pid: " +
-                  std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[32mgalois_lfsr-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
+                  SST::Output::STDOUT);
 
     m_proc = params.find<std::string>("proc", "");
     m_port = params.find<std::string>("port", "");
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::tick));
+
+    // Configure our port
+    port = configureLink("port", new SST::Event::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::handleEvent));
+    if (!port) {
+        m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+    }
 
     // Tell SST to wait until we authorize it to exit
     registerAsPrimaryComponent();
@@ -66,17 +73,25 @@ void sst_fib_lfsr::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
+// Receive events that contain the CarType, add the cars to the queue
+void sst_fib_lfsr::handleEvent(SST::Event *ev) {
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+        std::cout << se->getString() << std::endl;
+    }
+    delete ev;
+}
+
+
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
 bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
-    uint8_t keep_send, keep_recv;
-    if (current_cycle == 1) {
-        keep_send = 1;
-        keep_recv = 1;
-    }
+    bool keep_send, keep_recv;
+    keep_send = current_cycle < 39;
+    keep_recv = current_cycle < 38;
 
     m_sh_out.set("clock", current_cycle, SC_UINT_T);
     m_sh_out.set_state(true);
@@ -93,28 +108,23 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
     // turn module off at 52 ns
     if (current_cycle >= 38) {
         if (current_cycle == 38) {
-            std::cout << "FIBONACCI LFSR MODULE OFF" << std::endl;
+            std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
         }
         m_sh_out.set_state(false);
-        keep_send = 0;
     }
 
-
-    if (keep_send | keep_recv) {
+    if (keep_send) {
 
         m_sh_out.send();
-
-        if (!keep_send) {
-
-            keep_recv = 0;
-
-        } else {
-
-            m_sh_in.recv();
-            m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("fib_lfsr"));
-        }
-
     }
+
+    if (keep_recv) {
+
+        m_sh_in.recv();
+        m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("fib_lfsr"));
+    }
+
+    port->send(new SST::Interfaces::StringEvent("fib " + std::to_string(m_sh_in.get<int>("fib_lfsr"))));
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

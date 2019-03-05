@@ -28,7 +28,7 @@ public:
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
             sst_dev, // class
-            "proto1", // element library
+            "proto", // element library
             "sst_dev", // component
             SST_ELI_ELEMENT_VERSION(1, 0, 0),
             "Simple 4-bit Galois Linear Feedback Shift Register",
