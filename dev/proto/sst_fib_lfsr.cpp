@@ -79,7 +79,7 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
     }
 
     m_sh_out.set("clock", current_cycle, SC_UINT_T);
-    m_sh_out.set("on", 1);
+    m_sh_out.set_state(true);
     m_sh_out.set("reset", 1);
 
     // turn module off at 52 ns
@@ -95,7 +95,7 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
         if (current_cycle == 38) {
             std::cout << "FIBONACCI LFSR MODULE OFF" << std::endl;
         }
-        m_sh_out.set("on", 0);
+        m_sh_out.set_state(false);
         keep_send = 0;
     }
 

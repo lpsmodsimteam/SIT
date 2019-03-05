@@ -23,7 +23,8 @@ int sc_main(int argc, char *argv[]) {
     zmq::socket_t socket(context, ZMQ_REQ);
     socket.connect(&argv[1][0u]);
 
-    SignalHandler sh_in(socket), sh_out(socket);
+    SignalReceiver sh_in(socket);
+    SignalTransmitter sh_out(socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
@@ -38,7 +39,7 @@ int sc_main(int argc, char *argv[]) {
         // RECEIVING
         sh_in.recv();
 
-        if (!sh_in.get<bool>("on")) {
+        if (!sh_in.alive()) {
             break;
         }
         clock = sh_in.get_clock_pulse("clock");
