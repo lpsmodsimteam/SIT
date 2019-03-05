@@ -19,7 +19,7 @@ Download and untar the source:
 tar -xvf systemc-<ver>.tar.gz
 ```
 
-Install using CMake and CCMake
+Install using CMake
 ```shell
 mkdir build && cd build
 cmake -DCMAKE_CXX_STANDARD=14 ..

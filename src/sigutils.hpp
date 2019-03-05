@@ -4,7 +4,7 @@
 #include <msgpack.hpp>
 #include <zmq.hpp>
 
-#include <iostream>
+#include <iostream>  // for debug only
 #include <sstream>
 #include <unistd.h>
 #include <unordered_map>
@@ -13,37 +13,63 @@
 #define SC_BIT_T 1
 #define SC_UINT_T 2
 
-class SignalHandler {
+template<typename T>
+std::string _to_string(const T &);
+
+class SignalReceiver {
+
+private:
+
+    zmq::socket_t &m_socket;
+    zmq::message_t m_buf;
+    msgpack::unpacked m_unpacker;
+    std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
+
+
+public:
+
+    MSGPACK_DEFINE (m_data);
+
+    explicit SignalReceiver(zmq::socket_t &);
+
+    ~SignalReceiver();
+
+    template<typename T>
+    T get(const std::string &);
+
+    void recv();
+
+    bool alive();
+
+    // Converts SST clock cycles to pulses for SystemC modules
+    bool get_clock_pulse(const std::string &);
+
+};
+
+class SignalTransmitter {
 
 private:
 
     zmq::socket_t &m_socket;
     zmq::message_t m_buf;
     msgpack::packer<msgpack::sbuffer> m_packer;
-    msgpack::unpacked m_unpacker;
     msgpack::sbuffer m_sbuf;
     std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
-
-    template<typename T>
-    std::string _to_string(const T &);
 
 public:
 
     MSGPACK_DEFINE (m_data);
 
-    explicit SignalHandler(zmq::socket_t &);
+    explicit SignalTransmitter(zmq::socket_t &);
 
-    ~SignalHandler();
+    ~SignalTransmitter();
+
+    void set_state(bool);
 
     template<typename T>
     void set(const std::string &, const T &, uint8_t = SC_BIT_T);
 
-    template<typename T>
-    T get(const std::string &);
-
     void send();
-
-    void recv();
 
 };
 
@@ -51,39 +77,39 @@ public:
 /* -------------------- IMPLEMENTATIONS -------------------- */
 
 
-SignalHandler::SignalHandler(zmq::socket_t &socket) :
-        m_socket(socket), m_packer(&m_sbuf) {
+SignalReceiver::SignalReceiver(zmq::socket_t &socket) :
+        m_socket(socket) {
     // do nothing
 }
 
-SignalHandler::~SignalHandler() {
+SignalReceiver::~SignalReceiver() {
 
+    std::cout << getpid() << " DESTROYING RECEIVER" << std::endl;
     m_data.clear();
-    m_sbuf.clear();
-
-}
-
-template<typename T>
-std::string SignalHandler::_to_string(const T &value) {
-
-    std::ostringstream ss;
-    ss << value;
-    return ss.str();
 
 }
 
 
-template<typename T>
-void SignalHandler::set(const std::string &key, const T &value, uint8_t data_type) {
+bool SignalReceiver::get_clock_pulse(const std::string &key) {
 
-    m_data[key].first = _to_string(value);
-    m_data[key].second = data_type;
+    return (this->get<int>(key)) % 2;
 
 }
 
+bool SignalReceiver::alive() {
+
+    return (this->get<bool>("__on__"));
+
+}
+
+void SignalTransmitter::set_state(bool state) {
+
+    this->set("__on__", state);
+
+}
 
 template<typename T>
-T SignalHandler::get(const std::string &key) {
+T SignalReceiver::get(const std::string &key) {
 
     std::string value = m_data[key].first;
     uint8_t data_t = m_data[key].second;
@@ -100,22 +126,56 @@ T SignalHandler::get(const std::string &key) {
 
 }
 
+void SignalReceiver::recv() {
 
-void SignalHandler::send() {
+    m_socket.recv(&m_buf);
+    msgpack::unpack(m_unpacker, (char *) (m_buf.data()), m_buf.size());
+    m_unpacker.get().convert(*this);
 
+}
+
+
+SignalTransmitter::SignalTransmitter(zmq::socket_t &socket) :
+        m_socket(socket), m_packer(&m_sbuf) {
+    // do nothing
+}
+
+SignalTransmitter::~SignalTransmitter() {
+
+    std::cout << getpid() << " DESTROYING TRANSMITTER" << std::endl;
+    m_data.clear();
+    m_sbuf.clear();
+
+}
+
+
+template<typename T>
+std::string _to_string(const T &value) {
+
+    std::ostringstream ss;
+    ss << value;
+    return ss.str();
+
+}
+
+
+template<typename T>
+void SignalTransmitter::set(const std::string &key, const T &value, uint8_t data_type) {
+
+    m_data[key].first = _to_string(value);
+    m_data[key].second = data_type;
+
+}
+
+
+void SignalTransmitter::send() {
+
+    std::cout << getpid() << " SENDING" << std::endl;
     m_packer.pack(*this);
     m_buf.rebuild(m_sbuf.size());
     std::memcpy(m_buf.data(), m_sbuf.data(), m_sbuf.size());
     m_socket.send(m_buf);
     m_sbuf.clear();
-
-}
-
-void SignalHandler::recv() {
-
-    m_socket.recv(&m_buf);
-    msgpack::unpack(m_unpacker, (char *) (m_buf.data()), m_buf.size());
-    m_unpacker.get().convert(*this);
 
 }
 
