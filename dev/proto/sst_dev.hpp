@@ -1,32 +1,35 @@
-#ifndef SST_GALOIS_LFSR_HPP
-#define SST_GALOIS_LFSR_HPP
+#ifndef SST_DEV_HPP
+#define SST_DEV_HPP
 
-#include "sstscit.hpp"
+#include <unistd.h>
 
 #include <sst/core/component.h>
-#include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
+#include <sst/core/link.h>
+#include <sst/core/interfaces/stringEvent.h>
 
 
-class sst_galois_lfsr : public SST::Component {
+class sst_dev : public SST::Component {
 
 public:
 
-    sst_galois_lfsr(SST::ComponentId_t, SST::Params &);
+    sst_dev(SST::ComponentId_t, SST::Params &);
 
-    ~sst_galois_lfsr() override;
+    ~sst_dev() override;
 
     void setup() override;
 
     void finish() override;
 
+    void handleEvent(SST::Event *);
+
     bool tick(SST::Cycle_t);
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-            sst_galois_lfsr, // class
+            sst_dev, // class
             "proto1", // element library
-            "sst_galois_lfsr", // component
+            "sst_dev", // component
             SST_ELI_ELEMENT_VERSION(1, 0, 0),
             "Simple 4-bit Galois Linear Feedback Shift Register",
             COMPONENT_CATEGORY_UNCATEGORIZED
@@ -34,7 +37,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-            { "port", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
+            { "port", "Port on which to receive cars", {"sst.Interfaces.StringEvent"}}
     )
 
 private:
@@ -43,14 +46,6 @@ private:
 
     // SST parameters
     SST::Output m_output;
-    std::string m_proc, m_port;
-
-    //  Prepare our context and socket
-    zmq::context_t m_context;
-    zmq::socket_t m_socket;
-
-    SignalReceiver m_sh_in;
-    SignalTransmitter m_sh_out;
 
 };
 

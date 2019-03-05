@@ -11,8 +11,8 @@ sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
           m_sh_in(m_socket), m_sh_out(m_socket) {
 
     // Initialize output
-    m_output.init("\033[32mfib_lfsr-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
-                  SST::Output::STDOUT);
+    m_output.init("\033[32mfib_lfsr-" + getName() + "\033[0m (pid: " +
+                  std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     m_proc = params.find<std::string>("proc", "");
     m_port = params.find<std::string>("port", "");

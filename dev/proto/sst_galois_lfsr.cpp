@@ -4,6 +4,7 @@ Simple 4-bit Up-Counter Model with one clock
 
 #include "sst_galois_lfsr.hpp"
 #include <sst/core/sst_config.h>
+#include <sst/core/interfaces/stringEvent.h>
 
 // Component Constructor
 sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
@@ -19,6 +20,12 @@ sst_galois_lfsr::sst_galois_lfsr(SST::ComponentId_t id, SST::Params &params)
 
     // Just register a plain clock for this simple example
     registerClock("500MHz", new SST::Clock::Handler<sst_galois_lfsr>(this, &sst_galois_lfsr::tick));
+
+    // Configure our port
+    port = configureLink("port");
+    if (!port) {
+        m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+    }
 
     // Tell SST to wait until we authorize it to exit
     registerAsPrimaryComponent();
@@ -72,11 +79,9 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
-    uint8_t keep_send, keep_recv;
-    if (current_cycle == 1) {
-        keep_send = 1;
-        keep_recv = 1;
-    }
+    bool keep_send, keep_recv;
+    keep_send = current_cycle < 39;
+    keep_recv = current_cycle < 38;
 
     m_sh_out.set("clock", current_cycle, SC_UINT_T);
     m_sh_out.set_state(true);
@@ -96,25 +101,21 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
             std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
         }
         m_sh_out.set_state(false);
-        keep_send = 0;
     }
 
-
-    if (keep_send | keep_recv) {
+    if (keep_send) {
 
         m_sh_out.send();
-
-        if (!keep_send) {
-
-            keep_recv = 0;
-
-        } else {
-
-            m_sh_in.recv();
-            m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("galois_lfsr"));
-        }
-
     }
+
+    if (keep_recv) {
+
+        m_sh_in.recv();
+        m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("galois_lfsr"));
+    }
+
+
+    port->send(new SST::Interfaces::StringEvent(std::to_string(m_sh_in.get<int>("galois_lfsr"))));
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

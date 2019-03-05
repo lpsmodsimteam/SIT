@@ -24,7 +24,7 @@ public:
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
             sst_fib_lfsr, // class
-            "sst_fib_lfsrSST", // element library
+            "proto2", // element library
             "sst_fib_lfsr", // component
             SST_ELI_ELEMENT_VERSION(1, 0, 0),
             "Simple 4-bit Fibonacci Linear Feedback Shift Register",

@@ -128,6 +128,7 @@ T SignalReceiver::get(const std::string &key) {
 
 void SignalReceiver::recv() {
 
+    std::cout << getpid() << " RECEIVING" << std::endl;
     m_socket.recv(&m_buf);
     msgpack::unpack(m_unpacker, (char *) (m_buf.data()), m_buf.size());
     m_unpacker.get().convert(*this);
