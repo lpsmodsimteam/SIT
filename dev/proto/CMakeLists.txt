@@ -60,4 +60,9 @@ add_executable(galois_lfsr.o modules/galois_lfsr_driver.cpp)
 target_link_libraries(galois_lfsr.o SystemC::systemc)
 add_executable(fib_lfsr.o modules/fib_lfsr_driver.cpp)
 target_link_libraries(fib_lfsr.o SystemC::systemc)
+#add_executable(libsocktest.so blackboxes/socktest.cpp)
+#_sst_compile_link(libsocktest.so)
+#
+#add_executable(galois_lfsr.o modules/galois_lfsr_driver.cpp)
+#target_link_libraries(galois_lfsr.o SystemC::systemc)
 # -------------------- EXECUTABLES --------------------
