@@ -39,13 +39,14 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-            { "port0", "Port fjdvfbjhsdbfjh", {"sst.Interfaces.StringEvent"}},
-            { "port1", "Port blalalal", {"sst.Interfaces.StringEvent"}}
+            { "link_galois", "Port fjdvfbjhsdbfjh", {"sst.Interfaces.StringEvent"}},
+            { "link_fib", "Port blalalal", {"sst.Interfaces.StringEvent"}}
     )
 
 private:
 
-    SST::Link *port0, *port1;
+    std::string m_clock;
+    SST::Link *link_galois, *link_fib;
 
     // SST parameters
     SST::Output m_output;

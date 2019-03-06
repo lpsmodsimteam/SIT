@@ -1,28 +1,32 @@
-/**
-Simple 4-bit Up-Counter Model with one clock
-*/
+/*
+ * Parent SST model
+ *
+ * */
 
 #include "sst_dev.hpp"
 #include <sst/core/sst_config.h>
 
-// Component Constructor
 sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
-        : SST::Component(id) {
+        : SST::Component(id),
+          m_clock(params.find<std::string>("clock", "")),
+          link_galois(configureLink(
+                  "link_galois", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_lfsr)
+          )),
+          link_fib(configureLink(
+                  "link_fib", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_lfsr)
+          )) {
 
     // Initialize output
-    m_output.init("\033[31mparent_sst-" + getName() + "\033[0m (pid: " +
+    m_output.init("\033[34mparent_sst-" + getName() + "\033[0m (pid: " +
                   std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
-    // Just register a plain clock for this simple example
-    registerClock("500MHz", new SST::Clock::Handler<sst_dev>(this, &sst_dev::tick));
-
     // Configure our port
-    port0 = configureLink("port0", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_lfsr));
-    port1 = configureLink("port1", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_lfsr));
-    if (!(port0 && port1)) {
+    if (!(link_galois && link_fib)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
 
+    // Just register a plain clock for this simple example
+    registerClock(m_clock, new SST::Clock::Handler<sst_dev>(this, &sst_dev::tick));
     // Tell SST to wait until we authorize it to exit
     registerAsPrimaryComponent();
     primaryComponentDoNotEndSim();
@@ -55,7 +59,7 @@ void sst_dev::handle_galois_lfsr(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
-        port0->send(new SST::Interfaces::StringEvent("HELLO GALOIS"));
+        link_galois->send(new SST::Interfaces::StringEvent("HELLO GALOIS"));
     }
     delete ev;
 }
@@ -64,7 +68,7 @@ void sst_dev::handle_fib_lfsr(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
-        port1->send(new SST::Interfaces::StringEvent("HELLO FIB"));
+        link_fib->send(new SST::Interfaces::StringEvent("HELLO FIB"));
     }
     delete ev;
 }

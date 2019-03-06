@@ -35,7 +35,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-            { "port1", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
+            { "link_fib", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
     )
 
 private:
@@ -44,7 +44,7 @@ private:
 
     // SST parameters
     SST::Output m_output;
-    std::string m_proc, m_port;
+    std::string m_clock, m_proc, m_ipc_port;
 
     //  Prepare our context and socket
     zmq::context_t m_context;
