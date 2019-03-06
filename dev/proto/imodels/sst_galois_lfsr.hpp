@@ -1,7 +1,7 @@
 #ifndef SST_GALOIS_LFSR_HPP
 #define SST_GALOIS_LFSR_HPP
 
-#include "sstscit.hpp"
+#include "../sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
@@ -35,7 +35,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-            { "link_galois", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
+            { "link_galois", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }}
     )
 
 private:

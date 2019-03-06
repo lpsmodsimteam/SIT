@@ -1,6 +1,6 @@
 #include "fib_lfsr.hpp"
 
-#include "../../sstscit.hpp"
+#include "../sstscit.hpp"
 
 int sc_main(int argc, char *argv[]) {
 
