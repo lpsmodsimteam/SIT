@@ -19,6 +19,7 @@ class BoilerPlate():
         self.inputs = []
         self.outputs = []
         self.inouts = []
+        self.ports = []
 
         self.lib = ""
         self.comp = ""
