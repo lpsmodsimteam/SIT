@@ -98,7 +98,7 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
     m_sh_out.set_state(true);
     m_sh_out.set("reset", 1);
 
-    // turn module off at 52 ns
+    // turn reset off at 3 ns
     if (current_cycle >= 3) {
         if (current_cycle == 3) {
             std::cout << "RESET OFF" << std::endl;
@@ -106,23 +106,22 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
         m_sh_out.set("reset", 0);
     }
 
-    // turn module off at 52 ns
-    if (current_cycle >= 38) {
-        if (current_cycle == 38) {
-            std::cout << "GALOIS LFSR MODULE OFF" << std::endl;
-        }
-        m_sh_out.set_state(false);
-    }
-
     if (keep_send) {
+
+        if (current_cycle == sim_time - 1) {
+            std::cout << "FIB LFSR MODULE OFF" << std::endl;
+            m_sh_out.set_state(false);
+        }
         m_sh_out.send();
+
     }
 
     if (keep_recv) {
         m_sh_in.recv();
     }
 
-    port->send(new SST::Interfaces::StringEvent("\033[34mfib_lfsr\033[0m -> " + std::to_string(m_sh_in.get<int>("fib_lfsr"))));
+    port->send(new SST::Interfaces::StringEvent(
+            "\033[34mfib_lfsr\033[0m -> " + std::to_string(m_sh_in.get<int>("fib_lfsr"))));
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

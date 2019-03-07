@@ -6,17 +6,14 @@ import os
 
 BASE_DIR = os.getcwd()
 TEMPL_PATH = os.path.join(BASE_DIR, "template", "driver.tmp")
-MOD_PATH = os.path.join(BASE_DIR, "galois_lfsr.hpp")
 
 
 class SystemC():
 
-    def __init__(self, path):
+    def __init__(self, module, templ_path):
 
-        self.path = path
-        with open(self.path) as module_file:
-            self.file = module_file.read()
-
+        self.module = module
+        self.templ_path = templ_path
         self.clocks = []
         self.inputs = []
         self.outputs = []
@@ -79,25 +76,28 @@ class SystemC():
             }, self.outputs, formatted=formatted
         )
 
+    def generate_sc_driver(self):
+
+        with open(self.templ_path) as template:
+            print(
+                template.read().format(
+                    module=self.module,
+                    port_defs=self.get_port_defs(),
+                    bindings=self.get_bindings(),
+                    clock=self.get_clock(),
+                    inputs=self.get_inputs(),
+                    outputs=self.get_outputs()
+                )
+            )
+
 
 if __name__ == '__main__':
 
-    galois = SystemC(MOD_PATH)
+    galois = SystemC(module="galois_lfsr", templ_path=TEMPL_PATH)
 
     galois.set_io({
         "sc_in<bool> clock": "clock",
         "sc_in<bool> reset": "input",
         "sc_out<sc_uint<4> > data_out": "output",
     })
-
-    with open(TEMPL_PATH) as template:
-        print(
-            template.read().format(
-                module="galois_lfsr",
-                port_defs=galois.get_port_defs(),
-                bindings=galois.get_bindings(),
-                clock=galois.get_clock(),
-                inputs=galois.get_inputs(),
-                outputs=galois.get_outputs()
-            )
-        )
+    galois.generate_sc_driver()
