@@ -79,7 +79,7 @@ void sst_galois_lfsr::finish() {
 void sst_galois_lfsr::handleEvent(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        std::cout << se->getString() << std::endl;
+        sim_time = std::stoi(se->getString());
     }
     delete ev;
 }
@@ -91,7 +91,8 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
-    bool keep_send = current_cycle < 39, keep_recv = current_cycle < 38;
+    bool keep_send = current_cycle < sim_time;
+    bool keep_recv = current_cycle < sim_time - 1;
 
     m_sh_out.set("clock", current_cycle, SC_UINT_T);
     m_sh_out.set_state(true);
@@ -114,17 +115,14 @@ bool sst_galois_lfsr::tick(SST::Cycle_t current_cycle) {
     }
 
     if (keep_send) {
-
         m_sh_out.send();
     }
 
     if (keep_recv) {
-
         m_sh_in.recv();
-        m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("galois_lfsr"));
     }
 
-    port->send(new SST::Interfaces::StringEvent("galois " + std::to_string(m_sh_in.get<int>("galois_lfsr"))));
+    port->send(new SST::Interfaces::StringEvent("\033[34mgalois_lfsr\033[0m -> " + std::to_string(m_sh_in.get<int>("galois_lfsr"))));
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

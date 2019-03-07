@@ -6,6 +6,8 @@
 #include "sst_dev.hpp"
 #include <sst/core/sst_config.h>
 
+#define SIMTIME "39"
+
 sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
         : SST::Component(id),
           m_clock(params.find<std::string>("clock", "")),
@@ -59,7 +61,7 @@ void sst_dev::handle_galois_lfsr(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
-        link_galois->send(new SST::Interfaces::StringEvent("HELLO GALOIS"));
+        link_galois->send(new SST::Interfaces::StringEvent(SIMTIME));
     }
     delete ev;
 }
@@ -68,7 +70,7 @@ void sst_dev::handle_fib_lfsr(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
-        link_fib->send(new SST::Interfaces::StringEvent("HELLO FIB"));
+        link_fib->send(new SST::Interfaces::StringEvent(SIMTIME));
     }
     delete ev;
 }

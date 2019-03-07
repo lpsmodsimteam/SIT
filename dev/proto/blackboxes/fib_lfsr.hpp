@@ -41,6 +41,7 @@ public:
 private:
 
     SST::Link *port;
+    int sim_time;
 
     // SST parameters
     SST::Output m_output;
