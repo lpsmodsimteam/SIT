@@ -9,14 +9,14 @@
 #define SIMTIME "39"
 
 sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
-        : SST::Component(id),
-          m_clock(params.find<std::string>("clock", "")),
-          link_galois(configureLink(
-                  "link_galois", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_lfsr)
-          )),
-          link_fib(configureLink(
-                  "link_fib", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_lfsr)
-          )) {
+    : SST::Component(id),
+      m_clock(params.find<std::string>("clock", "")),
+      link_galois(configureLink(
+          "link_galois", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_lfsr)
+      )),
+      link_fib(configureLink(
+          "link_fib", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_lfsr)
+      )) {
 
     // Initialize output
     m_output.init("\033[34mparent_sst-" + getName() + "\033[0m (pid: " +

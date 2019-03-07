@@ -1,20 +1,20 @@
-#ifndef SST_GALOIS_LFSR_HPP
-#define SST_GALOIS_LFSR_HPP
+#ifndef {guard}_HPP
+#define {guard}_HPP
 
-#include "../sstscit.hpp"
+#include "sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
 
 
-class sst_galois_lfsr : public SST::Component {
+class {module} : public SST::Component {{
 
 public:
 
-    sst_galois_lfsr(SST::ComponentId_t, SST::Params &);
+    {module}(SST::ComponentId_t, SST::Params &);
 
-    ~sst_galois_lfsr() override;
+    ~{module}() override;
 
     void setup() override;
 
@@ -25,17 +25,17 @@ public:
     void handleEvent(SST::Event *);
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        sst_galois_lfsr, // class
-        "proto", // element library
-        "sst_galois_lfsr", // component
+        {module}, // class
+        "{lib}", // element library
+        "{comp}", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Simple 4-bit Galois Linear Feedback Shift Register",
+        "{desc}",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "link_galois", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }}
+        {{ "{link}", "{link_desc}", {{ "sst.Interfaces.StringEvent" }} }}
     )
 
 private:
@@ -54,6 +54,6 @@ private:
     SignalReceiver m_sh_in;
     SignalTransmitter m_sh_out;
 
-};
+}};
 
 #endif

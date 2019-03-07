@@ -77,7 +77,7 @@ public:
 
 
 inline SignalReceiver::SignalReceiver(zmq::socket_t &socket) :
-        m_socket(socket) {
+    m_socket(socket) {
     // do nothing
 }
 
@@ -134,7 +134,7 @@ inline void SignalReceiver::recv() {
 
 
 inline SignalTransmitter::SignalTransmitter(zmq::socket_t &socket) :
-        m_socket(socket), m_packer(&m_sbuf) {
+    m_socket(socket), m_packer(&m_sbuf) {
     // do nothing
 }
 

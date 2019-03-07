@@ -29,18 +29,18 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-            sst_dev, // class
-            "proto", // element library
-            "sst_dev", // component
-            SST_ELI_ELEMENT_VERSION(1, 0, 0),
-            "gdfjngkdfnglkdfnkj",
-            COMPONENT_CATEGORY_UNCATEGORIZED
+        sst_dev, // class
+        "proto", // element library
+        "sst_dev", // component
+        SST_ELI_ELEMENT_VERSION(1, 0, 0),
+        "gdfjngkdfnglkdfnkj",
+        COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-            { "link_galois", "Port fjdvfbjhsdbfjh", {"sst.Interfaces.StringEvent"}},
-            { "link_fib", "Port blalalal", {"sst.Interfaces.StringEvent"}}
+        { "link_galois", "Port fjdvfbjhsdbfjh", { "sst.Interfaces.StringEvent" }},
+        { "link_fib", "Port blalalal", { "sst.Interfaces.StringEvent" }}
     )
 
 private:

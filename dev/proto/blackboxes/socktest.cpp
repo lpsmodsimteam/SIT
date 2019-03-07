@@ -8,10 +8,10 @@ Simple 4-bit Up-Counter Model with one clock
 
 // Component Constructor
 socktest::socktest(SST::ComponentId_t id, SST::Params &params)
-        : SST::Component(id), bufferSize(6400), fd(socket(AF_UNIX, SOCK_STREAM, 0)),
-          m_clock(params.find<std::string>("clock", "")),
-          m_proc(params.find<std::string>("proc", "")),
-          m_ipc_port(params.find<std::string>("ipc_port", "")) {
+    : SST::Component(id), bufferSize(6400), fd(socket(AF_UNIX, SOCK_STREAM, 0)),
+      m_clock(params.find<std::string>("clock", "")),
+      m_proc(params.find<std::string>("proc", "")),
+      m_ipc_port(params.find<std::string>("ipc_port", "")) {
 
     // Initialize output
     m_output.init("\033[32mgalois_lfsr-" + getName() + "\033[0m (pid: " +

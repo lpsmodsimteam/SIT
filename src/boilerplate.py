@@ -5,31 +5,45 @@ import argparse
 import os
 
 BASE_DIR = os.getcwd()
-TEMPL_PATH = os.path.join(BASE_DIR, "template", "driver.tmp")
+DRIVER_TEMPL_PATH = os.path.join(BASE_DIR, "template", "driver.tmp")
+BBOX_HPP_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.hpp.tmp")
+BBOX_CPP_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.cpp.tmp")
 
 
-class SystemC():
+class BoilerPlate():
 
-    def __init__(self, module, templ_path):
+    def __init__(self, module, driver_templ_path,
+                 bbox_hpp_templ_path, bbox_cpp_templ_path):
 
         self.module = module
-        self.templ_path = templ_path
+        self.driver_templ_path = driver_templ_path
+        self.bbox_hpp_templ_path = bbox_hpp_templ_path
+        self.bbox_cpp_templ_path = bbox_cpp_templ_path
+
         self.clocks = []
         self.inputs = []
         self.outputs = []
         self.inouts = []
 
-    def set_io(self, ports):
+        self.lib = ""
+        self.comp = ""
+        self.desc = ""
+        self.link = ""
+        self.link_desc = ""
+
+    def set_driver_io(self, ports):
 
         for port, port_type in ports.items():
             if port_type == "clock":
                 self.clocks.append(port)
-            if port_type == "input":
+            elif port_type == "input":
                 self.inputs.append(port)
             elif port_type == "output":
                 self.outputs.append(port)
             elif port_type == "inout":
                 self.inouts.append(port)
+            else:
+                raise ValueError("Each ports must be designated a type")
         self.ports = ports.keys()
 
     def get_port_defs(self, formatted=True):
@@ -78,9 +92,9 @@ class SystemC():
 
     def generate_sc_driver(self):
 
-        with open(self.templ_path) as template:
-            print(
-                template.read().format(
+        if os.path.isfile(self.driver_templ_path):
+            with open(self.driver_templ_path) as template:
+                return template.read().format(
                     module=self.module,
                     port_defs=self.get_port_defs(),
                     bindings=self.get_bindings(),
@@ -88,16 +102,49 @@ class SystemC():
                     inputs=self.get_inputs(),
                     outputs=self.get_outputs()
                 )
-            )
+
+        raise FileNotFoundError("Driver boilerplate file not found")
+
+    def set_bbox_hpp(self, lib, comp, link, desc="", link_desc=""):
+
+        self.lib = lib
+        self.comp = comp
+        self.link = link
+        self.desc = desc
+        self.link_desc = link_desc
+
+    def generate_bbox_hpp(self):
+
+        if os.path.isfile(self.bbox_hpp_templ_path):
+            with open(self.bbox_hpp_templ_path) as template:
+                return template.read().format(
+                    module=self.module,
+                    guard=self.module.upper(),
+                    lib=self.lib,
+                    comp=self.comp,
+                    desc=self.desc,
+                    link=self.link,
+                    link_desc=self.link_desc,
+                )
+
+        raise FileNotFoundError("Blackbox HPP boilerplate file not found")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    galois = SystemC(module="galois_lfsr", templ_path=TEMPL_PATH)
+    galois = BoilerPlate(
+        module="galois_lfsr",
+        driver_templ_path=DRIVER_TEMPL_PATH,
+        bbox_hpp_templ_path=BBOX_HPP_TEMPL_PATH,
+        bbox_cpp_templ_path=BBOX_CPP_TEMPL_PATH,
+    )
 
-    galois.set_io({
+    galois.set_driver_io({
         "sc_in<bool> clock": "clock",
         "sc_in<bool> reset": "input",
         "sc_out<sc_uint<4> > data_out": "output",
     })
-    galois.generate_sc_driver()
+    print(galois.generate_sc_driver())
+
+    galois.set_bbox_hpp("proto", "galois_lfsr", "_link")
+    print(galois.generate_bbox_hpp())

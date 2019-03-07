@@ -8,14 +8,14 @@ Simple 4-bit Up-Counter Model with one clock
 
 // Component Constructor
 sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
-        : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
-          m_sh_in(m_socket), m_sh_out(m_socket),
-          m_clock(params.find<std::string>("clock", "")),
-          m_proc(params.find<std::string>("proc", "")),
-          m_ipc_port(params.find<std::string>("ipc_port", "")),
-          port(configureLink(
-                  "link_fib", new SST::Event::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::handleEvent))
-          ) {
+    : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
+      m_sh_in(m_socket), m_sh_out(m_socket),
+      m_clock(params.find<std::string>("clock", "")),
+      m_proc(params.find<std::string>("proc", "")),
+      m_ipc_port(params.find<std::string>("ipc_port", "")),
+      port(configureLink(
+          "link_fib", new SST::Event::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::handleEvent))
+      ) {
 
     // Initialize output
     m_output.init("\033[32mgalois_lfsr-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
@@ -121,7 +121,7 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
     }
 
     port->send(new SST::Interfaces::StringEvent(
-            "\033[34mfib_lfsr\033[0m -> " + std::to_string(m_sh_in.get<int>("fib_lfsr"))));
+        "\033[34mfib_lfsr\033[0m -> " + std::to_string(m_sh_in.get<int>("fib_lfsr"))));
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

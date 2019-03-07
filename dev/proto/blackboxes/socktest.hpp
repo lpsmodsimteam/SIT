@@ -30,12 +30,12 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-            socktest, // class
-            "socktest", // element library
-            "socktest", // component
-            SST_ELI_ELEMENT_VERSION(1, 0, 0),
-            "Simple 4-bit Galois Linear Feedback Shift Register",
-            COMPONENT_CATEGORY_UNCATEGORIZED
+        socktest, // class
+    "socktest", // element library
+    "socktest", // component
+    SST_ELI_ELEMENT_VERSION(1, 0, 0),
+    "Simple 4-bit Galois Linear Feedback Shift Register",
+    COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
 private:
