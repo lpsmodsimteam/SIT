@@ -21,7 +21,7 @@ int sc_main(int argc, char *argv[]) {
 
     //  Socket to talk to server
     zmq::socket_t socket(context, ZMQ_REQ);
-    socket.connect(&argv[1][0u]);
+    socket.connect(argv[1]);
 
     SignalReceiver sh_in(socket);
     SignalTransmitter sh_out(socket);

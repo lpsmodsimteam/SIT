@@ -18,8 +18,8 @@ sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
       ) {
 
     // Initialize output
-    m_output.init("\033[32mgalois_lfsr-" + getName() + "\033[0m (pid: " + std::to_string(getpid()) + ") -> ", 1, 0,
-                  SST::Output::STDOUT);
+    m_output.init("\033[32mfib_lfsr-" + getName() + "\033[0m (pid: " +
+                  std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::tick));
@@ -60,7 +60,7 @@ void sst_fib_lfsr::setup() {
 
     } else {
 
-        m_socket.bind(&m_ipc_port[0u]);
+        m_socket.bind(m_ipc_port.c_str());
 
         m_sh_in.recv();
         std::cout << "[pid]=" << m_sh_in.get<int>("pid") << std::endl;

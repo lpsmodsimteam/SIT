@@ -4,11 +4,6 @@
 import argparse
 import os
 
-BASE_DIR = os.getcwd()
-DRIVER_TEMPL_PATH = os.path.join(BASE_DIR, "template", "driver.tmp")
-BBOX_HPP_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.hpp.tmp")
-BBOX_CPP_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.cpp.tmp")
-
 
 class BoilerPlate():
 
@@ -131,6 +126,11 @@ class BoilerPlate():
 
 
 if __name__ == "__main__":
+
+    BASE_DIR = os.getcwd()
+    DRIVER_TEMPL_PATH = os.path.join(BASE_DIR, "template", "driver.tmp")
+    BBOX_HPP_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.hpp.tmp")
+    BBOX_CPP_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.cpp.tmp")
 
     galois = BoilerPlate(
         module="galois_lfsr",

@@ -9,8 +9,9 @@
 #include <unordered_map>
 #include <utility>      // std::pair, std::make_pair
 
-#define SC_BIT_T 1
-#define SC_UINT_T 2
+#define SC_BIT_T 0
+#define SC_UINT_T 1
+#define SC_STR_T 2
 
 template<typename T>
 std::string _to_string(const T &);
