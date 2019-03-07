@@ -11,7 +11,7 @@ proto_comp.addParams({
     "clock": "500MHz",
 })
 
-galois_lfsr_comp = sst.Component("sst_galois_lfsr", "proto.sst_galois_lfsr")
+galois_lfsr_comp = sst.Component("galois_lfsr", "proto.galois_lfsr")
 # overide default parameters
 galois_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "galois_lfsr.o"),
@@ -19,7 +19,7 @@ galois_lfsr_comp.addParams({
     "clock": "500MHz",
 })
 
-fib_lfsr_comp = sst.Component("sst_fib_lfsr", "proto.sst_fib_lfsr")
+fib_lfsr_comp = sst.Component("fib_lfsr", "proto.fib_lfsr")
 # overide default parameters
 fib_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "fib_lfsr.o"),

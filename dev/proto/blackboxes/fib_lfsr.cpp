@@ -7,22 +7,22 @@ Simple 4-bit Up-Counter Model with one clock
 #include <sst/core/interfaces/stringEvent.h>
 
 // Component Constructor
-sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
+fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
       m_sh_in(m_socket), m_sh_out(m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
       port(configureLink(
-          "link_fib", new SST::Event::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::handleEvent))
+          "link_fib", new SST::Event::Handler<fib_lfsr>(this, &fib_lfsr::handleEvent))
       ) {
 
     // Initialize output
-    m_output.init("\033[32mfib_lfsr-" + getName() + "\033[0m (pid: " +
+    m_output.init("\033[32mblackbox-" + getName() + "\033[0m (pid: " +
                   std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     // Just register a plain clock for this simple example
-    registerClock(m_clock, new SST::Clock::Handler<sst_fib_lfsr>(this, &sst_fib_lfsr::tick));
+    registerClock(m_clock, new SST::Clock::Handler<fib_lfsr>(this, &fib_lfsr::tick));
 
     // Configure our port
     if (!port) {
@@ -35,16 +35,16 @@ sst_fib_lfsr::sst_fib_lfsr(SST::ComponentId_t id, SST::Params &params)
 
 }
 
-sst_fib_lfsr::~sst_fib_lfsr() {
+fib_lfsr::~fib_lfsr() {
 
-    m_output.verbose(CALL_INFO, 1, 0, "Destroying sst_fib_lfsr...\n");
+    m_output.verbose(CALL_INFO, 1, 0, "Destroying fib_lfsr...\n");
     m_socket.close();
 
 }
 
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
-void sst_fib_lfsr::setup() {
+void fib_lfsr::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
@@ -71,12 +71,12 @@ void sst_fib_lfsr::setup() {
 
 // finish is called by SST before the simulation is ended and should be used
 // to clean up variables and memory
-void sst_fib_lfsr::finish() {
+void fib_lfsr::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
 // Receive events that contain the CarType, add the cars to the queue
-void sst_fib_lfsr::handleEvent(SST::Event *ev) {
+void fib_lfsr::handleEvent(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         sim_time = std::stoi(se->getString());
@@ -87,7 +87,7 @@ void sst_fib_lfsr::handleEvent(SST::Event *ev) {
 
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
-bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
+bool fib_lfsr::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
@@ -101,7 +101,7 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
     // turn reset off at 3 ns
     if (current_cycle >= 3) {
         if (current_cycle == 3) {
-            std::cout << "RESET OFF" << std::endl;
+            m_output.verbose(CALL_INFO, 1, 0, "RESET OFF\n");
         }
         m_sh_out.set("reset", 0);
     }
@@ -109,7 +109,7 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
     if (keep_send) {
 
         if (current_cycle == sim_time - 1) {
-            std::cout << "FIB LFSR MODULE OFF" << std::endl;
+            m_output.verbose(CALL_INFO, 1, 0, "FIB LFSR MODULE OFF\n");
             m_sh_out.set_state(false);
         }
         m_sh_out.send();
@@ -121,7 +121,7 @@ bool sst_fib_lfsr::tick(SST::Cycle_t current_cycle) {
     }
 
     port->send(new SST::Interfaces::StringEvent(
-        "\033[34mfib_lfsr\033[0m -> " + std::to_string(m_sh_in.get<int>("fib_lfsr"))));
+        "\033[34m" + getName() + "\033[0m -> " + std::to_string(m_sh_in.get<int>("fib_lfsr"))));
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

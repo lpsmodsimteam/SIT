@@ -8,13 +8,13 @@
 #include <sst/core/elementinfo.h>
 
 
-class sst_fib_lfsr : public SST::Component {
+class fib_lfsr : public SST::Component {
 
 public:
 
-    sst_fib_lfsr(SST::ComponentId_t, SST::Params &);
+    fib_lfsr(SST::ComponentId_t, SST::Params &);
 
-    ~sst_fib_lfsr() override;
+    ~fib_lfsr() override;
 
     void setup() override;
 
@@ -25,9 +25,9 @@ public:
     void handleEvent(SST::Event *);
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        sst_fib_lfsr, // class
+        fib_lfsr, // class
         "proto", // element library
-        "sst_fib_lfsr", // component
+        "fib_lfsr", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "Simple 4-bit Galois Linear Feedback Shift Register",
         COMPONENT_CATEGORY_UNCATEGORIZED

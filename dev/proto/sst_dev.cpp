@@ -19,7 +19,7 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
       )) {
 
     // Initialize output
-    m_output.init("\033[34mparent_sst-" + getName() + "\033[0m (pid: " +
+    m_output.init("\033[34mparent_model-" + getName() + "\033[0m (pid: " +
                   std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     // Configure our port

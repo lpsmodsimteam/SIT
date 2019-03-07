@@ -6,7 +6,6 @@ compile:
 
 
 run:
-	# execute an SST process using MPI
 	cd build && sst ../tests/${TEST}
 
 clean:

@@ -8,13 +8,13 @@
 #include <sst/core/elementinfo.h>
 
 
-class sst_galois_lfsr : public SST::Component {
+class galois_lfsr : public SST::Component {
 
 public:
 
-    sst_galois_lfsr(SST::ComponentId_t, SST::Params &);
+    galois_lfsr(SST::ComponentId_t, SST::Params &);
 
-    ~sst_galois_lfsr() override;
+    ~galois_lfsr() override;
 
     void setup() override;
 
@@ -25,9 +25,9 @@ public:
     void handleEvent(SST::Event *);
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        sst_galois_lfsr, // class
+        galois_lfsr, // class
         "proto", // element library
-        "sst_galois_lfsr", // component
+        "galois_lfsr", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "Simple 4-bit Galois Linear Feedback Shift Register",
         COMPONENT_CATEGORY_UNCATEGORIZED
