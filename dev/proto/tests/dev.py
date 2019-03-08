@@ -27,9 +27,17 @@ fib_lfsr_comp.addParams({
     "clock": "500MHz",
 })
 
-sst.Link("road0").connect(
-    (galois_lfsr_comp, "link_galois", "1ps"),
-    (proto_comp, "link_galois", "1ps"),
+sst.Link("galois_reset").connect(
+    (galois_lfsr_comp, "galois_reset", "1ps"),
+    (proto_comp, "galois_reset", "1ps"),
+)
+sst.Link("galois_clock").connect(
+    (galois_lfsr_comp, "galois_clock", "1ps"),
+    (proto_comp, "galois_clock", "1ps"),
+)
+sst.Link("galois_data_out").connect(
+    (galois_lfsr_comp, "galois_data_out", "1ps"),
+    (proto_comp, "galois_data_out", "1ps"),
 )
 sst.Link("road1").connect(
     (fib_lfsr_comp, "link_fib", "1ps"),

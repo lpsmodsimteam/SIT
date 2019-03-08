@@ -21,7 +21,7 @@ public:
 
     void finish() override;
 
-    void handle_galois_lfsr(SST::Event *);
+    void handle_galois_data_out(SST::Event *);
 
     void handle_fib_lfsr(SST::Event *);
 
@@ -39,14 +39,16 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "link_galois", "Port fjdvfbjhsdbfjh", { "sst.Interfaces.StringEvent" }},
+        { "galois_clock", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
+        { "galois_reset", "Galois LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "galois_data_out", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
         { "link_fib", "Port blalalal", { "sst.Interfaces.StringEvent" }}
     )
 
 private:
 
     std::string m_clock;
-    SST::Link *link_galois, *link_fib;
+    SST::Link *galois_reset, *galois_clock, *galois_data_out, *link_fib;
 
     // SST parameters
     SST::Output m_output;

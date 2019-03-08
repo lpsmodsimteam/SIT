@@ -22,7 +22,10 @@ public:
 
     bool tick(SST::Cycle_t);
 
-    void handleEvent(SST::Event *);
+    void handle_reset(SST::Event *);
+
+    void handle_clock(SST::Event *);
+
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
         galois_lfsr, // class
@@ -35,12 +38,14 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "link_galois", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }}
+        { "galois_clock", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
+        { "galois_reset", "Galois LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "galois_data_out", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
 
-    SST::Link *port;
+    SST::Link *clock, *reset, *data_out;
     int sim_time;
 
     // SST parameters

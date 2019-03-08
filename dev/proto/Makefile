@@ -9,8 +9,5 @@ run:
 	cd build && sst ../tests/${TEST}
 
 clean:
-	# remove all compiled objects
-	rm -rf build/*
-	# remove cached cmake file
-	rm -rf cmake-build-debug
-	# sst-register -u proto
+	# remove all compiled objects and cached cmake files
+	rm -rf build/* cmake-build-debug

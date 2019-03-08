@@ -11,8 +11,11 @@
 sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_clock(params.find<std::string>("clock", "")),
-      link_galois(configureLink(
-          "link_galois", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_lfsr)
+      galois_reset(configureLink("galois_reset")),
+      galois_clock(configureLink("galois_clock")),
+      galois_data_out(configureLink(
+          "galois_data_out", 
+          new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_data_out)
       )),
       link_fib(configureLink(
           "link_fib", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_lfsr)
@@ -23,7 +26,7 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
                   std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     // Configure our port
-    if (!(link_galois && link_fib)) {
+    if (!(galois_reset && link_fib)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
 
@@ -57,11 +60,10 @@ void sst_dev::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
-void sst_dev::handle_galois_lfsr(SST::Event *ev) {
+void sst_dev::handle_galois_data_out(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
-        link_galois->send(new SST::Interfaces::StringEvent(SIMTIME));
     }
     delete ev;
 }
@@ -79,6 +81,25 @@ void sst_dev::handle_fib_lfsr(SST::Event *ev) {
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
 bool sst_dev::tick(SST::Cycle_t current_cycle) {
+
+    std::string galois_reset_sig;
+    // turn reset off at 3 ns
+    if (current_cycle >= 3) {
+
+        if (current_cycle == 3) {
+            m_output.verbose(CALL_INFO, 1, 0, "RESET OFF\n");
+        }
+
+        galois_reset_sig = "0";
+
+    } else {
+
+        galois_reset_sig = "1";
+
+    }
+
+    galois_clock->send(new SST::Interfaces::StringEvent(std::to_string(current_cycle)));
+    galois_reset->send(new SST::Interfaces::StringEvent(galois_reset_sig));
 
     return false;
 
