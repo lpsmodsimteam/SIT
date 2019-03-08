@@ -32,7 +32,7 @@ public:
         "proto", // element library
         "fib_lfsr", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Simple 4-bit fib Linear Feedback Shift Register",
+        "Simple 4-bit Fibonacci Linear Feedback Shift Register",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 

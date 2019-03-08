@@ -1,4 +1,4 @@
-#include "fib_lfsr.hpp"
+#include "../modules/fib_lfsr.hpp"
 
 #include "../sstscit.hpp"
 

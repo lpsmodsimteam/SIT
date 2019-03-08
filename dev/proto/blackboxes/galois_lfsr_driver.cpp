@@ -1,4 +1,4 @@
-#include "galois_lfsr.hpp"
+#include "../modules/galois_lfsr.hpp"
 
 #include "../sstscit.hpp"
 
