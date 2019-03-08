@@ -48,7 +48,7 @@ int sc_main(int argc, char *argv[]) {
                   << " | reset: " << sh_in.get<bool>("reset") << " -> galois_lfsr_out: " << data_out << std::endl;
 
         // SENDING
-        sh_out.set("galois_lfsr", data_out, SC_UINT_T);
+        sh_out.set("data_out", data_out, SC_UINT_T);
         sh_out.send();
 
     }

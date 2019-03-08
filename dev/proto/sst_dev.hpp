@@ -23,7 +23,7 @@ public:
 
     void handle_galois_data_out(SST::Event *);
 
-    void handle_fib_lfsr(SST::Event *);
+    void handle_fib_data_out(SST::Event *);
 
     bool tick(SST::Cycle_t);
 
@@ -42,13 +42,16 @@ public:
         { "galois_clock", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
         { "galois_reset", "Galois LFSR reset", { "sst.Interfaces.StringEvent" }},
         { "galois_data_out", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
-        { "link_fib", "Port blalalal", { "sst.Interfaces.StringEvent" }}
+        { "fib_clock", "Fibonacci LFSR clock", { "sst.Interfaces.StringEvent" }},
+        { "fib_reset", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "fib_data_out", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
 
     std::string m_clock;
-    SST::Link *galois_reset, *galois_clock, *galois_data_out, *link_fib;
+    SST::Link *galois_reset, *galois_clock, *galois_data_out,
+        *fib_reset, *fib_clock, *fib_data_out;
 
     // SST parameters
     SST::Output m_output;

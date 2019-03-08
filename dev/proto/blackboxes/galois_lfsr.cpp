@@ -125,7 +125,7 @@ bool galois_lfsr::tick(SST::Cycle_t current_cycle) {
     }
 
     data_out->send(new SST::Interfaces::StringEvent(
-        "\033[34m" + getName() + "\033[0m -> " + std::to_string(m_sh_in.get<int>("galois_lfsr"))));
+        "\033[34m" + getName() + "\033[0m -> " + std::to_string(m_sh_in.get<int>("data_out"))));
 
     std::cout << "---------------------------------------------------->" << std::endl;
 

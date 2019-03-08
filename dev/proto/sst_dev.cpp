@@ -14,11 +14,13 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
       galois_reset(configureLink("galois_reset")),
       galois_clock(configureLink("galois_clock")),
       galois_data_out(configureLink(
-          "galois_data_out", 
+          "galois_data_out",
           new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_data_out)
       )),
-      link_fib(configureLink(
-          "link_fib", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_lfsr)
+      fib_reset(configureLink("fib_reset")),
+      fib_clock(configureLink("fib_clock")),
+      fib_data_out(configureLink(
+          "fib_data_out", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_data_out)
       )) {
 
     // Initialize output
@@ -26,7 +28,7 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
                   std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     // Configure our port
-    if (!(galois_reset && link_fib)) {
+    if (!(galois_reset && fib_reset)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
 
@@ -68,11 +70,10 @@ void sst_dev::handle_galois_data_out(SST::Event *ev) {
     delete ev;
 }
 
-void sst_dev::handle_fib_lfsr(SST::Event *ev) {
+void sst_dev::handle_fib_data_out(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
-        link_fib->send(new SST::Interfaces::StringEvent(SIMTIME));
     }
     delete ev;
 }
@@ -82,7 +83,7 @@ void sst_dev::handle_fib_lfsr(SST::Event *ev) {
 // this function runs once every clock cycle
 bool sst_dev::tick(SST::Cycle_t current_cycle) {
 
-    std::string galois_reset_sig;
+    std::string galois_reset_sig, fib_reset_sig;
     // turn reset off at 3 ns
     if (current_cycle >= 3) {
 
@@ -91,15 +92,20 @@ bool sst_dev::tick(SST::Cycle_t current_cycle) {
         }
 
         galois_reset_sig = "0";
+        fib_reset_sig = "0";
 
     } else {
 
         galois_reset_sig = "1";
+        fib_reset_sig = "1";
 
     }
 
     galois_clock->send(new SST::Interfaces::StringEvent(std::to_string(current_cycle)));
+    fib_clock->send(new SST::Interfaces::StringEvent(std::to_string(current_cycle)));
+
     galois_reset->send(new SST::Interfaces::StringEvent(galois_reset_sig));
+    fib_reset->send(new SST::Interfaces::StringEvent(fib_reset_sig));
 
     return false;
 

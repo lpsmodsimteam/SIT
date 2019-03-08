@@ -39,7 +39,16 @@ sst.Link("galois_data_out").connect(
     (galois_lfsr_comp, "galois_data_out", "1ps"),
     (proto_comp, "galois_data_out", "1ps"),
 )
-sst.Link("road1").connect(
-    (fib_lfsr_comp, "link_fib", "1ps"),
-    (proto_comp, "link_fib", "1ps"),
+
+sst.Link("fib_reset").connect(
+    (fib_lfsr_comp, "fib_reset", "1ps"),
+    (proto_comp, "fib_reset", "1ps"),
+)
+sst.Link("fib_clock").connect(
+    (fib_lfsr_comp, "fib_clock", "1ps"),
+    (proto_comp, "fib_clock", "1ps"),
+)
+sst.Link("fib_data_out").connect(
+    (fib_lfsr_comp, "fib_data_out", "1ps"),
+    (proto_comp, "fib_data_out", "1ps"),
 )
