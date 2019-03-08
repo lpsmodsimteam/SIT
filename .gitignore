@@ -84,3 +84,7 @@ dev/*
 
 # open-source archived tars and zips
 archives/
+
+# Python environment and cache
+*.pyc
+.venv/

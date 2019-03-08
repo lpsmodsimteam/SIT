@@ -54,16 +54,10 @@ void socktest::setup() {
         if (fd < 0) {
             m_output.fatal(CALL_INFO, -1, "Socket Error\n");
         }
-        sockAddress.sun_family = AF_UNIX;
-        strcpy(sockAddress.sun_path, &m_ipc_port[0u]);
-        std::cout << sockAddress.sun_path << std::endl;
+        addr.sun_family = AF_UNIX;
+        strcpy(addr.sun_path, &m_ipc_port[0u]);
 
-//        buffer = (char *) malloc(bufferSize);
-//        if (buffer == nullptr) {
-//            m_output.fatal(CALL_INFO, -1, "Failed to allocate space for buffer\n");
-//        }
-
-        if (bind(fd, (struct sockaddr *) &sockAddress, sizeof(sockAddress)) < 0) {
+        if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
             perror("bind failed");
             m_output.fatal(CALL_INFO, -1, "Socket Bind Error\n");
         }
@@ -77,6 +71,16 @@ void socktest::setup() {
         }
 
         m_output.verbose(CALL_INFO, 1, 0, "Launched black box and connected to socket\n");
+
+        while ((len = read(fd, buffer, 8192)) > 0) {
+            printf("recvfrom: %s\n", buffer);
+            strcpy(buffer, "transmit good!");
+            ssize_t ret = write(fd, buffer, strlen(buffer) + 1);
+            if (ret < 0) {
+                perror("sendto");
+                break;
+            }
+        }
 
     }
 
@@ -100,16 +104,15 @@ bool socktest::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
-    ssize_t read_bytes = read(fd, buffer, bufferSize);
-    buffer[read_bytes] = '\0';
-    printf("%s\n", buffer);
-
-    if ((write(fd, buffer, sizeof(buffer)) != sizeof(buffer))) {
-        perror("NOPE");
-        std::cout << (write(fd, buffer, sizeof(buffer))) << std::endl;
+    if ((len = read(fd, buffer, 8192)) > 0) {
+        printf("recvfrom: %s\n", buffer);
+        strcpy(buffer, "transmit good!");
+        ssize_t ret = write(fd, buffer, strlen(buffer) + 1);
+        if (ret < 0) {
+            perror("sendto");
+        }
     }
 
-    //
 //    bool keep_send = current_cycle < 39, keep_recv = current_cycle < 38;
 //
 //    m_sh_out.set("clock", current_cycle, SC_UINT_T);
@@ -143,7 +146,7 @@ bool socktest::tick(SST::Cycle_t current_cycle) {
 //        m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("galois_lfsr"));
 //    }
 
-    std::cout << "---------------------------------------------------->" << std::endl;
+//    std::cout << "---------------------------------------------------->" << std::endl;
 
     return false;
 

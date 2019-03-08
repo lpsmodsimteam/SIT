@@ -50,9 +50,12 @@ private:
 //    SignalTransmitter m_sh_out;
 
     size_t bufferSize;
-    char buffer[6400];
+    char buffer[8192];
     int fd, sock;
-    struct sockaddr_un sockAddress;
+    struct sockaddr_un addr;
+    ssize_t len;
+    struct sockaddr_un from{};
+    socklen_t fromlen = sizeof(from);
 
 
 };

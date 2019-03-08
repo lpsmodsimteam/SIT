@@ -3,12 +3,12 @@ import os
 import sst
 
 BASE_PATH = os.getcwd()
-
+CLOCK = "500MHz"
 sst.setProgramOption("stopAtCycle", "80ns")
 
 proto_comp = sst.Component("sst_dev", "proto.sst_dev")
 proto_comp.addParams({
-    "clock": "500MHz",
+    "clock": CLOCK,
 })
 
 galois_lfsr_comp = sst.Component("galois_lfsr", "proto.galois_lfsr")
@@ -16,7 +16,7 @@ galois_lfsr_comp = sst.Component("galois_lfsr", "proto.galois_lfsr")
 galois_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "galois_lfsr.o"),
     "ipc_port": "ipc:///tmp/galois",
-    "clock": "500MHz",
+    "clock": CLOCK,
 })
 
 fib_lfsr_comp = sst.Component("fib_lfsr", "proto.fib_lfsr")
@@ -24,7 +24,7 @@ fib_lfsr_comp = sst.Component("fib_lfsr", "proto.fib_lfsr")
 fib_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "fib_lfsr.o"),
     "ipc_port": "ipc:///tmp/fib",
-    "clock": "500MHz",
+    "clock": CLOCK,
 })
 
 sst.Link("galois_reset").connect(
