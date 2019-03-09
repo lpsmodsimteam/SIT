@@ -8,7 +8,7 @@ Simple 4-bit Up-Counter Model with one clock
 
 // Component Constructor
 socktest::socktest(SST::ComponentId_t id, SST::Params &params)
-    : SST::Component(id), bufferSize(6400), fd(socket(AF_UNIX, SOCK_STREAM, 0)),
+    : SST::Component(id), bufferSize(1024), fd(socket(AF_UNIX, SOCK_STREAM, 0)),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")) {
@@ -66,21 +66,19 @@ void socktest::setup() {
             m_output.fatal(CALL_INFO, -1, "Socket Listen Error\n");
         }
 
-        if ((sock = accept(fd, nullptr, nullptr)) < 0) {
+        if ((sock = accept(fd, (struct sockaddr *)&addr,
+                           (socklen_t*) &addrlen)) < 0) {
             m_output.fatal(CALL_INFO, -1, "Socket Accept Error\n");
         }
 
         m_output.verbose(CALL_INFO, 1, 0, "Launched black box and connected to socket\n");
 
-        while ((len = read(fd, buffer, 8192)) > 0) {
-            printf("recvfrom: %s\n", buffer);
-            strcpy(buffer, "transmit good!");
-            ssize_t ret = write(fd, buffer, strlen(buffer) + 1);
-            if (ret < 0) {
-                perror("sendto");
-                break;
-            }
-        }
+        char *hello = "Hello from server";
+        valread = read(sock , buffer, 1024);
+        buffer[valread] = '\0';
+        printf("MASTER AYYYYOOOOO %s\n", buffer);
+        send(sock , hello , strlen(hello) , 0 );
+        printf("Hello message sent\n");
 
     }
 
@@ -102,16 +100,7 @@ void socktest::finish() {
 // this function runs once every clock cycle
 bool socktest::tick(SST::Cycle_t current_cycle) {
 
-    std::cout << "<----------------------------------------------------" << std::endl;
-
-    if ((len = read(fd, buffer, 8192)) > 0) {
-        printf("recvfrom: %s\n", buffer);
-        strcpy(buffer, "transmit good!");
-        ssize_t ret = write(fd, buffer, strlen(buffer) + 1);
-        if (ret < 0) {
-            perror("sendto");
-        }
-    }
+    // std::cout << "<----------------------------------------------------" << std::endl;
 
 //    bool keep_send = current_cycle < 39, keep_recv = current_cycle < 38;
 //

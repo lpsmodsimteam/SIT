@@ -24,62 +24,36 @@ int sc_main(int argc, char *argv[]) {
     DUT.reset(reset);
     DUT.data_out(data_out);
     // ---------- SYSTEMC UUT INIT ---------- //
-    int fd;
-    struct sockaddr_un addr{};
-    int ret;
-    char buff[8192];
-    struct sockaddr_un from{};
-    int ok = 1;
-    ssize_t len;
 
-    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-        perror("socket");
-        ok = 0;
+    int sock = 0, valread;
+    struct sockaddr_un addr;
+    char *hello = "Hello from client";
+    char buffer[1024] = {0};
+    if ((sock = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
+        printf("\n Socket creation error \n");
+        return -1;
     }
 
-    if (ok) {
-        memset(&addr, 0, sizeof(addr));
-        addr.sun_family = AF_UNIX;
-        strcpy(addr.sun_path, CLIENT_SOCK_FILE);
-        unlink(CLIENT_SOCK_FILE);
-        if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-            perror("bind");
-            ok = 0;
-        }
+    memset(&addr, '0', sizeof(addr));
+
+    addr.sun_family = AF_UNIX;
+    strcpy(addr.sun_path, argv[1]);
+
+    if (connect(sock, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
+        printf("\nConnection Failed \n");
+        return -1;
     }
 
-    if (ok) {
-        memset(&addr, 0, sizeof(addr));
-        addr.sun_family = AF_UNIX;
-        strcpy(addr.sun_path, SERVER_SOCK_FILE);
-        if (connect(fd, (struct sockaddr *) &addr, sizeof(addr)) == -1) {
-            perror("connect");
-            ok = 0;
-        }
-    }
+    std::string pid = std::to_string(getpid());
+    write(sock, pid.c_str(), pid.size());
+    printf("PID sent\n");
 
-    if (ok) {
-        strcpy(buff, "iccExchangeAPDU");
-        if (write(fd, buff, strlen(buff) + 1) == -1) {
-            perror("send");
-            ok = 0;
-        }
-        printf("sent iccExchangeAPDU\n");
-    }
 
-    if (ok) {
-        if ((len = read(fd, buff, 8192)) < 0) {
-            perror("recv");
-            ok = 0;
-        }
-        printf("receive %zd %s\n", len, buff);
-    }
+    valread = read(sock, buffer, 1024);
+    buffer[valread] = '\0';
+    printf("CLIENT AYYYYOOOOO %s\n", buffer);
+    unlink(argv[1]);
 
-    if (fd >= 0) {
-        close(fd);
-    }
-
-    unlink(CLIENT_SOCK_FILE);
     return 0;
 
 }

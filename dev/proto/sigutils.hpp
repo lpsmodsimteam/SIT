@@ -25,7 +25,6 @@ private:
     msgpack::unpacked m_unpacker;
     std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
 
-
 public:
 
     MSGPACK_DEFINE (m_data);
@@ -74,7 +73,7 @@ public:
 };
 
 
-/* -------------------- IMPLEMENTATIONS -------------------- */
+/* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
 
 inline SignalReceiver::SignalReceiver(zmq::socket_t &socket) :
@@ -134,6 +133,9 @@ inline void SignalReceiver::recv() {
 }
 
 
+/* -------------------- SIGNALTRANSMITTER IMPLEMENTATIONS -------------------- */
+
+
 inline SignalTransmitter::SignalTransmitter(zmq::socket_t &socket) :
     m_socket(socket), m_packer(&m_sbuf) {
     // do nothing
@@ -146,7 +148,6 @@ inline SignalTransmitter::~SignalTransmitter() {
 
 }
 
-
 template<typename T>
 std::string _to_string(const T &value) {
 
@@ -156,7 +157,6 @@ std::string _to_string(const T &value) {
 
 }
 
-
 template<typename T>
 void SignalTransmitter::set(const std::string &key, const T &value, uint8_t data_type) {
 
@@ -164,7 +164,6 @@ void SignalTransmitter::set(const std::string &key, const T &value, uint8_t data
     m_data[key].second = data_type;
 
 }
-
 
 inline void SignalTransmitter::send() {
 

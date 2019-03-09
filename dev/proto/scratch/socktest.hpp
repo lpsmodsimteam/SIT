@@ -31,11 +31,11 @@ public:
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
         socktest, // class
-    "socktest", // element library
-    "socktest", // component
-    SST_ELI_ELEMENT_VERSION(1, 0, 0),
-    "Simple 4-bit Galois Linear Feedback Shift Register",
-    COMPONENT_CATEGORY_UNCATEGORIZED
+        "socktest", // element library
+        "socktest", // component
+        SST_ELI_ELEMENT_VERSION(1, 0, 0),
+        "Simple 4-bit Galois Linear Feedback Shift Register",
+        COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
 private:
@@ -50,12 +50,11 @@ private:
 //    SignalTransmitter m_sh_out;
 
     size_t bufferSize;
-    char buffer[8192];
-    int fd, sock;
+    char buffer[1024];
+    int fd, sock, valread;
     struct sockaddr_un addr;
     ssize_t len;
-    struct sockaddr_un from{};
-    socklen_t fromlen = sizeof(from);
+    socklen_t addrlen = sizeof(addr);
 
 
 };
