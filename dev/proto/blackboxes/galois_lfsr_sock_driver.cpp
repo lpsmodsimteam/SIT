@@ -2,10 +2,6 @@
 
 #include "../sstscit.hpp"
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/socket.h>
 #include <sys/un.h>
 
 int sc_main(int argc, char *argv[]) {
