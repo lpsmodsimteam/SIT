@@ -23,8 +23,8 @@ int sc_main(int argc, char *argv[]) {
     zmq::socket_t socket(context, ZMQ_REQ);
     socket.connect(argv[1]);
 
-    SignalReceiver sh_in(socket);
-    SignalTransmitter sh_out(socket);
+    ZMQReceiver sh_in(socket);
+    ZMQTransmitter sh_out(socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //

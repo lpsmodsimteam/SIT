@@ -1,7 +1,7 @@
 #ifndef SOCKTEST_HPP
 #define SOCKTEST_HPP
 
-#include "sigutils1.hpp"
+#include "../sockets.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>

@@ -2,7 +2,6 @@
 #define SIGUTILS_HPP
 
 #include <msgpack.hpp>
-#include <zmq.hpp>
 
 #include <sstream>
 #include <unistd.h>
@@ -13,39 +12,17 @@
 #define SC_UINT_T 1
 #define SC_STR_T 2
 
-template<typename T>
-std::string _to_string(const T &);
-
-template<typename T>
-std::string _to_string(const T &value) {
-
-    std::ostringstream ss;
-    ss << value;
-    return ss.str();
-
-}
 
 class SignalReceiver {
 
-private:
+protected:
 
-    zmq::socket_t &m_socket;
-    zmq::message_t m_buf;
-    msgpack::unpacked m_unpacker;
     std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
 
 public:
 
-    MSGPACK_DEFINE (m_data);
-
-    explicit SignalReceiver(zmq::socket_t &);
-
-    ~SignalReceiver();
-
     template<typename T>
     T get(const std::string &);
-
-    void recv();
 
     bool alive();
 
@@ -56,45 +33,25 @@ public:
 
 class SignalTransmitter {
 
-private:
+protected:
 
-    zmq::socket_t &m_socket;
-    zmq::message_t m_buf;
-    msgpack::packer<msgpack::sbuffer> m_packer;
-    msgpack::sbuffer m_sbuf;
     std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
 
+    template<typename T>
+    std::string _to_string(const T &);
+
 public:
-
-    MSGPACK_DEFINE (m_data);
-
-    explicit SignalTransmitter(zmq::socket_t &);
-
-    ~SignalTransmitter();
 
     void set_state(bool);
 
     template<typename T>
     void set(const std::string &, const T &, uint8_t = SC_BIT_T);
 
-    void send();
-
 };
 
 
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
-
-inline SignalReceiver::SignalReceiver(zmq::socket_t &socket) :
-    m_socket(socket) {
-    // do nothing
-}
-
-inline SignalReceiver::~SignalReceiver() {
-
-    m_data.clear();
-
-}
 
 inline bool SignalReceiver::get_clock_pulse(const std::string &key) {
 
@@ -132,30 +89,6 @@ T SignalReceiver::get(const std::string &key) {
 
 }
 
-inline void SignalReceiver::recv() {
-
-    m_socket.recv(&m_buf);
-    msgpack::unpack(m_unpacker, (char *) (m_buf.data()), m_buf.size());
-    m_unpacker.get().convert(*this);
-
-}
-
-
-/* -------------------- SIGNALTRANSMITTER IMPLEMENTATIONS -------------------- */
-
-
-inline SignalTransmitter::SignalTransmitter(zmq::socket_t &socket) :
-    m_socket(socket), m_packer(&m_sbuf) {
-    // do nothing
-}
-
-inline SignalTransmitter::~SignalTransmitter() {
-
-    m_data.clear();
-    m_sbuf.clear();
-
-}
-
 template<typename T>
 void SignalTransmitter::set(const std::string &key, const T &value, uint8_t data_type) {
 
@@ -164,13 +97,12 @@ void SignalTransmitter::set(const std::string &key, const T &value, uint8_t data
 
 }
 
-inline void SignalTransmitter::send() {
+template<typename T>
+std::string SignalTransmitter::_to_string(const T &value) {
 
-    m_packer.pack(*this);
-    m_buf.rebuild(m_sbuf.size());
-    std::memcpy(m_buf.data(), m_sbuf.data(), m_sbuf.size());
-    m_socket.send(m_buf);
-    m_sbuf.clear();
+    std::ostringstream ss;
+    ss << value;
+    return ss.str();
 
 }
 

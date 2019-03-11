@@ -56,8 +56,8 @@ private:
     zmq::context_t m_context;
     zmq::socket_t m_socket;
 
-    SignalReceiver m_sh_in;
-    SignalTransmitter m_sh_out;
+    ZMQReceiver m_sh_in;
+    ZMQTransmitter m_sh_out;
 
 };
 

@@ -1,23 +1,15 @@
-#ifndef SIGUTILS_HPP
-#define SIGUTILS_HPP
+#ifndef SOCKETS_HPP
+#define SOCKETS_HPP
+
+#include "sigutils.hpp"
 
 #include <msgpack.hpp>
-
-#include <iostream>
-#include <sstream>
-#include <unistd.h>
-#include <unordered_map>
-#include <utility>      // std::pair, std::make_pair
 
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <sys/un.h>
-
-#define SC_BIT_T 0
-#define SC_UINT_T 1
-#define SC_STR_T 2
 
 #define BUFSIZE 1024
 
@@ -32,6 +24,7 @@ std::string _to_string(const T &value) {
     return ss.str();
 
 }
+
 
 class SignalSocket {
 

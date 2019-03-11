@@ -1,6 +1,6 @@
 #ifndef SSTSCIT_HPP
 #define SSTSCIT_HPP
 
-#include "sigutils.hpp"
+#include "zmqsigs.hpp"
 
 #endif
