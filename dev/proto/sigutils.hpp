@@ -3,6 +3,7 @@
 
 #include <msgpack.hpp>
 
+#include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <unordered_map>

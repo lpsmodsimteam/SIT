@@ -2,7 +2,7 @@
 Simple 4-bit Up-Counter Model with one clock
 */
 
-#include "socktest.hpp"
+#include "galois_lfsr_sock.hpp"
 #include <sst/core/sst_config.h>
 #include <sst/core/interfaces/stringEvent.h>
 

@@ -40,14 +40,20 @@ endmacro()
 # -------------------- SST CONFIGS --------------------
 
 # -------------------- EXTERNAL LIBRARIES --------------------
-find_package(cppzmq)
-find_package(msgpack)
+if (${ZMQ})
 
-macro(add_executable _name)
-    # invoke built-in add_executable
-    _add_executable(${ARGV})
-    if (TARGET ${_name})
-        target_link_libraries(${_name} cppzmq)
-    endif ()
-endmacro()
+    find_package(cppzmq)
+    add_definitions(-DZMQ)
+
+    macro(add_executable _name)
+        # invoke built-in add_executable
+        _add_executable(${ARGV})
+        if (TARGET ${_name})
+            target_link_libraries(${_name} cppzmq)
+        endif ()
+    endmacro()
+
+endif ()
+
+find_package(msgpack)
 # -------------------- EXTERNAL LIBRARIES --------------------

@@ -23,8 +23,10 @@ public:
 
     void recv();
 
+    // hide non-virtual base method
     void set_state(bool) {};
 
+    // hide non-virtual base method
     template<typename T>
     void set(const std::string &, const T &, uint8_t = SC_BIT_T) {};
 
@@ -50,12 +52,14 @@ public:
 
     void send();
 
+    // hide non-virtual base method
     template<typename T>
     T get(const std::string &) {};
 
+    // hide non-virtual base method
     bool alive() { return false; };
 
-    // Converts SST clock cycles to pulses for SystemC modules
+    // hide non-virtual base method
     bool get_clock_pulse(const std::string &) { return false; };
 
 

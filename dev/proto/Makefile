@@ -1,7 +1,8 @@
 _CXX ?= /usr/bin/clang++
+USE_ZMQ ?= OFF
 
 compile:
-	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} .. && $(MAKE)
+	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DZMQ=${USE_ZMQ} .. && $(MAKE)
 	sst-register proto proto_LIBDIR=$(CURDIR)/build
 
 

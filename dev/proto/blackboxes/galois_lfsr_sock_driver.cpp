@@ -1,6 +1,6 @@
 #include "../modules/galois_lfsr.hpp"
 
-#include "../sockets.hpp"
+#include "../sstscit.hpp"
 
 #include <stdio.h>
 #include <sys/types.h>

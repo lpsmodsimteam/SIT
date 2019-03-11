@@ -1,7 +1,7 @@
 #ifndef SOCKTEST_HPP
 #define SOCKTEST_HPP
 
-#include "../sockets.hpp"
+#include "../sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
