@@ -54,35 +54,7 @@ void socktest::setup() {
         m_sh_in.recv();
         std::cout << "[pid]=" << m_sh_in.get<int>("pid") << std::endl;
 
-//        // Create socket file descriptor and address
-//        if (fd < 0) {
-//            m_output.fatal(CALL_INFO, -1, "Socket Error\n");
-//        }
-//        addr.sun_family = AF_UNIX;
-//        strcpy(addr.sun_path, &m_ipc_port[0u]);
-//
-//        if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
-//            perror("bind failed");
-//            m_output.fatal(CALL_INFO, -1, "Socket Bind Error\n");
-//        }
-//
-//        if (listen(fd, 5) < 0) {
-//            m_output.fatal(CALL_INFO, -1, "Socket Listen Error\n");
-//        }
-//
-//        if ((sock = accept(fd, (struct sockaddr *)&addr,
-//                           (socklen_t*) &addrlen)) < 0) {
-//            m_output.fatal(CALL_INFO, -1, "Socket Accept Error\n");
-//        }
-
         m_output.verbose(CALL_INFO, 1, 0, "Launched black box and connected to socket\n");
-
-//        char *hello = "Hello from server";
-//        valread = read(sock, buffer, 1024);
-//        buffer[valread] = '\0';
-//        printf("MASTER AYYYYOOOOO %s\n", buffer);
-//        send(sock, hello, strlen(hello), 0);
-//        printf("Hello message sent\n");
 
     }
 
@@ -124,10 +96,7 @@ bool socktest::tick(SST::Cycle_t current_cycle) {
         m_sh_in.set_state(false);
     }
 
-    std::cout << "CYCLE: " << current_cycle << std::endl;
     if (keep_send) {
-
-        printf("sending\n");
 
         m_sh_in.send();
     }
@@ -136,6 +105,7 @@ bool socktest::tick(SST::Cycle_t current_cycle) {
 
         m_sh_in.recv();
         m_output.verbose(CALL_INFO, 1, 0, "%d\n", m_sh_in.get<int>("data_out"));
+
     }
 
     std::cout << "---------------------------------------------------->" << std::endl;

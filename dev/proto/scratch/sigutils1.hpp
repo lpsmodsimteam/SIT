@@ -37,6 +37,7 @@ class SignalReceiver {
 
 private:
 
+    bool m_server_side;
     int m_socket, m_rd_socket;
     size_t valread;
     struct sockaddr_un m_addr;
@@ -51,11 +52,11 @@ public:
 
     MSGPACK_DEFINE (m_data);
 
-    explicit SignalReceiver();
+    explicit SignalReceiver(bool = true);
 
     ~SignalReceiver();
 
-    void set_params(int, const std::string &, bool = true);
+    void set_params(int, const std::string &);
 
     template<typename T>
     T get(const std::string &);
@@ -79,18 +80,22 @@ public:
 
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
-inline SignalReceiver::SignalReceiver() : m_packer(&m_sbuf) {
+inline SignalReceiver::SignalReceiver(bool master) : m_server_side(master), m_packer(&m_sbuf) {
+
 }
 
-inline void SignalReceiver::set_params(int socket, const std::string &addr, bool master) {
+inline void SignalReceiver::set_params(int socket, const std::string &addr) {
 
     m_socket = socket;
+    if (m_socket < 0) {
+        perror("\n Socket creation error\n");
+    }
 
     memset(&m_addr, 0, sizeof(m_addr));
     m_addr.sun_family = AF_UNIX;
     strcpy(m_addr.sun_path, addr.c_str());
 
-    if (master) {
+    if (m_server_side) {
 
         if (bind(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
             perror("Socket Bind Error\n");
@@ -106,10 +111,6 @@ inline void SignalReceiver::set_params(int socket, const std::string &addr, bool
         }
 
     } else {
-
-        if (m_socket < 0) {
-            perror("\n Socket creation error\n");
-        }
 
         if (connect(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
             perror("Connection Failed\n");
@@ -166,9 +167,12 @@ T SignalReceiver::get(const std::string &key) {
 
 inline void SignalReceiver::recv() {
 
-    printf("recv\n");
-    valread = read(m_rd_socket, rd_buf, BUFSIZE);
-    printf("done\n");
+    if (m_server_side) {
+        valread = read(m_rd_socket, rd_buf, BUFSIZE);
+    } else {
+        valread = read(m_socket, rd_buf, BUFSIZE);
+    }
+
     rd_buf[valread] = '\0';
     msgpack::unpack(m_unpacker, rd_buf, valread);
     m_unpacker.get().convert(*this);
@@ -186,9 +190,12 @@ void SignalReceiver::set(const std::string &key, const T &value, uint8_t data_ty
 inline void SignalReceiver::send() {
 
     m_packer.pack(*this);
-    write(m_socket, m_sbuf.data(), m_sbuf.size());
+    if (m_server_side) {
+        write(m_rd_socket, m_sbuf.data(), m_sbuf.size());
+    } else {
+        write(m_socket, m_sbuf.data(), m_sbuf.size());
+    }
     m_sbuf.clear();
-    printf("sent\n");
 
 }
 

@@ -23,9 +23,9 @@ int sc_main(int argc, char *argv[]) {
     // ---------- SYSTEMC UUT INIT ---------- //
 
     int m_socket = socket(AF_UNIX, SOCK_STREAM, 0);
-    SignalReceiver sh_in;
+    SignalReceiver sh_in(false);
 
-    sh_in.set_params(m_socket, argv[1], false);
+    sh_in.set_params(m_socket, argv[1]);
 
     sh_in.set("pid", getpid(), SC_UINT_T);
     sh_in.send();
@@ -34,10 +34,8 @@ int sc_main(int argc, char *argv[]) {
 
         sc_start(1, SC_NS);
 
-        printf("receiving\n");
         // RECEIVING
         sh_in.recv();
-        printf("received\n");
 
         if (!sh_in.alive()) {
             break;
