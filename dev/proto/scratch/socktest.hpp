@@ -46,16 +46,7 @@ private:
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
 
-   SignalReceiver m_sh_in;
-//    SignalTransmitter m_sh_out;
-
-//    size_t bufferSize;
-//    char buffer[1024];
-    int m_socket;
-//    struct sockaddr_un addr;
-//    ssize_t len;
-//    socklen_t addrlen = sizeof(addr);
-
+    SignalSocket m_sh_in;
 
 };
 

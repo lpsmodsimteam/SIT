@@ -33,13 +33,13 @@ std::string _to_string(const T &value) {
 
 }
 
-class SignalReceiver {
+class SignalSocket {
 
 private:
 
     bool m_server_side;
     int m_socket, m_rd_socket;
-    size_t valread;
+    size_t m_rd_bytes;
     struct sockaddr_un m_addr;
     char rd_buf[BUFSIZE];
 
@@ -52,11 +52,11 @@ public:
 
     MSGPACK_DEFINE (m_data);
 
-    explicit SignalReceiver(bool = true);
+    explicit SignalSocket(int, bool = true);
 
-    ~SignalReceiver();
+    ~SignalSocket();
 
-    void set_params(int, const std::string &);
+    void set_params(const std::string &);
 
     template<typename T>
     T get(const std::string &);
@@ -80,15 +80,25 @@ public:
 
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
-inline SignalReceiver::SignalReceiver(bool master) : m_server_side(master), m_packer(&m_sbuf) {
+inline SignalSocket::SignalSocket(int socket, bool master) :
+    m_socket(socket), m_server_side(master), m_packer(&m_sbuf),
+    m_rd_socket(0), m_rd_bytes(0), m_addr({}), rd_buf("") {
+    // do nothing
+}
+
+inline SignalSocket::~SignalSocket() {
+
+    unlink(m_addr.sun_path);
+    close(m_socket);
+    close(m_rd_socket);
+    m_data.clear();
 
 }
 
-inline void SignalReceiver::set_params(int socket, const std::string &addr) {
+inline void SignalSocket::set_params(const std::string &addr) {
 
-    m_socket = socket;
     if (m_socket < 0) {
-        perror("\n Socket creation error\n");
+        perror("Socket creation\n");
     }
 
     memset(&m_addr, 0, sizeof(m_addr));
@@ -98,57 +108,48 @@ inline void SignalReceiver::set_params(int socket, const std::string &addr) {
     if (m_server_side) {
 
         if (bind(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
-            perror("Socket Bind Error\n");
+            perror("Bind failed\n");
         }
 
         if (listen(m_socket, 5) < 0) {
-            perror("Socket Listen Error\n");
+            perror("Socket listen\n");
         }
 
-        socklen_t addrlen = sizeof(m_addr);
-        if ((m_rd_socket = accept(m_socket, (struct sockaddr *) &m_addr, &addrlen)) < 0) {
-            perror("Socket Accept Error\n");
+        socklen_t addr_len = sizeof(m_addr);
+        if ((m_rd_socket = accept(m_socket, (struct sockaddr *) &m_addr, &addr_len)) < 0) {
+            perror("Accept failed\n");
         }
 
     } else {
 
         if (connect(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
-            perror("Connection Failed\n");
+            perror("Connection failed\n");
         }
 
     }
 
 }
 
-inline SignalReceiver::~SignalReceiver() {
-
-    unlink(m_addr.sun_path);
-    close(m_socket);
-    close(m_rd_socket);
-    m_data.clear();
-
-}
-
-inline bool SignalReceiver::get_clock_pulse(const std::string &key) {
+inline bool SignalSocket::get_clock_pulse(const std::string &key) {
 
     return (this->get<int>(key)) % 2;
 
 }
 
-inline bool SignalReceiver::alive() {
+inline bool SignalSocket::alive() {
 
     return (this->get<bool>("__on__"));
 
 }
 
-inline void SignalReceiver::set_state(bool state) {
+inline void SignalSocket::set_state(bool state) {
 
     this->set("__on__", state);
 
 }
 
 template<typename T>
-T SignalReceiver::get(const std::string &key) {
+T SignalSocket::get(const std::string &key) {
 
     std::string value = m_data[key].first;
     uint8_t data_t = m_data[key].second;
@@ -165,36 +166,32 @@ T SignalReceiver::get(const std::string &key) {
 
 }
 
-inline void SignalReceiver::recv() {
+inline void SignalSocket::recv() {
 
-    if (m_server_side) {
-        valread = read(m_rd_socket, rd_buf, BUFSIZE);
-    } else {
-        valread = read(m_socket, rd_buf, BUFSIZE);
-    }
+    m_rd_bytes = static_cast<size_t>(
+        (m_server_side) ? read(m_rd_socket, rd_buf, BUFSIZE) : read(m_socket, rd_buf, BUFSIZE));
 
-    rd_buf[valread] = '\0';
-    msgpack::unpack(m_unpacker, rd_buf, valread);
+    rd_buf[m_rd_bytes] = '\0';
+    msgpack::unpack(m_unpacker, rd_buf, m_rd_bytes);
     m_unpacker.get().convert(*this);
 
 }
 
 template<typename T>
-void SignalReceiver::set(const std::string &key, const T &value, uint8_t data_type) {
+void SignalSocket::set(const std::string &key, const T &value, uint8_t data_type) {
 
     m_data[key].first = _to_string(value);
     m_data[key].second = data_type;
 
 }
 
-inline void SignalReceiver::send() {
+inline void SignalSocket::send() {
 
     m_packer.pack(*this);
-    if (m_server_side) {
-        write(m_rd_socket, m_sbuf.data(), m_sbuf.size());
-    } else {
-        write(m_socket, m_sbuf.data(), m_sbuf.size());
-    }
+
+    (m_server_side) ? write(m_rd_socket, m_sbuf.data(), m_sbuf.size())
+                    : write(m_socket, m_sbuf.data(), m_sbuf.size());
+
     m_sbuf.clear();
 
 }

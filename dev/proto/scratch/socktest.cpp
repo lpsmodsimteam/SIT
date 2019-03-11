@@ -8,7 +8,7 @@ Simple 4-bit Up-Counter Model with one clock
 
 // Component Constructor
 socktest::socktest(SST::ComponentId_t id, SST::Params &params)
-    : SST::Component(id), m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
+    : SST::Component(id), m_sh_in(socket(AF_UNIX, SOCK_STREAM, 0)),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")) {
@@ -50,7 +50,7 @@ void socktest::setup() {
 
     } else {
 
-        m_sh_in.set_params(m_socket, &m_ipc_port[0u]);
+        m_sh_in.set_params(m_ipc_port);
         m_sh_in.recv();
         std::cout << "[pid]=" << m_sh_in.get<int>("pid") << std::endl;
 

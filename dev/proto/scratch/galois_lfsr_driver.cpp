@@ -22,13 +22,15 @@ int sc_main(int argc, char *argv[]) {
     DUT.data_out(data_out);
     // ---------- SYSTEMC UUT INIT ---------- //
 
-    int m_socket = socket(AF_UNIX, SOCK_STREAM, 0);
-    SignalReceiver sh_in(false);
+    // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
+    SignalSocket sh_in(socket(AF_UNIX, SOCK_STREAM, 0), false);
+    sh_in.set_params(argv[1]);
+    // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
-    sh_in.set_params(m_socket, argv[1]);
-
+    // ---------- INITIAL HANDSHAKE ---------- //
     sh_in.set("pid", getpid(), SC_UINT_T);
     sh_in.send();
+    // ---------- INITIAL HANDSHAKE ---------- //
 
     while (true) {
 
@@ -42,8 +44,9 @@ int sc_main(int argc, char *argv[]) {
         }
         clock = sh_in.get_clock_pulse("clock");
         reset = sh_in.get<bool>("reset");
-        std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: " << sc_time_stamp()
-                  << " | reset: " << sh_in.get<bool>("reset") << " -> galois_lfsr_out: " << data_out << std::endl;
+        std::cout << "\033[33mGALOIS LFSR\033[0m (pid: " << getpid() << ") -> clock: "
+                  << sc_time_stamp() << " | reset: " << sh_in.get<bool>("reset")
+                  << " -> galois_lfsr_out: " << data_out << std::endl;
 
         // SENDING
         sh_in.set("data_out", data_out, SC_UINT_T);
