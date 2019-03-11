@@ -13,20 +13,21 @@
 
 #define BUFSIZE 1024
 
-template<typename T>
-std::string _to_string(const T &);
+//template<typename T>
+//std::string _to_string(const T &);
+//
+//template<typename T>
+//std::string _to_string(const T &value) {
+//
+//    std::ostringstream ss;
+//    ss << value;
+//    return ss.str();
+//
+//}
 
-template<typename T>
-std::string _to_string(const T &value) {
+ class SignalSocket: public SignalIO {
 
-    std::ostringstream ss;
-    ss << value;
-    return ss.str();
-
-}
-
-
-class SignalSocket {
+//class SignalSocket {
 
 private:
 
@@ -49,24 +50,25 @@ public:
 
     ~SignalSocket();
 
-    void set_params(const std::string &);
+    void set_addr(const std::string &addr);
 
-    template<typename T>
-    T get(const std::string &);
+    void send();
 
     void recv();
 
-    bool alive();
+//    bool alive();
+//
+//    // Converts SST clock cycles to pulses for SystemC modules
+//    bool get_clock_pulse(const std::string &);
+//
+//    void set_state(bool);
+//
+//    template<typename T>
+//    T get(const std::string &);
+//
+//    template<typename T>
+//    void set(const std::string &, const T &, uint8_t = SC_BIT_T);
 
-    // Converts SST clock cycles to pulses for SystemC modules
-    bool get_clock_pulse(const std::string &);
-
-    void set_state(bool);
-
-    template<typename T>
-    void set(const std::string &, const T &, uint8_t = SC_BIT_T);
-
-    void send();
 
 };
 
@@ -88,7 +90,7 @@ inline SignalSocket::~SignalSocket() {
 
 }
 
-inline void SignalSocket::set_params(const std::string &addr) {
+inline void SignalSocket::set_addr(const std::string &addr) {
 
     if (m_socket < 0) {
         perror("Socket creation\n");
@@ -123,39 +125,14 @@ inline void SignalSocket::set_params(const std::string &addr) {
 
 }
 
-inline bool SignalSocket::get_clock_pulse(const std::string &key) {
+inline void SignalSocket::send() {
 
-    return (this->get<int>(key)) % 2;
+    m_packer.pack(*this);
 
-}
+    (m_server_side) ? write(m_rd_socket, m_sbuf.data(), m_sbuf.size())
+                    : write(m_socket, m_sbuf.data(), m_sbuf.size());
 
-inline bool SignalSocket::alive() {
-
-    return (this->get<bool>("__on__"));
-
-}
-
-inline void SignalSocket::set_state(bool state) {
-
-    this->set("__on__", state);
-
-}
-
-template<typename T>
-T SignalSocket::get(const std::string &key) {
-
-    std::string value = m_data[key].first;
-    uint8_t data_t = m_data[key].second;
-
-    switch (data_t) {
-        case SC_BIT_T:
-            return value != "0";
-        case SC_UINT_T:
-            return std::stoi(value);
-        default:
-            throw std::invalid_argument("INVALID TYPE OR SOMETHING");
-
-    }
+    m_sbuf.clear();
 
 }
 
@@ -170,23 +147,48 @@ inline void SignalSocket::recv() {
 
 }
 
-template<typename T>
-void SignalSocket::set(const std::string &key, const T &value, uint8_t data_type) {
-
-    m_data[key].first = _to_string(value);
-    m_data[key].second = data_type;
-
-}
-
-inline void SignalSocket::send() {
-
-    m_packer.pack(*this);
-
-    (m_server_side) ? write(m_rd_socket, m_sbuf.data(), m_sbuf.size())
-                    : write(m_socket, m_sbuf.data(), m_sbuf.size());
-
-    m_sbuf.clear();
-
-}
+//inline bool SignalSocket::get_clock_pulse(const std::string &key) {
+//
+//    return (this->get<int>(key)) % 2;
+//
+//}
+//
+//inline bool SignalSocket::alive() {
+//
+//    return (this->get<bool>("__on__"));
+//
+//}
+//
+//inline void SignalSocket::set_state(bool state) {
+//
+//    this->set("__on__", state);
+//
+//}
+//
+//template<typename T>
+//T SignalSocket::get(const std::string &key) {
+//
+//    std::string value = m_data[key].first;
+//    uint8_t data_t = m_data[key].second;
+//
+//    switch (data_t) {
+//        case SC_BIT_T:
+//            return value != "0";
+//        case SC_UINT_T:
+//            return std::stoi(value);
+//        default:
+//            throw std::invalid_argument("INVALID TYPE OR SOMETHING");
+//
+//    }
+//
+//}
+//
+//template<typename T>
+//void SignalSocket::set(const std::string &key, const T &value, uint8_t data_type) {
+//
+//    m_data[key].first = _to_string(value);
+//    m_data[key].second = data_type;
+//
+//}
 
 #endif

@@ -5,7 +5,7 @@
 #include <zmq.hpp>
 
 
-class ZMQReceiver : public SignalReceiver {
+class ZMQReceiver : public SignalIO {
 
 private:
 
@@ -23,9 +23,15 @@ public:
 
     void recv();
 
+    void set_state(bool) {};
+
+    template<typename T>
+    void set(const std::string &, const T &, uint8_t = SC_BIT_T) {};
+
+
 };
 
-class ZMQTransmitter : public SignalTransmitter {
+class ZMQTransmitter : public SignalIO {
 
 private:
 
@@ -43,6 +49,15 @@ public:
     ~ZMQTransmitter();
 
     void send();
+
+    template<typename T>
+    T get(const std::string &) {};
+
+    bool alive() { return false; };
+
+    // Converts SST clock cycles to pulses for SystemC modules
+    bool get_clock_pulse(const std::string &) { return false; };
+
 
 };
 

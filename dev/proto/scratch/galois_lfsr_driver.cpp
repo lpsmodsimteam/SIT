@@ -24,7 +24,7 @@ int sc_main(int argc, char *argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     SignalSocket sh_in(socket(AF_UNIX, SOCK_STREAM, 0), false);
-    sh_in.set_params(argv[1]);
+    sh_in.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //

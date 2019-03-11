@@ -50,7 +50,7 @@ void socktest::setup() {
 
     } else {
 
-        m_sh_in.set_params(m_ipc_port);
+        m_sh_in.set_addr(m_ipc_port);
         m_sh_in.recv();
         std::cout << "[pid]=" << m_sh_in.get<int>("pid") << std::endl;
 
