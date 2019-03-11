@@ -1,7 +1,7 @@
 #ifndef SOCKTEST_HPP
 #define SOCKTEST_HPP
 
-#include "../sigutils1.hpp"
+#include "sigutils1.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
@@ -49,12 +49,12 @@ private:
    SignalReceiver m_sh_in;
 //    SignalTransmitter m_sh_out;
 
-    size_t bufferSize;
-    char buffer[1024];
-    int fd, sock, valread;
-    struct sockaddr_un addr;
-    ssize_t len;
-    socklen_t addrlen = sizeof(addr);
+//    size_t bufferSize;
+//    char buffer[1024];
+    int m_socket;
+//    struct sockaddr_un addr;
+//    ssize_t len;
+//    socklen_t addrlen = sizeof(addr);
 
 
 };

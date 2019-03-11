@@ -3,6 +3,7 @@
 
 #include <msgpack.hpp>
 
+#include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <unordered_map>
@@ -36,9 +37,10 @@ class SignalReceiver {
 
 private:
 
-    int m_socket, valread;
+    int m_socket, m_rd_socket;
+    size_t valread;
     struct sockaddr_un m_addr;
-    char buffer[BUFSIZE];
+    char rd_buf[BUFSIZE];
 
     msgpack::unpacked m_unpacker;
     msgpack::packer<msgpack::sbuffer> m_packer;
@@ -49,9 +51,11 @@ public:
 
     MSGPACK_DEFINE (m_data);
 
-    explicit SignalReceiver(int, const std::string &);
+    explicit SignalReceiver();
 
     ~SignalReceiver();
+
+    void set_params(int, const std::string &, bool = true);
 
     template<typename T>
     T get(const std::string &);
@@ -75,28 +79,51 @@ public:
 
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
+inline SignalReceiver::SignalReceiver() : m_packer(&m_sbuf) {
+}
 
-inline SignalReceiver::SignalReceiver(int socket, const std::string &addr) :
-    m_socket(socket), m_packer(&m_sbuf) {
+inline void SignalReceiver::set_params(int socket, const std::string &addr, bool master) {
 
-    if (m_socket < 0) {
-        printf("\n Socket creation error \n");
-        exit(-1);
-    }
+    m_socket = socket;
 
-    memset(&m_addr, '0', sizeof(m_addr));
+    memset(&m_addr, 0, sizeof(m_addr));
     m_addr.sun_family = AF_UNIX;
     strcpy(m_addr.sun_path, addr.c_str());
 
-    if (connect(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
-        printf("\nConnection Failed \n");
-        exit(-1);
+    if (master) {
+
+        if (bind(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
+            perror("Socket Bind Error\n");
+        }
+
+        if (listen(m_socket, 5) < 0) {
+            perror("Socket Listen Error\n");
+        }
+
+        socklen_t addrlen = sizeof(m_addr);
+        if ((m_rd_socket = accept(m_socket, (struct sockaddr *) &m_addr, &addrlen)) < 0) {
+            perror("Socket Accept Error\n");
+        }
+
+    } else {
+
+        if (m_socket < 0) {
+            perror("\n Socket creation error\n");
+        }
+
+        if (connect(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
+            perror("Connection Failed\n");
+        }
+
     }
 
 }
 
 inline SignalReceiver::~SignalReceiver() {
 
+    unlink(m_addr.sun_path);
+    close(m_socket);
+    close(m_rd_socket);
     m_data.clear();
 
 }
@@ -139,9 +166,11 @@ T SignalReceiver::get(const std::string &key) {
 
 inline void SignalReceiver::recv() {
 
-    valread = read(m_socket, buffer, BUFSIZE);
-    buffer[valread] = '\0';
-    msgpack::unpack(m_unpacker, (char *) buffer, valread);
+    printf("recv\n");
+    valread = read(m_rd_socket, rd_buf, BUFSIZE);
+    printf("done\n");
+    rd_buf[valread] = '\0';
+    msgpack::unpack(m_unpacker, rd_buf, valread);
     m_unpacker.get().convert(*this);
 
 }
@@ -159,6 +188,7 @@ inline void SignalReceiver::send() {
     m_packer.pack(*this);
     write(m_socket, m_sbuf.data(), m_sbuf.size());
     m_sbuf.clear();
+    printf("sent\n");
 
 }
 
