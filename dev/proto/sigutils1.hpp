@@ -2,16 +2,23 @@
 #define SIGUTILS_HPP
 
 #include <msgpack.hpp>
-#include <zmq.hpp>
 
 #include <sstream>
 #include <unistd.h>
 #include <unordered_map>
 #include <utility>      // std::pair, std::make_pair
 
+#include <stdio.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+
 #define SC_BIT_T 0
 #define SC_UINT_T 1
 #define SC_STR_T 2
+
+#define BUFSIZE 1024
 
 template<typename T>
 std::string _to_string(const T &);
@@ -29,16 +36,20 @@ class SignalReceiver {
 
 private:
 
-    zmq::socket_t &m_socket;
-    zmq::message_t m_buf;
+    int m_socket, valread;
+    struct sockaddr_un m_addr;
+    char buffer[BUFSIZE];
+
     msgpack::unpacked m_unpacker;
+    msgpack::packer<msgpack::sbuffer> m_packer;
+    msgpack::sbuffer m_sbuf;
     std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
 
 public:
 
     MSGPACK_DEFINE (m_data);
 
-    explicit SignalReceiver(zmq::socket_t &);
+    explicit SignalReceiver(int, const std::string &);
 
     ~SignalReceiver();
 
@@ -51,26 +62,6 @@ public:
 
     // Converts SST clock cycles to pulses for SystemC modules
     bool get_clock_pulse(const std::string &);
-
-};
-
-class SignalTransmitter {
-
-private:
-
-    zmq::socket_t &m_socket;
-    zmq::message_t m_buf;
-    msgpack::packer<msgpack::sbuffer> m_packer;
-    msgpack::sbuffer m_sbuf;
-    std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
-
-public:
-
-    MSGPACK_DEFINE (m_data);
-
-    explicit SignalTransmitter(zmq::socket_t &);
-
-    ~SignalTransmitter();
 
     void set_state(bool);
 
@@ -85,9 +76,23 @@ public:
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
 
-inline SignalReceiver::SignalReceiver(zmq::socket_t &socket) :
-    m_socket(socket) {
-    // do nothing
+inline SignalReceiver::SignalReceiver(int socket, const std::string &addr) :
+    m_socket(socket), m_packer(&m_sbuf) {
+
+    if (m_socket < 0) {
+        printf("\n Socket creation error \n");
+        exit(-1);
+    }
+
+    memset(&m_addr, '0', sizeof(m_addr));
+    m_addr.sun_family = AF_UNIX;
+    strcpy(m_addr.sun_path, addr.c_str());
+
+    if (connect(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
+        printf("\nConnection Failed \n");
+        exit(-1);
+    }
+
 }
 
 inline SignalReceiver::~SignalReceiver() {
@@ -108,7 +113,7 @@ inline bool SignalReceiver::alive() {
 
 }
 
-inline void SignalTransmitter::set_state(bool state) {
+inline void SignalReceiver::set_state(bool state) {
 
     this->set("__on__", state);
 
@@ -134,42 +139,25 @@ T SignalReceiver::get(const std::string &key) {
 
 inline void SignalReceiver::recv() {
 
-    m_socket.recv(&m_buf);
-    msgpack::unpack(m_unpacker, (char *) (m_buf.data()), m_buf.size());
+    valread = read(m_socket, buffer, BUFSIZE);
+    buffer[valread] = '\0';
+    msgpack::unpack(m_unpacker, (char *) buffer, valread);
     m_unpacker.get().convert(*this);
 
 }
 
-
-/* -------------------- SIGNALTRANSMITTER IMPLEMENTATIONS -------------------- */
-
-
-inline SignalTransmitter::SignalTransmitter(zmq::socket_t &socket) :
-    m_socket(socket), m_packer(&m_sbuf) {
-    // do nothing
-}
-
-inline SignalTransmitter::~SignalTransmitter() {
-
-    m_data.clear();
-    m_sbuf.clear();
-
-}
-
 template<typename T>
-void SignalTransmitter::set(const std::string &key, const T &value, uint8_t data_type) {
+void SignalReceiver::set(const std::string &key, const T &value, uint8_t data_type) {
 
     m_data[key].first = _to_string(value);
     m_data[key].second = data_type;
 
 }
 
-inline void SignalTransmitter::send() {
+inline void SignalReceiver::send() {
 
     m_packer.pack(*this);
-    m_buf.rebuild(m_sbuf.size());
-    std::memcpy(m_buf.data(), m_sbuf.data(), m_sbuf.size());
-    m_socket.send(m_buf);
+    write(m_socket, m_sbuf.data(), m_sbuf.size());
     m_sbuf.clear();
 
 }

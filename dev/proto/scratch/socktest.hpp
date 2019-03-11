@@ -1,7 +1,7 @@
 #ifndef SOCKTEST_HPP
 #define SOCKTEST_HPP
 
-#include "../sstscit.hpp"
+#include "../sigutils1.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
@@ -46,7 +46,7 @@ private:
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
 
-//    SignalReceiver m_sh_in;
+   SignalReceiver m_sh_in;
 //    SignalTransmitter m_sh_out;
 
     size_t bufferSize;
