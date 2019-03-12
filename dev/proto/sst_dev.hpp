@@ -33,7 +33,7 @@ public:
         "proto", // element library
         "sst_dev", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "gdfjngkdfnglkdfnkj",
+        "SST parent model",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 

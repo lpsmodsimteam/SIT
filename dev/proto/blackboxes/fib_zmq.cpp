@@ -2,24 +2,24 @@
 Simple 4-bit Up-Counter Model with one clock
 */
 
-#include "galois_lfsr.hpp"
+#include "fib_zmq.hpp"
 #include <sst/core/sst_config.h>
 #include <sst/core/interfaces/stringEvent.h>
 
 // Component Constructor
-galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
+fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
       m_sh_in(m_socket), m_sh_out(m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
       clock(configureLink(
-          "galois_clock", new SST::Event::Handler<galois_lfsr>(this, &galois_lfsr::handle_clock)
+          "fib_clock", new SST::Event::Handler<fib_lfsr>(this, &fib_lfsr::handle_clock)
       )),
       reset(configureLink(
-          "galois_reset", new SST::Event::Handler<galois_lfsr>(this, &galois_lfsr::handle_reset)
+          "fib_reset", new SST::Event::Handler<fib_lfsr>(this, &fib_lfsr::handle_reset)
       )),
-      data_out(configureLink("galois_data_out")),
+      data_out(configureLink("fib_data_out")),
       sim_time(39) {
 
     // Initialize output
@@ -27,7 +27,7 @@ galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
                   std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     // Just register a plain clock for this simple example
-    registerClock(m_clock, new SST::Clock::Handler<galois_lfsr>(this, &galois_lfsr::tick));
+    registerClock(m_clock, new SST::Clock::Handler<fib_lfsr>(this, &fib_lfsr::tick));
 
     // Configure our reset
     if (!reset) {
@@ -40,16 +40,9 @@ galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
 
 }
 
-galois_lfsr::~galois_lfsr() {
-
-    m_output.verbose(CALL_INFO, 1, 0, "Destroying galois_lfsr...\n");
-    m_socket.close();
-
-}
-
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
-void galois_lfsr::setup() {
+void fib_lfsr::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
@@ -76,12 +69,15 @@ void galois_lfsr::setup() {
 
 // finish is called by SST before the simulation is ended and should be used
 // to clean up variables and memory
-void galois_lfsr::finish() {
-    m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
+void fib_lfsr::finish() {
+
+    m_output.verbose(CALL_INFO, 1, 0, "Destroying fib_lfsr...\n");
+    m_socket.close();
+
 }
 
 // Receive events that contain the CarType, add the cars to the queue
-void galois_lfsr::handle_reset(SST::Event *ev) {
+void fib_lfsr::handle_reset(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         m_sh_out.set("reset", std::stoi(se->getString()));
@@ -90,7 +86,7 @@ void galois_lfsr::handle_reset(SST::Event *ev) {
 }
 
 // Receive events that contain the CarType, add the cars to the queue
-void galois_lfsr::handle_clock(SST::Event *ev) {
+void fib_lfsr::handle_clock(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         m_sh_out.set("clock", std::stoi(se->getString()), SC_UINT_T);
@@ -101,7 +97,7 @@ void galois_lfsr::handle_clock(SST::Event *ev) {
 
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
-bool galois_lfsr::tick(SST::Cycle_t current_cycle) {
+bool fib_lfsr::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "<----------------------------------------------------" << std::endl;
 
@@ -113,7 +109,7 @@ bool galois_lfsr::tick(SST::Cycle_t current_cycle) {
     if (keep_send) {
 
         if (current_cycle == sim_time - 1) {
-            m_output.verbose(CALL_INFO, 1, 0, "GALOIS LFSR MODULE OFF\n");
+            m_output.verbose(CALL_INFO, 1, 0, "FIB LFSR MODULE OFF\n");
             m_sh_out.set_state(false);
         }
         m_sh_out.send();

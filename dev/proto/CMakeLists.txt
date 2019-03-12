@@ -4,18 +4,20 @@ include(../../src/CMakeLists.txt)
 
 # -------------------- EXECUTABLES --------------------
 if (${DEMO_ZMQ})
-    add_executable(libproto.so sst_dev.cpp blackboxes/galois_lfsr.cpp blackboxes/fib_lfsr.cpp)
+    add_executable(libproto.so sst_dev.cpp blackboxes/galois_zmq.cpp blackboxes/fib_zmq.cpp)
     _sst_compile_link(libproto.so)
 
-    add_executable(galois_lfsr.o blackboxes/galois_lfsr_driver.cpp)
+    add_executable(galois_lfsr.o blackboxes/galois_zmq_driver.cpp)
     target_link_libraries(galois_lfsr.o SystemC::systemc)
-    add_executable(fib_lfsr.o blackboxes/fib_lfsr_driver.cpp)
+    add_executable(fib_lfsr.o blackboxes/fib_zmq_driver.cpp)
     target_link_libraries(fib_lfsr.o SystemC::systemc)
 else ()
-    add_executable(libsocktest.so blackboxes/galois_lfsr_sock.cpp)
-    _sst_compile_link(libsocktest.so)
+    add_executable(libproto.so sst_dev.cpp blackboxes/galois_sock.cpp blackboxes/fib_sock.cpp)
+    _sst_compile_link(libproto.so)
 
-    add_executable(galois_lfsr.o blackboxes/galois_lfsr_sock_driver.cpp)
+    add_executable(galois_lfsr.o blackboxes/galois_sock_driver.cpp)
     target_link_libraries(galois_lfsr.o SystemC::systemc)
+    add_executable(fib_lfsr.o blackboxes/fib_sock_driver.cpp)
+    target_link_libraries(fib_lfsr.o SystemC::systemc)
 endif ()
 # -------------------- EXECUTABLES --------------------

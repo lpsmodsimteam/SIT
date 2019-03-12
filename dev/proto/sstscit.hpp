@@ -3,13 +3,13 @@
 
 #include <iostream>
 
-#ifdef ZMQ
+#ifndef ZMQ
 
-#include "zmqsigs.hpp"
+#include "socksigs.hpp"
 
 #else
 
-#include "socksigs.hpp"
+#include "zmqsigs.hpp"
 
 #endif
 

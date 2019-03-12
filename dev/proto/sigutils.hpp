@@ -18,10 +18,12 @@ class SignalIO {
 
 protected:
 
-    std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
+    ~SignalIO();
 
     template<typename T>
     std::string _to_string(const T &);
+
+    std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
 
 public:
 
@@ -42,6 +44,12 @@ public:
 
 
 /* -------------------- SIGNALIO IMPLEMENTATIONS -------------------- */
+
+inline SignalIO::~SignalIO() {
+
+    m_data.clear();
+
+}
 
 
 template<typename T>

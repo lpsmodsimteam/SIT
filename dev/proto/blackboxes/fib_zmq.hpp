@@ -1,5 +1,5 @@
-#ifndef SST_GALOIS_LFSR_HPP
-#define SST_GALOIS_LFSR_HPP
+#ifndef FIB_ZMQ_HPP
+#define FIB_ZMQ_HPP
 
 #include "../sstscit.hpp"
 
@@ -8,13 +8,11 @@
 #include <sst/core/elementinfo.h>
 
 
-class galois_lfsr : public SST::Component {
+class fib_lfsr : public SST::Component {
 
 public:
 
-    galois_lfsr(SST::ComponentId_t, SST::Params &);
-
-    ~galois_lfsr() override;
+    fib_lfsr(SST::ComponentId_t, SST::Params &);
 
     void setup() override;
 
@@ -28,19 +26,19 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        galois_lfsr, // class
+        fib_lfsr, // class
         "proto", // element library
-        "galois_lfsr", // component
+        "fib_lfsr", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Simple 4-bit Galois Linear Feedback Shift Register",
+        "Simple 4-bit Fibonacci Linear Feedback Shift Register",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "galois_clock", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
-        { "galois_reset", "Galois LFSR reset", { "sst.Interfaces.StringEvent" }},
-        { "galois_data_out", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "fib_clock", "Fibonacci LFSR clock", { "sst.Interfaces.StringEvent" }},
+        { "fib_reset", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "fib_data_out", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:

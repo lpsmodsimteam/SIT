@@ -7,7 +7,7 @@ compile:
 
 
 run:
-	cd build && sst ../tests/${TEST}
+	cd build && sst ../demo/${TEST}
 
 clean:
 	# remove all compiled objects and cached cmake files
