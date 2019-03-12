@@ -1,7 +1,7 @@
 #ifndef FIB_SOCK_HPP
 #define FIB_SOCK_HPP
 
-#include "../sstscit.hpp"
+#include "../../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>

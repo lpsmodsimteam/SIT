@@ -1,6 +1,6 @@
 #include "../modules/galois_lfsr.hpp"
 
-#include "../sstscit.hpp"
+#include "../../../src/sstscit.hpp"
 
 #include <sys/un.h>
 

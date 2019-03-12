@@ -3,7 +3,7 @@
 
 #include <iostream>
 
-#ifndef ZMQ
+#ifndef USE_ZMQ
 
 #include "socksigs.hpp"
 

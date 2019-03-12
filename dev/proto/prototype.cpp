@@ -3,24 +3,24 @@
  *
  * */
 
-#include "sst_dev.hpp"
+#include "prototype.hpp"
 #include <sst/core/sst_config.h>
 
 #define SIMTIME "39"
 
-sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
+prototype::prototype(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_clock(params.find<std::string>("clock", "")),
       galois_reset(configureLink("galois_reset")),
       galois_clock(configureLink("galois_clock")),
       galois_data_out(configureLink(
           "galois_data_out",
-          new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_galois_data_out)
+          new SST::Event::Handler<prototype>(this, &prototype::handle_galois_data_out)
       )),
       fib_reset(configureLink("fib_reset")),
       fib_clock(configureLink("fib_clock")),
       fib_data_out(configureLink(
-          "fib_data_out", new SST::Event::Handler<sst_dev>(this, &sst_dev::handle_fib_data_out)
+          "fib_data_out", new SST::Event::Handler<prototype>(this, &prototype::handle_fib_data_out)
       )) {
 
     // Initialize output
@@ -33,14 +33,14 @@ sst_dev::sst_dev(SST::ComponentId_t id, SST::Params &params)
     }
 
     // Just register a plain clock for this simple example
-    registerClock(m_clock, new SST::Clock::Handler<sst_dev>(this, &sst_dev::tick));
+    registerClock(m_clock, new SST::Clock::Handler<prototype>(this, &prototype::tick));
     // Tell SST to wait until we authorize it to exit
     registerAsPrimaryComponent();
     primaryComponentDoNotEndSim();
 
 }
 
-sst_dev::~sst_dev() {
+prototype::~prototype() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
 
@@ -48,7 +48,7 @@ sst_dev::~sst_dev() {
 
 // setup is called by SST after a component has been constructed and should be used
 // for initialization of variables
-void sst_dev::setup() {
+void prototype::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
@@ -58,11 +58,11 @@ void sst_dev::setup() {
 
 // finish is called by SST before the simulation is ended and should be used
 // to clean up variables and memory
-void sst_dev::finish() {
+void prototype::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
 
-void sst_dev::handle_galois_data_out(SST::Event *ev) {
+void prototype::handle_galois_data_out(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
@@ -70,7 +70,7 @@ void sst_dev::handle_galois_data_out(SST::Event *ev) {
     delete ev;
 }
 
-void sst_dev::handle_fib_data_out(SST::Event *ev) {
+void prototype::handle_fib_data_out(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         std::cout << se->getString() << std::endl;
@@ -81,7 +81,7 @@ void sst_dev::handle_fib_data_out(SST::Event *ev) {
 
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
-bool sst_dev::tick(SST::Cycle_t current_cycle) {
+bool prototype::tick(SST::Cycle_t current_cycle) {
 
     std::string galois_reset_sig, fib_reset_sig;
     // turn reset off at 3 ns

@@ -42,8 +42,9 @@ endmacro()
 # -------------------- EXTERNAL LIBRARIES --------------------
 if (${ZMQ})
 
+    message(STATUS "Using ZMQ for IPC")
     find_package(cppzmq)
-    add_definitions(-DZMQ)
+    add_definitions(-DUSE_ZMQ)
 
     macro(add_executable _name)
         # invoke built-in add_executable

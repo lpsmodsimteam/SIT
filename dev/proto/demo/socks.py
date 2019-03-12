@@ -8,7 +8,7 @@ BASE_PATH = os.getcwd()
 CLOCK = "500MHz"
 sst.setProgramOption("stopAtCycle", "80ns")
 
-proto_comp = sst.Component("sst_dev", "proto.sst_dev")
+proto_comp = sst.Component("prototype", "proto.prototype")
 proto_comp.addParams({
     "clock": CLOCK,
 })

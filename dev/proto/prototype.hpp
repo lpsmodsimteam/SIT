@@ -9,13 +9,13 @@
 #include <sst/core/interfaces/stringEvent.h>
 
 
-class sst_dev : public SST::Component {
+class prototype : public SST::Component {
 
 public:
 
-    sst_dev(SST::ComponentId_t, SST::Params &);
+    prototype(SST::ComponentId_t, SST::Params &);
 
-    ~sst_dev() override;
+    ~prototype() override;
 
     void setup() override;
 
@@ -29,9 +29,9 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        sst_dev, // class
+        prototype, // class
         "proto", // element library
-        "sst_dev", // component
+        "prototype", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "SST parent model",
         COMPONENT_CATEGORY_UNCATEGORIZED
