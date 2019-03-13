@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.13)
 project(sstscit CXX)
-include(../../src/CMakeLists.txt)
+include(../src/CMakeLists.txt)
 
 # -------------------- EXECUTABLES --------------------
 if (${DEMO_ZMQ})

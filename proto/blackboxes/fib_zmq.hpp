@@ -1,7 +1,7 @@
 #ifndef FIB_ZMQ_HPP
 #define FIB_ZMQ_HPP
 
-#include "../../../src/sstscit.hpp"
+#include "../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>

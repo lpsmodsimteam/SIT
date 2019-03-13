@@ -1,8 +1,6 @@
 #include "../modules/galois_lfsr.hpp"
 
-#include "../../../src/sstscit.hpp"
-
-#include <sys/un.h>
+#include "../../src/sstscit.hpp"
 
 int sc_main(int argc, char *argv[]) {
 
@@ -19,13 +17,19 @@ int sc_main(int argc, char *argv[]) {
     // ---------- SYSTEMC UUT INIT ---------- //
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
-    SignalSocket sh_in(socket(AF_UNIX, SOCK_STREAM, 0), false);
-    sh_in.set_addr(argv[1]);
+    zmq::context_t context(1);
+
+    //  Socket to talk to server
+    zmq::socket_t socket(context, ZMQ_REQ);
+    socket.connect(argv[1]);
+
+    ZMQReceiver sh_in(socket);
+    ZMQTransmitter sh_out(socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    sh_in.set("pid", getpid(), SC_UINT_T);
-    sh_in.send();
+    sh_out.set("pid", getpid(), SC_UINT_T);
+    sh_out.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
     while (true) {
@@ -45,10 +49,12 @@ int sc_main(int argc, char *argv[]) {
                   << " -> galois_lfsr_out: " << data_out << std::endl;
 
         // SENDING
-        sh_in.set("data_out", data_out, SC_UINT_T);
-        sh_in.send();
+        sh_out.set("data_out", data_out, SC_UINT_T);
+        sh_out.send();
 
     }
+
+    socket.close();
 
     return 0;
 

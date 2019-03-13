@@ -6,21 +6,18 @@
 #include "prototype.hpp"
 #include <sst/core/sst_config.h>
 
-#define SIMTIME "39"
+#define SIMTIME 39
 
 prototype::prototype(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_clock(params.find<std::string>("clock", "")),
-      galois_reset(configureLink("galois_reset")),
-      galois_clock(configureLink("galois_clock")),
-      galois_data_out(configureLink(
-          "galois_data_out",
-          new SST::Event::Handler<prototype>(this, &prototype::handle_galois_data_out)
+      galois_din(configureLink("galois_din")),
+      galois_dout(configureLink(
+          "galois_dout", new SST::Event::Handler<prototype>(this, &prototype::handle_galois_data_out)
       )),
-      fib_reset(configureLink("fib_reset")),
-      fib_clock(configureLink("fib_clock")),
-      fib_data_out(configureLink(
-          "fib_data_out", new SST::Event::Handler<prototype>(this, &prototype::handle_fib_data_out)
+      fib_din(configureLink("fib_din")),
+      fib_dout(configureLink(
+          "fib_dout", new SST::Event::Handler<prototype>(this, &prototype::handle_fib_data_out)
       )) {
 
     // Initialize output
@@ -28,12 +25,13 @@ prototype::prototype(SST::ComponentId_t id, SST::Params &params)
                   std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     // Configure our port
-    if (!(galois_reset && fib_reset)) {
+    if (!(galois_din && galois_dout && fib_din && fib_dout)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
 
     // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<prototype>(this, &prototype::tick));
+
     // Tell SST to wait until we authorize it to exit
     registerAsPrimaryComponent();
     primaryComponentDoNotEndSim();
@@ -78,12 +76,14 @@ void prototype::handle_fib_data_out(SST::Event *ev) {
     delete ev;
 }
 
-
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
 bool prototype::tick(SST::Cycle_t current_cycle) {
 
     std::string galois_reset_sig, fib_reset_sig;
+    bool keep_send = current_cycle < SIMTIME;
+    bool keep_recv = current_cycle < SIMTIME - 1;
+
     // turn reset off at 3 ns
     if (current_cycle >= 3) {
 
@@ -101,11 +101,20 @@ bool prototype::tick(SST::Cycle_t current_cycle) {
 
     }
 
-    galois_clock->send(new SST::Interfaces::StringEvent(std::to_string(current_cycle)));
-    fib_clock->send(new SST::Interfaces::StringEvent(std::to_string(current_cycle)));
+    if (current_cycle == SIMTIME - 1) {
+        m_output.verbose(CALL_INFO, 1, 0, "MODULE OFF\n");
+    }
 
-    galois_reset->send(new SST::Interfaces::StringEvent(galois_reset_sig));
-    fib_reset->send(new SST::Interfaces::StringEvent(fib_reset_sig));
+    galois_din->send(new SST::Interfaces::StringEvent(
+        std::to_string(keep_send) +
+        std::to_string(keep_recv) +
+        galois_reset_sig +
+        std::to_string(current_cycle)));
+    fib_din->send(new SST::Interfaces::StringEvent(
+        std::to_string(keep_send) +
+        std::to_string(keep_recv) +
+        fib_reset_sig +
+        std::to_string(current_cycle)));
 
     return false;
 

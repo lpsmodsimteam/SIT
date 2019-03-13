@@ -12,14 +12,10 @@ GaloisLFSRSock::GaloisLFSRSock(SST::ComponentId_t id, SST::Params &params)
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
-      clock(configureLink(
-          "galois_clock", new SST::Event::Handler<GaloisLFSRSock>(this, &GaloisLFSRSock::handle_clock)
+      m_din_link(configureLink(
+          "galois_din", new SST::Event::Handler<GaloisLFSRSock>(this, &GaloisLFSRSock::handle_event)
       )),
-      reset(configureLink(
-          "galois_reset", new SST::Event::Handler<GaloisLFSRSock>(this, &GaloisLFSRSock::handle_reset)
-      )),
-      data_out(configureLink("galois_data_out")),
-      sim_time(39) {
+      m_dout_link(configureLink("galois_dout")) {
 
     // Initialize output
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m (pid: " +
@@ -29,7 +25,7 @@ GaloisLFSRSock::GaloisLFSRSock(SST::ComponentId_t id, SST::Params &params)
     registerClock(m_clock, new SST::Clock::Handler<GaloisLFSRSock>(this, &GaloisLFSRSock::tick));
 
     // Configure our reset
-    if (!reset) {
+    if (!(m_din_link && m_dout_link)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure reset 'reset'\n");
     }
 
@@ -81,53 +77,53 @@ void GaloisLFSRSock::finish() {
 
 }
 
-// Receive events that contain the CarType, add the cars to the queue
-void GaloisLFSRSock::handle_reset(SST::Event *ev) {
-    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se) {
-        m_ss.set("reset", std::stoi(se->getString()));
-    }
-    delete ev;
-}
+void GaloisLFSRSock::handle_event(SST::Event *ev) {
 
-// Receive events that contain the CarType, add the cars to the queue
-void GaloisLFSRSock::handle_clock(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+
     if (se) {
-        m_ss.set("clock", std::stoi(se->getString()), SC_UINT_T);
+
+        std::string _data_in = se->getString();
+        bool keep_send = _data_in.substr(0, 1) != "0";
+        bool keep_recv = _data_in.substr(1, 1) != "0";
+        int reset_val = std::stoi(_data_in.substr(2, 1));
+        int clock_val = std::stoi(_data_in.substr(3, 2));
+
+        m_ss.set("reset", reset_val);
+        m_ss.set("clock", clock_val, SC_UINT_T);
+
+        std::cout << "<----------------------------------------------------" << std::endl;
+
+        m_ss.set_state(true);
+
+        if (keep_send) {
+
+            if (!keep_recv) {
+                m_ss.set_state(false);
+            }
+            m_ss.send();
+
+        }
+
+        if (keep_recv) {
+            m_ss.recv();
+        }
+
+        std::string _data_out = "\033[34m" + getName() + "\033[0m -> "
+                                + std::to_string(m_ss.get<int>("data_out"));
+        m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
+
+        std::cout << "---------------------------------------------------->" << std::endl;
+
     }
+
     delete ev;
+
 }
 
 // clockTick is called by SST from the registerClock function
 // this function runs once every clock cycle
-bool GaloisLFSRSock::tick(SST::Cycle_t current_cycle) {
-
-    std::cout << "<----------------------------------------------------" << std::endl;
-
-    bool keep_send = current_cycle < sim_time;
-    bool keep_recv = current_cycle < sim_time - 1;
-
-    m_ss.set_state(true);
-
-    if (keep_send) {
-
-        if (current_cycle == sim_time - 1) {
-            m_output.verbose(CALL_INFO, 1, 0, "GALOIS LFSR MODULE OFF\n");
-            m_ss.set_state(false);
-        }
-        m_ss.send();
-
-    }
-
-    if (keep_recv) {
-        m_ss.recv();
-    }
-
-    data_out->send(new SST::Interfaces::StringEvent(
-        "\033[34m" + getName() + "\033[0m -> " + std::to_string(m_ss.get<int>("data_out"))));
-
-    std::cout << "---------------------------------------------------->" << std::endl;
+bool GaloisLFSRSock::tick(SST::Cycle_t) {
 
     return false;
 

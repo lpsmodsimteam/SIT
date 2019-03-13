@@ -1,7 +1,7 @@
 #ifndef GALOIS_SOCK_HPP
 #define GALOIS_SOCK_HPP
 
-#include "../../../src/sstscit.hpp"
+#include "../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
@@ -28,9 +28,7 @@ public:
 
     bool tick(SST::Cycle_t);
 
-    void handle_reset(SST::Event *);
-
-    void handle_clock(SST::Event *);
+    void handle_event(SST::Event *);
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
@@ -44,15 +42,13 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "galois_clock", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
-        { "galois_reset", "Galois LFSR reset", { "sst.Interfaces.StringEvent" }},
-        { "galois_data_out", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "galois_din", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
+        { "galois_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
 
-    SST::Link *clock, *reset, *data_out;
-    int sim_time;
+    SST::Link *m_din_link, *m_dout_link;
 
     // SST parameters
     SST::Output m_output;

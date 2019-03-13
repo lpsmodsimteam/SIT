@@ -1,7 +1,7 @@
 #ifndef FIB_SOCK_HPP
 #define FIB_SOCK_HPP
 
-#include "../../../src/sstscit.hpp"
+#include "../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
@@ -28,9 +28,7 @@ public:
 
     bool tick(SST::Cycle_t);
 
-    void handle_reset(SST::Event *);
-
-    void handle_clock(SST::Event *);
+    void handle_event(SST::Event *);
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
@@ -44,15 +42,13 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "fib_clock", "Fibonacci LFSR clock", { "sst.Interfaces.StringEvent" }},
-        { "fib_reset", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
-        { "fib_data_out", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "fib_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "fib_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
 
-    SST::Link *clock, *reset, *data_out;
-    int sim_time;
+    SST::Link *m_din_link, *m_dout_link;
 
     // SST parameters
     SST::Output m_output;

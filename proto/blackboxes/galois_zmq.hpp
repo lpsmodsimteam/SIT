@@ -1,7 +1,7 @@
 #ifndef GALOIS_ZMQ_HPP
 #define GALOIS_ZMQ_HPP
 
-#include "../../../src/sstscit.hpp"
+#include "../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
