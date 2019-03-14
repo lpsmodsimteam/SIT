@@ -1,13 +1,10 @@
-#ifndef SST_DEV_HPP
-#define SST_DEV_HPP
-
-#include <unistd.h>
+#ifndef PROTOTYPE_HPP
+#define PROTOTYPE_HPP
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
-#include <sst/core/link.h>
 #include <sst/core/interfaces/stringEvent.h>
-
+#include <sst/core/link.h>
 
 class prototype : public SST::Component {
 
@@ -46,8 +43,7 @@ public:
 private:
 
     std::string m_clock;
-    SST::Link *galois_din, *galois_dout,
-        *fib_din, *fib_dout;
+    SST::Link *galois_din, *galois_dout, *fib_din, *fib_dout;
 
     // SST parameters
     SST::Output m_output;

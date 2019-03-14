@@ -1,19 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import argparse
 import os
 
 
 class BoilerPlate():
 
-    def __init__(self, module, driver_templ_path,
-                 bbox_hpp_templ_path, bbox_cpp_templ_path):
+    def __init__(self, module, ipc, driver_templ_path, bbox_templ_path):
 
         self.module = module
+        if ipc in ("socks", "zmq"):
+            self.ipc = ipc
+        else:
+            raise ValueError("Incorrect IPC protocol selected")
         self.driver_templ_path = driver_templ_path
-        self.bbox_hpp_templ_path = bbox_hpp_templ_path
-        self.bbox_cpp_templ_path = bbox_cpp_templ_path
+        self.bbox_templ_path = bbox_templ_path
 
         self.clocks = []
         self.inputs = []
@@ -109,18 +110,16 @@ class BoilerPlate():
         self.desc = desc
         self.link_desc = link_desc
 
-    def generate_bbox_hpp(self):
+    def generate_bbox(self):
 
-        if os.path.isfile(self.bbox_hpp_templ_path):
-            with open(self.bbox_hpp_templ_path) as template:
+        if os.path.isfile(self.bbox_templ_path):
+            with open(self.bbox_templ_path) as template:
                 return template.read().format(
                     module=self.module,
-                    guard=self.module.upper(),
                     lib=self.lib,
                     comp=self.comp,
                     desc=self.desc,
-                    link=self.link,
-                    link_desc=self.link_desc,
+                    # link=self.link,
                 )
 
         raise FileNotFoundError("Blackbox HPP boilerplate file not found")
@@ -130,14 +129,13 @@ if __name__ == "__main__":
 
     BASE_DIR = os.getcwd()
     DRIVER_TEMPL_PATH = os.path.join(BASE_DIR, "template", "driver.tmp")
-    BBOX_HPP_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.hpp.tmp")
-    BBOX_CPP_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.cpp.tmp")
+    BBOX_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.cpp.tmp")
 
     galois = BoilerPlate(
         module="galois_lfsr",
+        ipc="socks",
         driver_templ_path=DRIVER_TEMPL_PATH,
-        bbox_hpp_templ_path=BBOX_HPP_TEMPL_PATH,
-        bbox_cpp_templ_path=BBOX_CPP_TEMPL_PATH,
+        bbox_templ_path=BBOX_TEMPL_PATH
     )
 
     galois.set_driver_io({
@@ -148,4 +146,4 @@ if __name__ == "__main__":
     print(galois.generate_sc_driver())
 
     galois.set_bbox_hpp("proto", "galois_lfsr", "_link")
-    print(galois.generate_bbox_hpp())
+    print(galois.generate_bbox())

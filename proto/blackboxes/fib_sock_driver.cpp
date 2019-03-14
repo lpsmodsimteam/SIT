@@ -40,7 +40,7 @@ int sc_main(int argc, char *argv[]) {
         }
         clock = sh_in.get_clock_pulse("clock");
         reset = sh_in.get<bool>("reset");
-        std::cout << "\033[33mFIB LFSR\033[0m (pid: " << getpid() << ") -> clock: "
+        std::cout << "\033[33mFIB LFSR\033[0m -> clock: "
                   << sc_time_stamp() << " | reset: " << sh_in.get<bool>("reset")
                   << " -> fib_lfsr_out: " << data_out << std::endl;
 

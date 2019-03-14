@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include <systemc.h>
 
 SC_MODULE (galois_lfsr) {
@@ -43,7 +42,7 @@ SC_MODULE (galois_lfsr) {
     }
 
     ~galois_lfsr() override {
-        std::cout << getpid() << " DESTROYING GALOIS LFSR" << std::endl;
+        std::cout << "DESTROYING GALOIS LFSR" << std::endl;
     }
 
 }; // End of Module galois_lfsr

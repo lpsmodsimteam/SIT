@@ -44,10 +44,9 @@ private:
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
 
-    //  Prepare our context and socket
+    // Prepare the signal handler
     zmq::context_t m_context;
     zmq::socket_t m_socket;
-
     ZMQReceiver m_sh_in;
     ZMQTransmitter m_sh_out;
 
@@ -66,15 +65,14 @@ fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
       m_dout_link(configureLink("fib_dout")) {
 
     // Initialize output
-    m_output.init("\033[32mblackbox-" + getName() + "\033[0m (pid: " +
-                  std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<fib_lfsr>(this, &fib_lfsr::tick));
 
     // Configure our reset
     if (!(m_din_link && m_dout_link)) {
-        m_output.fatal(CALL_INFO, -1, "Failed to configure reset 'reset'\n");
+        m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }
 
     // Tell SST to wait until we authorize it to exit
@@ -92,8 +90,7 @@ void fib_lfsr::setup() {
     if (!child_pid) {
 
         char *args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
-        m_output.verbose(CALL_INFO, 1, 0,
-                         "Forking process \"%s\" (pid: %d)...\n", m_proc.c_str(), getpid());
+        m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str());
         execvp(args[0], args);
 
     } else {
@@ -129,8 +126,6 @@ void fib_lfsr::handle_event(SST::Event *ev) {
         m_sh_out.set("reset", std::stoi(_data_in.substr(2, 1)));
         m_sh_out.set("clock", std::stoi(_data_in.substr(3, 2)), SC_UINT_T);
 
-        std::cout << "<----------------------------------------------------" << std::endl;
-
         m_sh_out.set_state(true);
         if (keep_send) {
             if (!keep_recv) {
@@ -145,15 +140,13 @@ void fib_lfsr::handle_event(SST::Event *ev) {
         std::string _data_out = std::to_string(m_sh_in.get<int>("data_out"));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
-        std::cout << "---------------------------------------------------->" << std::endl;
-
     }
 
     delete ev;
 
 }
 
-bool fib_lfsr::tick(SST::Cycle_t current_cycle) {
+bool fib_lfsr::tick(SST::Cycle_t) {
 
     return false;
 

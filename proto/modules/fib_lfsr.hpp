@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include "systemc.h"
 
 SC_MODULE (fib_lfsr) {
@@ -36,7 +35,7 @@ SC_MODULE (fib_lfsr) {
     }
 
     ~fib_lfsr() override {
-        std::cout << getpid() << " DESTROYING FIBONACCI LFSR" << std::endl;
+        std::cout << "DESTROYING FIBONACCI LFSR" << std::endl;
     }
 
 }; // End of Module fib_lfsr

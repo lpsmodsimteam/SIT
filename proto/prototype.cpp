@@ -21,8 +21,7 @@ prototype::prototype(SST::ComponentId_t id, SST::Params &params)
       )) {
 
     // Initialize output
-    m_output.init("\033[34mparent-" + getName() + "\033[0m (pid: " +
-                  std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[34mparent-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Configure our port
     if (!(galois_din && galois_dout && fib_din && fib_dout)) {
@@ -41,8 +40,6 @@ prototype::prototype(SST::ComponentId_t id, SST::Params &params)
 void prototype::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
-
-    std::cout << "Parent SST pid: " << getpid() << std::endl;
 
 }
 
