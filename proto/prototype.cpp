@@ -21,12 +21,12 @@ prototype::prototype(SST::ComponentId_t id, SST::Params &params)
       )) {
 
     // Initialize output
-    m_output.init("\033[34mparent_model-" + getName() + "\033[0m (pid: " +
+    m_output.init("\033[34mparent-" + getName() + "\033[0m (pid: " +
                   std::to_string(getpid()) + ") -> ", 1, 0, SST::Output::STDOUT);
 
     // Configure our port
     if (!(galois_din && galois_dout && fib_din && fib_dout)) {
-        m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+        m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }
 
     // Just register a plain clock for this simple example
@@ -38,14 +38,6 @@ prototype::prototype(SST::ComponentId_t id, SST::Params &params)
 
 }
 
-prototype::~prototype() {
-
-    m_output.verbose(CALL_INFO, 1, 0, "Destroying master...\n");
-
-}
-
-// setup is called by SST after a component has been constructed and should be used
-// for initialization of variables
 void prototype::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
@@ -54,8 +46,6 @@ void prototype::setup() {
 
 }
 
-// finish is called by SST before the simulation is ended and should be used
-// to clean up variables and memory
 void prototype::finish() {
     m_output.verbose(CALL_INFO, 1, 0, "Component is being finished.\n");
 }
@@ -63,7 +53,7 @@ void prototype::finish() {
 void prototype::handle_galois_data_out(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        std::cout << se->getString() << std::endl;
+        m_output.verbose(CALL_INFO, 1, 0, "galois_lfsr -> %s\n", se->getString().c_str());
     }
     delete ev;
 }
@@ -71,13 +61,11 @@ void prototype::handle_galois_data_out(SST::Event *ev) {
 void prototype::handle_fib_data_out(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        std::cout << se->getString() << std::endl;
+        m_output.verbose(CALL_INFO, 1, 0, "fib_lfsr -> %s\n", se->getString().c_str());
     }
     delete ev;
 }
 
-// clockTick is called by SST from the registerClock function
-// this function runs once every clock cycle
 bool prototype::tick(SST::Cycle_t current_cycle) {
 
     std::string galois_reset_sig, fib_reset_sig;

@@ -15,8 +15,6 @@ public:
 
     prototype(SST::ComponentId_t, SST::Params &);
 
-    ~prototype() override;
-
     void setup() override;
 
     void finish() override;

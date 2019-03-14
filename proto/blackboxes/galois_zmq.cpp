@@ -46,8 +46,6 @@ void galois_lfsr::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
-    std::cout << "Master pid: " << getpid() << std::endl;
-
     if (!fork()) {
 
         char *args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
@@ -71,7 +69,7 @@ void galois_lfsr::setup() {
 // to clean up variables and memory
 void galois_lfsr::finish() {
 
-    m_output.verbose(CALL_INFO, 1, 0, "Destroying galois_lfsr...\n");
+    m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
     m_socket.close();
 
 }

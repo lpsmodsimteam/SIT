@@ -14,13 +14,11 @@
 #include <sys/un.h>
 
 
-class FibLFSRSock : public SST::Component {
+class fib_lfsr : public SST::Component {
 
 public:
 
-    FibLFSRSock(SST::ComponentId_t, SST::Params &);
-
-    ~FibLFSRSock() override;
+    fib_lfsr(SST::ComponentId_t, SST::Params &);
 
     void setup() override;
 
@@ -32,7 +30,7 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        FibLFSRSock, // class
+        fib_lfsr, // class
         "proto", // element library
         "fib_lfsr", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
@@ -54,7 +52,7 @@ private:
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
 
-    SignalSocket m_ss;
+    SignalSocket m_signal_io;
 
 };
 
