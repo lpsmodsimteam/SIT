@@ -32,29 +32,20 @@ fib_lfsr_comp.addParams({
     "clock": CLOCK,
 })
 
-sst.Link("galois_reset").connect(
-    (galois_lfsr_comp, "galois_reset", "1ps"),
-    (proto_comp, "galois_reset", "1ps"),
+sst.Link("galois_din").connect(
+    (galois_lfsr_comp, "galois_din", "1ps"),
+    (proto_comp, "galois_din", "1ps"),
 )
-sst.Link("galois_clock").connect(
-    (galois_lfsr_comp, "galois_clock", "1ps"),
-    (proto_comp, "galois_clock", "1ps"),
-)
-sst.Link("galois_data_out").connect(
-    (galois_lfsr_comp, "galois_data_out", "1ps"),
-    (proto_comp, "galois_data_out", "1ps"),
+sst.Link("galois_dout").connect(
+    (galois_lfsr_comp, "galois_dout", "1ps"),
+    (proto_comp, "galois_dout", "1ps"),
 )
 
-sst.Link("fib_reset").connect(
-    (fib_lfsr_comp, "fib_reset", "1ps"),
-    (proto_comp, "fib_reset", "1ps"),
+sst.Link("fib_din").connect(
+    (fib_lfsr_comp, "fib_din", "1ps"),
+    (proto_comp, "fib_din", "1ps"),
 )
-sst.Link("fib_clock").connect(
-    (fib_lfsr_comp, "fib_clock", "1ps"),
-    (proto_comp, "fib_clock", "1ps"),
+sst.Link("fib_dout").connect(
+    (fib_lfsr_comp, "fib_dout", "1ps"),
+    (proto_comp, "fib_dout", "1ps"),
 )
-sst.Link("fib_data_out").connect(
-    (fib_lfsr_comp, "fib_data_out", "1ps"),
-    (proto_comp, "fib_data_out", "1ps"),
-)
-

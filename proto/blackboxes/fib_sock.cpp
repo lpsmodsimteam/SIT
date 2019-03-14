@@ -1,12 +1,53 @@
-/**
-Simple 4-bit Up-Counter Model with one clock
-*/
+#include "../../src/sstscit.hpp"
 
-#include "fib_sock.hpp"
-#include <sst/core/sst_config.h>
+#include <sst/core/component.h>
+#include <sst/core/elementinfo.h>
 #include <sst/core/interfaces/stringEvent.h>
+#include <sst/core/link.h>
+#include <sst/core/sst_config.h>
 
-// Component Constructor
+class fib_lfsr : public SST::Component {
+
+public:
+
+    fib_lfsr(SST::ComponentId_t, SST::Params &);
+
+    void setup() override;
+
+    void finish() override;
+
+    bool tick(SST::Cycle_t);
+
+    void handle_event(SST::Event *);
+
+    // Register the component
+    SST_ELI_REGISTER_COMPONENT(
+        fib_lfsr, // class
+        "proto", // element library
+        "fib_lfsr", // component
+        SST_ELI_ELEMENT_VERSION(1, 0, 0),
+        "Simple 4-bit Fibonacci Linear Feedback Shift Register",
+        COMPONENT_CATEGORY_UNCATEGORIZED
+    )
+
+    // Port name, description, event type
+    SST_ELI_DOCUMENT_PORTS(
+        { "fib_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "fib_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
+    )
+
+private:
+
+    SST::Link *m_din_link, *m_dout_link;
+
+    // SST parameters
+    SST::Output m_output;
+    std::string m_clock, m_proc, m_ipc_port;
+
+    SignalSocket m_signal_io;
+
+};
+
 fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id), m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
       m_clock(params.find<std::string>("clock", "")),
@@ -35,8 +76,6 @@ fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
 
 }
 
-// setup is called by SST after a component has been constructed and should be used
-// for initialization of variables
 void fib_lfsr::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
@@ -63,8 +102,6 @@ void fib_lfsr::setup() {
 
 }
 
-// finish is called by SST before the simulation is ended and should be used
-// to clean up variables and memory
 void fib_lfsr::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
@@ -108,8 +145,6 @@ void fib_lfsr::handle_event(SST::Event *ev) {
 
 }
 
-// clockTick is called by SST from the registerClock function
-// this function runs once every clock cycle
 bool fib_lfsr::tick(SST::Cycle_t) {
 
     return false;
