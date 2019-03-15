@@ -126,10 +126,11 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         m_sh_out.set("reset", std::stoi(_data_in.substr(2, 1)));
         m_sh_out.set("clock", std::stoi(_data_in.substr(3, 2)), SC_UINT_T);
 
-        m_sh_out.set_state(true);
         if (keep_send) {
             if (!keep_recv) {
                 m_sh_out.set_state(false);
+            } else {
+                m_sh_out.set_state(true);
             }
             m_sh_out.send();
         }

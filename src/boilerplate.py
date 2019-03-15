@@ -16,6 +16,8 @@ class BoilerPlate():
         self.driver_templ_path = driver_templ_path
         self.bbox_templ_path = bbox_templ_path
 
+        self._delim = ";\n    "
+
         self.clocks = []
         self.inputs = []
         self.outputs = []
@@ -27,6 +29,15 @@ class BoilerPlate():
         self.desc = ""
         self.link = ""
         self.link_desc = ""
+
+        self.bbox_var_decl = ""
+        self.bbox_var_init = ""
+        self.bbox_var_bind = ""
+        self.bbox_var_dest = ""
+        self.bbox_sender = ""
+        self.bbox_receiver = ""
+        self.bbox_inputs = ""
+        self.bbox_outputs = ""
 
     def set_driver_io(self, ports):
 
@@ -43,49 +54,46 @@ class BoilerPlate():
                 raise ValueError("Each ports must be designated a type")
         self.ports = ports.keys()
 
-    def get_port_defs(self, formatted=True):
+    def get_port_defs(self):
 
-        return ";\n    ".join(self.ports) if formatted else self.ports
+        return self._delim.join(self.ports)
 
-    @staticmethod
-    def __format(fmt, splitter, array, delim=";\n    ", formatted=True):
+    def __format(self, fmt, splitter, array):
 
-        line = (fmt.format(**splitter(i)) for i in array)
-        return delim.join(line) if formatted else line
+        return self._delim.join(fmt.format(**splitter(i)) for i in array)
 
-    def get_bindings(self, formatted=True):
+    def get_bindings(self):
 
         return self.__format(
             "DUT.{p}({p})", lambda x: {"p": x.split(" ")[-1]},
-            self.ports, formatted=formatted
+            self.ports
         )
 
-    def get_clock(self, formatted=True):
+    def get_clock(self):
 
         return self.__format(
             "sh_in.get_clock_pulse(\"{p}\")",
-            lambda x: {"p": x.split(" ")[-1]}, self.clocks,
-            formatted=formatted
+            lambda x: {"p": x.split(" ")[-1]}, self.clocks
         )
 
-    def get_inputs(self, formatted=True):
+    def get_inputs(self, driver=True):
 
         return self.__format(
             "{p} = sh_in.get<{t}>(\"{p}\")",
             lambda x: {
                 "p": x.split(" ")[-1],
                 "t": x.split(" ")[0]
-            }, self.inputs, formatted=formatted
-        )
+            }, self.inputs
+        ) if driver else None
 
-    def get_outputs(self, formatted=True):
+    def get_outputs(self, driver=True):
 
         return self.__format(
             "sh_out.set(\"{p}\", {p}, SC_UINT_T)",
             lambda x: {
                 "p": x.split(" ")[-1]
-            }, self.outputs, formatted=formatted
-        )
+            }, self.outputs
+        ) if driver else None
 
     def generate_sc_driver(self):
 
@@ -102,13 +110,27 @@ class BoilerPlate():
 
         raise FileNotFoundError("Driver boilerplate file not found")
 
-    def set_bbox_hpp(self, lib, comp, link, desc="", link_desc=""):
+    def set_bbox(self, lib, comp, link, desc="", link_desc=""):
 
         self.lib = lib
         self.comp = comp
         self.link = link
         self.desc = desc
         self.link_desc = link_desc
+
+        if self.ipc == "zmq":
+            self.bbox_var_decl = """zmq::context_t m_context;
+    zmq::socket_t m_socket;
+    ZMQReceiver m_sh_in;
+    ZMQTransmitter m_sh_out;"""
+            self.bbox_var_init = """m_context(1), m_socket(m_context, ZMQ_REP),
+      m_sh_in(m_socket), m_sh_out(m_socket),"""
+            self.bbox_var_bind = "m_socket.bind(m_ipc_port.c_str())"
+            self.bbox_var_dest = ""
+            self.bbox_sender = "m_sh_in"
+            self.bbox_receiver = "m_sh_out"
+            self.bbox_inputs = []
+            self.bbox_outputs = []
 
     def generate_bbox(self):
 
@@ -119,21 +141,28 @@ class BoilerPlate():
                     lib=self.lib,
                     comp=self.comp,
                     desc=self.desc,
-                    # link=self.link,
+                    var_decl=self.bbox_var_decl,
+                    var_init=self.bbox_var_init,
+                    var_bind=self.bbox_var_bind,
+                    var_dest=self.bbox_var_dest,
+                    sender=self.bbox_sender,
+                    receiver=self.bbox_receiver,
+                    inputs=self.bbox_inputs,
+                    outputs=self.bbox_outputs
                 )
 
-        raise FileNotFoundError("Blackbox HPP boilerplate file not found")
+        raise FileNotFoundError("Blackbox boilerplate file not found")
 
 
 if __name__ == "__main__":
 
     BASE_DIR = os.getcwd()
     DRIVER_TEMPL_PATH = os.path.join(BASE_DIR, "template", "driver.tmp")
-    BBOX_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.cpp.tmp")
+    BBOX_TEMPL_PATH = os.path.join(BASE_DIR, "template", "blackbox.tmp")
 
     galois = BoilerPlate(
         module="galois_lfsr",
-        ipc="socks",
+        ipc="zmq",
         driver_templ_path=DRIVER_TEMPL_PATH,
         bbox_templ_path=BBOX_TEMPL_PATH
     )
@@ -145,5 +174,5 @@ if __name__ == "__main__":
     })
     print(galois.generate_sc_driver())
 
-    galois.set_bbox_hpp("proto", "galois_lfsr", "_link")
+    galois.set_bbox("proto", "galois_lfsr", "_link")
     print(galois.generate_bbox())

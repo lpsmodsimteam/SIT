@@ -45,17 +45,14 @@ private:
     std::string m_clock, m_proc, m_ipc_port;
 
     // Prepare the signal handler
-    zmq::context_t m_context;
-    zmq::socket_t m_socket;
-    ZMQReceiver m_sh_in;
-    ZMQTransmitter m_sh_out;
+    {var_decl}
 
 }};
 
 // Component Constructor
 {module}::{module}(SST::ComponentId_t id, SST::Params &params)
-    : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
-      m_sh_in(m_socket), m_sh_out(m_socket),
+    : SST::Component(id),
+      {var_init}
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -95,8 +92,8 @@ void {module}::setup() {{
 
     }} else {{
 
-        m_socket.bind(m_ipc_port.c_str());
-        m_sh_in.recv();
+        {var_bind};
+        {receiver}.recv();
         if (child_pid == m_sh_in.get<int>("pid")) {{
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
@@ -109,7 +106,7 @@ void {module}::setup() {{
 void {module}::finish() {{
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying {module}...\n");
-    m_socket.close();
+    {var_dest}
 
 }}
 
@@ -124,22 +121,22 @@ void {module}::handle_event(SST::Event *ev) {{
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         // inputs from parent SST model, outputs to SystemC child process
-        m_sh_out.set("reset", std::stoi(_data_in.substr(2, 1)));
-        m_sh_out.set("clock", std::stoi(_data_in.substr(3, 2)), SC_UINT_T);
+        {outputs}
 
-        m_sh_out.set_state(true);
         if (keep_send) {{
             if (!keep_recv) {{
-                m_sh_out.set_state(false);
+                {sender}.set_state(false);
+            }} else {{
+                {sender}.set_state(true);
             }}
-            m_sh_out.send();
+            {sender}.send();
         }}
         if (keep_recv) {{
-            m_sh_in.recv();
+            {receiver}.recv();
         }}
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_sh_in.get<int>("data_out"));
+        {inputs}
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }}
