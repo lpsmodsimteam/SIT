@@ -28,7 +28,7 @@ int sc_main(int argc, char *argv[]) {
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    sh_out.set("pid", getpid(), SC_UINT_T);
+    sh_out.set("pid", getpid());
     sh_out.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -49,7 +49,7 @@ int sc_main(int argc, char *argv[]) {
                   << " -> galois_lfsr_out: " << data_out << std::endl;
 
         // SENDING
-        sh_out.set("data_out", data_out, SC_UINT_T);
+        sh_out.set("data_out", data_out);
         sh_out.send();
 
     }

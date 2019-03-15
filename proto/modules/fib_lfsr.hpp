@@ -5,7 +5,7 @@ SC_MODULE (fib_lfsr) {
     sc_in<bool> clock;
     sc_in<bool> reset;
 
-    sc_out<sc_uint<4>> data_out;
+    sc_out<sc_bv<4>> data_out;
 
     sc_bv<4> din_bv;
     sc_signal<bool> fb;

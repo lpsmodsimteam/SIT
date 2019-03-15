@@ -26,7 +26,7 @@ public:
 
     // hide non-virtual base method
     template<typename T>
-    void set(const std::string &, const T &, uint8_t = SC_BIT_T) {};
+    void set(const std::string &, const T &) {};
 
 
 };

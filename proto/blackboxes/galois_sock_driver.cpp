@@ -2,8 +2,6 @@
 
 #include "../../src/sstscit.hpp"
 
-#include <sys/un.h>
-
 int sc_main(int argc, char *argv[]) {
 
     // ---------- SYSTEMC UUT INIT ---------- //
@@ -24,7 +22,7 @@ int sc_main(int argc, char *argv[]) {
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    sh_in.set("pid", getpid(), SC_UINT_T);
+    sh_in.set("pid", getpid());
     sh_in.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -45,7 +43,7 @@ int sc_main(int argc, char *argv[]) {
                   << " -> galois_lfsr_out: " << data_out << std::endl;
 
         // SENDING
-        sh_in.set("data_out", data_out, SC_UINT_T);
+        sh_in.set("data_out", data_out);
         sh_in.send();
 
     }

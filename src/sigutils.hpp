@@ -3,15 +3,9 @@
 
 #include <msgpack.hpp>
 
-#include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <unordered_map>
-#include <utility>      // std::pair, std::make_pair
-
-#define SC_BIT_T 0
-#define SC_UINT_T 1
-#define SC_STR_T 2
 
 
 class SignalIO {
@@ -23,12 +17,12 @@ protected:
     template<typename T>
     std::string _to_string(const T &);
 
-    std::unordered_map<std::string, std::pair<std::string, uint8_t >> m_data;
+    std::unordered_map<std::string, std::string> m_data;
 
 public:
 
     template<typename T>
-    void set(const std::string &, const T &, uint8_t = SC_BIT_T);
+    void set(const std::string &, const T &);
 
     template<typename T>
     T get(const std::string &);
@@ -53,28 +47,16 @@ inline SignalIO::~SignalIO() {
 
 
 template<typename T>
-void SignalIO::set(const std::string &key, const T &value, uint8_t data_type) {
+void SignalIO::set(const std::string &key, const T &value) {
 
-    m_data[key].first = _to_string(value);
-    m_data[key].second = data_type;
+    m_data[key] = _to_string(value);
 
 }
 
 template<typename T>
 T SignalIO::get(const std::string &key) {
 
-    std::string value = m_data[key].first;
-    uint8_t data_t = m_data[key].second;
-
-    switch (data_t) {
-        case SC_BIT_T:
-            return value != "0";
-        case SC_UINT_T:
-            return std::stoi(value);
-        default:
-            throw std::invalid_argument("INVALID TYPE OR SOMETHING");
-
-    }
+    return std::stoi(m_data[key]);
 
 }
 
@@ -106,4 +88,4 @@ std::string SignalIO::_to_string(const T &value) {
 
 }
 
-#endif
+#endif  // SIGUTILS_HPP

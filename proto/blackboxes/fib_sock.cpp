@@ -117,12 +117,13 @@ void fib_lfsr::handle_event(SST::Event *ev) {
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         m_signal_io.set("reset", std::stoi(_data_in.substr(2, 1)));
-        m_signal_io.set("clock", std::stoi(_data_in.substr(3, 2)), SC_UINT_T);
+        m_signal_io.set("clock", std::stoi(_data_in.substr(3, 2)));
 
-        m_signal_io.set_state(true);
         if (keep_send) {
             if (!keep_recv) {
                 m_signal_io.set_state(false);
+            } else {
+                m_signal_io.set_state(true);
             }
             m_signal_io.send();
         }
