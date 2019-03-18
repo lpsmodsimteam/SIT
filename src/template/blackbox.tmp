@@ -136,7 +136,7 @@ void {module}::handle_event(SST::Event *ev) {{
         }}
 
         // inputs to parent SST model, outputs from SystemC child process
-        {inputs}
+        std::string _data_out = {inputs};
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }}

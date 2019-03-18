@@ -16,13 +16,12 @@ class BoilerPlate():
         self.driver_templ_path = driver_templ_path
         self.bbox_templ_path = bbox_templ_path
 
-        self._delim = ";\n    "
-
         self.clocks = []
         self.inputs = []
         self.outputs = []
         self.inouts = []
         self.ports = []
+        self.driver_var_decl = ""
 
         self.lib = ""
         self.comp = ""
@@ -39,61 +38,108 @@ class BoilerPlate():
         self.bbox_inputs = ""
         self.bbox_outputs = ""
 
-    def set_driver_io(self, ports):
+        if self.ipc == "zmq":
+            self.driver_var_decl = """// Socket to talk to server
+    zmq::context_t context(1);
+    zmq::socket_t socket(context, ZMQ_REQ);
+    socket.connect(argv[1]);
+
+    // Initialize signal handlers
+    ZMQReceiver sh_in(socket);
+    ZMQTransmitter sh_out(socket);"""
+            self.bbox_var_decl = """zmq::context_t m_context;
+    zmq::socket_t m_socket;
+    ZMQReceiver m_sh_in;
+    ZMQTransmitter m_sh_out;"""
+            self.bbox_var_init = """m_context(1), m_socket(m_context, ZMQ_REP),
+      m_sh_in(m_socket), m_sh_out(m_socket),"""
+            self.bbox_var_bind = "m_socket.bind(m_ipc_port.c_str())"
+            self.bbox_var_dest = ""
+            self.bbox_sender = "m_sh_in"
+            self.bbox_receiver = "m_sh_out"
+            self.bbox_inputs = []
+            self.bbox_outputs = []
+
+    def set_ports(self, ports):
 
         for port, port_type in ports.items():
             if port_type == "clock":
                 self.clocks.append(port)
             elif port_type == "input":
-                self.inputs.append(port)
+                self.inputs.append(port.split(" "))
             elif port_type == "output":
                 self.outputs.append(port)
             elif port_type == "inout":
                 self.inouts.append(port)
             else:
                 raise ValueError("Each ports must be designated a type")
-        self.ports = ports.keys()
+            self.ports.append("sc_signal" + port)
+
+    @staticmethod
+    def __parse_signal_type(signal):
+
+        if "sc" in signal:
+
+            if "int" in signal or "uint" in signal or "bv" in signal:
+                return "<int>", int("".join(s for s in signal if s.isdigit()))
+
+            if "bit" in signal or "logic" in signal:
+                return "<bool>", int("".join(s for s in signal if s.isdigit()))
+
+        else:
+
+            return signal, 1
+
+    @staticmethod
+    def __format(fmt, split_func, array, delim=";\n    "):
+
+        return delim.join(fmt.format(**split_func(i)) for i in array)
 
     def get_port_defs(self):
 
-        return self._delim.join(self.ports)
-
-    def __format(self, fmt, splitter, array):
-
-        return self._delim.join(fmt.format(**splitter(i)) for i in array)
+        return ";\n    ".join(self.ports)
 
     def get_bindings(self):
 
         return self.__format(
-            "DUT.{p}({p})", lambda x: {"p": x.split(" ")[-1]},
-            self.ports
+            "DUT.{sig}({sig})",
+            lambda x: {"sig": x.split(" ")[-1]}, self.ports
         )
 
     def get_clock(self):
 
         return self.__format(
-            "sh_in.get_clock_pulse(\"{p}\")",
-            lambda x: {"p": x.split(" ")[-1]}, self.clocks
+            "sh_in.get_clock_pulse(\"{sig}\")",
+            lambda x: {"sig": x.split(" ")[-1]}, self.clocks
         )
 
     def get_inputs(self, driver=True):
 
         return self.__format(
-            "{p} = sh_in.get<{t}>(\"{p}\")",
+            "{sig} = sh_in.get{type}(\"{sig}\")",
             lambda x: {
-                "p": x.split(" ")[-1],
-                "t": x.split(" ")[0]
-            }, self.inputs
-        ) if driver else None
+                "sig": x[-1], "type": self.__parse_signal_type(x[0])[0]},
+            self.inputs, ";\n" + " " * 8
+        ) if driver else self.__format(
+            "std::to_string(m_sh_in.get<int>(\"{sig}\"))",
+            lambda x: {
+                "sig": x.split(" ")[-1], "p": 2 + self.outputs.index(x),
+                "l": self.__parse_signal_type(x[0])[-1]
+            }, self.outputs, " +\n" + " " * 16
+        )
 
     def get_outputs(self, driver=True):
 
         return self.__format(
-            "sh_out.set(\"{p}\", {p}, SC_UINT_T)",
+            "sh_out.set(\"{sig}\", {sig})",
+            lambda x: {"sig": x.split(" ")[-1]}, self.outputs
+        ) if driver else self.__format(
+            "m_sh_out.set(\"{sig}\", std::stoi(_data_in.substr({p}, {l})))",
             lambda x: {
-                "p": x.split(" ")[-1]
-            }, self.outputs
-        ) if driver else None
+                "sig": x[-1], "p": 2 + self.inputs.index(x),
+                "l": self.__parse_signal_type(x[0])[-1]
+            }, self.inputs, ";\n" + " " * 8
+        )
 
     def generate_sc_driver(self):
 
@@ -103,6 +149,7 @@ class BoilerPlate():
                     module=self.module,
                     port_defs=self.get_port_defs(),
                     bindings=self.get_bindings(),
+                    var_decl=self.driver_var_decl,
                     clock=self.get_clock(),
                     inputs=self.get_inputs(),
                     outputs=self.get_outputs()
@@ -117,20 +164,6 @@ class BoilerPlate():
         self.link = link
         self.desc = desc
         self.link_desc = link_desc
-
-        if self.ipc == "zmq":
-            self.bbox_var_decl = """zmq::context_t m_context;
-    zmq::socket_t m_socket;
-    ZMQReceiver m_sh_in;
-    ZMQTransmitter m_sh_out;"""
-            self.bbox_var_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_sh_in(m_socket), m_sh_out(m_socket),"""
-            self.bbox_var_bind = "m_socket.bind(m_ipc_port.c_str())"
-            self.bbox_var_dest = ""
-            self.bbox_sender = "m_sh_in"
-            self.bbox_receiver = "m_sh_out"
-            self.bbox_inputs = []
-            self.bbox_outputs = []
 
     def generate_bbox(self):
 
@@ -147,8 +180,8 @@ class BoilerPlate():
                     var_dest=self.bbox_var_dest,
                     sender=self.bbox_sender,
                     receiver=self.bbox_receiver,
-                    inputs=self.bbox_inputs,
-                    outputs=self.bbox_outputs
+                    inputs=self.get_inputs(False),
+                    outputs=self.get_outputs(False)
                 )
 
         raise FileNotFoundError("Blackbox boilerplate file not found")
@@ -167,10 +200,12 @@ if __name__ == "__main__":
         bbox_templ_path=BBOX_TEMPL_PATH
     )
 
-    galois.set_driver_io({
-        "sc_in<bool> clock": "clock",
-        "sc_in<bool> reset": "input",
-        "sc_out<sc_uint<4> > data_out": "output",
+    galois.set_ports({
+        "<bool> clock": "clock",
+        "<bool> reset": "input",
+        "<sc_uint<32> > din": "input",
+        "<sc_uint<4> > data_out": "output",
+        "<sc_uint<4> > data_out1": "output",
     })
     print(galois.generate_sc_driver())
 

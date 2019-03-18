@@ -13,18 +13,11 @@ int sc_main(int argc, char *argv[]) {{
     // ---------- SYSTEMC UUT INIT ---------- //
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
-    zmq::context_t context(1);
-
-    //  Socket to talk to server
-    zmq::socket_t socket(context, ZMQ_REQ);
-    socket.connect(&argv[1][0u]);
-
-    SignalReceiver sh_in(socket);
-    SignalTransmitter sh_out(socket);
+    {var_decl}
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    sh_out.set("pid", getpid(), SC_UINT_T);
+    sh_out.set("pid", getpid());
     sh_out.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
