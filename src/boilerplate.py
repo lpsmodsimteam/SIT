@@ -35,8 +35,6 @@ class BoilerPlate():
         self.bbox_var_dest = ""
         self.bbox_sender = ""
         self.bbox_receiver = ""
-        self.bbox_inputs = ""
-        self.bbox_outputs = ""
 
         if self.ipc == "zmq":
             self.driver_var_decl = """// Socket to talk to server
@@ -57,8 +55,6 @@ class BoilerPlate():
             self.bbox_var_dest = ""
             self.bbox_sender = "m_sh_in"
             self.bbox_receiver = "m_sh_out"
-            self.bbox_inputs = []
-            self.bbox_outputs = []
 
     def set_ports(self, ports):
 
@@ -121,25 +117,40 @@ class BoilerPlate():
                 "sig": x[-1], "type": self.__parse_signal_type(x[0])[0]},
             self.inputs, ";\n" + " " * 8
         ) if driver else self.__format(
-            "std::to_string(m_sh_in.get<int>(\"{sig}\"))",
+            "std::to_string(m_sh_in.get{type}(\"{sig}\"))",
             lambda x: {
-                "sig": x.split(" ")[-1], "p": 2 + self.outputs.index(x),
-                "l": self.__parse_signal_type(x[0])[-1]
+                "sig": x.split(" ")[-1],
+                "type": self.__parse_signal_type(x.split(" ")[0])[0],
             }, self.outputs, " +\n" + " " * 16
         )
 
     def get_outputs(self, driver=True):
 
-        return self.__format(
-            "sh_out.set(\"{sig}\", {sig})",
-            lambda x: {"sig": x.split(" ")[-1]}, self.outputs
-        ) if driver else self.__format(
-            "m_sh_out.set(\"{sig}\", std::stoi(_data_in.substr({p}, {l})))",
-            lambda x: {
-                "sig": x[-1], "p": 2 + self.inputs.index(x),
-                "l": self.__parse_signal_type(x[0])[-1]
-            }, self.inputs, ";\n" + " " * 8
-        )
+        if driver:
+
+            return self.__format(
+                "sh_out.set(\"{sig}\", {sig})",
+                lambda x: {"sig": x.split(" ")[-1]},
+                self.outputs, ";\n" + " " * 8
+            )
+
+        else:
+
+            ix = 2
+            sig_lens = []
+            for i in self.inputs:
+                sig_len = self.__parse_signal_type(i[0])[-1]
+                sig_lens.append((ix, sig_len))
+                ix += sig_len
+
+            return self.__format(
+                "m_sh_out.set(\"{sig}\", std::stoi(_data_in.substr({p}, {l})))",
+                lambda x: {
+                    "sig": x[-1],
+                    "p": sig_lens[self.inputs.index(x)][0],
+                    "l": sig_lens[self.inputs.index(x)][-1]
+                }, self.inputs, ";\n" + " " * 8
+            )
 
     def generate_sc_driver(self):
 
@@ -203,6 +214,8 @@ if __name__ == "__main__":
     galois.set_ports({
         "<bool> clock": "clock",
         "<bool> reset": "input",
+        "<bool> reset1": "input",
+        "<bool> reset2": "input",
         "<sc_uint<32> > din": "input",
         "<sc_uint<4> > data_out": "output",
         "<sc_uint<4> > data_out1": "output",
