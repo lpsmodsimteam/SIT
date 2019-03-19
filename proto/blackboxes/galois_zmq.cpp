@@ -32,8 +32,8 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "galois_din", "Galois LFSR reset", { "sst.Interfaces.StringEvent" }},
-        { "galois_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "galois_lfsr_din", "Galois LFSR data_in", { "sst.Interfaces.StringEvent" }},
+        { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
@@ -52,25 +52,22 @@ private:
 
 };
 
-// Component Constructor
 galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
-    : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
+    : SST::Component(id),
+      m_context(1), m_socket(m_context, ZMQ_REP),
       m_signal_i(m_socket), m_signal_o(m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
       m_din_link(configureLink(
-          "galois_din", new SST::Event::Handler<galois_lfsr>(this, &galois_lfsr::handle_event)
+          "galois_lfsr_din", new SST::Event::Handler<galois_lfsr>(this, &galois_lfsr::handle_event)
       )),
-      m_dout_link(configureLink("galois_dout")) {
+      m_dout_link(configureLink("galois_lfsr_dout")) {
 
-    // Initialize output
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<galois_lfsr>(this, &galois_lfsr::tick));
 
-    // Configure our reset
     if (!(m_din_link && m_dout_link)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }

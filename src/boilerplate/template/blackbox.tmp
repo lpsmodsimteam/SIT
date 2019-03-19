@@ -49,7 +49,6 @@ private:
 
 }};
 
-// Component Constructor
 {module}::{module}(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       {var_init}
@@ -61,13 +60,10 @@ private:
       )),
       m_dout_link(configureLink("{module}_dout")) {{
 
-    // Initialize output
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<{module}>(this, &{module}::tick));
 
-    // Configure our reset
     if (!(m_din_link && m_dout_link)) {{
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }}

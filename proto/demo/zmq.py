@@ -32,13 +32,13 @@ fib_lfsr_comp.addParams({
     "clock": CLOCK,
 })
 
-sst.Link("galois_din").connect(
-    (galois_lfsr_comp, "galois_din", "1ps"),
-    (proto_comp, "galois_din", "1ps"),
+sst.Link("galois_lfsr_din").connect(
+    (galois_lfsr_comp, "galois_lfsr_din", "1ps"),
+    (proto_comp, "galois_lfsr_din", "1ps"),
 )
-sst.Link("galois_dout").connect(
-    (galois_lfsr_comp, "galois_dout", "1ps"),
-    (proto_comp, "galois_dout", "1ps"),
+sst.Link("galois_lfsr_dout").connect(
+    (galois_lfsr_comp, "galois_lfsr_dout", "1ps"),
+    (proto_comp, "galois_lfsr_dout", "1ps"),
 )
 
 sst.Link("fib_din").connect(

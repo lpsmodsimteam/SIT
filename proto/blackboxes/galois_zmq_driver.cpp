@@ -17,12 +17,12 @@ int sc_main(int argc, char *argv[]) {
     // ---------- SYSTEMC UUT INIT ---------- //
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
+    // Socket to talk to server
     zmq::context_t context(1);
-
-    //  Socket to talk to server
     zmq::socket_t socket(context, ZMQ_REQ);
     socket.connect(argv[1]);
 
+    // Initialize signal handlers
     ZMQReceiver m_signal_i(socket);
     ZMQTransmitter m_signal_o(socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //

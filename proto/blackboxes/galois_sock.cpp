@@ -32,8 +32,8 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "galois_din", "Galois LFSR data_in", { "sst.Interfaces.StringEvent" }},
-        { "galois_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "galois_lfsr_din", "Galois LFSR data_in", { "sst.Interfaces.StringEvent" }},
+        { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
@@ -44,6 +44,7 @@ private:
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
 
+    // Prepare the signal handler
     SignalSocket m_signal_io;
 
 };
@@ -55,17 +56,14 @@ galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
       m_din_link(configureLink(
-          "galois_din", new SST::Event::Handler<galois_lfsr>(this, &galois_lfsr::handle_event)
+          "galois_lfsr_din", new SST::Event::Handler<galois_lfsr>(this, &galois_lfsr::handle_event)
       )),
-      m_dout_link(configureLink("galois_dout")) {
+      m_dout_link(configureLink("galois_lfsr_dout")) {
 
-    // Initialize output
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<galois_lfsr>(this, &galois_lfsr::tick));
 
-    // Configure our reset
     if (!(m_din_link && m_dout_link)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }
@@ -117,6 +115,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         bool keep_send = _data_in.substr(0, 1) != "0";
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
+        // inputs from parent SST model, outputs to SystemC child process
         m_signal_io.set("reset", std::stoi(_data_in.substr(2, 1)));
         m_signal_io.set("clock", std::stoi(_data_in.substr(3, 2)));
 
@@ -132,6 +131,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
             m_signal_io.recv();
         }
 
+        // inputs to parent SST model, outputs from SystemC child process
         std::string _data_out = std::to_string(m_signal_io.get<int>("data_out"));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
