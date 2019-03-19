@@ -21,38 +21,27 @@ class TestBoilerPlate(unittest.TestCase):
 
         super(TestBoilerPlate, self).__init__(methodName)
 
+        ARGS = dict(
+            module="galois_lfsr",
+            lib="proto",
+            drvr_templ_path=DRVR_TEMPL_PATH,
+            bbox_templ_path=BBOX_TEMPL_PATH,
+            desc="Simple 4-bit Galois Linear Feedback Shift Register",
+            link_desc={
+                "link_desc0": "Galois LFSR data_in",
+                "link_desc1": "Galois LFSR data_out",
+            }
+        )
         PORT_DEFS = {
             "<bool> clock": "clock",
             "<bool> reset": "input",
             "<sc_uint<4> > data_out": "output",
         }
 
-        self.boilerplate_sock = BoilerPlate(
-            module="galois_lfsr",
-            lib="proto",
-            ipc="sock",
-            drvr_templ_path=DRVR_TEMPL_PATH,
-            bbox_templ_path=BBOX_TEMPL_PATH,
-            desc="Simple 4-bit Galois Linear Feedback Shift Register",
-            link_desc={
-                "link_desc0": "Galois LFSR data_in",
-                "link_desc1": "Galois LFSR data_out",
-            }
-        )
+        self.boilerplate_sock = BoilerPlate(**ARGS, ipc="sock")
         self.boilerplate_sock.set_ports(PORT_DEFS)
 
-        self.boilerplate_zmq = BoilerPlate(
-            module="galois_lfsr",
-            lib="proto",
-            ipc="zmq",
-            drvr_templ_path=DRVR_TEMPL_PATH,
-            bbox_templ_path=BBOX_TEMPL_PATH,
-            desc="Simple 4-bit Galois Linear Feedback Shift Register",
-            link_desc={
-                "link_desc0": "Galois LFSR data_in",
-                "link_desc1": "Galois LFSR data_out",
-            }
-        )
+        self.boilerplate_zmq = BoilerPlate(**ARGS, ipc="zmq")
         self.boilerplate_zmq.set_ports(PORT_DEFS)
 
         self.driver_diffs = """! #include "galois_lfsr.hpp"
