@@ -23,13 +23,13 @@ int sc_main(int argc, char *argv[]) {
     zmq::socket_t socket(context, ZMQ_REQ);
     socket.connect(argv[1]);
 
-    ZMQReceiver sh_in(socket);
-    ZMQTransmitter sh_out(socket);
+    ZMQReceiver m_signal_i(socket);
+    ZMQTransmitter m_signal_o(socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    sh_out.set("pid", getpid());
-    sh_out.send();
+    m_signal_o.set("pid", getpid());
+    m_signal_o.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
     while (true) {
@@ -37,20 +37,20 @@ int sc_main(int argc, char *argv[]) {
         sc_start(1, SC_NS);
 
         // RECEIVING
-        sh_in.recv();
+        m_signal_i.recv();
 
-        if (!sh_in.alive()) {
+        if (!m_signal_i.alive()) {
             break;
         }
-        clock = sh_in.get_clock_pulse("clock");
-        reset = sh_in.get<bool>("reset");
+        clock = m_signal_i.get_clock_pulse("clock");
+        reset = m_signal_i.get<bool>("reset");
         std::cout << "\033[33mFIB LFSR\033[0m -> clock: "
-                  << sc_time_stamp() << " | reset: " << sh_in.get<bool>("reset")
+                  << sc_time_stamp() << " | reset: " << m_signal_i.get<bool>("reset")
                   << " -> fib_lfsr_out: " << data_out << std::endl;
 
         // SENDING
-        sh_out.set("data_out", data_out);
-        sh_out.send();
+        m_signal_o.set("data_out", data_out);
+        m_signal_o.send();
 
     }
 

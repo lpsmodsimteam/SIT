@@ -47,15 +47,15 @@ private:
     // Prepare the signal handler
     zmq::context_t m_context;
     zmq::socket_t m_socket;
-    ZMQReceiver m_sh_in;
-    ZMQTransmitter m_sh_out;
+    ZMQReceiver m_signal_i;
+    ZMQTransmitter m_signal_o;
 
 };
 
 // Component Constructor
 fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
-      m_sh_in(m_socket), m_sh_out(m_socket),
+      m_signal_i(m_socket), m_signal_o(m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -96,8 +96,8 @@ void fib_lfsr::setup() {
     } else {
 
         m_socket.bind(m_ipc_port.c_str());
-        m_sh_in.recv();
-        if (child_pid == m_sh_in.get<int>("pid")) {
+        m_signal_i.recv();
+        if (child_pid == m_signal_i.get<int>("pid")) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -123,22 +123,22 @@ void fib_lfsr::handle_event(SST::Event *ev) {
         bool keep_send = _data_in.substr(0, 1) != "0";
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
-        m_sh_out.set("reset", std::stoi(_data_in.substr(2, 1)));
-        m_sh_out.set("clock", std::stoi(_data_in.substr(3, 2)));
+        m_signal_o.set("reset", std::stoi(_data_in.substr(2, 1)));
+        m_signal_o.set("clock", std::stoi(_data_in.substr(3, 2)));
 
         if (keep_send) {
             if (!keep_recv) {
-                m_sh_out.set_state(false);
+                m_signal_o.set_state(false);
             } else {
-                m_sh_out.set_state(true);
+                m_signal_o.set_state(true);
             }
-            m_sh_out.send();
+            m_signal_o.send();
         }
         if (keep_recv) {
-            m_sh_in.recv();
+            m_signal_i.recv();
         }
 
-        std::string _data_out = std::to_string(m_sh_in.get<int>("data_out"));
+        std::string _data_out = std::to_string(m_signal_i.get<int>("data_out"));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }

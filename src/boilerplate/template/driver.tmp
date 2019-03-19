@@ -17,8 +17,8 @@ int sc_main(int argc, char *argv[]) {{
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    sh_out.set("pid", getpid());
-    sh_out.send();
+    {sender}.set("pid", getpid());
+    {sender}.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
     while (true) {{
@@ -26,9 +26,9 @@ int sc_main(int argc, char *argv[]) {{
         sc_start(1, SC_NS);
 
         // RECEIVING
-        sh_in.recv();
+        {receiver}.recv();
 
-        if (!sh_in.alive()) {{
+        if (!{receiver}.alive()) {{
             break;
         }}
         {clock};
@@ -36,11 +36,11 @@ int sc_main(int argc, char *argv[]) {{
 
         // SENDING
         {outputs};
-        sh_out.send();
+        {sender}.send();
 
     }}
 
-    socket.close();
+    {dest}
 
     return 0;
 

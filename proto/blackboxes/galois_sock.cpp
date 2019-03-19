@@ -32,7 +32,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "galois_din", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
+        { "galois_din", "Galois LFSR data_in", { "sst.Interfaces.StringEvent" }},
         { "galois_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
@@ -49,7 +49,8 @@ private:
 };
 
 galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
-    : SST::Component(id), m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
+    : SST::Component(id),
+      m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),

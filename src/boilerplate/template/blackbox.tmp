@@ -32,8 +32,8 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        {{ "{module}_din", "Galois LFSR reset", {{ "sst.Interfaces.StringEvent" }}}},
-        {{ "{module}_dout", "Galois LFSR data_out", {{ "sst.Interfaces.StringEvent" }}}},
+        {{ "{module}_din", "{link_desc0}", {{ "sst.Interfaces.StringEvent" }}}},
+        {{ "{module}_dout", "{link_desc1}", {{ "sst.Interfaces.StringEvent" }}}},
     )
 
 private:
@@ -94,7 +94,7 @@ void {module}::setup() {{
 
         {var_bind};
         {receiver}.recv();
-        if (child_pid == m_sh_in.get<int>("pid")) {{
+        if (child_pid == {receiver}.get<int>("pid")) {{
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }}
@@ -105,7 +105,7 @@ void {module}::setup() {{
 
 void {module}::finish() {{
 
-    m_output.verbose(CALL_INFO, 1, 0, "Destroying {module}...\n");
+    m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
     {var_dest}
 
 }}
@@ -121,7 +121,7 @@ void {module}::handle_event(SST::Event *ev) {{
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         // inputs from parent SST model, outputs to SystemC child process
-        {outputs}
+        {outputs};
 
         if (keep_send) {{
             if (!keep_recv) {{
