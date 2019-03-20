@@ -6,9 +6,9 @@ import os
 import sys
 import unittest
 
-BASE_DIR = os.getcwd()
+BASE_DIR = os.path.join(os.getcwd(), "..")
 SCRIPT_PATH = os.path.join(BASE_DIR, "src", "boilerplate")
-BBOX_DIR_PATH = os.path.join(BASE_DIR, "proto", "blackboxes")
+BBOX_DIR_PATH = os.path.join(BASE_DIR, "tests", "proto", "blackboxes")
 DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "driver.tmp")
 BBOX_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "blackbox.tmp")
 sys.path.append(SCRIPT_PATH)
@@ -47,11 +47,11 @@ class TestBoilerPlate(unittest.TestCase):
         self.driver_diffs = """! #include "galois_lfsr.hpp"
 ! #include "../modules/galois_lfsr.hpp"
 ! #include "sstscit.hpp"
-! #include "../../src/sstscit.hpp"
+! #include "../../../src/sstscit.hpp"
 """
 
         self.blackbox_diffs = """! #include "sstscit.hpp"
-! #include "../../src/sstscit.hpp"
+! #include "../../../src/sstscit.hpp"
 """
 
     @staticmethod

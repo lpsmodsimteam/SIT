@@ -1,6 +1,6 @@
 #include "../modules/fib_lfsr.hpp"
 
-#include "../../src/sstscit.hpp"
+#include "../../../src/sstscit.hpp"
 
 int sc_main(int argc, char *argv[]) {
 
@@ -17,19 +17,13 @@ int sc_main(int argc, char *argv[]) {
     // ---------- SYSTEMC UUT INIT ---------- //
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
-    zmq::context_t context(1);
-
-    //  Socket to talk to server
-    zmq::socket_t socket(context, ZMQ_REQ);
-    socket.connect(argv[1]);
-
-    ZMQReceiver m_signal_i(socket);
-    ZMQTransmitter m_signal_o(socket);
+    SignalSocket m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
+    m_signal_io.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_o.set("pid", getpid());
-    m_signal_o.send();
+    m_signal_io.set("pid", getpid());
+    m_signal_io.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
     while (true) {
@@ -37,24 +31,22 @@ int sc_main(int argc, char *argv[]) {
         sc_start(1, SC_NS);
 
         // RECEIVING
-        m_signal_i.recv();
+        m_signal_io.recv();
 
-        if (!m_signal_i.alive()) {
+        if (!m_signal_io.alive()) {
             break;
         }
-        clock = m_signal_i.get_clock_pulse("clock");
-        reset = m_signal_i.get<bool>("reset");
+        clock = m_signal_io.get_clock_pulse("clock");
+        reset = m_signal_io.get<bool>("reset");
         std::cout << "\033[33mFIB LFSR\033[0m -> clock: "
-                  << sc_time_stamp() << " | reset: " << m_signal_i.get<bool>("reset")
+                  << sc_time_stamp() << " | reset: " << m_signal_io.get<bool>("reset")
                   << " -> fib_lfsr_out: " << data_out << std::endl;
 
         // SENDING
-        m_signal_o.set("data_out", data_out);
-        m_signal_o.send();
+        m_signal_io.set("data_out", data_out);
+        m_signal_io.send();
 
     }
-
-    socket.close();
 
     return 0;
 

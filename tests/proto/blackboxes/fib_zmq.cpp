@@ -1,4 +1,4 @@
-#include "../../src/sstscit.hpp"
+#include "../../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
@@ -32,8 +32,8 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "fib_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
-        { "fib_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "fib_lfsr_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "fib_lfsr_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
@@ -60,9 +60,9 @@ fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
       m_din_link(configureLink(
-          "fib_din", new SST::Event::Handler<fib_lfsr>(this, &fib_lfsr::handle_event)
+          "fib_lfsr_din", new SST::Event::Handler<fib_lfsr>(this, &fib_lfsr::handle_event)
       )),
-      m_dout_link(configureLink("fib_dout")) {
+      m_dout_link(configureLink("fib_lfsr_dout")) {
 
     // Initialize output
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);

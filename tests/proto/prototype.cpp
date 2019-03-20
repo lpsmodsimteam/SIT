@@ -41,14 +41,14 @@ public:
     SST_ELI_DOCUMENT_PORTS(
         { "galois_lfsr_din", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
         { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
-        { "fib_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
-        { "fib_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "fib_lfsr_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "fib_lfsr_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
 
     std::string m_clock;
-    SST::Link *galois_din, *galois_dout, *fib_din, *fib_dout;
+    SST::Link *galois_din, *galois_dout, *fib_lfsr_din, *fib_lfsr_dout;
 
     // SST parameters
     SST::Output m_output;
@@ -62,16 +62,16 @@ prototype::prototype(SST::ComponentId_t id, SST::Params &params)
       galois_dout(configureLink(
           "galois_lfsr_dout", new SST::Event::Handler<prototype>(this, &prototype::handle_galois_data_out)
       )),
-      fib_din(configureLink("fib_din")),
-      fib_dout(configureLink(
-          "fib_dout", new SST::Event::Handler<prototype>(this, &prototype::handle_fib_data_out)
+      fib_lfsr_din(configureLink("fib_lfsr_din")),
+      fib_lfsr_dout(configureLink(
+          "fib_lfsr_dout", new SST::Event::Handler<prototype>(this, &prototype::handle_fib_data_out)
       )) {
 
     // Initialize output
     m_output.init("\033[34mparent-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Configure our port
-    if (!(galois_din && galois_dout && fib_din && fib_dout)) {
+    if (!(galois_din && galois_dout && fib_lfsr_din && fib_lfsr_dout)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }
 
@@ -142,7 +142,7 @@ bool prototype::tick(SST::Cycle_t current_cycle) {
         std::to_string(keep_recv) +
         galois_reset_sig +
         std::to_string(current_cycle)));
-    fib_din->send(new SST::Interfaces::StringEvent(
+    fib_lfsr_din->send(new SST::Interfaces::StringEvent(
         std::to_string(keep_send) +
         std::to_string(keep_recv) +
         fib_reset_sig +

@@ -1,6 +1,6 @@
 #include "../modules/galois_lfsr.hpp"
 
-#include "../../src/sstscit.hpp"
+#include "../../../src/sstscit.hpp"
 
 int sc_main(int argc, char *argv[]) {
 

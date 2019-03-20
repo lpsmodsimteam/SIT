@@ -41,11 +41,11 @@ sst.Link("galois_lfsr_dout").connect(
     (proto_comp, "galois_lfsr_dout", "1ps"),
 )
 
-sst.Link("fib_din").connect(
-    (fib_lfsr_comp, "fib_din", "1ps"),
-    (proto_comp, "fib_din", "1ps"),
+sst.Link("fib_lfsr_din").connect(
+    (fib_lfsr_comp, "fib_lfsr_din", "1ps"),
+    (proto_comp, "fib_lfsr_din", "1ps"),
 )
-sst.Link("fib_dout").connect(
-    (fib_lfsr_comp, "fib_dout", "1ps"),
-    (proto_comp, "fib_dout", "1ps"),
+sst.Link("fib_lfsr_dout").connect(
+    (fib_lfsr_comp, "fib_lfsr_dout", "1ps"),
+    (proto_comp, "fib_lfsr_dout", "1ps"),
 )

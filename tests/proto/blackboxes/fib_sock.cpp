@@ -1,4 +1,4 @@
-#include "../../src/sstscit.hpp"
+#include "../../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
@@ -6,11 +6,11 @@
 #include <sst/core/link.h>
 #include <sst/core/sst_config.h>
 
-class galois_lfsr : public SST::Component {
+class fib_lfsr : public SST::Component {
 
 public:
 
-    galois_lfsr(SST::ComponentId_t, SST::Params &);
+    fib_lfsr(SST::ComponentId_t, SST::Params &);
 
     void setup() override;
 
@@ -22,18 +22,18 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        galois_lfsr, // class
+        fib_lfsr, // class
         "proto", // element library
-        "galois_lfsr", // component
+        "fib_lfsr", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Simple 4-bit Galois Linear Feedback Shift Register",
+        "Simple 4-bit Fibonacci Linear Feedback Shift Register",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "galois_lfsr_din", "Galois LFSR data_in", { "sst.Interfaces.StringEvent" }},
-        { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "fib_lfsr_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
+        { "fib_lfsr_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
@@ -44,26 +44,27 @@ private:
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
 
-    // Prepare the signal handler
     SignalSocket m_signal_io;
 
 };
 
-galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
-    : SST::Component(id),
-      m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
+fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
+    : SST::Component(id), m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
       m_din_link(configureLink(
-          "galois_lfsr_din", new SST::Event::Handler<galois_lfsr>(this, &galois_lfsr::handle_event)
+          "fib_lfsr_din", new SST::Event::Handler<fib_lfsr>(this, &fib_lfsr::handle_event)
       )),
-      m_dout_link(configureLink("galois_lfsr_dout")) {
+      m_dout_link(configureLink("fib_lfsr_dout")) {
 
+    // Initialize output
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    registerClock(m_clock, new SST::Clock::Handler<galois_lfsr>(this, &galois_lfsr::tick));
+    // Just register a plain clock for this simple example
+    registerClock(m_clock, new SST::Clock::Handler<fib_lfsr>(this, &fib_lfsr::tick));
 
+    // Configure our reset
     if (!(m_din_link && m_dout_link)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }
@@ -74,7 +75,7 @@ galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
 
 }
 
-void galois_lfsr::setup() {
+void fib_lfsr::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
@@ -99,13 +100,13 @@ void galois_lfsr::setup() {
 
 }
 
-void galois_lfsr::finish() {
+void fib_lfsr::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
 
 }
 
-void galois_lfsr::handle_event(SST::Event *ev) {
+void fib_lfsr::handle_event(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
@@ -115,7 +116,6 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         bool keep_send = _data_in.substr(0, 1) != "0";
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
-        // inputs from parent SST model, outputs to SystemC child process
         m_signal_io.set("reset", std::stoi(_data_in.substr(2, 1)));
         m_signal_io.set("clock", std::stoi(_data_in.substr(3, 2)));
 
@@ -131,7 +131,6 @@ void galois_lfsr::handle_event(SST::Event *ev) {
             m_signal_io.recv();
         }
 
-        // inputs to parent SST model, outputs from SystemC child process
         std::string _data_out = std::to_string(m_signal_io.get<int>("data_out"));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
@@ -141,7 +140,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
 
 }
 
-bool galois_lfsr::tick(SST::Cycle_t) {
+bool fib_lfsr::tick(SST::Cycle_t) {
 
     return false;
 
