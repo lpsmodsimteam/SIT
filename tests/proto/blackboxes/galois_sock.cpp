@@ -4,7 +4,6 @@
 #include <sst/core/elementinfo.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
-#include <sst/core/sst_config.h>
 
 class galois_lfsr : public SST::Component {
 
@@ -120,11 +119,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         m_signal_io.set("clock", std::stoi(_data_in.substr(3, 2)));
 
         if (keep_send) {
-            if (!keep_recv) {
-                m_signal_io.set_state(false);
-            } else {
-                m_signal_io.set_state(true);
-            }
+            m_signal_io.set_state(keep_recv);
             m_signal_io.send();
         }
         if (keep_recv) {

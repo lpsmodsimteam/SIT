@@ -4,7 +4,6 @@
 #include <sst/core/elementinfo.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
-#include <sst/core/sst_config.h>
 
 class fib_lfsr : public SST::Component {
 
@@ -23,17 +22,17 @@ public:
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
         fib_lfsr, // class
-        "proto", // element library
-        "fib_lfsr", // component
-        SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Simple 4-bit Fibonacci Linear Feedback Shift Register",
-        COMPONENT_CATEGORY_UNCATEGORIZED
+    "proto", // element library
+    "fib_lfsr", // component
+    SST_ELI_ELEMENT_VERSION(1, 0, 0),
+    "Simple 4-bit Fibonacci Linear Feedback Shift Register",
+    COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "fib_lfsr_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
-        { "fib_lfsr_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
+    { "fib_lfsr_din", "Fibonacci LFSR reset", {"sst.Interfaces.StringEvent"}},
+    { "fib_lfsr_dout", "Fibonacci LFSR data_out", {"sst.Interfaces.StringEvent"}},
     )
 
 private:
@@ -54,7 +53,8 @@ private:
 
 // Component Constructor
 fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
-    : SST::Component(id), m_context(1), m_socket(m_context, ZMQ_REP),
+    : SST::Component(id),
+      m_context(1), m_socket(m_context, ZMQ_REP),
       m_signal_i(m_socket), m_signal_o(m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
@@ -127,11 +127,7 @@ void fib_lfsr::handle_event(SST::Event *ev) {
         m_signal_o.set("clock", std::stoi(_data_in.substr(3, 2)));
 
         if (keep_send) {
-            if (!keep_recv) {
-                m_signal_o.set_state(false);
-            } else {
-                m_signal_o.set_state(true);
-            }
+            m_signal_o.set_state(keep_recv);
             m_signal_o.send();
         }
         if (keep_recv) {

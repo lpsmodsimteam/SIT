@@ -4,7 +4,6 @@
 #include <sst/core/elementinfo.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
-#include <sst/core/sst_config.h>
 
 class {module} : public SST::Component {{
 
@@ -120,11 +119,7 @@ void {module}::handle_event(SST::Event *ev) {{
         {outputs};
 
         if (keep_send) {{
-            if (!keep_recv) {{
-                {sender}.set_state(false);
-            }} else {{
-                {sender}.set_state(true);
-            }}
+            {sender}.set_state(keep_recv);
             {sender}.send();
         }}
         if (keep_recv) {{

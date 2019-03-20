@@ -7,7 +7,7 @@ import os
 class BoilerPlate():
 
     def __init__(self, module, lib, ipc, drvr_templ_path, bbox_templ_path,
-                 desc="", link_desc={"link_desc0": "", "link_desc1": ""}):
+                 desc="", link_desc=None):
 
         if ipc in ("sock", "socks", "socket", "sockets", "zmq"):
             self.ipc = ipc
@@ -19,7 +19,9 @@ class BoilerPlate():
         self.drvr_templ_path = drvr_templ_path
         self.bbox_templ_path = bbox_templ_path
         self.desc = desc
-        self.link_desc = link_desc
+        self.link_desc = link_desc if link_desc else {
+            "link_desc0": "", "link_desc1": ""
+        }
 
         self.clocks = []
         self.inputs = []
