@@ -45,7 +45,6 @@ inline SignalIO::~SignalIO() {
 
 }
 
-
 template<typename T>
 void SignalIO::set(const std::string &key, const T &value) {
 
@@ -56,7 +55,11 @@ void SignalIO::set(const std::string &key, const T &value) {
 template<typename T>
 T SignalIO::get(const std::string &key) {
 
-    return std::stoi(m_data[key]);
+    if (m_data.find(key) != m_data.end()) {
+        return std::stoi(m_data[key]);
+    }
+
+    throw std::invalid_argument("Key does not exist");
 
 }
 
@@ -71,7 +74,6 @@ inline void SignalIO::set_state(bool state) {
     this->set("__on__", state);
 
 }
-
 
 inline bool SignalIO::get_clock_pulse(const std::string &key) {
 

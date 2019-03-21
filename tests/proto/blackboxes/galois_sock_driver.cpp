@@ -23,7 +23,7 @@ int sc_main(int argc, char *argv[]) {
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_io.set("pid", getpid());
+    m_signal_io.set("__pid__", getpid());
     m_signal_io.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 

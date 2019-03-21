@@ -22,7 +22,7 @@ int sc_main(int argc, char *argv[]) {
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_io.set("pid", getpid());
+    m_signal_io.set("__pid__", getpid());
     m_signal_io.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -38,9 +38,12 @@ int sc_main(int argc, char *argv[]) {
         }
         clock = m_signal_io.get_clock_pulse("clock");
         reset = m_signal_io.get<bool>("reset");
+
+#if DEMO
         std::cout << "\033[33mFIB LFSR\033[0m -> clock: "
                   << sc_time_stamp() << " | reset: " << m_signal_io.get<bool>("reset")
                   << " -> fib_lfsr_out: " << data_out << std::endl;
+#endif
 
         // SENDING
         m_signal_io.set("data_out", data_out);

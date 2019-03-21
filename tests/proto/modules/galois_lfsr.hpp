@@ -8,7 +8,7 @@ SC_MODULE (galois_lfsr) {
     sc_out<sc_uint<4> > data_out;
 
     sc_bv<4> din_bv;
-    sc_bv<4> mask = "1001";
+    sc_bv<4> mask = "1001";  // x^3 + 1
 
     void lfsr() {
 

@@ -22,17 +22,17 @@ public:
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
         fib_lfsr, // class
-    "proto", // element library
-    "fib_lfsr", // component
-    SST_ELI_ELEMENT_VERSION(1, 0, 0),
-    "Simple 4-bit Fibonacci Linear Feedback Shift Register",
-    COMPONENT_CATEGORY_UNCATEGORIZED
+        "proto", // element library
+        "fib_lfsr", // component
+        SST_ELI_ELEMENT_VERSION(1, 0, 0),
+        "Simple 4-bit Fibonacci Linear Feedback Shift Register",
+        COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-    { "fib_lfsr_din", "Fibonacci LFSR reset", {"sst.Interfaces.StringEvent"}},
-    { "fib_lfsr_dout", "Fibonacci LFSR data_out", {"sst.Interfaces.StringEvent"}},
+        { "fib_lfsr_din", "Fibonacci LFSR reset", {"sst.Interfaces.StringEvent"}},
+        { "fib_lfsr_dout", "Fibonacci LFSR data_out", {"sst.Interfaces.StringEvent"}},
     )
 
 private:
@@ -51,7 +51,6 @@ private:
 
 };
 
-// Component Constructor
 fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_context(1), m_socket(m_context, ZMQ_REP),
@@ -64,13 +63,10 @@ fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
       )),
       m_dout_link(configureLink("fib_lfsr_dout")) {
 
-    // Initialize output
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<fib_lfsr>(this, &fib_lfsr::tick));
 
-    // Configure our reset
     if (!(m_din_link && m_dout_link)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }
@@ -97,7 +93,7 @@ void fib_lfsr::setup() {
 
         m_socket.bind(m_ipc_port.c_str());
         m_signal_i.recv();
-        if (child_pid == m_signal_i.get<int>("pid")) {
+        if (child_pid == m_signal_i.get<int>("__pid__")) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }

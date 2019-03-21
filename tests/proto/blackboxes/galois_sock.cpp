@@ -89,7 +89,7 @@ void galois_lfsr::setup() {
 
         m_signal_io.set_addr(m_ipc_port);
         m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>("pid")) {
+        if (child_pid == m_signal_io.get<int>("__pid__")) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }

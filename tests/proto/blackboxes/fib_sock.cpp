@@ -43,6 +43,7 @@ private:
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
 
+    // Prepare the signal handler
     SignalSocket m_signal_io;
 
 };
@@ -57,13 +58,10 @@ fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
       )),
       m_dout_link(configureLink("fib_lfsr_dout")) {
 
-    // Initialize output
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<fib_lfsr>(this, &fib_lfsr::tick));
 
-    // Configure our reset
     if (!(m_din_link && m_dout_link)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }
@@ -90,7 +88,7 @@ void fib_lfsr::setup() {
 
         m_signal_io.set_addr(m_ipc_port);
         m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>("pid")) {
+        if (child_pid == m_signal_io.get<int>("__pid__")) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }

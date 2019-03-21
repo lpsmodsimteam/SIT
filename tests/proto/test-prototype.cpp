@@ -3,7 +3,10 @@
  *
  * */
 
+#define RESET_TIME 3
 #define SIMTIME 39
+
+#include <iostream>
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
@@ -31,7 +34,7 @@ public:
     SST_ELI_REGISTER_COMPONENT(
         prototype, // class
         "proto", // element library
-        "prototype", // component
+        "test", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "SST parent model",
         COMPONENT_CATEGORY_UNCATEGORIZED
@@ -39,10 +42,10 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "galois_lfsr_din", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
-        { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
-        { "fib_lfsr_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
-        { "fib_lfsr_dout", "Fibonacci LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "galois_lfsr_din", "Galois LFSR clock", {"sst.Interfaces.StringEvent"}},
+        { "galois_lfsr_dout", "Galois LFSR data_out", {"sst.Interfaces.StringEvent"}},
+        { "fib_lfsr_din", "Fibonacci LFSR reset", {"sst.Interfaces.StringEvent"}},
+        { "fib_lfsr_dout", "Fibonacci LFSR data_out", {"sst.Interfaces.StringEvent"}},
     )
 
 private:
@@ -52,6 +55,11 @@ private:
 
     // SST parameters
     SST::Output m_output;
+
+    int m_cycle;
+
+    unsigned char m_galois_lfsr, m_galois_lfsr_mask;
+    unsigned char m_fib_lfsr;
 
 };
 
@@ -83,6 +91,9 @@ prototype::prototype(SST::ComponentId_t id, SST::Params &params)
 
 void prototype::setup() {
 
+    m_galois_lfsr = 1u;
+    m_galois_lfsr_mask = 9u;
+    m_fib_lfsr = 1u;
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
 }
@@ -97,7 +108,17 @@ void prototype::handle_galois_data_out(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        m_output.verbose(CALL_INFO, 1, 0, "galois_lfsr -> %s\n", se->getString().c_str());
+
+        if ((m_cycle >= RESET_TIME) && (m_cycle % 2) && m_cycle < SIMTIME) {
+            m_output.verbose(CALL_INFO, 1, 0, "galois_lfsr -> %s %d\n",
+                             se->getString().c_str(), m_galois_lfsr);
+            unsigned lsb = m_galois_lfsr & 1u;
+            m_galois_lfsr >>= 1;
+            if (lsb) {
+                m_galois_lfsr ^= m_galois_lfsr_mask;
+            }
+        }
+
     }
     delete ev;
 
@@ -107,7 +128,15 @@ void prototype::handle_fib_data_out(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        m_output.verbose(CALL_INFO, 1, 0, "fib_lfsr -> %s\n", se->getString().c_str());
+
+        if ((m_cycle >= RESET_TIME) && (m_cycle % 2) && m_cycle < SIMTIME) {
+            m_output.verbose(CALL_INFO, 1, 0, "fib_lfsr -> %s %d\n",
+                             se->getString().c_str(), m_fib_lfsr);
+            unsigned char bit = (((m_fib_lfsr >> 3) ^ ((m_fib_lfsr >> 0))) & 1u);
+            m_fib_lfsr = ((m_fib_lfsr << 1) & 0x0Fu) | !bit;
+
+        }
+
     }
     delete ev;
 
@@ -119,10 +148,12 @@ bool prototype::tick(SST::Cycle_t current_cycle) {
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
 
-    // turn reset off at 3 ns
-    if (current_cycle >= 3) {
+    m_cycle = current_cycle;
 
-        if (current_cycle == 3) {
+    // turn reset off at 3 ns
+    if (current_cycle >= RESET_TIME) {
+
+        if (current_cycle == RESET_TIME) {
             m_output.verbose(CALL_INFO, 1, 0, "RESET OFF\n");
         }
 

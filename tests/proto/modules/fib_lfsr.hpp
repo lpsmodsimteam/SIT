@@ -1,4 +1,5 @@
-#include "systemc.h"
+#include <systemc.h>
+#include <iostream>
 
 SC_MODULE (fib_lfsr) {
 
@@ -8,7 +9,6 @@ SC_MODULE (fib_lfsr) {
     sc_out<sc_bv<4>> data_out;
 
     sc_bv<4> din_bv;
-    sc_signal<bool> fb;
 
     void lfsr() {
 
@@ -18,8 +18,7 @@ SC_MODULE (fib_lfsr) {
 
         } else {
 
-            fb = (din_bv[0].to_bool() ^ din_bv[3].to_bool());
-            din_bv = (din_bv.range(2, 0), fb);
+            din_bv = (din_bv.range(2, 0), !(din_bv[0].to_bool() ^ din_bv[3].to_bool()));
 
         }
 
