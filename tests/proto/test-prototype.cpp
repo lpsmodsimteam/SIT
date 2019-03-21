@@ -6,13 +6,13 @@
 #define RESET_TIME 3
 #define SIMTIME 39
 
-#include <iostream>
-
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 #include <sst/core/sst_config.h>
+
+#include <bitset>
 
 class prototype : public SST::Component {
 
@@ -110,8 +110,9 @@ void prototype::handle_galois_data_out(SST::Event *ev) {
     if (se) {
 
         if ((m_cycle >= RESET_TIME) && (m_cycle % 2) && m_cycle < SIMTIME) {
-            m_output.verbose(CALL_INFO, 1, 0, "galois_lfsr -> %s %d\n",
-                             se->getString().c_str(), m_galois_lfsr);
+            if (std::stoi(se->getString().c_str()) != m_galois_lfsr) {
+                throw std::logic_error("Incorrect Galois LFSR value received");
+            }
             unsigned lsb = m_galois_lfsr & 1u;
             m_galois_lfsr >>= 1;
             if (lsb) {
@@ -130,10 +131,12 @@ void prototype::handle_fib_data_out(SST::Event *ev) {
     if (se) {
 
         if ((m_cycle >= RESET_TIME) && (m_cycle % 2) && m_cycle < SIMTIME) {
-            m_output.verbose(CALL_INFO, 1, 0, "fib_lfsr -> %s %d\n",
-                             se->getString().c_str(), m_fib_lfsr);
+            if (std::bitset<4>(se->getString()).to_ulong() != m_fib_lfsr) {
+                throw std::logic_error("Incorrect Simple LFSR value received");
+            }
+
             unsigned char bit = (((m_fib_lfsr >> 3) ^ ((m_fib_lfsr >> 0))) & 1u);
-            m_fib_lfsr = ((m_fib_lfsr << 1) & 0x0Fu) | !bit;
+            m_fib_lfsr = (((m_fib_lfsr << 1) & 0x0Fu) | !bit);
 
         }
 
