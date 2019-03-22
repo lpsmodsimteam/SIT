@@ -37,14 +37,13 @@ public:
 
 private:
 
-    SST::Link *m_din_link, *m_dout_link;
+    // Prepare the signal handler
+    SignalSocket m_signal_io;
 
     // SST parameters
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
-
-    // Prepare the signal handler
-    SignalSocket m_signal_io;
+    SST::Link *m_din_link, *m_dout_link;
 
 };
 

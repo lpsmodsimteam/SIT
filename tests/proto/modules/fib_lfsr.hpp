@@ -1,5 +1,4 @@
 #include <systemc.h>
-#include <iostream>
 
 SC_MODULE (fib_lfsr) {
 

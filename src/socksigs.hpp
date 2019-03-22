@@ -15,8 +15,8 @@ private:
     bool m_server_side;
     int m_socket, m_rd_socket;
     size_t m_rd_bytes;
+    char m_buf[BUFSIZE];
     struct sockaddr_un m_addr;
-    char rd_buf[BUFSIZE];
 
     msgpack::unpacked m_unpacker;
     msgpack::packer<msgpack::sbuffer> m_packer;
@@ -42,8 +42,8 @@ public:
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
 inline SignalSocket::SignalSocket(int socket, bool server_side) :
-    m_socket(socket), m_server_side(server_side), m_packer(&m_sbuf),
-    m_rd_socket(0), m_rd_bytes(0), m_addr({}), rd_buf("") {
+    m_server_side(server_side), m_socket(socket), m_rd_socket(0),
+    m_rd_bytes(0), m_buf(""), m_addr({}), m_packer(&m_sbuf) {
     // do nothing
 }
 
@@ -104,10 +104,10 @@ inline void SignalSocket::send() {
 inline void SignalSocket::recv() {
 
     m_rd_bytes = static_cast<size_t>(
-        (m_server_side) ? read(m_rd_socket, rd_buf, BUFSIZE) : read(m_socket, rd_buf, BUFSIZE));
+        (m_server_side) ? read(m_rd_socket, m_buf, BUFSIZE) : read(m_socket, m_buf, BUFSIZE));
 
-    rd_buf[m_rd_bytes] = '\0';
-    msgpack::unpack(m_unpacker, rd_buf, m_rd_bytes);
+    m_buf[m_rd_bytes] = '\0';
+    msgpack::unpack(m_unpacker, m_buf, m_rd_bytes);
     m_unpacker.get().convert(*this);
 
 }

@@ -30,24 +30,23 @@ public:
     )
 
     // Port name, description, event type
-    SST_ELI_DOCUMENT_PORTS(
+     SST_ELI_DOCUMENT_PORTS(
         { "galois_lfsr_din", "Galois LFSR data_in", { "sst.Interfaces.StringEvent" }},
         { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
 
-    SST::Link *m_din_link, *m_dout_link;
-
-    // SST parameters
-    SST::Output m_output;
-    std::string m_clock, m_proc, m_ipc_port;
-
     // Prepare the signal handler
     zmq::context_t m_context;
     zmq::socket_t m_socket;
     ZMQReceiver m_signal_i;
     ZMQTransmitter m_signal_o;
+
+    // SST parameters
+    SST::Output m_output;
+    std::string m_clock, m_proc, m_ipc_port;
+    SST::Link *m_din_link, *m_dout_link;
 
 };
 

@@ -17,7 +17,7 @@ int sc_main(int argc, char *argv[]) {{
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    {sender}.set("pid", getpid());
+    {sender}.set("__pid__", getpid());
     {sender}.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 

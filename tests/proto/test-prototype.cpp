@@ -110,14 +110,17 @@ void prototype::handle_galois_data_out(SST::Event *ev) {
     if (se) {
 
         if ((m_cycle >= RESET_TIME) && (m_cycle % 2) && m_cycle < SIMTIME) {
+
             if (std::stoi(se->getString().c_str()) != m_galois_lfsr) {
                 throw std::logic_error("Incorrect Galois LFSR value received");
             }
+
             unsigned lsb = m_galois_lfsr & 1u;
             m_galois_lfsr >>= 1;
             if (lsb) {
                 m_galois_lfsr ^= m_galois_lfsr_mask;
             }
+
         }
 
     }
@@ -131,6 +134,7 @@ void prototype::handle_fib_data_out(SST::Event *ev) {
     if (se) {
 
         if ((m_cycle >= RESET_TIME) && (m_cycle % 2) && m_cycle < SIMTIME) {
+
             if (std::bitset<4>(se->getString()).to_ulong() != m_fib_lfsr) {
                 throw std::logic_error("Incorrect Simple LFSR value received");
             }

@@ -37,14 +37,13 @@ public:
 
 private:
 
-    SST::Link *m_din_link, *m_dout_link;
+    // Prepare the signal handler
+    {var_decl}
 
     // SST parameters
     SST::Output m_output;
     std::string m_clock, m_proc, m_ipc_port;
-
-    // Prepare the signal handler
-    {var_decl}
+    SST::Link *m_din_link, *m_dout_link;
 
 }};
 
@@ -89,7 +88,7 @@ void {module}::setup() {{
 
         {var_bind};
         {receiver}.recv();
-        if (child_pid == {receiver}.get<int>("pid")) {{
+        if (child_pid == {receiver}.get<int>("__pid__")) {{
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }}
