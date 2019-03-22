@@ -22,7 +22,7 @@ tar -xvf systemc-<ver>.tar.gz
 Install using CMake
 ```shell
 mkdir build && cd build
-cmake -DCMAKE_CXX_STANDARD=14 ..
+cmake -DCMAKE_CXX_STANDARD=11 ..
 make && make check
 sudo make install
 ```

@@ -30,7 +30,7 @@ public:
     )
 
     // Port name, description, event type
-     SST_ELI_DOCUMENT_PORTS(
+    SST_ELI_DOCUMENT_PORTS(
         { "galois_lfsr_din", "Galois LFSR data_in", { "sst.Interfaces.StringEvent" }},
         { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
     )

@@ -1,11 +1,24 @@
+dist: xenial
+sudo: required
+
 matrix:
   include:
+    - language: cpp
     - os: linux
-      dist: xenial
-      sudo: required
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+      before_script:
+        - mkdir -p archives && ./setup.sh
+
     - language: python
       python: 3.6
       before_script:
-      - cd tests
+        - cd tests
       script:
-      - python3 boilerplate/generate_g.py
+        - python3 boilerplate/generate_g.py
