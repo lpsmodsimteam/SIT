@@ -1,10 +1,9 @@
+os: linux
 dist: xenial
-sudo: required
 
 matrix:
   include:
     - language: cpp
-    - os: linux
       addons:
         apt:
           sources:
@@ -14,7 +13,9 @@ matrix:
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
       before_script:
-        - mkdir -p archives && ./setup.sh
+        - mkdir -p archives
+      script:
+        - ./setup.sh
 
     - language: python
       python: 3.6
@@ -22,3 +23,6 @@ matrix:
         - cd tests
       script:
         - python3 boilerplate/generate_g.py
+
+before_install:
+    - eval "${MATRIX_EVAL}"
