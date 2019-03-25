@@ -82,9 +82,6 @@ fabric.properties
 dev/*
 !dev/proto/
 
-# open-source archived tars and zips
-archives/
-
 # Python environment and cache
 *.pyc
 .venv/

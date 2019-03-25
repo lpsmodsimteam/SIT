@@ -76,9 +76,10 @@ install:
       # upgrade CMake to a more recent version
       CMAKE_VER=3.13.4
       CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
-      mkdir cmake && travis_retry wget --no-check-certificate -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
-      export PATH=${DEPS_DIR}/cmake/bin:${PATH}
+      curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
+      export PATH=${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin:${PATH}
       cmake --version
+      ./${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin/cmake --version
       cd ${TRAVIS_BUILD_DIR}
 
       # # install SystemC
