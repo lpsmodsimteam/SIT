@@ -117,14 +117,14 @@ install:
       # install libzmq and cppzmq
       LIBZMQ_VER="4.3.1"
       libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
-      CPPZMQ_VER=4.3.0
+      CPPZMQ_VER="4.3.0"
       cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
       curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
       curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
-      mkdir -r ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
+      mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
       cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
       cd ${TRAVIS_BUILD_DIR}
-      mkdir -r ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
+      mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
       cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
 
     fi
