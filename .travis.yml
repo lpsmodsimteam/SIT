@@ -82,37 +82,50 @@ install:
       cmake --version
       cd ${TRAVIS_BUILD_DIR}
 
-      # install SystemC
-      SYSC="systemc-2.3.3"
-      sysc_url="https://www.accellera.org/images/downloads/standards/systemc/"
-      curl -kL ${sysc_url}${SYSC}.tar.gz | tar xz -C ${DEPS_DIR}
-      mkdir -p ${DEPS_DIR}/${SYSC}/build
-      cd ${DEPS_DIR}/${SYSC}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
-      cd ${TRAVIS_BUILD_DIR}
+      # # install SystemC
+      # SYSC="systemc-2.3.3"
+      # sysc_url="https://www.accellera.org/images/downloads/standards/systemc/"
+      # curl -kL ${sysc_url}${SYSC}.tar.gz | tar xz -C ${DEPS_DIR}
+      # mkdir -p ${DEPS_DIR}/${SYSC}/build
+      # cd ${DEPS_DIR}/${SYSC}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
+      # cd ${TRAVIS_BUILD_DIR}
 
-      # install SST Core
-      SSTCORE="sstcore-8.0.0"
-      sst_core_url="https://github.com/sstsimulator/sst-core/releases/download/v8.0.0_Final/"
-      mkdir -p ~/.sst
-      touch ~/.sst/sstsimulator.conf
-      curl -L ${sst_core_url}${SSTCORE}.tar.gz | tar xz -C ${DEPS_DIR}
-      cd ${DEPS_DIR}/${SSTCORE} && ./configure && make -j${JOBS} all && sudo make install
-      cd ${TRAVIS_BUILD_DIR}
+      # # install SST Core
+      # SSTCORE="sstcore-8.0.0"
+      # sst_core_url="https://github.com/sstsimulator/sst-core/releases/download/v8.0.0_Final/"
+      # mkdir -p ~/.sst
+      # touch ~/.sst/sstsimulator.conf
+      # curl -L ${sst_core_url}${SSTCORE}.tar.gz | tar xz -C ${DEPS_DIR}
+      # cd ${DEPS_DIR}/${SSTCORE} && ./configure && make -j${JOBS} all && sudo make install
+      # cd ${TRAVIS_BUILD_DIR}
 
-      # install SST Elements
-      SSTELEM="sstelements-8.0.0"
-      sst_elem_url="https://github.com/sstsimulator/sst-elements/releases/download/v8.0.0_Final/"
-      curl -L ${sst_elem_url}${SSTELEM}.tar.gz | tar xz -C ${DEPS_DIR}
-      mv ${DEPS_DIR}/sst-elements* ${DEPS_DIR}/${SSTELEM}
-      cd ${DEPS_DIR}/${SSTELEM} && ./configure && make -j${JOBS} all && sudo make install
-      cd ${TRAVIS_BUILD_DIR}
+      # # install SST Elements
+      # SSTELEM="sstelements-8.0.0"
+      # sst_elem_url="https://github.com/sstsimulator/sst-elements/releases/download/v8.0.0_Final/"
+      # curl -L ${sst_elem_url}${SSTELEM}.tar.gz | tar xz -C ${DEPS_DIR}
+      # mv ${DEPS_DIR}/sst-elements* ${DEPS_DIR}/${SSTELEM}
+      # cd ${DEPS_DIR}/${SSTELEM} && ./configure && make -j${JOBS} all && sudo make install
+      # cd ${TRAVIS_BUILD_DIR}
 
-      # install msgpack
-      MSGPACK="msgpack-3.1.1"
-      msgpack_url="https://github.com/msgpack/msgpack-c/releases/download/cpp-3.1.1/"
-      curl -L ${msgpack_url}${MSGPACK}.tar.gz | tar xz -C ${DEPS_DIR}
-      cd ${DEPS_DIR}/${MSGPACK} && cmake -DMSGPACK_CXX11=ON . && sudo make install
+      # # install msgpack
+      # MSGPACK="msgpack-3.1.1"
+      # msgpack_url="https://github.com/msgpack/msgpack-c/releases/download/cpp-3.1.1/"
+      # curl -L ${msgpack_url}${MSGPACK}.tar.gz | tar xz -C ${DEPS_DIR}
+      # cd ${DEPS_DIR}/${MSGPACK} && cmake -DMSGPACK_CXX11=ON . && sudo make install
+      # cd ${TRAVIS_BUILD_DIR}
+
+      # install libzmq and cppzmq
+      LIBZMQ_VER="4.3.1"
+      libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
+      CPPZMQ_VER=4.3.0
+      cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
+      curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
+      curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
+      mkdir -r ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
+      cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
       cd ${TRAVIS_BUILD_DIR}
+      mkdir -r ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
+      cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
 
     fi
 
