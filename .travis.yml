@@ -85,4 +85,5 @@ install:
 before_script:
   - cd tests
 script:
-  - [[ -z "${_CXX}" ]] && make unit-test || make generate-test
+  - |
+    [[ -z "${_CXX}" ]] && make unit-test || make generate-test
