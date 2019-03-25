@@ -1,7 +1,7 @@
-test: generate unit
+test: generate-test unit-test
 
-generate:
+generate-test:
 	python3 boilerplate/generate_g.py
 
-unit:
+unit-test:
 	cd proto && make install USE_ZMQ=OFF run TEST=unittests.py UNIT_TEST=ON

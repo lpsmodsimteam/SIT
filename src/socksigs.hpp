@@ -1,14 +1,13 @@
 #ifndef SOCKSIGS_HPP
 #define SOCKSIGS_HPP
 
-#define BUFSIZE 4096
+#define BUFSIZE 100
 
 #include "sigutils.hpp"
 
 #include <sys/un.h>
 
-
-class SignalSocket : public SignalIO {
+class SocketSignal : public SignalIO {
 
 private:
 
@@ -26,9 +25,9 @@ public:
 
     MSGPACK_DEFINE (m_data);
 
-    explicit SignalSocket(int, bool = true);
+    explicit SocketSignal(int, bool = true);
 
-    ~SignalSocket();
+    ~SocketSignal();
 
     void set_addr(const std::string &addr);
 
@@ -41,13 +40,13 @@ public:
 
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
-inline SignalSocket::SignalSocket(int socket, bool server_side) :
+inline SocketSignal::SocketSignal(int socket, bool server_side) :
     m_server_side(server_side), m_socket(socket), m_rd_socket(0),
     m_rd_bytes(0), m_buf(""), m_addr({}), m_packer(&m_sbuf) {
     // do nothing
 }
 
-inline SignalSocket::~SignalSocket() {
+inline SocketSignal::~SocketSignal() {
 
     unlink(m_addr.sun_path);
     close(m_socket);
@@ -55,7 +54,7 @@ inline SignalSocket::~SignalSocket() {
 
 }
 
-inline void SignalSocket::set_addr(const std::string &addr) {
+inline void SocketSignal::set_addr(const std::string &addr) {
 
     if (m_socket < 0) {
         perror("Socket creation\n");
@@ -90,7 +89,7 @@ inline void SignalSocket::set_addr(const std::string &addr) {
 
 }
 
-inline void SignalSocket::send() {
+inline void SocketSignal::send() {
 
     m_packer.pack(*this);
 
@@ -101,12 +100,13 @@ inline void SignalSocket::send() {
 
 }
 
-inline void SignalSocket::recv() {
+inline void SocketSignal::recv() {
 
     m_rd_bytes = static_cast<size_t>(
         (m_server_side) ? read(m_rd_socket, m_buf, BUFSIZE) : read(m_socket, m_buf, BUFSIZE));
 
     m_buf[m_rd_bytes] = '\0';
+
     msgpack::unpack(m_unpacker, m_buf, m_rd_bytes);
     m_unpacker.get().convert(*this);
 

@@ -38,7 +38,7 @@ public:
 private:
 
     // Prepare the signal handler
-    SignalSocket m_signal_io;
+    SocketSignal m_signal_io;
 
     // SST parameters
     SST::Output m_output;

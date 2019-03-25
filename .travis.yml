@@ -8,7 +8,7 @@ matrix:
 
     # Clang 6.0
     - name: "Trusty Clang 6.0"
-      env: COMPILER=clang++-6.0
+      env: _CXX=clang++-6.0
       dist: trusty
       addons: &clang60
         apt:
@@ -27,7 +27,7 @@ matrix:
 
     # GCC 7
     - name: "Trusty GCC 7"
-      env: COMPILER=g++-7
+      env: _CXX=g++-7
       dist: trusty
       addons: &gcc7
         apt:
@@ -42,7 +42,7 @@ matrix:
 
     # GCC 7
     - name: "Xenial GCC 7"
-      env: COMPILER=g++-7
+      env: _CXX=g++-7
       dist: xenial
       addons: &gcc7
         apt:
@@ -53,10 +53,36 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
+    # Python 3
+    - name: "Python 3"
+      dist:
+        - trusty
+        - xenial
+      language: python
+      python: 3.6
+
 install:
-  - export CXX=${COMPILER}
-  - ./install-deps.sh
+  - |
+    if [[ -z "${_CXX}" ]]; then
+      export CXX=${_CXX}
+      # first we create a directory for the CMake binaries
+      - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+      - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+      # we use wget to fetch the cmake binaries
+      - travis_retry wget --no-check-certificate https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0.tar.gz
+      # extract the binaries; the output here is quite lengthy,
+      # so we swallow it to not clutter up the travis console
+      - tar -xvf cmake-3.14.0.tar.gz > /dev/null
+      - mv cmake-3.14.0.tar.gz cmake-install
+      # add both the top-level directory and the bin directory from the archive
+      # to the system PATH. By adding it to the front of the path we hide the
+      # preinstalled CMake with our own.
+      - PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+      # don't forget to switch back to the main build directory once you are done
+      - cd ${TRAVIS_BUILD_DIR}
+      ./install-deps.sh
+    fi
 before_script:
   - cd tests
 script:
-  - make test
+  - [[ -z "${_CXX}" ]] && make unit-test || make generate-test

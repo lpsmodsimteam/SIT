@@ -18,7 +18,7 @@ int sc_main(int argc, char *argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    SignalSocket m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
+    SocketSignal m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
