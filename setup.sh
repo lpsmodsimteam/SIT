@@ -12,7 +12,7 @@ sst_elem_url='https://github.com/sstsimulator/sst-elements/releases/download/v8.
 archive_dir='archives'
 mkdir -p ${archive_dir}
 
-curl -k ${sysc_url}${SYSC}.tar.gz | tar xz -C ${archive_dir}
+curl -kL ${sysc_url}${SYSC}.tar.gz | tar xz -C ${archive_dir}
 curl -L ${sst_core_url}${SSTCORE}.tar.gz | tar xz -C ${archive_dir}
 curl -L ${sst_elem_url}${SSTELEM}.tar.gz | tar xz -C ${archive_dir}
 
@@ -26,3 +26,9 @@ cd ${BASE_DIR}
 cd ${archive_dir}/${SSTCORE} && ./configure && make -j2 all && sudo make install
 cd ${BASE_DIR}
 cd ${archive_dir}/${SSTELEM} && ./configure && make -j2 all && sudo make install
+
+MSGPACK='msgpack-3.1.1'
+msgpack_url='https://github.com/msgpack/msgpack-c/releases/download/cpp-3.1.1/'
+
+curl -L ${msgpack_url}${MSGPACK}.tar.gz | tar xz -C ${archive_dir}
+cd ${archive_dir}/${MSGPACK} && cmake -DMSGPACK_CXX11=ON . && sudo make install
