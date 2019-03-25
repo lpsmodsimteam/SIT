@@ -126,6 +126,7 @@ install:
       cd ${TRAVIS_BUILD_DIR}
       mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
       cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
+      cd ${TRAVIS_BUILD_DIR}
 
     fi
 
