@@ -63,7 +63,7 @@ matrix:
 
 install:
   - |
-    if [[ -z "${_CXX}" ]]; then
+    if [[ ! -z "${_CXX}" ]]; then
       export CXX=${_CXX}
       # first we create a directory for the CMake binaries
       DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
@@ -86,4 +86,4 @@ before_script:
   - cd tests
 script:
   - |
-    [[ -z "${_CXX}" ]] && make unit-test || make generate-test
+    [[ ! -z "${_CXX}" ]] && make unit-test || make generate-test
