@@ -21,7 +21,6 @@ mkdir -p ${archive_dir}/${SYSC}/build
 mkdir -p ~/.sst
 touch ~/.sst/sstsimulator.conf
 BASE_DIR=$(pwd)
-cmake --version
 # cd ${archive_dir}/${SYSC}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j2 && sudo make install
 # cd ${BASE_DIR}
 # cd ${archive_dir}/${SSTCORE} && ./configure && make -j2 all && sudo make install
@@ -35,5 +34,3 @@ cmake --version
 # curl -L ${msgpack_url}${MSGPACK}.tar.gz | tar xz -C ${archive_dir}
 # cd ${archive_dir}/${MSGPACK} && cmake -DMSGPACK_CXX11=ON . && sudo make install
 # cd ${BASE_DIR}
-
-# https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0.tar.gz
