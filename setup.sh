@@ -1,19 +1,28 @@
 #!/usr/bin/env sh
 set -o errexit
 
+SYSC='systemc-2.3.3'
+sysc_url='https://www.accellera.org/images/downloads/standards/systemc/'
+
+SSTCORE='sstcore-8.0.0'
+SSTELEM='sstelements-8.0.0'
+sst_core_url='https://github.com/sstsimulator/sst-core/releases/download/v8.0.0_Final/'
+sst_elem_url='https://github.com/sstsimulator/sst-elements/releases/download/v8.0.0_Final/'
+
 archive_dir='archives'
+mkdir -p ${archive_dir}
 
-systemc='systemc-2.3.3.gz'
-systemc_url='http://www.accellera.org/images/downloads/standards/systemc/'
+curl -k ${sysc_url}${SYSC}.tar.gz | tar xz -C ${archive_dir}
+curl -L ${sst_core_url}${SSTCORE}.tar.gz | tar xz -C ${archive_dir}
+curl -L ${sst_elem_url}${SSTELEM}.tar.gz | tar xz -C ${archive_dir}
 
-sst_ver='v8.0.0_Final/'
-sst_core_url='https://github.com/sstsimulator/sst-core/releases/download/'
-sst_elem_url='https://github.com/sstsimulator/sst-elements/releases/download/'
-sst_core=$sst_ver'sstcore-8.0.0.tar.gz'
-sst_elem=$sst_ver'sstelements-8.0.0.tar.gz'
-
-mkdir $archive_dir
-
-wget $systemc_url$systemc -O $archive_dir/$systemc
-wget $sst_core_url$sst_core -O $archive_dir/"${sst_core##*/}"
-wget $sst_elem_url$sst_elem -O $archive_dir/"${sst_elem##*/}"
+mv ${archive_dir}/sst-elements* ${archive_dir}/${SSTELEM}
+mkdir -p ${archive_dir}/${SYSC}/build
+mkdir -p ~/.sst
+touch ~/.sst/sstsimulator.conf
+BASE_DIR=$(pwd)
+cd ${archive_dir}/${SYSC}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j2 && sudo make install
+cd ${BASE_DIR}
+cd ${archive_dir}/${SSTCORE} && ./configure && make -j2 all && sudo make install
+cd ${BASE_DIR}
+cd ${archive_dir}/${SSTELEM} && ./configure && make -j2 all && sudo make install

@@ -1,28 +1,67 @@
 os: linux
-dist: xenial
+language: cpp
+notifications:
+  email: false
 
 matrix:
   include:
-    - language: cpp
-      addons:
+
+    # Clang 6.0
+    - name: "Trusty Clang 6.0"
+      env: COMPILER=clang++-6.0
+      dist: trusty
+      addons: &clang60
         apt:
+          packages:
+            - clang-6.0
+            - g++-7
+            - libhwloc-dev
+            - libopenmpi-dev
+            - libtool
+            - openmpi-bin
           sources:
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-6.0
+            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+
+    # GCC 7
+    - name: "Trusty GCC 7"
+      env: COMPILER=g++-7
+      dist: trusty
+      addons: &gcc7
+        apt:
           packages:
             - g++-7
-      env:
-        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
-      before_script:
-        - mkdir -p archives
-      script:
-        - ./setup.sh
+            - libhwloc-dev
+            - libopenmpi-dev
+            - libtool
+            - openmpi-bin
+          sources:
+            - ubuntu-toolchain-r-test
 
-    - language: python
-      python: 3.6
-      before_script:
-        - cd tests
-      script:
-        - python3 boilerplate/generate_g.py
+    # GCC 7
+    - name: "Xenial GCC 7"
+      env: COMPILER=g++-7
+      dist: xenial
+      addons: &gcc7
+        apt:
+          packages:
+            - g++-7
+            - libopenmpi-dev
+            - libtool-bin
+          sources:
+            - ubuntu-toolchain-r-test
 
-before_install:
-    - eval "${MATRIX_EVAL}"
+install:
+  # Set the ${CXX} variable properly
+  - export CXX=${COMPILER}
+script:
+  - ./setup.sh
+
+    # - language: python
+    #   python: 3.6
+    #   before_script:
+    #     - cd tests
+    #   script:
+    #     - python3 boilerplate/generate_g.py
