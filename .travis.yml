@@ -63,10 +63,13 @@ install:
   - |
     if [[ ! -z "${_CXX}" ]]; then
 
-      # update C++ compiler properly
+      # set the proper C++ compiler
       export CXX=${_CXX}
 
-      # Dependencies required by the CI are installed in ${TRAVIS_BUILD_DIR}/deps/
+      # set the maximum number of cores supported on Travis
+      JOBS=2
+
+      # dependencies required by the CI are installed in ${TRAVIS_BUILD_DIR}/deps/
       DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
       mkdir -p "${DEPS_DIR}"
 
@@ -78,41 +81,43 @@ install:
       cmake --version
       cd ${TRAVIS_BUILD_DIR}
 
-      # install SystemC
-      SYSC='systemc-2.3.3'
-      sysc_url='https://www.accellera.org/images/downloads/standards/systemc/'
-      curl -kL ${sysc_url}${SYSC}.tar.gz | tar xz -C ${DEPS_DIR}
-      mkdir -p ${DEPS_DIR}/${SYSC}/build
-      cd ${DEPS_DIR}/${SYSC}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j2 && sudo make install
-      cd ${TRAVIS_BUILD_DIR}
+      # # install SystemC
+      # SYSC='systemc-2.3.3'
+      # sysc_url='https://www.accellera.org/images/downloads/standards/systemc/'
+      # curl -kL ${sysc_url}${SYSC}.tar.gz | tar xz -C ${DEPS_DIR}
+      # mkdir -p ${DEPS_DIR}/${SYSC}/build
+      # cd ${DEPS_DIR}/${SYSC}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
+      # cd ${TRAVIS_BUILD_DIR}
 
-      # install SST Core
-      SSTCORE='sstcore-8.0.0'
-      sst_core_url='https://github.com/sstsimulator/sst-core/releases/download/v8.0.0_Final/'
-      mkdir -p ~/.sst
-      touch ~/.sst/sstsimulator.conf
-      curl -L ${sst_core_url}${SSTCORE}.tar.gz | tar xz -C ${DEPS_DIR}
-      cd ${DEPS_DIR}/${SSTCORE} && ./configure && make -j2 all && sudo make install
-      cd ${TRAVIS_BUILD_DIR}
+      # # install SST Core
+      # SSTCORE='sstcore-8.0.0'
+      # sst_core_url='https://github.com/sstsimulator/sst-core/releases/download/v8.0.0_Final/'
+      # mkdir -p ~/.sst
+      # touch ~/.sst/sstsimulator.conf
+      # curl -L ${sst_core_url}${SSTCORE}.tar.gz | tar xz -C ${DEPS_DIR}
+      # cd ${DEPS_DIR}/${SSTCORE} && ./configure && make -j${JOBS} all && sudo make install
+      # cd ${TRAVIS_BUILD_DIR}
 
-      # install SST Elements
-      SSTELEM='sstelements-8.0.0'
-      sst_elem_url='https://github.com/sstsimulator/sst-elements/releases/download/v8.0.0_Final/'
-      curl -L ${sst_elem_url}${SSTELEM}.tar.gz | tar xz -C ${DEPS_DIR}
-      mv ${DEPS_DIR}/sst-elements* ${DEPS_DIR}/${SSTELEM}
-      cd ${DEPS_DIR}/${SSTELEM} && ./configure && make -j2 all && sudo make install
-      cd ${TRAVIS_BUILD_DIR}
+      # # install SST Elements
+      # SSTELEM='sstelements-8.0.0'
+      # sst_elem_url='https://github.com/sstsimulator/sst-elements/releases/download/v8.0.0_Final/'
+      # curl -L ${sst_elem_url}${SSTELEM}.tar.gz | tar xz -C ${DEPS_DIR}
+      # mv ${DEPS_DIR}/sst-elements* ${DEPS_DIR}/${SSTELEM}
+      # cd ${DEPS_DIR}/${SSTELEM} && ./configure && make -j${JOBS} all && sudo make install
+      # cd ${TRAVIS_BUILD_DIR}
 
-      # install msgpack
-      MSGPACK='msgpack-3.1.1'
-      msgpack_url='https://github.com/msgpack/msgpack-c/releases/download/cpp-3.1.1/'
-      curl -L ${msgpack_url}${MSGPACK}.tar.gz | tar xz -C ${DEPS_DIR}
-      cd ${DEPS_DIR}/${MSGPACK} && cmake -DMSGPACK_CXX11=ON . && sudo make install
-      cd ${TRAVIS_BUILD_DIR}
+      # # install msgpack
+      # MSGPACK='msgpack-3.1.1'
+      # msgpack_url='https://github.com/msgpack/msgpack-c/releases/download/cpp-3.1.1/'
+      # curl -L ${msgpack_url}${MSGPACK}.tar.gz | tar xz -C ${DEPS_DIR}
+      # cd ${DEPS_DIR}/${MSGPACK} && cmake -DMSGPACK_CXX11=ON . && sudo make install
+      # cd ${TRAVIS_BUILD_DIR}
 
     fi
+
 before_script:
   - cd tests
+
 script:
   - |
     [[ ! -z "${_CXX}" ]] && make unit-test || make generate-test
