@@ -54,14 +54,9 @@ matrix:
             - ubuntu-toolchain-r-test
 
 install:
-  # Set the ${CXX} variable properly
   - export CXX=${COMPILER}
+  - ./install-deps.sh
+before_script:
+  - cd tests
 script:
-  - ./setup.sh
-
-    # - language: python
-    #   python: 3.6
-    #   before_script:
-    #     - cd tests
-    #   script:
-    #     - python3 boilerplate/generate_g.py
+  - make test
