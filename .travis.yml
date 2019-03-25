@@ -64,7 +64,7 @@ install:
     if [[ ! -z "${_CXX}" ]]; then
       export CXX=${_CXX}
       CMAKE_VER=3.14.0
-      CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
+      CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}.tar.gz"
       mkdir cmake && travis_retry wget --no-check-certificate -O - ${CMAKE_URL} | tar --strip-components=1 -xz -C cmake
       export PATH=${DEPS_DIR}/cmake/bin:${PATH}
       cd ${TRAVIS_BUILD_DIR}
