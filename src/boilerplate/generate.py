@@ -41,12 +41,12 @@ class BoilerPlate():
 
         if self.ipc in ("sock", "socks", "socket", "sockets"):
             self.drvr_decl = """// Initialize signal handlers
-    SignalSocket m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
+    SocketSignal m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);"""
             self.drvr_dest = ""
             self.sender = self.receiver = "m_signal_io"
 
-            self.bbox_decl = """SignalSocket m_signal_io;"""
+            self.bbox_decl = """SocketSignal m_signal_io;"""
             self.bbox_init = """m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"""
             self.bbox_bind = "m_signal_io.set_addr(m_ipc_port)"
             self.bbox_dest = ""

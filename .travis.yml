@@ -64,7 +64,8 @@ install:
     if [[ ! -z "${_CXX}" ]]; then
       export CXX=${_CXX}
       curl -L https://github.com/Kitware/CMake/releases/download/v3.14.0/cmake-3.14.0.tar.gz | tar xz
-      cd cmake-3.14.0 && cmake . && make && sudo make install
+      cd cmake-3.14.0 && cmake . && make -j2 && sudo make install
+      cd ${TRAVIS_BUILD_DIR}
       ./install-deps.sh
     fi
 before_script:
