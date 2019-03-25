@@ -23,7 +23,7 @@ private:
 
 public:
 
-    MSGPACK_DEFINE (m_data);
+    MSGPACK_DEFINE (m_data)
 
     explicit SocketSignal(int, bool = true);
 

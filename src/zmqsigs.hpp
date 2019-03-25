@@ -15,7 +15,7 @@ private:
 
 public:
 
-    MSGPACK_DEFINE (m_data);
+    MSGPACK_DEFINE (m_data)
 
     explicit ZMQReceiver(zmq::socket_t &);
 
