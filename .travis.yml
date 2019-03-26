@@ -22,7 +22,10 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
+            - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-6.0
+            - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main"
+              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     # Clang 7
     - name: "Ubuntu 14.04, Clang 7"
@@ -36,7 +39,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
-            - llvm-toolchain-trusty-7.0
+            - llvm-toolchain-trusty-7
 
     # --------------- GCC on Linux --------------- #
 
@@ -99,7 +102,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
-            - llvm-toolchain-xenial-7.0
+            - llvm-toolchain-xenial-7
 
     # --------------- GCC on Linux --------------- #
 
@@ -132,7 +135,7 @@ matrix:
     # --------------- Python script on Linux --------------- #
 
     # Python 3
-    - name: "Boilerplate Code Generator on Xenial"
+    - name: "Ubuntu 16.04, Boilerplate Code Generator"
       dist: xenial
       language: python
       python: 3.6
