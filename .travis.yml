@@ -34,7 +34,7 @@ matrix:
       addons: &clang70
         apt:
           packages:
-            - clang-7.0
+            - clang-7
             - libopenmpi-dev
             - libtool
             - openmpi-bin
@@ -98,7 +98,7 @@ matrix:
       addons: &clang70
         apt:
           packages:
-            - clang-7.0
+            - clang-7
             - libopenmpi-dev
             - libtool
             - openmpi-bin
