@@ -12,15 +12,31 @@ A library to provide interoperability between
 
 The following table summarizes the minimum versions of the languages and libraries used in the project.
 
+### Languages and Compilers
+
+|Language|Version|
+|--------|-------|
+|C++     |11     |
+|Python  |3.6    |
+
+|Compiler|Version|
+|--------|-------|
+|Clang   |6.0    |
+|GCC     |6.0    |
+
+### Libraries
+
 |Requirement|Version|
 |-----------|-------|
-|C++        |11     |
 |CMake      |3.14   |
 |msgpack    |3.1.1  |
-|Python     |3.6    |
 |SST        |8.0.0  |
 |SystemC    |2.3.3  |
 
-### System
+### Systems
 
 Due to limitations with SST, this library currently only works on Linux systems. A list of supported distributions can be found in `.travis.yml`.
+
+## Usage
+
+To establish interoperability between an SST model and a SystemC module, a black box SST model and SystemC driver must be generated. The black boxes establish interprocess communication (IPC) between the SST and SystemC processes. The Python class `generate.BoilerPlate` can be used to generate the black boxes.
