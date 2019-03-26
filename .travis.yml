@@ -18,23 +18,23 @@ matrix:
         apt:
           packages:
             - clang-6.0
+            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
           sources:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-6.0
-            - sourceline: "deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main"
-              key_url: "https://apt.llvm.org/llvm-snapshot.gpg.key"
 
     # Clang 7
     - name: "Ubuntu 14.04, Clang 7"
-      env: _CXX=clang++-7.0
+      env: _CXX=clang++-7
       dist: trusty
       addons: &clang70
         apt:
           packages:
             - clang-7
+            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
@@ -52,6 +52,7 @@ matrix:
         apt:
           packages:
             - g++-6
+            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
@@ -66,6 +67,7 @@ matrix:
         apt:
           packages:
             - g++-7
+            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
@@ -85,6 +87,7 @@ matrix:
         apt:
           packages:
             - clang-6.0
+            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
@@ -93,12 +96,13 @@ matrix:
 
     # Clang 7
     - name: "Ubuntu 16.04, Clang 7"
-      env: _CXX=clang++-7.0
+      env: _CXX=clang++-7
       dist: xenial
       addons: &clang70
         apt:
           packages:
             - clang-7
+            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
@@ -116,6 +120,7 @@ matrix:
         apt:
           packages:
             - g++-6
+            - libhwloc-dev
             - libopenmpi-dev
             - libtool-bin
           sources:
@@ -129,6 +134,7 @@ matrix:
         apt:
           packages:
             - g++-7
+            - libhwloc-dev
             - libopenmpi-dev
             - libtool-bin
           sources:
