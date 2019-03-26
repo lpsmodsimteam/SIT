@@ -3,6 +3,7 @@
  *
  * */
 
+#define RESET_TIME 3
 #define SIMTIME 39
 
 #include <sst/core/component.h>
@@ -120,9 +121,9 @@ bool prototype::tick(SST::Cycle_t current_cycle) {
     bool keep_recv = current_cycle < SIMTIME - 1;
 
     // turn reset off at 3 ns
-    if (current_cycle >= 3) {
+    if (current_cycle >= RESET_TIME) {
 
-        if (current_cycle == 3) {
+        if (current_cycle == RESET_TIME) {
             m_output.verbose(CALL_INFO, 1, 0, "RESET OFF\n");
         }
 
