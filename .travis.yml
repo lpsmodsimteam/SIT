@@ -39,6 +39,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
+            - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-7
 
     # --------------- GCC on Linux --------------- #
@@ -102,6 +103,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
+            - ubuntu-toolchain-r-test
             - llvm-toolchain-xenial-7
 
     # --------------- GCC on Linux --------------- #
