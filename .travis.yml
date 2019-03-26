@@ -38,7 +38,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
-            - llvm-toolchain-trusty-7.0
+            - llvm-toolchain-trusty-7
 
     # --------------- GCC on Linux --------------- #
 
@@ -87,7 +87,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
-            - llvm-toolchain-xenial-6.0
+            - llvm-toolchain-xenial-6
 
     # Clang 7
     - name: "Ubuntu 16.04, Clang 7"
@@ -101,7 +101,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
-            - llvm-toolchain-xenial-7.0
+            - llvm-toolchain-xenial-7
 
     # --------------- GCC on Linux --------------- #
 
