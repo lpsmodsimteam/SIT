@@ -10,53 +10,46 @@ matrix:
 
     # --------------- Clang on Linux --------------- #
 
-    # Clang 6.0
-    - name: "Trusty Clang 6.0"
+    # Clang 6
+    - name: "Ubuntu 14.04, Clang 6"
       env: _CXX=clang++-6.0
       dist: trusty
       addons: &clang60
         apt:
           packages:
             - clang-6.0
-            - g++-7
-            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
           sources:
-            - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-6.0
             - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main'
               key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
 
-    # Clang 7.0
-    - name: "Trusty Clang 7.0"
+    # Clang 7
+    - name: "Ubuntu 14.04, Clang 7"
       env: _CXX=clang++-7.0
       dist: trusty
       addons: &clang70
         apt:
           packages:
             - clang-7.0
-            - g++-7
-            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
           sources:
-            - ubuntu-toolchain-r-test
             - llvm-toolchain-trusty-7.0
 
     # --------------- GCC on Linux --------------- #
 
     # GCC 6
-    - name: "Trusty GCC 6"
+    - name: "Ubuntu 14.04, GCC 6"
       env: _CXX=g++-6
       dist: trusty
       addons: &gcc6
         apt:
           packages:
             - g++-6
-            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
@@ -64,26 +57,56 @@ matrix:
             - ubuntu-toolchain-r-test
 
     # GCC 7
-    - name: "Trusty GCC 7"
+    - name: "Ubuntu 14.04, GCC 7"
       env: _CXX=g++-7
       dist: trusty
       addons: &gcc7
         apt:
           packages:
             - g++-7
-            - libhwloc-dev
             - libopenmpi-dev
             - libtool
             - openmpi-bin
           sources:
             - ubuntu-toolchain-r-test
 
+
     # --------------- Linux Xenial --------------- #
+
+    # --------------- Clang on Linux --------------- #
+
+    # Clang 6
+    - name: "Ubuntu 16.04, Clang 6"
+      env: _CXX=clang++-6.0
+      dist: xenial
+      addons: &clang60
+        apt:
+          packages:
+            - clang-6.0
+            - libopenmpi-dev
+            - libtool
+            - openmpi-bin
+          sources:
+            - llvm-toolchain-xenial-6.0
+
+    # Clang 7
+    - name: "Ubuntu 16.04, Clang 7"
+      env: _CXX=clang++-7.0
+      dist: xenial
+      addons: &clang70
+        apt:
+          packages:
+            - clang-7.0
+            - libopenmpi-dev
+            - libtool
+            - openmpi-bin
+          sources:
+            - llvm-toolchain-xenial-7.0
 
     # --------------- GCC on Linux --------------- #
 
     # GCC 6
-    - name: "Xenial GCC 6"
+    - name: "Ubuntu 16.04, GCC 6"
       env: _CXX=g++-6
       dist: xenial
       addons: &gcc6
@@ -96,7 +119,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     # GCC 7
-    - name: "Xenial GCC 7"
+    - name: "Ubuntu 16.04, GCC 7"
       env: _CXX=g++-7
       dist: xenial
       addons: &gcc7
