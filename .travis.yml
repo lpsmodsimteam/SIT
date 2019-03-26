@@ -23,8 +23,6 @@ matrix:
             - openmpi-bin
           sources:
             - llvm-toolchain-trusty-6.0
-            - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main'
-              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
 
     # Clang 7
     - name: "Ubuntu 14.04, Clang 7"
@@ -38,7 +36,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
-            - llvm-toolchain-trusty-7
+            - llvm-toolchain-trusty-7.0
 
     # --------------- GCC on Linux --------------- #
 
@@ -87,7 +85,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
-            - llvm-toolchain-xenial-6
+            - llvm-toolchain-xenial-6.0
 
     # Clang 7
     - name: "Ubuntu 16.04, Clang 7"
@@ -101,7 +99,7 @@ matrix:
             - libtool
             - openmpi-bin
           sources:
-            - llvm-toolchain-xenial-7
+            - llvm-toolchain-xenial-7.0
 
     # --------------- GCC on Linux --------------- #
 
