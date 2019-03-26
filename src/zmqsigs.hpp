@@ -26,7 +26,7 @@ public:
 
     // hide non-virtual base method
     template<typename T>
-    void set(const std::string &, const T &) {};
+    void set(const std::string &, const T &) {}
 
 
 };
@@ -42,7 +42,7 @@ private:
 
 public:
 
-    MSGPACK_DEFINE (m_data);
+    MSGPACK_DEFINE (m_data)
 
     explicit ZMQTransmitter(zmq::socket_t &);
 
@@ -52,13 +52,13 @@ public:
 
     // hide non-virtual base method
     template<typename T>
-    T get(const std::string &) {};
+    T get(const std::string &) {}
 
     // hide non-virtual base method
-    bool alive() { return false; };
+    bool alive() { return false; }
 
     // hide non-virtual base method
-    bool get_clock_pulse(const std::string &) { return false; };
+    bool get_clock_pulse(const std::string &) { return false; }
 
 
 };

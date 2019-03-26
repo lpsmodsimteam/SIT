@@ -6,6 +6,10 @@ notifications:
 matrix:
   include:
 
+    # --------------- Linux Trusty --------------- #
+
+    # --------------- Clang on Linux --------------- #
+
     # Clang 6.0
     - name: "Trusty Clang 6.0"
       env: _CXX=clang++-6.0
@@ -25,6 +29,40 @@ matrix:
             - sourceline: 'deb http://apt.llvm.org/trusty/ llvm-toolchain-trusty-6.0 main'
               key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
 
+    # Clang 7.0
+    - name: "Trusty Clang 7.0"
+      env: _CXX=clang++-7.0
+      dist: trusty
+      addons: &clang70
+        apt:
+          packages:
+            - clang-7.0
+            - g++-7
+            - libhwloc-dev
+            - libopenmpi-dev
+            - libtool
+            - openmpi-bin
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-7.0
+
+    # --------------- GCC on Linux --------------- #
+
+    # GCC 6
+    - name: "Trusty GCC 6"
+      env: _CXX=g++-6
+      dist: trusty
+      addons: &gcc6
+        apt:
+          packages:
+            - g++-6
+            - libhwloc-dev
+            - libopenmpi-dev
+            - libtool
+            - openmpi-bin
+          sources:
+            - ubuntu-toolchain-r-test
+
     # GCC 7
     - name: "Trusty GCC 7"
       env: _CXX=g++-7
@@ -40,6 +78,23 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
+    # --------------- Linux Xenial --------------- #
+
+    # --------------- GCC on Linux --------------- #
+
+    # GCC 6
+    - name: "Xenial GCC 6"
+      env: _CXX=g++-6
+      dist: xenial
+      addons: &gcc6
+        apt:
+          packages:
+            - g++-6
+            - libopenmpi-dev
+            - libtool-bin
+          sources:
+            - ubuntu-toolchain-r-test
+
     # GCC 7
     - name: "Xenial GCC 7"
       env: _CXX=g++-7
@@ -48,11 +103,12 @@ matrix:
         apt:
           packages:
             - g++-7
-            - libhwloc-dev
             - libopenmpi-dev
             - libtool-bin
           sources:
             - ubuntu-toolchain-r-test
+
+    # --------------- Python script on Linux --------------- #
 
     # Python 3
     - name: "Boilerplate Code Generator on Xenial"
@@ -85,7 +141,7 @@ install:
       # install SystemC
       SYSC="systemc-2.3.3"
       sysc_url="https://www.accellera.org/images/downloads/standards/systemc/"
-      curl -kL ${sysc_url}${SYSC}.tar.gz | tar xz -C ${DEPS_DIR}
+      curl -L ${sysc_url}${SYSC}.tar.gz | tar xz -C ${DEPS_DIR}
       mkdir -p ${DEPS_DIR}/${SYSC}/build
       cd ${DEPS_DIR}/${SYSC}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
       cd ${TRAVIS_BUILD_DIR}
