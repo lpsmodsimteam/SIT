@@ -15,3 +15,5 @@ CMakeCache.txt
 # Python environment and cache
 *.pyc
 .venv/
+
+msgpack/

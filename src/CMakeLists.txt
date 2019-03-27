@@ -58,5 +58,5 @@ if (${ZMQ})
 
 endif ()
 
-find_package(msgpack)
+include_directories(../msgpack/include)
 # -------------------- EXTERNAL LIBRARIES --------------------

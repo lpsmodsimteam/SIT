@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -o errexit
+
+msgpack_url="https://github.com/msgpack/msgpack-c"
+git clone --depth 1 -q ${msgpack_url} msgpack && find msgpack -mindepth 1 ! -regex '^msgpack/include\(/.*\)?' -delete
