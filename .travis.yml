@@ -11,7 +11,7 @@ matrix:
     # --------------- Clang on Linux --------------- #
 
     # Clang 6
-    - name: "Ubuntu 16.04, Clang 6"
+    - name: "Clang 6"
       env: _CXX=clang++-6.0
       dist: xenial
       addons: &clang60
@@ -26,7 +26,7 @@ matrix:
             - llvm-toolchain-xenial-6.0
 
     # Clang 7
-    - name: "Ubuntu 16.04, Clang 7"
+    - name: "Clang 7"
       env: _CXX=clang++-7
       dist: xenial
       addons: &clang70
@@ -42,7 +42,7 @@ matrix:
             - llvm-toolchain-xenial-7
 
     # Clang 8
-    - name: "Ubuntu 16.04, Clang 8"
+    - name: "Clang 8"
       env: _CXX=clang++-8
       dist: xenial
       addons: &clang80
@@ -60,7 +60,7 @@ matrix:
     # --------------- GCC on Linux --------------- #
 
     # GCC 6
-    - name: "Ubuntu 16.04, GCC 6"
+    - name: "GCC 6"
       env: _CXX=g++-6
       dist: xenial
       addons: &gcc6
@@ -74,7 +74,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     # GCC 7
-    - name: "Ubuntu 16.04, GCC 7"
+    - name: "GCC 7"
       env: _CXX=g++-7
       dist: xenial
       addons: &gcc7
@@ -88,7 +88,7 @@ matrix:
             - ubuntu-toolchain-r-test
 
     # GCC 8
-    - name: "Ubuntu 16.04, GCC 8"
+    - name: "GCC 8"
       env: _CXX=g++-8
       dist: xenial
       addons: &gcc8
@@ -104,7 +104,7 @@ matrix:
     # --------------- Python script on Linux --------------- #
 
     # Python 3
-    - name: "Ubuntu 16.04, Boilerplate Code Generator"
+    - name: "Boilerplate Code Generator"
       dist: xenial
       language: python
       python: 3.6
@@ -156,20 +156,14 @@ install:
       cd ${DEPS_DIR}/${SSTELEM} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
       cd ${TRAVIS_BUILD_DIR}
 
-      # install libzmq and cppzmq
-      LIBZMQ_VER="4.3.1"
-      libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
-      CPPZMQ_VER="4.3.0"
-      cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
-      curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
-      curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
-      mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
-      cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
-      cd ${TRAVIS_BUILD_DIR}
-      mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
-      cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
+      # install libzmq
+      sudo echo "deb http://download.opensuse.org/repositories/network:/messaging:/zeromq:/release-stable/xUbuntu_16.04/ ./" >> /etc/apt/sources.list
+      wget https://download.opensuse.org/repositories/network:messaging:zeromq:release-stable/xUbuntu_16.04/Release.key -O- | sudo apt-key add
+      sudo apt update
+      sudo apt install libzmq3-dev
       cd ${TRAVIS_BUILD_DIR}
 
+      # install cppzmq and msgpack
       ./install
       cd ${TRAVIS_BUILD_DIR}
 
@@ -180,4 +174,4 @@ before_script:
 
 script:
   - |
-    [[ ! -z "${_CXX}" ]] && make unit-test || make generate-test
+    [[ ! -z "${_CXX}" ]] && make --no-print-directory unit-test || make generate-test

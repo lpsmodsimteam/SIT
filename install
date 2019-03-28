@@ -5,3 +5,8 @@ msgpack_url="https://github.com/msgpack/msgpack-c"
 git clone --depth 1 -q ${msgpack_url} msgpack
 mkdir -p src/msgpack
 mv msgpack/include/* src/msgpack && rm -rf msgpack
+
+cppzmq_url="https://github.com/zeromq/cppzmq"
+git clone --depth 1 -q ${cppzmq_url} cppzmq
+mkdir -p src/cppzmq
+mv cppzmq/zmq*.hpp src/cppzmq && rm -rf cppzmq

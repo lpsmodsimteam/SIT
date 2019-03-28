@@ -2,7 +2,7 @@
 #define ZMQSIGS_HPP
 
 #include "sigutils.hpp"
-#include <zmq.hpp>
+#include "cppzmq/zmq.hpp"
 
 
 class ZMQReceiver : public SignalIO {
