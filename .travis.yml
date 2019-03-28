@@ -41,6 +41,22 @@ matrix:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-xenial-7
 
+    # Clang 8
+    - name: "Ubuntu 16.04, Clang 8"
+      env: _CXX=clang++-8
+      dist: xenial
+      addons: &clang80
+        apt:
+          packages:
+            - clang-8
+            - libhwloc-dev
+            - libopenmpi-dev
+            - libtool
+            - openmpi-bin
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-xenial-8
+
     # --------------- GCC on Linux --------------- #
 
     # GCC 6
@@ -65,6 +81,20 @@ matrix:
         apt:
           packages:
             - g++-7
+            - libhwloc-dev
+            - libopenmpi-dev
+            - libtool-bin
+          sources:
+            - ubuntu-toolchain-r-test
+
+    # GCC 8
+    - name: "Ubuntu 16.04, GCC 8"
+      env: _CXX=g++-8
+      dist: xenial
+      addons: &gcc8
+        apt:
+          packages:
+            - g++-8
             - libhwloc-dev
             - libopenmpi-dev
             - libtool-bin
