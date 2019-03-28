@@ -57,6 +57,7 @@ if (${ZMQ})
     endmacro()
 
 endif ()
+get_filename_component(SRC_DIR ../../src ABSOLUTE)
+include_directories(${SRC_DIR}/msgpack)
 
-include_directories(../msgpack/include)
 # -------------------- EXTERNAL LIBRARIES --------------------

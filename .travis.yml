@@ -184,7 +184,7 @@ install:
       mkdir -p ~/.sst
       touch ~/.sst/sstsimulator.conf
       curl -L ${sst_core_url}${SSTCORE}.tar.gz | tar xz -C ${DEPS_DIR}
-      cd ${DEPS_DIR}/${SSTCORE} && ./configure && make -j${JOBS} all && sudo make install
+      cd ${DEPS_DIR}/${SSTCORE} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
       cd ${TRAVIS_BUILD_DIR}
 
       # install SST Elements
@@ -192,7 +192,7 @@ install:
       sst_elem_url="https://github.com/sstsimulator/sst-elements/releases/download/v8.0.0_Final/"
       curl -L ${sst_elem_url}${SSTELEM}.tar.gz | tar xz -C ${DEPS_DIR}
       mv ${DEPS_DIR}/sst-elements* ${DEPS_DIR}/${SSTELEM}
-      cd ${DEPS_DIR}/${SSTELEM} && ./configure --disable-dependency-tracking --with-ember=no && make -j${JOBS} all && sudo make install
+      cd ${DEPS_DIR}/${SSTELEM} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
       cd ${TRAVIS_BUILD_DIR}
 
       # install libzmq and cppzmq

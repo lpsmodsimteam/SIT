@@ -2,4 +2,6 @@
 set -o errexit
 
 msgpack_url="https://github.com/msgpack/msgpack-c"
-git clone --depth 1 -q ${msgpack_url} msgpack && find msgpack -mindepth 1 ! -regex '^msgpack/include\(/.*\)?' -delete
+git clone --depth 1 -q ${msgpack_url} msgpack
+mkdir -p src/msgpack
+mv msgpack/include/* src/msgpack && rm -rf msgpack
