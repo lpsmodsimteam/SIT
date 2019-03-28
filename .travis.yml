@@ -6,75 +6,6 @@ notifications:
 matrix:
   include:
 
-    # --------------- Linux Trusty --------------- #
-
-    # --------------- Clang on Linux --------------- #
-
-    # Clang 6
-    - name: "Ubuntu 14.04, Clang 6"
-      env: _CXX=clang++-6.0
-      dist: trusty
-      addons: &clang60
-        apt:
-          packages:
-            - clang-6.0
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool
-            - openmpi-bin
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
-
-    # Clang 7
-    - name: "Ubuntu 14.04, Clang 7"
-      env: _CXX=clang++-7
-      dist: trusty
-      addons: &clang70
-        apt:
-          packages:
-            - clang-7
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool
-            - openmpi-bin
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-7
-
-    # --------------- GCC on Linux --------------- #
-
-    # GCC 6
-    - name: "Ubuntu 14.04, GCC 6"
-      env: _CXX=g++-6
-      dist: trusty
-      addons: &gcc6
-        apt:
-          packages:
-            - g++-6
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool
-            - openmpi-bin
-          sources:
-            - ubuntu-toolchain-r-test
-
-    # GCC 7
-    - name: "Ubuntu 14.04, GCC 7"
-      env: _CXX=g++-7
-      dist: trusty
-      addons: &gcc7
-        apt:
-          packages:
-            - g++-7
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool
-            - openmpi-bin
-          sources:
-            - ubuntu-toolchain-r-test
-
-
     # --------------- Linux Xenial --------------- #
 
     # --------------- Clang on Linux --------------- #
@@ -209,7 +140,7 @@ install:
       cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
       cd ${TRAVIS_BUILD_DIR}
 
-      cd sstscit && ./install
+      ./install
       cd ${TRAVIS_BUILD_DIR}
 
     fi
