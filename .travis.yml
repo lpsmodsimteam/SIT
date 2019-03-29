@@ -163,13 +163,13 @@ install:
       sudo apt install libzmq3-dev
       cd ${TRAVIS_BUILD_DIR}
 
-      # install libzmq
-      LIBZMQ_VER="4.3.1"
-      libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
-      curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
-      mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
-      cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
-      cd ${TRAVIS_BUILD_DIR}
+      # # install libzmq
+      # LIBZMQ_VER="4.3.1"
+      # libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
+      # curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
+      # mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
+      # cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
+      # cd ${TRAVIS_BUILD_DIR}
 
       # install cppzmq and msgpack
       ./install
