@@ -1,5 +1,7 @@
 os: linux
+dist: xenial
 language: cpp
+
 notifications:
   email: false
 
@@ -13,8 +15,7 @@ matrix:
     # Clang 6
     - name: "Clang 6"
       env: _CXX=clang++-6.0
-      dist: xenial
-      addons: &clang60
+      addons:
         apt:
           packages:
             - clang-6.0
@@ -28,8 +29,7 @@ matrix:
     # Clang 7
     - name: "Clang 7"
       env: _CXX=clang++-7
-      dist: xenial
-      addons: &clang70
+      addons:
         apt:
           packages:
             - clang-7
@@ -44,8 +44,7 @@ matrix:
     # Clang 8
     - name: "Clang 8"
       env: _CXX=clang++-8
-      dist: xenial
-      addons: &clang80
+      addons:
         apt:
           packages:
             - clang-8
@@ -62,8 +61,7 @@ matrix:
     # GCC 6
     - name: "GCC 6"
       env: _CXX=g++-6
-      dist: xenial
-      addons: &gcc6
+      addons:
         apt:
           packages:
             - g++-6
@@ -76,8 +74,7 @@ matrix:
     # GCC 7
     - name: "GCC 7"
       env: _CXX=g++-7
-      dist: xenial
-      addons: &gcc7
+      addons:
         apt:
           packages:
             - g++-7
@@ -90,8 +87,7 @@ matrix:
     # GCC 8
     - name: "GCC 8"
       env: _CXX=g++-8
-      dist: xenial
-      addons: &gcc8
+      addons:
         apt:
           packages:
             - g++-8
@@ -105,7 +101,6 @@ matrix:
 
     # Python 3
     - name: "Boilerplate Code Generator"
-      dist: xenial
       language: python
       python: 3.6
 

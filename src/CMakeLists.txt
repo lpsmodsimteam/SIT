@@ -5,7 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_compile_options(-Wall -Wextra -Wpedantic)
+if (NOT ${UNIT_TEST})
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
 
 # -------------------- SYSTEMC CONFIGS --------------------
 set(CMAKE_PREFIX_PATH /opt/systemc)
@@ -44,19 +46,22 @@ endmacro()
 # -------------------- EXTERNAL LIBRARIES --------------------
 if (${ZMQ})
 
-    message(STATUS "Using ZMQ for IPC")
-    find_package(cppzmq)
-    add_definitions(-DUSE_ZMQ)
+    find_package(cppzmq REQUIRED)
+    if (${cppzmq_FOUND})
+        message(STATUS "Using ZMQ for IPC")
+        add_definitions(-DUSE_ZMQ)
 
-    macro(add_executable _name)
-        # invoke built-in add_executable
-        _add_executable(${ARGV})
-        if (TARGET ${_name})
-            target_link_libraries(${_name} cppzmq)
-        endif ()
-    endmacro()
+        macro(add_executable _name)
+            # invoke built-in add_executable
+            _add_executable(${ARGV})
+            if (TARGET ${_name})
+                target_link_libraries(${_name} cppzmq)
+            endif ()
+        endmacro()
+    endif ()
 
 endif ()
+
 get_filename_component(SRC_DIR ../../src ABSOLUTE)
 include_directories(${SRC_DIR}/msgpack)
 
