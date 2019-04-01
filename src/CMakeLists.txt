@@ -5,10 +5,6 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-if (NOT ${UNIT_TEST})
-    add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
 # -------------------- SYSTEMC CONFIGS --------------------
 set(CMAKE_PREFIX_PATH /opt/systemc)
 find_package(SystemCLanguage CONFIG REQUIRED)

@@ -1,3 +1,10 @@
+/*
+ * SignalIO class definitions and implementations.
+ *
+ * Common 
+ * 
+ */
+
 #ifndef SIGUTILS_HPP
 #define SIGUTILS_HPP
 

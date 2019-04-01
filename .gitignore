@@ -17,4 +17,3 @@ CMakeCache.txt
 .venv/
 
 msgpack/
-cppzmq/

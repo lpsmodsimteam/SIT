@@ -21,6 +21,9 @@ if (${UNIT_TEST})
 
 else ()
 
+    # add compiler warnings
+    add_compile_options(-Wall -Wextra -Wpedantic)
+
     # -------------------- DEMO EXECUTABLES --------------------
     if (${DEMO_ZMQ})
         add_executable(libproto.so prototype.cpp blackboxes/galois_zmq.cpp blackboxes/fib_zmq.cpp)
