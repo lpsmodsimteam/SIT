@@ -1,3 +1,7 @@
+/*
+ * SST-SystemC Interoperability Toolkit
+ * */
+
 #ifndef SSTSCIT_HPP
 #define SSTSCIT_HPP
 
@@ -7,4 +11,4 @@
 #include "zmqsigs.hpp"
 #endif
 
-#endif
+#endif  // SSTSCIT_HPP

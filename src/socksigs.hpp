@@ -1,3 +1,7 @@
+/*
+ * SocketSignal class definitions and implementations.
+ */
+
 #ifndef SOCKSIGS_HPP
 #define SOCKSIGS_HPP
 
@@ -7,10 +11,16 @@
 
 #include <sys/un.h>
 
+/*
+ * Implements methods to receive signals via UNIX domain sockets.
+ *
+ * This class inherits the abstract sigutils::SignalIO base class.
+ */
 class SocketSignal : public SignalIO {
 
 private:
 
+    // flag to determine the options for setting up the sockets
     bool m_server_side;
     int m_socket, m_rd_socket;
     size_t m_rd_bytes;
@@ -23,16 +33,32 @@ private:
 
 public:
 
+    // register the data container with MessagePack
     MSGPACK_DEFINE (m_data)
 
+    /*
+     * Default constructor - initializes the sockets and buffers. The default
+     * parameter `server_side` is set to true for parent processes. The child
+     * processes need to set the parameter to false to set up the connection
+     * properly.
+     */
     explicit SocketSignal(int, bool = true);
 
+    /*
+     * Destructor - unlinks and closes the sockets after use
+     */
     ~SocketSignal();
 
     void set_addr(const std::string &addr);
 
+    /*
+     * Packs the buffer to MessagePack and sends the data
+     */
     void send();
 
+    /*
+     * Receives data and unpacks the buffer to MessagePack
+     */
     void recv();
 
 };

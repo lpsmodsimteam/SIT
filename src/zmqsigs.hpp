@@ -1,10 +1,21 @@
+/*
+ * ZMQReceiver and ZMQTransmitter class definitions and implementations.
+ */
+
 #ifndef ZMQSIGS_HPP
 #define ZMQSIGS_HPP
 
 #include "sigutils.hpp"
+
 #include <zmq.hpp>
 
-
+/*
+ * Implements methods to receive signals via ZeroMQ.
+ *
+ * This class inherits the abstract sigutils::SignalIO base class and
+ * implicitly overrides some non-virtual base methods to implement only the
+ * receiving functionality.
+ */
 class ZMQReceiver : public SignalIO {
 
 private:
@@ -15,10 +26,17 @@ private:
 
 public:
 
+    // register the data container with MessagePack
     MSGPACK_DEFINE (m_data)
 
+    /*
+     * Default constructor - initializes the `zmq` sockets
+     */
     explicit ZMQReceiver(zmq::socket_t &);
 
+    /*
+     * Receives data and unpacks the buffer to MessagePack
+     */
     void recv();
 
     // hide non-virtual base method
@@ -28,9 +46,15 @@ public:
     template<typename T>
     void set(const std::string &, const T &) {}
 
-
 };
 
+/*
+ * Implements methods to transmit signals via ZeroMQ.
+ *
+ * This class inherits the abstract sigutils::SignalIO base class and
+ * implicitly overrides some non-virtual base methods to implement only the
+ * transmitting functionality.
+ */
 class ZMQTransmitter : public SignalIO {
 
 private:
@@ -42,12 +66,22 @@ private:
 
 public:
 
+    // register the data container with MessagePack
     MSGPACK_DEFINE (m_data)
 
+    /*
+     * Default constructor - initializes the `zmq` sockets
+     */
     explicit ZMQTransmitter(zmq::socket_t &);
 
+    /*
+     * Destructor - clears any remaining MessagePack buffers
+     */
     ~ZMQTransmitter();
 
+    /*
+     * Packs the buffer to MessagePack and sends the data
+     */
     void send();
 
     // hide non-virtual base method
@@ -59,7 +93,6 @@ public:
 
     // hide non-virtual base method
     bool get_clock_pulse(const std::string &) { return false; }
-
 
 };
 
@@ -106,4 +139,4 @@ inline void ZMQTransmitter::send() {
 
 }
 
-#endif
+#endif  // ZMQSIGS_HPP
