@@ -7,7 +7,7 @@ A toolkit to provide interoperability between
 
 ## Requirements
 
-The following table summarizes the minimum versions of the languages and libraries used in the project.
+The following tables summarize the minimum versions of the languages and libraries used in the project.
 
 ### Languages and Compilers
 
@@ -38,4 +38,4 @@ Due to limitations with SST, this library currently only works on Linux systems.
 
 To establish interoperability between an SST model and a SystemC module, a black box SST model and SystemC driver must be generated. The black boxes establish interprocess communication (IPC) between the SST and SystemC processes. The Python class `generate.BoilerPlate` can be used to generate the black boxes.
 
-![alt image](https://raw.githubusercontent.com/sabbirahm3d/sstscit/master/docs/model.png)
+![comm](https://raw.githubusercontent.com/sabbirahm3d/sstscit/master/docs/comm.png)

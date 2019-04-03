@@ -90,6 +90,7 @@ inline void SocketSignal::set_addr(const std::string &addr) {
     m_addr.sun_family = AF_UNIX;
     strcpy(m_addr.sun_path, addr.c_str());
 
+    // parent process socket options
     if (m_server_side) {
 
         if (bind(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
@@ -105,7 +106,7 @@ inline void SocketSignal::set_addr(const std::string &addr) {
             perror("Accept failed\n");
         }
 
-    } else {
+    } else {  // child process socket options
 
         if (connect(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
             perror("Connection failed\n");
