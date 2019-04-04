@@ -4,9 +4,7 @@
 
 A toolkit to provide interoperability between [Structural Simulation Toolkit (SST 8)](https://github.com/sstsimulator/sst-core) (with [SST Elements 8](https://github.com/sstsimulator/sst-elements)) and [SystemC 2.3](http://www.accellera.org/downloads/standards/systemc) (with [Transaction-Level Modeling Library (TLM 2)](https://www.doulos.com/knowhow/systemc/tlm2/))
 
-This collection of header files provides methods to transmit and receive signals between SST components and SystemC modules. The toolkit provides a black box interface that can be interfaced with both SST and SystemC via their internal communication protocols.
-
-![comm](https://raw.githubusercontent.com/sabbirahm3d/sstscit/master/docs/comm.png)
+For more details on the implementation, see the [system design document](/docs/sdd.md).
 
 ## Requirements
 
