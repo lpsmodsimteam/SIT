@@ -4,7 +4,7 @@
 
 A toolkit to provide interoperability between [Structural Simulation Toolkit (SST 8)](https://github.com/sstsimulator/sst-core) (with [SST Elements 8](https://github.com/sstsimulator/sst-elements)) and [SystemC 2.3](http://www.accellera.org/downloads/standards/systemc) (with [Transaction-Level Modeling Library (TLM 2)](https://www.doulos.com/knowhow/systemc/tlm2/))
 
-For further details on the implementation, see the [system design document](/docs/sdd.md).
+For further details on the implementation, see the [system design document](/docs/sstscit.pdf).
 
 ## Requirements
 

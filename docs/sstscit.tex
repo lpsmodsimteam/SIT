@@ -44,44 +44,51 @@
 
 \begin{document}
     \maketitle
-    
+
     \begin{abstract}
     \lipsum[1]
     \end{abstract}
-    
+
     \section{Introduction}
     A toolkit to provide interoperability between Structural Simulation Toolkit (SST 8) (with SST Elements 8) and SystemC 2.3 (with Transaction-Level Modeling Library (TLM 2)).
-    
+
     This collection of header files provides methods to transmit and receive signals between SST components and SystemC modules. The toolkit provides a black box interface that can be interfaced with both SST and SystemC via their internal communication transports. 
-    
+
     \begin{figure}[!h]
       \centering
-      \includegraphics[width=5.5in]{comm.png}
-      \caption{Architecture of sstscit}
+      \includegraphics[width=6in]{comm.png}
+      \caption{Components of sstscit}
       \label{fig:fig1}
     \end{figure}
-    
-    \section{Black Box Interface} \label{sec:headings}
-    The black box interface consists of:
-    \begin{enumerate}
-        \item A SystemC driver
-        \item An SST component
-    \end{enumerate}
-    
-    Each SystemC modules must have their corresponding driver file to interoperate within the black box interface. It is possible to interoperate multiple SystemC modules with a single driver file. However, the additional communication lines must be accounted for in the corresponding black box SST component.
-    
-    \subsection{Communication}
-    \subsubsection{Inter-Black Box Communication}
-    The two components inside the black box interface are spawned in the same node and therefore communicate via interprocess communication (IPC) transports. The following is a list of supported IPC transports:
-    \begin{enumerate}
-        \item Unix domain sockets (IPC sockets)
-        \item ZeroMQ
-    \end{enumerate}
-    
-    \subsubsection{SST-Black Box Communication}
-    An SST model can interface the black box via standard SST links.
-    
-    The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST environment to the black box interface.
+
+    \section{Components} \label{sec:comp}
+
+      \subsection{Black Box Interface}
+      The black box interface consists of:
+      \begin{enumerate}
+          \item A SystemC driver
+          \item An SST component
+      \end{enumerate}
+
+      Each SystemC modules must have their corresponding driver file to interoperate within the black box interface. It is possible to interoperate multiple SystemC modules with a single driver file. However, the additional communication lines must be accounted for in the corresponding black box SST component.
+
+      \subsection{Headers}
+
+    \section{Communication} \label{sec:comm}
+
+      \subsection{Inter-Black Box Communication}
+      The two components inside the black box interface are spawned in the same node and therefore communicate via interprocess communication (IPC) transports. The following is a list of supported IPC transports:
+      \begin{enumerate}
+          \item Unix domain sockets
+          \item ZeroMQ
+      \end{enumerate}
+
+      It is possible to add custom IPC protocols to the interface.
+
+      \subsection{SST-Black Box Communication}
+      An SST model can interface the black box via standard SST links.
+
+      The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST environment to the black box interface.
 
 \begin{lstlisting}[language=C++]
 // parent_sst.cpp
@@ -131,7 +138,7 @@ void demo::handle_event(SST::Event *ev) {
 }
 \end{lstlisting}
 
-\subsubsection{SystemC-Black Box Communication}
-A SystemC module can be interfaced by a standard source file inclusion.
+    \subsection{SystemC-Black Box Communication}
+    A SystemC module can be interfaced by a standard source file inclusion.
 
 \end{document}
