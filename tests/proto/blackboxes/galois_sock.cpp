@@ -15,7 +15,7 @@ public:
 
     void finish() override;
 
-    bool tick(SST::Cycle_t);
+    bool tick(SST::Cycle_t) { return false; };
 
     void handle_event(SST::Event *);
 
@@ -132,11 +132,5 @@ void galois_lfsr::handle_event(SST::Event *ev) {
     }
 
     delete ev;
-
-}
-
-bool galois_lfsr::tick(SST::Cycle_t) {
-
-    return false;
 
 }

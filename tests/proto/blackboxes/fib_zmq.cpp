@@ -15,7 +15,7 @@ public:
 
     void finish() override;
 
-    bool tick(SST::Cycle_t);
+    bool tick(SST::Cycle_t) { return false; };
 
     void handle_event(SST::Event *);
 
@@ -135,11 +135,5 @@ void fib_lfsr::handle_event(SST::Event *ev) {
     }
 
     delete ev;
-
-}
-
-bool fib_lfsr::tick(SST::Cycle_t) {
-
-    return false;
 
 }

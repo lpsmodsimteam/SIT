@@ -1,12 +1,11 @@
 # SST-SystemC Interoperability Toolkit
 ## System Design Document
 
-This collection of header files provides methods to transmit and receive signals between SST components and SystemC modules. The toolkit provides a black box interface that can be interfaced with both SST and SystemC via their internal communication protocols. 
+This collection of header files provides methods to transmit and receive signals between SST components and SystemC modules. The toolkit provides a black box interface that can be interfaced with both SST and SystemC via their internal communication transports. 
 
 ![comm](https://raw.githubusercontent.com/sabbirahm3d/sstscit/master/docs/comm.png)
 
 ### Black Box
-
 The black box interface consists of:
 1. a SystemC driver
 2. an SST component
@@ -16,15 +15,17 @@ Each SystemC modules must have their corresponding driver file to interoperate w
 ### Communication
 
 #### Inter-Black Box Communication
-The two components inside the black box interface are spawned in the same node and therefore communicate via interprocess communication (IPC) protocols. The following is a list of supported IPC protocols:
+The two components inside the black box interface are spawned in the same node and therefore communicate via interprocess communication (IPC) transports. The following is a list of supported IPC transports:
 1. Unix domain sockets (IPC sockets)
-2. ZeroMQ
+2. [ZeroMQ](http://api.zeromq.org/4-1:zmq-ipc)
 
 #### SST-Black Box Communication
-An SST model can interface the black box via standard SST links. The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST environment to the black box interface.
+An SST model can interface the black box via standard SST links.
+
+The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST environment to the black box interface.
 
 ```c++
-// /parent_sst.cpp
+// parent_sst.cpp
 
 // register a string event in the class declaration
 ...
@@ -77,19 +78,15 @@ demo_din = configureLink(
 
 // receive and parse the event in the event handler
 void demo::handle_event(SST::Event *ev) {
-
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-
     if (se) {
-
         std::string _data_in = se->getString();
         ...
     }
-
     delete ev;
-
 }
 
 ```
 
 #### SystemC-Black Box Communication
+A SystemC module can be interfaced by a standard source file inclusion.
