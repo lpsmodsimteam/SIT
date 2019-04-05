@@ -8,4 +8,4 @@ convert1 convert2:
 
 clean:
 	# remove all temporary files
-	rm -rf *.aux *.log
+	rm -rf *.aux *.log *.out
