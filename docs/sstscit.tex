@@ -46,11 +46,11 @@
   \maketitle
 
   \begin{abstract}
-    SST-SystemC Interoperability Toolkit (SSTSCIT) is a toolkit developed to provide interoperability between Structural Simulation Toolkit (SST) and SystemC. SST is a parallel event based simulation framework that allows custom and vendor models to be interconnected to create a simulation environment. SystemC is a system-level modeling language composed of C++ classes and macros. SSTSCIT aims to provide the capability to interoperate the two systems without interfering with any of the kernels by concealing the communication in black box interfaces. The toolkit includes a Python class that generates the boilerplate code required for the black box interface.
+    SST-SystemC Interoperability Toolkit (SSTSCIT) is a toolkit developed to provide interoperability between Structural Simulation Toolkit (SST) and SystemC. SST is a parallel event based simulation framework that allows custom and vendor models to be interconnected to create a simulation environment. SystemC is a system-level modeling language composed of C++ classes and macros. SSTSCIT aims to provide the capability to interoperate the two systems without interfering with any of the kernels by concealing the communication protocols in black box interfaces.
   \end{abstract}
 
   \section{Introduction}
-  A toolkit to provide interoperability between Structural Simulation Toolkit (SST 8 with SST Elements 8) and SystemC 2.3 (with Transaction-Level Modeling Library (TLM 2)).
+  % A toolkit to provide interoperability between Structural Simulation Toolkit (SST 8 with SST Elements 8) and SystemC 2.3 (with Transaction-Level Modeling Library (TLM 2)).
 
   This collection of header files provides methods to transmit and receive signals between SST components and SystemC modules. The toolkit provides a black box interface that can be interfaced with both SST and SystemC via their internal communication transports. 
 
@@ -71,6 +71,8 @@
     \end{enumerate}
 
     Each SystemC modules must have their corresponding driver file to interoperate within the black box interface. It is possible to interoperate multiple SystemC modules with a single driver file. However, the additional communication lines must be accounted for in the corresponding black box SST component.
+
+    The toolkit includes a Python class that generates the boilerplate code required for the black box interface.
 
     \subsection{Classes}
 
