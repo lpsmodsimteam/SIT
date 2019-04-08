@@ -8,8 +8,8 @@ import os
 import sst
 
 BASE_PATH = os.getcwd()
-CLOCK = "500MHz"
-sst.setProgramOption("stopAtCycle", "80ns")
+CLOCK = "1MHz"
+sst.setProgramOption("stopAtCycle", "50us")
 
 proto_comp = sst.Component("prototype", "proto.prototype")
 proto_comp.addParams({
@@ -17,7 +17,7 @@ proto_comp.addParams({
 })
 
 galois_lfsr_comp = sst.Component("galois_lfsr", "proto.galois_lfsr")
-# overide default parameters
+# override default parameters
 galois_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "galois_lfsr.o"),
     "ipc_port": "/tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)),
@@ -25,7 +25,7 @@ galois_lfsr_comp.addParams({
 })
 
 fib_lfsr_comp = sst.Component("fib_lfsr", "proto.fib_lfsr")
-# overide default parameters
+# override default parameters
 fib_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "fib_lfsr.o"),
     "ipc_port": "/tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)),

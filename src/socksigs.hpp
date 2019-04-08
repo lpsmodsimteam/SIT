@@ -130,7 +130,8 @@ inline void SocketSignal::send() {
 inline void SocketSignal::recv() {
 
     m_rd_bytes = static_cast<size_t>(
-        (m_server_side) ? read(m_rd_socket, m_buf, BUFSIZE) : read(m_socket, m_buf, BUFSIZE));
+        (m_server_side) ? read(m_rd_socket, m_buf, BUFSIZE) :
+        read(m_socket, m_buf, BUFSIZE));
 
     m_buf[m_rd_bytes] = '\0';
 

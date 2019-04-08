@@ -31,10 +31,15 @@ else ()
         add_executable(galois_lfsr.o blackboxes/galois_zmq_driver.cpp)
         add_executable(fib_lfsr.o blackboxes/fib_zmq_driver.cpp)
     else ()
-        add_executable(libproto.so prototype.cpp blackboxes/galois_sock.cpp blackboxes/fib_sock.cpp)
+        add_executable(libproto.so carWash.cpp car_generator.cpp bay.cpp blackboxes/galois_sock.cpp blackboxes/fib_sock.cpp)
 
         add_executable(galois_lfsr.o blackboxes/galois_sock_driver.cpp)
         add_executable(fib_lfsr.o blackboxes/fib_sock_driver.cpp)
+#
+#        add_executable(libproto.so prototype.cpp blackboxes/galois_sock.cpp blackboxes/fib_sock.cpp)
+#
+#        add_executable(galois_lfsr.o blackboxes/galois_sock_driver.cpp)
+#        add_executable(fib_lfsr.o blackboxes/fib_sock_driver.cpp)
     endif ()
     # -------------------- DEMO EXECUTABLES --------------------
 
