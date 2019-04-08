@@ -62,7 +62,7 @@ fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
     registerClock(m_clock, new SST::Clock::Handler<fib_lfsr>(this, &fib_lfsr::tick));
 
     if (!(m_din_link && m_dout_link)) {
-        m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
+        m_output.fatal(CALL_INFO, -1, "Failed to configure car_type\n");
     }
 
     // Tell SST to wait until we authorize it to exit

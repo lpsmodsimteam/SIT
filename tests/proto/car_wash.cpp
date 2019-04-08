@@ -10,13 +10,11 @@ of satisfied customers.
 
 #include <sst/core/sst_config.h>
 #include <sst/core/interfaces/stringEvent.h>
-#include "carWash.hpp"
+#include "car_wash.hpp"
 
-using SST::Interfaces::StringEvent;
+car_wash::car_wash(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
 
-carWash::carWash(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
-
-    output.init("carWash-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
+    output.init("car_wash-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
     // Get parameters
     runTime = params.find<int64_t>("simulationTime", 24);
@@ -44,7 +42,7 @@ carWash::carWash(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
 
     // Set our Main Clock (register main clocks)
     // This will automatically be called by the SST framework
-    registerClock(clock, new SST::Clock::Handler<carWash>(this, &carWash::tick));
+    registerClock(clock, new SST::Clock::Handler<car_wash>(this, &car_wash::tick));
 
     // Setup statistics
     smallCarsWashed = registerStatistic<int>("smallCarsWashed");
@@ -53,16 +51,17 @@ carWash::carWash(SST::ComponentId_t id, SST::Params &params) : SST::Component(id
     smallCarsWaiting = registerStatistic<int>("smallCarsWaiting");
     largeCarsWaiting = registerStatistic<int>("largeCarsWaiting");
 
-    // Configure our port
-    port = configureLink("port", new SST::Event::Handler<carWash>(this, &carWash::handleEvent));
-    if (!port) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+    // Configure our car_type
+    car_type = configureLink("car_type", new SST::Event::Handler<car_wash>(this, &car_wash::handleEvent));
+    if (!car_type) {
+        output.fatal(CALL_INFO, -1, "Failed to configure car_type 'car_type'\n");
     }
+
 }
 
-
 // Initialize all of the simulation variables and parameters
-void carWash::setup() {
+void car_wash::setup() {
+
     ptrCarRecordList = nullptr;
     CarWash.currentTime = 0;
     CarWash.smallCarsWashed = 0;
@@ -77,11 +76,13 @@ void carWash::setup() {
     std::cout << "Welcome to Uncle Ed's Fantastic, Awesome, and Incredible Carwash!" << std::endl;
     std::cout << "Simulation time will be: " << runTime << " hours" << std::endl;
     std::cout << std::endl;
+
 }
 
 
 // Print out statistics at the end
-void carWash::finish() {
+void car_wash::finish() {
+
     CAR_RECORD *ptr = ptrCarRecordList;
     int SmallCarCustomers = 0;
     int LargeCarCustomers = 0;
@@ -97,10 +98,11 @@ void carWash::finish() {
 
     for (;;) {
         if (ptr) {
-            if (SMALL_CAR == ptr->CarSize)
+            if (SMALL_CAR == ptr->CarSize) {
                 SmallCarCustomers++;
-            else if (LARGE_CAR == ptr->CarSize)
+            } else if (LARGE_CAR == ptr->CarSize) {
                 LargeCarCustomers++;
+            }
             ptr = ptr->ptrNext;
         } else {
             std::cout << std::endl;
@@ -117,8 +119,8 @@ void carWash::finish() {
 
 
 // Receive events that contain the CarType, add the cars to the queue
-void carWash::handleEvent(SST::Event *ev) {
-    auto *se = dynamic_cast<StringEvent *>(ev);
+void car_wash::handleEvent(SST::Event *ev) {
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         CarType = std::stoi(&(se->getString().c_str()[0]));
         if (NO_CAR == CarType) {
@@ -140,7 +142,7 @@ void carWash::handleEvent(SST::Event *ev) {
 
 
 // Runs every clock tick
-bool carWash::tick(SST::Cycle_t) {
+bool car_wash::tick(SST::Cycle_t) {
 
     CarWash.currentTime = CarWashTick;
 
@@ -172,7 +174,7 @@ bool carWash::tick(SST::Cycle_t) {
 
 
 // Add a car to the queue
-void carWash::QueueACar(int carSize) {
+void car_wash::QueueACar(int carSize) {
     // Find the end of the car queue
     CAR_RECORD *ptr = ptrCarRecordList;
 
@@ -200,7 +202,7 @@ void carWash::QueueACar(int carSize) {
 
 
 // On every clock tick this checks to see if cars can be put into an empty bay
-void carWash::CarWashClockTick() {
+void car_wash::CarWashClockTick() {
     CAR_RECORD *pTemp;
     int numEmpty = 0;
     // Now let's see if we have a bay empty, or ready to be emptied
@@ -216,7 +218,7 @@ void carWash::CarWashClockTick() {
 
     // Now that we've updated the bays, let's fill any that have emptied.
     // Are there any cars waiting?
-    while (numEmpty > 0 && nullptr != ptrCarRecordList) {
+    while ((numEmpty > 0) && ptrCarRecordList) {
         bool progress = false;
         // Check all they bays for an empty bay
         for (auto sub : subComps) {
@@ -267,4 +269,3 @@ void carWash::CarWashClockTick() {
         }
     }
 }
-

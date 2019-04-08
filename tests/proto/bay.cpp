@@ -9,7 +9,7 @@ Large bays can wash small or large cars
 
 #include <sst/core/sst_config.h>
 
-#include "carWash.hpp"
+#include "car_wash.hpp"
 
 class bay : public carWashBay {
 
@@ -32,7 +32,7 @@ public:
         "bay", // subcomponent
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "Bay subcomponent for the carwash",
-        "SST::carWash::carWashBay" // subcomponent slot
+        "SST::car_wash::carWashBay" // subcomponent slot
     )
 
     // Parameter name, description, default value

@@ -12,7 +12,7 @@ CLOCK = "1MHz"
 sst.setProgramOption("stopAtCycle", "100us")
 
 # Component proto from element proto (proto.proto), named "Main Car Wash"
-carWashComponent = sst.Component("Main Car Wash", "proto.proto")
+carWashComponent = sst.Component("Main Car Wash", "proto.car_wash")
 carWashComponent.addParams({
     "simulationTime": "24",  # simulate 24 hours
     "tickFreq": CLOCK,  # process cars every 60 seconds (1 tick = 1 minute)
@@ -48,12 +48,10 @@ carGeneratorComponent.addParams({
 })
 
 # Connect the proto and carGenerator components
-sst.Link("MyLink").connect(
-    (carWashComponent, "port", "1ps"),
-    (carGeneratorComponent, "port", "1ps")
+sst.Link("car_type").connect(
+    (carWashComponent, "car_type", "1ps"),
+    (carGeneratorComponent, "car_type", "1ps")
 )
-
-
 
 galois_lfsr_comp = sst.Component("galois_lfsr", "proto.galois_lfsr")
 # override default parameters

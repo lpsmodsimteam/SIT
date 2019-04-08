@@ -2,8 +2,8 @@
 #define _carWash_H
 
 #include <sst/core/component.h>
-#include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
+#include <sst/core/link.h>
 #include <sst/core/subcomponent.h>
 
 #define WASH_BAY_EMPTY 0
@@ -12,7 +12,7 @@
 #define SMALL_CAR 1
 #define LARGE_CAR 2
 
-// carWash subcomponent prototype
+// car_wash subcomponent prototype
 class carWashBay : public SST::SubComponent {
 public:
     // constructor and destructor cannot be virtual, all other functions must be
@@ -30,11 +30,11 @@ public:
 };
 
 
-class carWash : public SST::Component {
+class car_wash : public SST::Component {
 
 public:
 
-    carWash(SST::ComponentId_t id, SST::Params &params);
+    car_wash(SST::ComponentId_t id, SST::Params &params);
 
     void setup() override;
 
@@ -66,11 +66,11 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        carWash, // class
+        car_wash, // class
         "proto", // element library
-        "proto", // component
+        "car_wash", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "carWash main simulator. Accepts car inputs from a car_generator component, then queues and washes cars using bay subcomponents",
+        "car_wash main simulator. Accepts car inputs from a car_generator component, then queues and washes cars using bay subcomponents",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
@@ -90,15 +90,16 @@ public:
 
     // Slot name, description, slot type
     SST_ELI_DOCUMENT_SUBCOMPONENT_SLOTS(
-        { "bay", "Car Wash Bay", "SST::carWash::carWashBay" }
+        { "bay", "Car Wash Bay", "SST::car_wash::carWashBay" }
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "port", "Port on which to receive cars", { "sst.Interfaces.StringEvent" }}
+        { "car_type", "Port on which to receive cars", { "sst.Interfaces.StringEvent" }}
     )
 
 private:
+
     SST::Output output;
     CAR_RECORD *ptrCarRecordList{};
     CARS_WASHED CarWash{};
@@ -114,7 +115,7 @@ private:
     int64_t runTime;
     int CarType{};
     std::vector<carWashBay *> subComps;
-    SST::Link *port;
+    SST::Link *car_type;
 
     // Statistics
     Statistic<int> *smallCarsWashed;

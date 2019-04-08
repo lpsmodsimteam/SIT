@@ -47,7 +47,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "port", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }},
+        { "car_type", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }},
         { "galois_lfsr_din", "Galois LFSR m_clock", { "sst.Interfaces.StringEvent" }},
         { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
         { "fib_lfsr_din", "Fibonacci LFSR reset", { "sst.Interfaces.StringEvent" }},
@@ -59,7 +59,7 @@ private:
     int m_rand_int;
     SST::Output m_output;
     std::string m_clock;
-    SST::Link *port;
+    SST::Link *car_type;
     SST::Link *galois_din, *galois_dout, *fib_lfsr_din, *fib_lfsr_dout;
 
 };
@@ -68,7 +68,7 @@ private:
 car_generator::car_generator(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_clock(params.find<std::string>("delay", "")),
-      port(configureLink("port")),
+      car_type(configureLink("car_type")),
       galois_din(configureLink("galois_lfsr_din")),
       galois_dout(configureLink(
           "galois_lfsr_dout", new SST::Event::Handler<car_generator>(this, &car_generator::handle_galois_data_out)
@@ -83,8 +83,8 @@ car_generator::car_generator(SST::ComponentId_t id, SST::Params &params)
     // Register the clock
     registerClock(m_clock, new SST::Clock::Handler<car_generator>(this, &car_generator::tick));
 
-    if (!(port && galois_din && galois_dout && fib_lfsr_din && fib_lfsr_dout)) {
-        m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+    if (!(car_type && galois_din && galois_dout && fib_lfsr_din && fib_lfsr_dout)) {
+        m_output.fatal(CALL_INFO, -1, "Failed to configure car_type 'car_type'\n");
     }
 
 }
@@ -163,8 +163,9 @@ bool car_generator::tick(SST::Cycle_t current_cycle) {
     // 1 = Small Car
     // 2 = Large Car
     m_rand_int %= 3;
-    port->send(new SST::Interfaces::StringEvent(std::to_string(m_rand_int)));
+    car_type->send(new SST::Interfaces::StringEvent(std::to_string(m_rand_int)));
     m_rand_int = 0;
+
     return false;
 
 }
