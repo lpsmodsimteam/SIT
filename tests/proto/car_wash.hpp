@@ -46,7 +46,7 @@ public:
 
     // Link list entry; used to store the cars as they are queued for service
     typedef struct CAR_RECORD_T {
-        int CarSize; // 0 == Small Car; 1 == Large Car
+        int size; // 0 == Small Car; 1 == Large Car
         CAR_RECORD_T *ptrNext; // The next Car in the linked list
     } CAR_RECORD;
 

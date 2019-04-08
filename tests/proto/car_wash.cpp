@@ -98,9 +98,9 @@ void car_wash::finish() {
 
     for (;;) {
         if (ptr) {
-            if (SMALL_CAR == ptr->CarSize) {
+            if (SMALL_CAR == ptr->size) {
                 SmallCarCustomers++;
-            } else if (LARGE_CAR == ptr->CarSize) {
+            } else if (LARGE_CAR == ptr->size) {
                 LargeCarCustomers++;
             }
             ptr = ptr->ptrNext;
@@ -115,18 +115,23 @@ void car_wash::finish() {
     std::cout << "Large Cars: " << LargeCarCustomers << std::endl;
     std::cout << "Total: " << SmallCarCustomers + LargeCarCustomers << std::endl;
     std::cout << "------------------------------------------------------------------" << std::endl;
+
 }
 
 
 // Receive events that contain the CarType, add the cars to the queue
 void car_wash::handleEvent(SST::Event *ev) {
+
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
+
         CarType = std::stoi(&(se->getString().c_str()[0]));
         if (NO_CAR == CarType) {
             HourlyReport.noCarsArrived++;
             noCarEvents->addData(1);
+
         } else {
+
             QueueACar(CarType);
             if (SMALL_CAR == CarType) {
                 HourlyReport.smallCarsArrived++;
@@ -135,9 +140,12 @@ void car_wash::handleEvent(SST::Event *ev) {
                 HourlyReport.largeCarsArrived++;
                 largeCarsWaiting->addData(1);
             }
+
         }
     }
+
     delete ev;
+
 }
 
 
@@ -163,33 +171,41 @@ bool car_wash::tick(SST::Cycle_t) {
     // Car Wash simulation has finished
     if ((runTime * ticksPerHour) <= CarWash.currentTime) {
         primaryComponentOKToEndSim();
-        return (true);
+        return true;
     }
 
     // See what carwash bays can be cycled, and if any new cars can be processed in
     CarWashClockTick();
     CarWashTick++;
     return false;
+
 }
 
 
 // Add a car to the queue
 void car_wash::QueueACar(int carSize) {
+
     // Find the end of the car queue
     CAR_RECORD *ptr = ptrCarRecordList;
 
     if (ptr) { // Check to see if the list is empty
+
         while (ptr->ptrNext) { // If not walk down the list to the end
             ptr = ptr->ptrNext;
         }
+
     }
+
     // Allocate a bit of memory, formatted for a car record, and set the pointers.
     if (!ptr) { // First entry is a special case
+
         if (!(ptrCarRecordList = new CAR_RECORD)) {
             printf("Error allocating memory for the first new car wash record\n");
         }
         ptr = ptrCarRecordList; // Anchor the new list
+
     } else {
+
         if (!(ptr->ptrNext = new CAR_RECORD)) {
             printf("Error allocating memory to create a new car wash record\n");
         }
@@ -197,12 +213,14 @@ void car_wash::QueueACar(int carSize) {
     }
 
     ptr->ptrNext = nullptr; // Set the pointer
-    ptr->CarSize = carSize; // Set the car's size
+    ptr->size = carSize; // Set the car's size
+
 }
 
 
 // On every clock tick this checks to see if cars can be put into an empty bay
 void car_wash::CarWashClockTick() {
+
     CAR_RECORD *pTemp;
     int numEmpty = 0;
     // Now let's see if we have a bay empty, or ready to be emptied
@@ -219,53 +237,56 @@ void car_wash::CarWashClockTick() {
     // Now that we've updated the bays, let's fill any that have emptied.
     // Are there any cars waiting?
     while ((numEmpty > 0) && ptrCarRecordList) {
+
         bool progress = false;
+
         // Check all they bays for an empty bay
         for (auto sub : subComps) {
-            if (sub->isOccupied() == WASH_BAY_EMPTY) {
-                // if the bay size matches the car use it
-                if (sub->baySize() == ptrCarRecordList->CarSize) {
-                    sub->newCar(ptrCarRecordList->CarSize);
+
+            // if the bay size matches the car use it
+            if ((sub->isOccupied() == WASH_BAY_EMPTY) && (sub->baySize() == ptrCarRecordList->size)) {
+                sub->newCar(ptrCarRecordList->size);
+                pTemp = ptrCarRecordList;
+                ptrCarRecordList = ptrCarRecordList->ptrNext;
+                delete pTemp;
+                numEmpty--;
+                progress = true;
+                if (sub->baySize() == LARGE_CAR) {
+                    CarWash.largeCarsWashed++;
+                    largeCarsWaiting->addData(-1);
+                    largeCarsWashed->addData(1);
+                } else {
+                    CarWash.smallCarsWashed++;
+                    smallCarsWaiting->addData(-1);
+                    smallCarsWashed->addData(1);
+                }
+                break;
+            }
+        }
+
+        // If we couldn't match a car to a bay try putting the car in a large bay
+        if (!progress) {
+            for (auto sub : subComps) {
+                if ((sub->isOccupied() == WASH_BAY_EMPTY) && (sub->baySize() == LARGE_CAR)) {
+                    sub->newCar(ptrCarRecordList->size);
                     pTemp = ptrCarRecordList;
                     ptrCarRecordList = ptrCarRecordList->ptrNext;
                     delete pTemp;
                     numEmpty--;
                     progress = true;
-                    if (sub->baySize() == LARGE_CAR) {
-                        CarWash.largeCarsWashed++;
-                        largeCarsWaiting->addData(-1);
-                        largeCarsWashed->addData(1);
-                    } else {
-                        CarWash.smallCarsWashed++;
-                        smallCarsWaiting->addData(-1);
-                        smallCarsWashed->addData(1);
-                    }
+                    CarWash.smallCarsWashed++;
+                    smallCarsWaiting->addData(-1);
+                    smallCarsWashed->addData(1);
                     break;
                 }
             }
         }
-        // If we couldn't match a car to a bay try putting the car in a large bay
-        if (!progress) {
-            for (auto sub : subComps) {
-                if (sub->isOccupied() == WASH_BAY_EMPTY) {
-                    if (sub->baySize() == LARGE_CAR) {
-                        sub->newCar(ptrCarRecordList->CarSize);
-                        pTemp = ptrCarRecordList;
-                        ptrCarRecordList = ptrCarRecordList->ptrNext;
-                        delete pTemp;
-                        numEmpty--;
-                        progress = true;
-                        CarWash.smallCarsWashed++;
-                        smallCarsWaiting->addData(-1);
-                        smallCarsWashed->addData(1);
-                        break;
-                    }
-                }
-            }
-        }
+
         // If we couldn't put the car in any bay we have to wait
         if (!progress) {
             break;
         }
+
     }
+
 }

@@ -56,14 +56,13 @@ public:
 
 private:
 
-    int m_rand_int;
+    int m_rand_int{};
     SST::Output m_output;
     std::string m_clock;
     SST::Link *car_type;
     SST::Link *galois_din, *galois_dout, *fib_lfsr_din, *fib_lfsr_dout;
 
 };
-
 
 car_generator::car_generator(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),

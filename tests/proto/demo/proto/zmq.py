@@ -11,7 +11,7 @@ BASE_PATH = os.getcwd()
 CLOCK = "500MHz"
 sst.setProgramOption("stopAtCycle", "80ns")
 
-proto_comp = sst.Component("unittests", "proto.test")
+proto_comp = sst.Component("prototype", "proto.prototype")
 proto_comp.addParams({
     "clock": CLOCK,
 })
@@ -20,7 +20,7 @@ galois_lfsr_comp = sst.Component("galois_lfsr", "proto.galois_lfsr")
 # overide default parameters
 galois_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "galois_lfsr.o"),
-    "ipc_port": "/tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)),
+    "ipc_port": "ipc:///tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)),
     "clock": CLOCK,
 })
 
@@ -28,7 +28,7 @@ fib_lfsr_comp = sst.Component("fib_lfsr", "proto.fib_lfsr")
 # overide default parameters
 fib_lfsr_comp.addParams({
     "proc": os.path.join(BASE_PATH, "fib_lfsr.o"),
-    "ipc_port": "/tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)),
+    "ipc_port": "ipc:///tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)),
     "clock": CLOCK,
 })
 

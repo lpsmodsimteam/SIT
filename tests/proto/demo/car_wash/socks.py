@@ -14,31 +14,31 @@ sst.setProgramOption("stopAtCycle", "100us")
 # Component proto from element proto (proto.proto), named "Main Car Wash"
 carWashComponent = sst.Component("Main Car Wash", "proto.car_wash")
 carWashComponent.addParams({
-    "simulationTime": "24",  # simulate 24 hours
+    "simulationTime": 24,  # simulate 24 hours
     "tickFreq": CLOCK,  # process cars every 60 seconds (1 tick = 1 minute)
 })
 
 # Subcomponent slot "bay" using component bay from element proto (proto.bay), number 0
 baySubcomponent0 = carWashComponent.setSubComponent("bay", "proto.bay", 0)
 baySubcomponent0.addParams({
-    "size": "1",  # small car bay
-    "smallCarWashTime": "3"
+    "size": 1,  # small car bay
+    "smallCarWashTime": 1
 })
 
 # Subcomponent slot "bay" using component bay from element proto (proto.bay), number 1
 baySubcomponent1 = carWashComponent.setSubComponent("bay", "proto.bay", 1)
 baySubcomponent1.addParams({
-    "size": "2",  # large car bay
-    "smallCarWashTime": "3",
-    "largeCarWashTime": "5"
+    "size": 2,  # large car bay
+    "smallCarWashTime": 1,
+    "largeCarWashTime": 2
 })
 
 # Subcomponent slot "bay" using component bay from element proto (proto.bay), number 2
 baySubcomponent2 = carWashComponent.setSubComponent("bay", "proto.bay", 2)
 baySubcomponent2.addParams({
-    "size": "2",  # large car bay
-    "smallCarWashTime": "3",
-    "largeCarWashTime": "5"
+    "size": 2,  # large car bay
+    "smallCarWashTime": 1,
+    "largeCarWashTime": 2
 })
 
 # Component carGenerator from element proto (proto.carGenerator), named "Car Generator"
