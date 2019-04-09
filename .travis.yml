@@ -1,6 +1,7 @@
 os: linux
 dist: xenial
 language: cpp
+python: 3.6
 
 matrix:
   include:
