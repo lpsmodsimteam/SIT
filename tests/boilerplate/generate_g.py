@@ -100,6 +100,7 @@ class TestBoilerPlate(unittest.TestCase):
         diffs = self.remove_diff_trails(
             self.boilerplate_sock.generate_bbox(),
             self.read_file("galois_sock.cpp"))
+
         self.assertEqual(
             diffs, self.blackbox_diffs,
             "Generated boilerplate code is not accurate"
@@ -110,6 +111,7 @@ class TestBoilerPlate(unittest.TestCase):
         diffs = self.remove_diff_trails(
             self.boilerplate_zmq.generate_bbox(),
             self.read_file("galois_zmq.cpp"))
+
         self.assertEqual(
             diffs, self.blackbox_diffs,
             "Generated boilerplate code is not accurate"
