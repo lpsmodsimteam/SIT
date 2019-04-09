@@ -1,7 +1,7 @@
 test: generate-test unit-test clean
 
 generate-test:
-	python3 boilerplate/generate_g.py
+	python3.6 boilerplate/generate_g.py
 
 unit-test:
 	cd proto/build && cmake -DZMQ=OFF -DDEMO_ZMQ=OFF -DUNIT_TEST=ON .. && $(MAKE)
