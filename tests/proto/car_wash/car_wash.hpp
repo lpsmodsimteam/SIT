@@ -105,7 +105,7 @@ private:
     CARS_WASHED CarWash{};
     CAR_WASH_JOURNAL HourlyReport{};
 
-    void QueueACar(int carSize);
+    void QueueACar(int);
 
     void CarWashClockTick();
 

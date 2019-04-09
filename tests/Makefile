@@ -4,8 +4,10 @@ generate-test:
 	python3 boilerplate/generate_g.py
 
 unit-test:
-	cd proto && make install USE_ZMQ=OFF run TEST=socks.py UNIT_TEST=ON
-	cd proto && make install USE_ZMQ=ON run TEST=zmq.py UNIT_TEST=ON
+	cd proto/build && cmake -DZMQ=OFF -DDEMO_ZMQ=OFF -DUNIT_TEST=ON .. && $(MAKE)
+	cd proto/build && sst ../demo/socks.py
+	cd proto/build && cmake -DZMQ=ON -DDEMO_ZMQ=ON -DUNIT_TEST=ON .. && $(MAKE)
+	cd proto/build && sst ../demo/zmq.py
 
 clean:
 	# remove all compiled objects and cached files

@@ -55,7 +55,7 @@ private:
     int smallTime;
     int largeTime;
     int occupied;
-    int timeToOccupy;
+    int timeToOccupy{};
     Statistic<uint32_t> *carsWashed;
     Statistic<uint32_t> *idleTime;
 };
