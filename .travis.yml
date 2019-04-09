@@ -160,6 +160,6 @@ before_script:
 script:
   - python --version
   - python3 --version
-  - PYENV_VERSION=3.6.7
+  - pyenv local 3.6.7
   - python3 --version
   - make --no-print-directory test
