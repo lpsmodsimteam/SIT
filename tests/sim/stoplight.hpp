@@ -6,32 +6,77 @@ SC_MODULE (stoplight) {
         green, yellow, red
     };
 
-    sc_in<bool> clock;
+    sc_in_clk clock;
+    sc_in<bool> load;
+    sc_in<bool> start_green;
+
+    sc_uint<2> counter;
     sc_signal<light_state> next_state;
     sc_signal<light_state> cur_state;
-    sc_out<sc_bv<4>> state;
+
+    sc_out<sc_bv<2> > state;
 
     void get_next_state() {
 
-        switch (cur_state) {
-            case green: {
-                next_state = yellow;
-                state = "0001";
-            }
-            case yellow: {
-                next_state = red;
-                state = "0010";
-            }
-            case red: {
+        if (load.read()) {
+
+            std::cout << "init" << std::endl;
+            counter = 0;
+            if (start_green.read()) {
                 next_state = green;
-                state = "0011";
+            } else {
+                next_state = red;
+            }
+
+        } else {
+
+            switch (cur_state) {
+
+                case red: {
+
+                    std::cout << "red" << std::endl;
+                    if (counter == 2) {
+                        next_state = green;
+                        state = "01";
+                        counter = 0;
+                    } else {
+                        counter++;
+                    }
+                    break;
+
+                }
+
+                case green: {
+
+                    std::cout << "green" << std::endl;
+                    if (counter == 2) {
+                        next_state = yellow;
+                        state = "10";
+                        counter = 0;
+                    } else {
+                        counter++;
+                    }
+                    break;
+
+                }
+
+                case yellow: {
+
+                    std::cout << "yellow" << std::endl;
+                    if (counter == 2) {
+                        next_state = red;
+                        state = "11";
+                        counter = 0;
+                    } else {
+                        counter++;
+                    }
+                    break;
+
+                }
+
             }
 
         }
-
-    }
-
-    void set_state() {
 
         cur_state = next_state;
 
@@ -41,9 +86,7 @@ SC_MODULE (stoplight) {
     SC_CTOR(stoplight) {
         std::cout << "INSTANTIATING STOPLIGHT" << std::endl;
         SC_METHOD(get_next_state);
-        sensitive << cur_state;
-        SC_METHOD(set_state);
-        sensitive << clock.pos();
+        sensitive << next_state << cur_state << load << start_green << clock.pos();
     }
 
     ~stoplight() override {

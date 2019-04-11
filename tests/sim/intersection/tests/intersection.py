@@ -8,8 +8,11 @@ light0green = 30
 light1green = 60
 yellow = 3
 
-input0 = "/tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8))
-output0 = "/tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8))
+def get_rand_tmp():
+    return ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8))
+
+input0 = "/tmp/" + get_rand_tmp()
+output0 = "/tmp/" + get_rand_tmp()
 subprocess.Popen(['python', 'stopLight.py', input0, output0])
 light0 = sst.Component("Traffic Light 0", "intersection.trafficLight")
 light0.addParams({
@@ -22,8 +25,8 @@ light0.addParams({
     "outputPipe": input0
 })
 
-input1 = "/tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8))
-output1 = "/tmp/" + ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8))
+input1 = "/tmp/" + get_rand_tmp()
+output1 = "/tmp/" + get_rand_tmp()
 subprocess.Popen(['python', 'stopLight.py', input1, output1])
 light1 = sst.Component("Traffic Light 1", "intersection.trafficLight")
 light1.addParams({

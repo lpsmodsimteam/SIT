@@ -6,15 +6,26 @@ int sc_main(int argc, char *argv[]) {
 
     // ---------- SYSTEMC UUT INIT ---------- //
     sc_signal<bool> clock;
-    sc_signal<sc_bv<4> > state;
+    sc_signal<bool> load;
+    sc_signal<bool> start_green;
+    sc_signal<sc_bv<2> > state;
 
     // Connect the DUT
-    stoplight DUT("FIB_LFSR");
+    stoplight DUT("STOPLIGHT");
     DUT.clock(clock);
+    DUT.load(load);
+    DUT.start_green(start_green);
     DUT.state(state);
     // ---------- SYSTEMC UUT INIT ---------- //
 
-    for (int i = 0; i < 4; i++) {
+    start_green = true;
+    load = true;
+    clock = false;
+    for (int i = 0; i < 40; i++) {
+        if (i == 2) {
+            load = false;
+        }
+        clock = !clock;
         sc_start(1, SC_NS);
         std::cout << "state " << state << std::endl;
     }

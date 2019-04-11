@@ -51,24 +51,23 @@ with pyrtl.conditional_assignment:
                 state.next |= GREEN
                 counter.next |= 0
             with pyrtl.otherwise:
-                counter.next |= counter + 1
+                counter.next = counter + 1
 
         with state == GREEN:
             with counter == gt:
                 state.next |= YELLOW
                 counter.next |= 0
             with pyrtl.otherwise:
-                counter.next |= counter + 1
+                counter.next = counter + 1
 
         with state == YELLOW:
             with counter == yt:
                 state.next |= RED
                 counter.next |= 0
             with pyrtl.otherwise:
-                counter.next |= counter + 1
+                counter.next = counter + 1
 # Output the state
 out <<= state
-
 # Setup the simulation
 sim_trace = pyrtl.SimulationTrace([load, startGreen, counter, out])
 sim = pyrtl.FastSimulation(tracer=sim_trace)
@@ -95,10 +94,10 @@ while True:
         g = int(cmd[2:4], 16)
         y = int(cmd[4:6], 16)
         r = int(cmd[6:8], 16)
-        if cmd != "00000000":
-            print(cmd)
         sim.step({'load': l, 'startGreen': s, 'greenTime': g, 'yellowTime': y, 'redTime': r})
         # print(sim.inspect(out))
+        # print(sim.inspect(gt))
+
         os.write(outFifo, str(sim.inspect(out)))
 
 # Clean up fifos and print out waveform

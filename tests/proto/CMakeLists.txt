@@ -49,7 +49,6 @@ else ()
             add_executable(galois_lfsr.o blackboxes/galois_sock_driver.cpp)
             add_executable(fib_lfsr.o blackboxes/fib_sock_driver.cpp)
         endif ()
-
     endif ()
 
     # -------------------- DEMO EXECUTABLES --------------------
