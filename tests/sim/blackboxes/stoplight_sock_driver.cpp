@@ -1,4 +1,4 @@
-#include "../modules/stoplight.hpp"
+#include "../stoplight.hpp"
 
 #include "../../../src/sstscit.hpp"
 
