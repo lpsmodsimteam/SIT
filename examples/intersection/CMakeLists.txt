@@ -4,3 +4,5 @@ include(../../src/CMakeLists.txt)
 
 add_executable(stoplight.o blackboxes/stoplight_sock_driver.cpp)
 target_link_libraries(stoplight.o SystemC::systemc)
+add_executable(libintersection.so car_generator.cpp intersection.cpp traffic_light.cpp)
+_sst_compile_link(libintersection.so)
