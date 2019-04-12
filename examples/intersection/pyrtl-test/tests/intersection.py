@@ -14,13 +14,13 @@ def get_rand_tmp():
 input0 = "/tmp/" + get_rand_tmp()
 output0 = "/tmp/" + get_rand_tmp()
 subprocess.Popen(['python', 'stopLight.py', input0, output0])
-light0 = sst.Component("Traffic Light 0", "intersection.trafficLight")
+light0 = sst.Component("Traffic Light 0", "intersection.traffic_light")
 light0.addParams({
     "clock": "1Hz",
     "greenTime": light0green,
     "yellowTime": yellow,
     "redTime": light1green + yellow,
-    "startGreen": "0",
+    "startGreen": 0,
     "inputPipe": output0,
     "outputPipe": input0
 })
@@ -28,33 +28,33 @@ light0.addParams({
 input1 = "/tmp/" + get_rand_tmp()
 output1 = "/tmp/" + get_rand_tmp()
 subprocess.Popen(['python', 'stopLight.py', input1, output1])
-light1 = sst.Component("Traffic Light 1", "intersection.trafficLight")
+light1 = sst.Component("Traffic Light 1", "intersection.traffic_light")
 light1.addParams({
     "clock": "1Hz",
     "greenTime": light1green,
     "yellowTime": yellow,
     "redTime": light0green + yellow,
-    "startGreen": "1",
+    "startGreen": 1,
     "inputPipe": output1,
     "outputPipe": input1
 })
 
-carGenerator0 = sst.Component("Car Generator 0", "intersection.carGenerator")
+carGenerator0 = sst.Component("Car Generator 0", "intersection.car_generator")
 carGenerator0.addParams({
     "delay": "3s",
-    "randomseed": "151515"
+    "randomseed": 151515
 })
 
-carGenerator1 = sst.Component("Car Generator 1", "intersection.carGenerator")
+carGenerator1 = sst.Component("Car Generator 1", "intersection.car_generator")
 carGenerator1.addParams({
     "delay": "5s",
-    "randomseed": "239478"
+    "randomseed": 239478
 })
 
 intersection = sst.Component("Intersection", "intersection.intersection")
 intersection.addParams({
     "clock": "1Hz",
-    "simDuration": "86400"
+    "simDuration": 86400
 })
 
 sst.Link("light0").connect((intersection, "light0", "1ps"), (light0, "port", "1ps"))

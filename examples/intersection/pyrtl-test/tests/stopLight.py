@@ -51,21 +51,21 @@ with pyrtl.conditional_assignment:
                 state.next |= GREEN
                 counter.next |= 0
             with pyrtl.otherwise:
-                counter.next = counter + 1
+                counter.next |= counter + 1
 
         with state == GREEN:
             with counter == gt:
                 state.next |= YELLOW
                 counter.next |= 0
             with pyrtl.otherwise:
-                counter.next = counter + 1
+                counter.next |= counter + 1
 
         with state == YELLOW:
             with counter == yt:
                 state.next |= RED
                 counter.next |= 0
             with pyrtl.otherwise:
-                counter.next = counter + 1
+                counter.next |= counter + 1
 # Output the state
 out <<= state
 # Setup the simulation

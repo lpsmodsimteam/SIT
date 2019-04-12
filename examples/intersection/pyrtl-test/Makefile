@@ -4,7 +4,7 @@ LDFLAGS=$(shell sst-config --ELEMENT_LDFLAGS)
 
 all: libintersection.so install
 
-libintersection.so: trafficLight.cpp carGenerator.cpp intersection.cpp
+libintersection.so: traffic_light.cpp car_generator.cpp intersection.cpp
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $^
 
 install:

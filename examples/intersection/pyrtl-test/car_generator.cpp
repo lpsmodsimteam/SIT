@@ -12,24 +12,19 @@ This component generates "cars" which are sent to the carwash
 #include <sst/core/elementinfo.h>
 #include <sst/core/rng/marsaglia.h>
 
-class carGenerator : public SST::Component {
+class car_generator : public SST::Component {
 
 public:
-    carGenerator(SST::ComponentId_t id, SST::Params &params);
 
-    ~carGenerator();
+    car_generator(SST::ComponentId_t, SST::Params&);
 
-    void setup();
-
-    void finish();
-
-    bool clockTick(SST::Cycle_t currentCycle);
+    bool tick(SST::Cycle_t);
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        carGenerator, // class
+        car_generator, // class
         "intersection", // element library
-        "carGenerator", // component
+        "car_generator", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "Car Generator for the intersection",
         COMPONENT_CATEGORY_UNCATEGORIZED
@@ -43,7 +38,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "port", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }}
+        { "port", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
     )
 
 private:
@@ -55,9 +50,9 @@ private:
 };
 
 
-carGenerator::carGenerator(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
+car_generator::car_generator(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
 
-    output.init("carGenerator-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
+    output.init("car_generator-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
     // Get parameters
     clock = params.find<std::string>("delay", "1s");
@@ -66,7 +61,7 @@ carGenerator::carGenerator(SST::ComponentId_t id, SST::Params &params) : SST::Co
                    RandomSeed);
 
     // Register the clock
-    registerClock(clock, new SST::Clock::Handler<carGenerator>(this, &carGenerator::clockTick));
+    registerClock(clock, new SST::Clock::Handler<car_generator>(this, &car_generator::tick));
 
     // Initialize random
     rng = new SST::RNG::MarsagliaRNG(11, RandomSeed);
@@ -78,24 +73,11 @@ carGenerator::carGenerator(SST::ComponentId_t id, SST::Params &params) : SST::Co
     }
 }
 
-carGenerator::~carGenerator() {
-
-}
-
-void carGenerator::setup() {
-
-}
-
-void carGenerator::finish() {
-
-}
-
-bool carGenerator::clockTick(SST::Cycle_t currentCycle) {
+bool car_generator::tick(SST::Cycle_t) {
     // generating a random number between 0 and 1
     // 0 = No Car
     // 1 = Car
-    int rndNumber;
-    rndNumber = (int) (rng->generateNextInt32());
+    int rndNumber = (int) (rng->generateNextInt32());
     rndNumber = (rndNumber & 0x0000FFFF) ^ ((rndNumber & 0xFFFF0000) >> 16);
     rndNumber = abs((int) (rndNumber % 2));
 

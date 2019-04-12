@@ -4,35 +4,34 @@ Simple Model with one clock that functions as a wrapper for a PyRTL simulation
 Uses named pipes to send and receive data between SST and PyRTL
 */
 
-#include <sst/core/sst_config.h>
-#include <sst/core/interfaces/stringEvent.h>
-
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <sst/core/sst_config.h>
+#include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/component.h>
 #include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
 
-class trafficLight : public SST::Component {
+class traffic_light : public SST::Component {
 
 public:
 
-    trafficLight(SST::ComponentId_t, SST::Params &);
+    traffic_light(SST::ComponentId_t, SST::Params&);
 
     void setup();
 
     void finish();
 
-    bool clockTick(SST::Cycle_t);
+    bool tick(SST::Cycle_t);
 
     SST_ELI_REGISTER_COMPONENT(
-        trafficLight,
+        traffic_light,
         "intersection",
-        "trafficLight",
+        "traffic_light",
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "Demonstration of a PyRTL hardware simulation in SST",
         COMPONENT_CATEGORY_UNCATEGORIZED
@@ -69,10 +68,10 @@ private:
     char s[9];
 };
 
-trafficLight::trafficLight(SST::ComponentId_t id, SST::Params &params) :
+traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id) {
 
-    output.init("trafficLight-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
+    output.init("traffic_light-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
     // Collect all the parameters from the project driver
     clock = params.find<std::string>("clock", "1Hz");
@@ -93,16 +92,18 @@ trafficLight::trafficLight(SST::ComponentId_t id, SST::Params &params) :
                    greenTime, yellowTime, redTime, startGreen);
 
     // Just register a plain clock for this simple example
-    registerClock(clock, new SST::Clock::Handler<trafficLight>(this, &trafficLight::clockTick));
+    registerClock(clock, new SST::Clock::Handler<traffic_light>(this, &traffic_light::tick));
 
     // Configure our port
     port = configureLink("port");
     if (!port) {
         output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
+
 }
 
-void trafficLight::setup() {
+void traffic_light::setup() {
+
     // Connect to the named pipes when they are available
     while (access(inputPipe.c_str(), R_OK) != 0) {}
     inFifo = open(inputPipe.c_str(), O_RDONLY);
@@ -115,17 +116,21 @@ void trafficLight::setup() {
     char r[2] = "\0";
     read(inFifo, r, 1);
     strncpy(s, "00000000", 8);
+
 }
 
-void trafficLight::finish() {
+void traffic_light::finish() {
+
     // Sent the quit signal to the PyRTL stopLight
     write(outFifo, "q", 1);
     close(inFifo);
     close(outFifo);
+
 }
 
 // Send a command to the PyRTL stopLight every clock
-bool trafficLight::clockTick(SST::Cycle_t currentCycle) {
+bool traffic_light::tick(SST::Cycle_t currentCycle) {
+
     write(outFifo, s, 8);
     // Clear the command so we don't send the same command over and over
     // need to receive a command from the port
@@ -146,6 +151,8 @@ bool trafficLight::clockTick(SST::Cycle_t currentCycle) {
             c = "red";
             break;
     }
+
     port->send(new SST::Interfaces::StringEvent(c));
     return false;
+
 }
