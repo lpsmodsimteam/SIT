@@ -155,7 +155,7 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
 
 before_script:
-  - cd tests
+  - cd examples
 
 script:
   - pyenv local 3.6.7
