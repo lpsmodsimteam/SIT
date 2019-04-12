@@ -10,7 +10,7 @@ SC_MODULE (stoplight) {
     sc_in<bool> load;
     sc_in<bool> start_green;
 
-    sc_uint<2> counter;
+    sc_uint<8> counter;
     sc_signal<light_state> next_state;
     sc_signal<light_state> cur_state;
 
@@ -35,7 +35,7 @@ SC_MODULE (stoplight) {
                 case red: {
 
                     std::cout << "red" << std::endl;
-                    if (counter == 2) {
+                    if (counter == 20) {
                         next_state = green;
                         state = "01";
                         counter = 0;
@@ -49,7 +49,7 @@ SC_MODULE (stoplight) {
                 case green: {
 
                     std::cout << "green" << std::endl;
-                    if (counter == 2) {
+                    if (counter == 20) {
                         next_state = yellow;
                         state = "10";
                         counter = 0;

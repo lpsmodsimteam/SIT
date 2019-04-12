@@ -20,11 +20,11 @@ class traffic_light : public SST::Component {
 
 public:
 
-    traffic_light(SST::ComponentId_t, SST::Params&);
+    traffic_light(SST::ComponentId_t, SST::Params &);
 
-    void setup();
+    void setup() override;
 
-    void finish();
+    void finish() override;
 
     bool tick(SST::Cycle_t);
 
@@ -55,8 +55,8 @@ private:
     SST::Output output;
     SST::Link *port;
 
-    int inFifo;
-    int outFifo;
+    int inFifo{};
+    int outFifo{};
 
     std::string clock;
     std::string inputPipe;
@@ -65,25 +65,25 @@ private:
     int yellowTime;
     int redTime;
     int startGreen;
-    char s[9];
+    char s[9]{};
 };
 
 traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
-    SST::Component(id) {
+    SST::Component(id),
+    // Collect all the parameters from the project driver
+    clock(params.find<std::string>("clock", "1Hz")),
+    greenTime(params.find<int>("greenTime", 30)),
+    yellowTime(params.find<int>("yellowTime", 3)),
+    redTime(params.find<int>("redTime", 33)),
+    startGreen(params.find<int>("startGreen", 0)),
+    inputPipe(params.find<std::string>("inputPipe", "/tmp/output")),
+    outputPipe(params.find<std::string>("outputPipe", "/tmp/input")),
+    port(configureLink("port")) {
 
     output.init("traffic_light-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
-    // Collect all the parameters from the project driver
-    clock = params.find<std::string>("clock", "1Hz");
-    greenTime = params.find<int>("greenTime", 30);
-    yellowTime = params.find<int>("yellowTime", 3);
-    redTime = params.find<int>("redTime", 33);
-    startGreen = params.find<int>("startGreen", 0);
-    inputPipe = params.find<std::string>("inputPipe", "/tmp/output");
-    outputPipe = params.find<std::string>("outputPipe", "/tmp/input");
-
     // Check parameters
-    if ((greenTime <= 0) || (yellowTime <= 0) || (redTime <= 0)) {
+    if (!(greenTime && yellowTime && redTime)) {
         output.fatal(CALL_INFO, -1, "Error: times must be greater than zero.\n");
     }
 
@@ -95,7 +95,6 @@ traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     registerClock(clock, new SST::Clock::Handler<traffic_light>(this, &traffic_light::tick));
 
     // Configure our port
-    port = configureLink("port");
     if (!port) {
         output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
@@ -129,7 +128,7 @@ void traffic_light::finish() {
 }
 
 // Send a command to the PyRTL stopLight every clock
-bool traffic_light::tick(SST::Cycle_t currentCycle) {
+bool traffic_light::tick(SST::Cycle_t) {
 
     write(outFifo, s, 8);
     // Clear the command so we don't send the same command over and over

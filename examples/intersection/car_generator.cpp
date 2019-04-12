@@ -16,7 +16,7 @@ class car_generator : public SST::Component {
 
 public:
 
-    car_generator(SST::ComponentId_t, SST::Params&);
+    car_generator(SST::ComponentId_t, SST::Params &);
 
     bool tick(SST::Cycle_t);
 
@@ -38,36 +38,34 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "port", "Port on which cars are sent", {"sst.Interfaces.StringEvent"}}
+        { "port", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }}
     )
 
 private:
     SST::Output output;
-    SST::RNG::MarsagliaRNG *rng;
     std::string clock;
     int64_t RandomSeed;
+    SST::RNG::MarsagliaRNG *rng;
     SST::Link *port;
 };
 
 
-car_generator::car_generator(SST::ComponentId_t id, SST::Params &params) : SST::Component(id) {
+car_generator::car_generator(SST::ComponentId_t id, SST::Params &params) :
+    SST::Component(id),
+    clock(params.find<std::string>("delay", "1s")),
+    RandomSeed(params.find<int64_t>("randomseed", 151515)),
+    rng(new SST::RNG::MarsagliaRNG(11, RandomSeed)),
+    port(configureLink("port")) {
 
     output.init("car_generator-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
     // Get parameters
-    clock = params.find<std::string>("delay", "1s");
-    RandomSeed = params.find<int64_t>("randomseed", 151515);
     output.verbose(CALL_INFO, 1, 0, "Minimum Delay Between Cars=%gs, Random Number Seed=%ld\n", std::stof(clock),
                    RandomSeed);
 
     // Register the clock
     registerClock(clock, new SST::Clock::Handler<car_generator>(this, &car_generator::tick));
 
-    // Initialize random
-    rng = new SST::RNG::MarsagliaRNG(11, RandomSeed);
-
-    // Configure our port
-    port = configureLink("port");
     if (!port) {
         output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
@@ -77,11 +75,10 @@ bool car_generator::tick(SST::Cycle_t) {
     // generating a random number between 0 and 1
     // 0 = No Car
     // 1 = Car
-    int rndNumber = (int) (rng->generateNextInt32());
+    int rndNumber = rng->generateNextInt32();
     rndNumber = (rndNumber & 0x0000FFFF) ^ ((rndNumber & 0xFFFF0000) >> 16);
-    rndNumber = abs((int) (rndNumber % 2));
 
-    port->send(new SST::Interfaces::StringEvent(std::to_string(rndNumber)));
+    port->send(new SST::Interfaces::StringEvent(std::to_string(abs(rndNumber % 2))));
     return false;
 
 }

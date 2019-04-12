@@ -21,7 +21,7 @@ int sc_main(int argc, char *argv[]) {
     start_green = true;
     load = true;
     clock = false;
-    for (int i = 0; i < 40; i++) {
+    for (int i = 0; i < 100; i++) {
         if (i == 2) {
             load = false;
         }
