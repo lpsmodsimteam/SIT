@@ -37,7 +37,7 @@ int sc_main(int argc, char *argv[]) {
         }
         clock = !clock;
         sc_start(1, SC_NS);
-       // std::cout << "state " << state << std::endl;
+       std::cout << "state " << state << std::endl;
     }
 
 //    // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //

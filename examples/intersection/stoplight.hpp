@@ -35,19 +35,6 @@ SC_MODULE (stoplight) {
 
             switch (cur_state) {
 
-                case red: {
-
-                    std::cout << "red" << std::endl;
-                    if (counter == red_time) {
-                        next_state = green;
-                        counter = 0;
-                    } else {
-                        counter++;
-                    }
-                    break;
-
-                }
-
                 case green: {
 
                     std::cout << "green" << std::endl;
@@ -66,6 +53,19 @@ SC_MODULE (stoplight) {
                     std::cout << "yellow" << std::endl;
                     if (counter == yellow_time) {
                         next_state = red;
+                        counter = 0;
+                    } else {
+                        counter++;
+                    }
+                    break;
+
+                }
+
+                case red: {
+
+                    std::cout << "red" << std::endl;
+                    if (counter == red_time) {
+                        next_state = green;
                         counter = 0;
                     } else {
                         counter++;
