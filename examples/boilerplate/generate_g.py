@@ -6,7 +6,7 @@ import os
 import sys
 import unittest
 
-BASE_DIR = os.path.join(os.getcwd(), "..")
+BASE_DIR = os.path.dirname(os.getcwd())
 SCRIPT_PATH = os.path.join(BASE_DIR, "src", "boilerplate")
 BBOX_DIR_PATH = os.path.join(BASE_DIR, "examples", "simple", "blackboxes")
 DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "driver.tmp")
@@ -14,22 +14,10 @@ MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "model.tmp")
 sys.path.append(SCRIPT_PATH)
 from generate import BoilerPlate
 
-PORT_DEFS = {
-    "<bool> clock": "clock",
-    "<bool> reset": "input",
-    "<sc_uint<4> > data_out": "output",
-}
-
 
 class TestBoilerplate(object):
 
     def __init__(self, boilerplate_obj, driver_path, model_path):
-
-        self.boilerplate_obj = boilerplate_obj
-        self.boilerplate_obj.set_ports(PORT_DEFS)
-        self.boilerplate_obj.generate_bbox()
-        self.driver_path = driver_path
-        self.model_path = model_path
 
         self.driver_diffs = """! #include "galois_lfsr.hpp"
 ! #include "../modules/galois_lfsr.hpp"
@@ -40,6 +28,15 @@ class TestBoilerplate(object):
         self.model_diffs = """! #include "sstscit.hpp"
 ! #include "../../../src/sstscit.hpp"
 """
+        self.boilerplate_obj = boilerplate_obj
+        self.boilerplate_obj.set_ports({
+            "<bool> clock": "clock",
+            "<bool> reset": "input",
+            "<sc_uint<4> > data_out": "output",
+        })
+        self.boilerplate_obj.generate_bbox()
+        self.driver_path = driver_path
+        self.model_path = model_path
 
     @staticmethod
     def read_file(path):
@@ -98,18 +95,18 @@ ARGS = dict(
 
 class SocketSignals(unittest.TestCase, TestBoilerplate):
 
-    def setUp(self, method_name="run"):
+    def setUp(self):
 
-        unittest.TestCase.__init__(self, method_name)
+        unittest.TestCase.__init__(self)
         TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="sock"),
                                  "galois_sock_driver.cpp", "galois_sock.cpp")
 
 
 class ZMQSignals(unittest.TestCase, TestBoilerplate):
 
-    def setUp(self, method_name="run"):
+    def setUp(self):
 
-        unittest.TestCase.__init__(self, method_name)
+        unittest.TestCase.__init__(self)
         TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="zmq"),
                                  "galois_zmq_driver.cpp", "galois_zmq.cpp")
 

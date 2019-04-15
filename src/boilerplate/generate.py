@@ -1,6 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implementation of the BoilerPlate class
+
+This class generates the boilerplate code required to build the blackbox
+interface in SSTSCIT.
+"""
+
 import os
 
 
@@ -8,23 +14,23 @@ class BoilerPlate(object):
 
     def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
                  desc="", link_desc=None):
-        """[summary]
-
-        [description]
+        """Constructor for BoilerPlate.
 
         Arguments:
-            module {[type]} -- [description]
-            lib {[type]} -- [description]
-            ipc {[type]} -- [description]
-            drvr_templ_path {[type]} -- [description]
-            sst_model_templ_path {[type]} -- [description]
-
-        Keyword Arguments:
-            desc {str} -- [description] (default: {""})
-            link_desc {[type]} -- [description] (default: {None})
+            module {str} -- module name
+            lib {str} -- SST library name
+            ipc {str} -- type of IPC. Supported options are ("sock", "zmq")
+            drvr_templ_path {str} -- path to the blackbox-driver boilerplate
+            sst_model_templ_path {str} -- path to the blackbox-model boilerplate
+            desc {str} -- description of the SST model (default: {""})
+            link_desc {dict(str:str)} -- description of the SST links
+                The argument defaults to:
+                `{"link_desc0": "", "link_desc1": ""}`
+                where they're assigned as the receiving and transmitting SST
+                links respectively.
         """
 
-        if ipc in ("sock", "socks", "socket", "sockets", "zmq"):
+        if ipc in ("sock", "zmq"):
             self.ipc = ipc
         else:
             raise ValueError("Incorrect IPC protocol selected")
@@ -43,16 +49,6 @@ class BoilerPlate(object):
         self.outputs = []
         self.inouts = []
         self.ports = []
-
-        self.drvr_decl = ""
-
-        self.sst_model_bind = ""
-        self.sst_model_decl = ""
-        self.sst_model_dest = ""
-        self.sst_model_init = ""
-        self.sst_model_links = []
-        self.sst_model_receiver = ""
-        self.sst_model_sender = ""
 
         if self.ipc in ("sock", "socks", "socket", "sockets"):
             self.drvr_decl = """// Initialize signal handlers
@@ -93,6 +89,14 @@ class BoilerPlate(object):
 
     @staticmethod
     def __parse_signal_type(signal):
+        """Parses the type and computes its size from the signal
+
+        Arguments:
+            signal {str} -- signal definition
+
+        Returns:
+            {tuple(str,int)} -- C++ datatype and its size
+        """
 
         if "sc" in signal:
 
@@ -110,11 +114,27 @@ class BoilerPlate(object):
 
     @staticmethod
     def __format(fmt, split_func, array, delim=";\n    "):
+        """Formats lists of signals based on fixed arguments
 
+        Arguments:
+            fmt {str} -- string format
+            split_func {func} -- lambda function to split on the signals
+            array {list(str)} -- list of signals
+            delim {str} -- delimiter (default: {";n    "})
+
+        Returns:
+            {str} -- string formatted signals
+        """
         return delim.join(fmt.format(**split_func(i)) for i in array)
 
     def set_ports(self, ports):
+        """Assigns ports to their corresponding member lists
 
+        Arguments:
+            ports {dict(str:str)} -- dictionary of C++-style type-declared
+                signals mapped to the type of signal. The current types of
+                signals supported are ("clock", "input", "output", "inout")
+        """
         for port, port_type in ports.items():
             if port_type == "clock":
                 self.clocks.append(port.split(" "))
@@ -128,33 +148,53 @@ class BoilerPlate(object):
                 raise ValueError("Each ports must be designated a type")
             self.ports.append("sc_signal" + port)
 
-    def get_port_defs(self):
-
+    def get_drvr_port_defs(self):
+        """Generates port definitions for the blackbox-driver"""
         return ";\n    ".join(self.ports)
 
-    def get_bindings(self):
+    def get_drvr_bindings(self):
+        """Generates port bindings for the blackbox-driver
 
+        Returns:
+            {str} -- snippet of code representing port bindings
+        """
         return self.__format(
             "DUT.{sig}({sig})",
             lambda x: {"sig": x.split(" ")[-1]}, self.ports
         )
 
-    def get_clock(self, drvr=True):
+    def get_clock(self, driver=True):
+        """Generates clock binding for both the components in the blackbox
 
+        Arguments:
+            driver {bool} -- option to generate code for the blackbox-driver
+                (default: {True})
+
+        Returns:
+            {str} -- snippet of code representing clock binding
+        """
         return self.__format(
             "{sig} = {recv}.get_clock_pulse(\"{sig}\")",
             lambda x: {"sig": x[-1], "recv": self.receiver}, self.clocks
-        ) if drvr else [["<sc_int<2>>", i[-1]] for i in self.clocks]
+        ) if driver else [["<sc_int<2>>", i[-1]] for i in self.clocks]
 
-    def get_inputs(self, drvr=True):
+    def get_inputs(self, driver=True):
+        """Generates input bindings for both the components in the blackbox
 
+        Arguments:
+            driver {bool} -- option to generate code for the blackbox-driver
+                (default: {True})
+
+        Returns:
+            {str} -- snippet of code representing input bindings
+        """
         return self.__format(
             "{sig} = {recv}.get{type}(\"{sig}\")",
             lambda x: {
                 "sig": x[-1], "type": self.__parse_signal_type(x[0])[0],
                 "recv": self.receiver
             }, self.inputs, ";\n" + " " * 8
-        ) if drvr else self.__format(
+        ) if driver else self.__format(
             "std::to_string({recv}.get{type}(\"{sig}\"))",
             lambda x: {
                 "sig": x.split(" ")[-1],
@@ -163,9 +203,17 @@ class BoilerPlate(object):
             }, self.outputs, " +\n" + " " * 16
         )
 
-    def get_outputs(self, drvr=True):
+    def get_outputs(self, driver=True):
+        """Generates output bindings for both the components in the blackbox
 
-        if drvr:
+        Arguments:
+            driver {bool} -- option to generate code for the blackbox-driver
+                (default: {True})
+
+        Returns:
+            {str} -- snippet of code representing output bindings
+        """
+        if driver:
 
             return self.__format(
                 "{send}.set(\"{sig}\", {sig})",
@@ -193,13 +241,18 @@ class BoilerPlate(object):
         )
 
     def generate_sc_drvr(self):
+        """Generates the blackbox-driver code based on methods used to format
+        the template file
 
+        Returns:
+            {str} -- boilerplate code representing the blackbox-driver file
+        """
         if os.path.isfile(self.drvr_templ_path):
             with open(self.drvr_templ_path) as template:
                 return template.read().format(
                     module=self.module,
-                    port_defs=self.get_port_defs(),
-                    bindings=self.get_bindings(),
+                    port_defs=self.get_drvr_port_defs(),
+                    bindings=self.get_drvr_bindings(),
                     var_decl=self.drvr_decl,
                     dest=self.drvr_dest,
                     clock=self.get_clock(),
@@ -212,7 +265,12 @@ class BoilerPlate(object):
         raise FileNotFoundError("Driver boilerplate file not found")
 
     def generate_sst_model(self):
+        """Generates the blackbox-model code based on methods used to format
+        the template file
 
+        Returns:
+            {str} -- boilerplate code representing the blackbox-model file
+        """
         if os.path.isfile(self.sst_model_templ_path):
             with open(self.sst_model_templ_path) as template:
                 return template.read().format(
@@ -231,10 +289,12 @@ class BoilerPlate(object):
                     outputs=self.get_outputs(False),
                 )
 
-        raise FileNotFoundError("Blackbox boilerplate file not found")
+        raise FileNotFoundError("Model boilerplate file not found")
 
     def generate_bbox(self):
-
+        """Provides a high-level interface to the user to generate both the
+        components of the blackbox and dump them to their corresponding files
+        """
         if not os.path.exists(self.bbox_dir):
             os.makedirs(self.bbox_dir)
 
