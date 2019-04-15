@@ -97,7 +97,6 @@ class SocketSignals(unittest.TestCase, TestBoilerplate):
 
     def setUp(self):
 
-        unittest.TestCase.__init__(self)
         TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="sock"),
                                  "galois_sock_driver.cpp", "galois_sock.cpp")
 
@@ -106,7 +105,6 @@ class ZMQSignals(unittest.TestCase, TestBoilerplate):
 
     def setUp(self):
 
-        unittest.TestCase.__init__(self)
         TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="zmq"),
                                  "galois_zmq_driver.cpp", "galois_zmq.cpp")
 

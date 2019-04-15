@@ -156,7 +156,7 @@ bool intersection::clockTick(SST::Cycle_t currentCycle) {
 
 // If the light is green or yellow, allow cars to go through one at a time
 void intersection::handleLight0(SST::Event *ev) {
-    SST::Interfaces::StringEvent *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         //output.output("Light0: %s\n", se->getString().c_str());
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
@@ -170,7 +170,7 @@ void intersection::handleLight0(SST::Event *ev) {
 
 // If the light is green or yellow, allow cars to go through one at a time
 void intersection::handleLight1(SST::Event *ev) {
-    SST::Interfaces::StringEvent *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         //output.output("Light1: %s\n", se->getString().c_str());
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
@@ -184,7 +184,7 @@ void intersection::handleLight1(SST::Event *ev) {
 
 // Add cars to the road when they arrive and keep track of the largest backup
 void intersection::handleCars0(SST::Event *ev) {
-    SST::Interfaces::StringEvent *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         if (se->getString().c_str()[0] == '1') {
             road0++;
@@ -199,7 +199,7 @@ void intersection::handleCars0(SST::Event *ev) {
 
 // Add cars to the road when they arrive and keep track of the largest backup
 void intersection::handleCars1(SST::Event *ev) {
-    SST::Interfaces::StringEvent *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         if (se->getString().c_str()[0] == '1') {
             road1++;

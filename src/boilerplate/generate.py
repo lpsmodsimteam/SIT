@@ -295,6 +295,9 @@ class BoilerPlate(object):
         """Provides a high-level interface to the user to generate both the
         components of the blackbox and dump them to their corresponding files
         """
+        if not len(self.ports):
+            raise IndexError("Ports were not set properly")
+
         if not os.path.exists(self.bbox_dir):
             os.makedirs(self.bbox_dir)
 

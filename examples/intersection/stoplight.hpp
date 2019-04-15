@@ -1,20 +1,23 @@
 #include <systemc.h>
 
-SC_MODULE (stoplight) {
+enum light_state {
+    green, yellow, red
+};
 
-    enum light_state {
-        green, yellow, red
-    };
+SC_MODULE (stoplight) {
 
     sc_in_clk clock;
     sc_in<bool> load;
     sc_in<bool> start_green;
+    sc_in<sc_uint<6> > green_time;
+    sc_in<sc_uint<6> > yellow_time;
+    sc_in<sc_uint<6> > red_time;
 
-    sc_uint<8> counter;
+    sc_uint<6> counter;
     sc_signal<light_state> next_state;
     sc_signal<light_state> cur_state;
 
-    sc_out<sc_bv<2> > state;
+    sc_out<light_state> state;
 
     void get_next_state() {
 
@@ -35,9 +38,8 @@ SC_MODULE (stoplight) {
                 case red: {
 
                     std::cout << "red" << std::endl;
-                    if (counter == 20) {
+                    if (counter == red_time) {
                         next_state = green;
-                        state = "01";
                         counter = 0;
                     } else {
                         counter++;
@@ -49,9 +51,8 @@ SC_MODULE (stoplight) {
                 case green: {
 
                     std::cout << "green" << std::endl;
-                    if (counter == 20) {
+                    if (counter == green_time) {
                         next_state = yellow;
-                        state = "10";
                         counter = 0;
                     } else {
                         counter++;
@@ -63,9 +64,8 @@ SC_MODULE (stoplight) {
                 case yellow: {
 
                     std::cout << "yellow" << std::endl;
-                    if (counter == 2) {
+                    if (counter == yellow_time) {
                         next_state = red;
-                        state = "11";
                         counter = 0;
                     } else {
                         counter++;
@@ -79,6 +79,7 @@ SC_MODULE (stoplight) {
         }
 
         cur_state = next_state;
+        state.write(cur_state);
 
     }
 
