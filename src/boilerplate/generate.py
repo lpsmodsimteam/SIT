@@ -4,10 +4,25 @@
 import os
 
 
-class BoilerPlate():
+class BoilerPlate(object):
 
-    def __init__(self, module, lib, ipc, drvr_templ_path, bbox_templ_path,
+    def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
                  desc="", link_desc=None):
+        """[summary]
+
+        [description]
+
+        Arguments:
+            module {[type]} -- [description]
+            lib {[type]} -- [description]
+            ipc {[type]} -- [description]
+            drvr_templ_path {[type]} -- [description]
+            sst_model_templ_path {[type]} -- [description]
+
+        Keyword Arguments:
+            desc {str} -- [description] (default: {""})
+            link_desc {[type]} -- [description] (default: {None})
+        """
 
         if ipc in ("sock", "socks", "socket", "sockets", "zmq"):
             self.ipc = ipc
@@ -17,7 +32,7 @@ class BoilerPlate():
         self.module = module
         self.lib = lib
         self.drvr_templ_path = drvr_templ_path
-        self.bbox_templ_path = bbox_templ_path
+        self.sst_model_templ_path = sst_model_templ_path
         self.desc = desc
         self.link_desc = link_desc if link_desc else {
             "link_desc0": "", "link_desc1": ""
@@ -31,13 +46,13 @@ class BoilerPlate():
 
         self.drvr_decl = ""
 
-        self.bbox_bind = ""
-        self.bbox_decl = ""
-        self.bbox_dest = ""
-        self.bbox_init = ""
-        self.bbox_links = []
-        self.bbox_receiver = ""
-        self.bbox_sender = ""
+        self.sst_model_bind = ""
+        self.sst_model_decl = ""
+        self.sst_model_dest = ""
+        self.sst_model_init = ""
+        self.sst_model_links = []
+        self.sst_model_receiver = ""
+        self.sst_model_sender = ""
 
         if self.ipc in ("sock", "socks", "socket", "sockets"):
             self.drvr_decl = """// Initialize signal handlers
@@ -46,10 +61,10 @@ class BoilerPlate():
             self.drvr_dest = ""
             self.sender = self.receiver = "m_signal_io"
 
-            self.bbox_decl = """SocketSignal m_signal_io;"""
-            self.bbox_init = """m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"""
-            self.bbox_bind = "m_signal_io.set_addr(m_ipc_port)"
-            self.bbox_dest = ""
+            self.sst_model_decl = """SocketSignal m_signal_io;"""
+            self.sst_model_init = """m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"""
+            self.sst_model_bind = "m_signal_io.set_addr(m_ipc_port)"
+            self.sst_model_dest = ""
 
         elif self.ipc == "zmq":
             self.drvr_decl = """// Socket to talk to server
@@ -61,16 +76,20 @@ class BoilerPlate():
     ZMQReceiver m_signal_i(socket);
     ZMQTransmitter m_signal_o(socket);"""
             self.drvr_dest = "socket.close();"
-            self.bbox_decl = """zmq::context_t m_context;
+            self.sst_model_decl = """zmq::context_t m_context;
     zmq::socket_t m_socket;
     ZMQReceiver m_signal_i;
     ZMQTransmitter m_signal_o;"""
-            self.bbox_init = """m_context(1), m_socket(m_context, ZMQ_REP),
+            self.sst_model_init = """m_context(1), m_socket(m_context, ZMQ_REP),
       m_signal_i(m_socket), m_signal_o(m_socket),"""
-            self.bbox_bind = "m_socket.bind(m_ipc_port.c_str())"
-            self.bbox_dest = "m_socket.close();"
+            self.sst_model_bind = "m_socket.bind(m_ipc_port.c_str())"
+            self.sst_model_dest = "m_socket.close();"
             self.sender = "m_signal_o"
             self.receiver = "m_signal_i"
+
+        self.bbox_dir = "blackboxes"
+        self.sc_driver_path = self.bbox_dir + "/" + self.module + "_driver.cpp"
+        self.sst_model_path = self.bbox_dir + "/" + self.module + ".cpp"
 
     @staticmethod
     def __parse_signal_type(signal):
@@ -157,8 +176,8 @@ class BoilerPlate():
 
         ix = 2
         sig_lens = []
-        bbox_inputs = self.inputs + self.get_clock(False)
-        for i in bbox_inputs:
+        sst_model_inputs = self.inputs + self.get_clock(False)
+        for i in sst_model_inputs:
             sig_len = self.__parse_signal_type(i[0])[-1]
             sig_lens.append((ix, sig_len))
             ix += sig_len
@@ -167,10 +186,10 @@ class BoilerPlate():
             "{send}.set(\"{sig}\", std::stoi(_data_in.substr({p}, {l})))",
             lambda x: {
                 "sig": x[-1],
-                "p": sig_lens[bbox_inputs.index(x)][0],
-                "l": sig_lens[bbox_inputs.index(x)][-1],
+                "p": sig_lens[sst_model_inputs.index(x)][0],
+                "l": sig_lens[sst_model_inputs.index(x)][-1],
                 "send": self.sender
-            }, bbox_inputs, ";\n" + " " * 8
+            }, sst_model_inputs, ";\n" + " " * 8
         )
 
     def generate_sc_drvr(self):
@@ -192,20 +211,20 @@ class BoilerPlate():
 
         raise FileNotFoundError("Driver boilerplate file not found")
 
-    def generate_bbox(self):
+    def generate_sst_model(self):
 
-        if os.path.isfile(self.bbox_templ_path):
-            with open(self.bbox_templ_path) as template:
+        if os.path.isfile(self.sst_model_templ_path):
+            with open(self.sst_model_templ_path) as template:
                 return template.read().format(
                     module=self.module,
                     lib=self.lib,
                     comp=self.module,
                     desc=self.desc,
                     **self.link_desc,
-                    var_decl=self.bbox_decl,
-                    var_init=self.bbox_init,
-                    var_bind=self.bbox_bind,
-                    var_dest=self.bbox_dest,
+                    var_decl=self.sst_model_decl,
+                    var_init=self.sst_model_init,
+                    var_bind=self.sst_model_bind,
+                    var_dest=self.sst_model_dest,
                     sender=self.sender,
                     receiver=self.receiver,
                     inputs=self.get_inputs(False),
@@ -213,3 +232,14 @@ class BoilerPlate():
                 )
 
         raise FileNotFoundError("Blackbox boilerplate file not found")
+
+    def generate_bbox(self):
+
+        if not os.path.exists(self.bbox_dir):
+            os.makedirs(self.bbox_dir)
+
+        with open(self.sc_driver_path, "w") as sc_driver_file:
+            sc_driver_file.write(self.generate_sc_drvr())
+
+        with open(self.sst_model_path, "w") as sst_model_file:
+            sst_model_file.write(self.generate_sst_model())

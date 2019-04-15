@@ -13,4 +13,5 @@ unit-test:
 clean:
 	# remove all compiled objects and cached files
 	rm -rf ${test_dir}/* simple/cmake-build-debug
+	rm -rf blackboxes
 	rm -rf *.pyc __pycache__

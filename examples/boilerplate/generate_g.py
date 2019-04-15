@@ -10,39 +10,26 @@ BASE_DIR = os.path.join(os.getcwd(), "..")
 SCRIPT_PATH = os.path.join(BASE_DIR, "src", "boilerplate")
 BBOX_DIR_PATH = os.path.join(BASE_DIR, "examples", "simple", "blackboxes")
 DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "driver.tmp")
-BBOX_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "blackbox.tmp")
+MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "model.tmp")
 sys.path.append(SCRIPT_PATH)
 from generate import BoilerPlate
 
+PORT_DEFS = {
+    "<bool> clock": "clock",
+    "<bool> reset": "input",
+    "<sc_uint<4> > data_out": "output",
+}
 
-class TestBoilerPlate(unittest.TestCase):
 
-    def __init__(self, methodName="runTest"):
+class TestBoilerplate(object):
 
-        super(TestBoilerPlate, self).__init__(methodName)
+    def __init__(self, boilerplate_obj, driver_path, model_path):
 
-        ARGS = dict(
-            module="galois_lfsr",
-            lib="proto",
-            drvr_templ_path=DRVR_TEMPL_PATH,
-            bbox_templ_path=BBOX_TEMPL_PATH,
-            desc="Simple 4-bit Galois Linear Feedback Shift Register",
-            link_desc={
-                "link_desc0": "Galois LFSR data_in",
-                "link_desc1": "Galois LFSR data_out",
-            }
-        )
-        PORT_DEFS = {
-            "<bool> clock": "clock",
-            "<bool> reset": "input",
-            "<sc_uint<4> > data_out": "output",
-        }
-
-        self.boilerplate_sock = BoilerPlate(**ARGS, ipc="sock")
-        self.boilerplate_sock.set_ports(PORT_DEFS)
-
-        self.boilerplate_zmq = BoilerPlate(**ARGS, ipc="zmq")
-        self.boilerplate_zmq.set_ports(PORT_DEFS)
+        self.boilerplate_obj = boilerplate_obj
+        self.boilerplate_obj.set_ports(PORT_DEFS)
+        self.boilerplate_obj.generate_bbox()
+        self.driver_path = driver_path
+        self.model_path = model_path
 
         self.driver_diffs = """! #include "galois_lfsr.hpp"
 ! #include "../modules/galois_lfsr.hpp"
@@ -50,7 +37,7 @@ class TestBoilerPlate(unittest.TestCase):
 ! #include "../../../src/sstscit.hpp"
 """
 
-        self.blackbox_diffs = """! #include "sstscit.hpp"
+        self.model_diffs = """! #include "sstscit.hpp"
 ! #include "../../../src/sstscit.hpp"
 """
 
@@ -73,49 +60,58 @@ class TestBoilerPlate(unittest.TestCase):
 
         return "".join(filter(lambda x: len(set(x)) > 3, filtered_diff))
 
-    def test_driver_sock(self):
+    def test_driver(self):
 
-        diffs = self.remove_diff_trails(
-            self.boilerplate_sock.generate_sc_drvr(),
-            self.read_file("galois_sock_driver.cpp"))
+        with open(self.boilerplate_obj.sc_driver_path) as driver_file:
+            self.assertEqual(
+                self.remove_diff_trails(
+                    driver_file.read(), self.read_file(self.driver_path)
+                ),
+                self.driver_diffs,
+                "Generated boilerplate driver code is not accurate"
+            )
 
-        self.assertEqual(
-            diffs, self.driver_diffs,
-            "Generated boilerplate code is not accurate"
-        )
+    def test_model(self):
 
-    def test_driver_zmq(self):
+        with open(self.boilerplate_obj.sst_model_path) as model_file:
+            self.assertEqual(
+                self.remove_diff_trails(
+                    model_file.read(), self.read_file(self.model_path)
+                ),
+                self.model_diffs,
+                "Generated boilerplate model code is not accurate"
+            )
 
-        diffs = self.remove_diff_trails(
-            self.boilerplate_zmq.generate_sc_drvr(),
-            self.read_file("galois_zmq_driver.cpp"))
 
-        self.assertEqual(
-            diffs, self.driver_diffs,
-            "Generated boilerplate code is not accurate"
-        )
+ARGS = dict(
+    module="galois_lfsr",
+    lib="proto",
+    drvr_templ_path=DRVR_TEMPL_PATH,
+    sst_model_templ_path=MODEL_TEMPL_PATH,
+    desc="Simple 4-bit Galois Linear Feedback Shift Register",
+    link_desc={
+        "link_desc0": "Galois LFSR data_in",
+        "link_desc1": "Galois LFSR data_out",
+    }
+)
 
-    def test_blackbox_sock(self):
 
-        diffs = self.remove_diff_trails(
-            self.boilerplate_sock.generate_bbox(),
-            self.read_file("galois_sock.cpp"))
+class SocketSignals(unittest.TestCase, TestBoilerplate):
 
-        self.assertEqual(
-            diffs, self.blackbox_diffs,
-            "Generated boilerplate code is not accurate"
-        )
+    def setUp(self, method_name="run"):
 
-    def test_blackbox_zmq(self):
+        unittest.TestCase.__init__(self, method_name)
+        TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="sock"),
+                                 "galois_sock_driver.cpp", "galois_sock.cpp")
 
-        diffs = self.remove_diff_trails(
-            self.boilerplate_zmq.generate_bbox(),
-            self.read_file("galois_zmq.cpp"))
 
-        self.assertEqual(
-            diffs, self.blackbox_diffs,
-            "Generated boilerplate code is not accurate"
-        )
+class ZMQSignals(unittest.TestCase, TestBoilerplate):
+
+    def setUp(self, method_name="run"):
+
+        unittest.TestCase.__init__(self, method_name)
+        TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="zmq"),
+                                 "galois_zmq_driver.cpp", "galois_zmq.cpp")
 
 
 if __name__ == "__main__":
