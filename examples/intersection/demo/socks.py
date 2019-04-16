@@ -10,6 +10,10 @@ import sst
 BASE_PATH = os.getcwd()
 CLOCK = "1Hz"
 
+GREEN0TIME = 30
+GREEN1TIME = 60
+YELLOWTIME = 3
+
 
 def get_rand_tmp():
     return ''.join(
@@ -18,7 +22,21 @@ def get_rand_tmp():
 
 
 light_comp0 = sst.Component("Traffic Light 0", "intersection.traffic_light")
+light_comp0.addParams({
+    "clock": CLOCK,
+    "GREENTIME": GREEN0TIME,
+    "YELLOWTIME": YELLOWTIME,
+    "REDTIME": GREEN1TIME + YELLOWTIME,
+    "STARTGREEN": 0
+})
 light_comp1 = sst.Component("Traffic Light 1", "intersection.traffic_light")
+light_comp1.addParams({
+    "clock": CLOCK,
+    "GREENTIME": GREEN1TIME,
+    "YELLOWTIME": YELLOWTIME,
+    "REDTIME": GREEN0TIME + YELLOWTIME,
+    "STARTGREEN": 1
+})
 
 stoplight_comp0 = sst.Component(
     "Stoplight Blackbox 0", "intersection.stoplight")

@@ -10,20 +10,19 @@ SC_MODULE (stoplight) {
     sc_in<bool> load;
     sc_in<bool> start_green;
     sc_in<sc_uint<6> > green_time;
-    sc_in<sc_uint<6> > yellow_time;
+    sc_in<sc_uint<2> > yellow_time;
     sc_in<sc_uint<6> > red_time;
 
     sc_uint<6> counter;
     sc_signal<light_state> next_state;
     sc_signal<light_state> cur_state;
 
-    sc_out<light_state> state;
+    sc_out<sc_uint<2> > state;
 
     void get_next_state() {
 
         if (load.read()) {
 
-            // std::cout << "init" << std::endl;
             counter = 0;
             if (start_green.read()) {
                 next_state = green;
@@ -37,9 +36,9 @@ SC_MODULE (stoplight) {
 
                 case green: {
 
-                    // std::cout << "green" << std::endl;
                     if (counter == green_time) {
                         next_state = yellow;
+                        state = 0;
                         counter = 0;
                     } else {
                         counter++;
@@ -50,9 +49,9 @@ SC_MODULE (stoplight) {
 
                 case yellow: {
 
-                    // std::cout << "yellow" << std::endl;
                     if (counter == yellow_time) {
                         next_state = red;
+                        state = 1;
                         counter = 0;
                     } else {
                         counter++;
@@ -63,9 +62,9 @@ SC_MODULE (stoplight) {
 
                 case red: {
 
-                    // std::cout << "red" << std::endl;
                     if (counter == red_time) {
                         next_state = green;
+                        state = 2;
                         counter = 0;
                     } else {
                         counter++;
@@ -79,7 +78,7 @@ SC_MODULE (stoplight) {
         }
 
         cur_state = next_state;
-        state.write(cur_state);
+//        state.write(static_cast<int>(cur_state));
 
     }
 

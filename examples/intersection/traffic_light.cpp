@@ -57,7 +57,7 @@ traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     GREENTIME(params.find<int>("GREENTIME", 30)),
     YELLOWTIME(params.find<int>("YELLOWTIME", 3)),
     REDTIME(params.find<int>("REDTIME", 33)),
-    STARTGREEN(params.find<int>("STARTGREEN", 0)),
+    STARTGREEN(params.find<int>("STARTGREEN", false)),
     port(configureLink("port")),
     m_din_link(configureLink("stoplight_din")),
     m_dout_link(configureLink(
@@ -89,30 +89,6 @@ traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
 void traffic_light::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
-    bool keep_send = true;
-    bool keep_recv = true;
-
-    int load;
-    int start_green;
-    int green_time;
-    int yellow_time;
-    int red_time;
-
-    load = 1;
-    start_green = STARTGREEN;
-    green_time = GREENTIME;
-    yellow_time = YELLOWTIME;
-    red_time = REDTIME;
-
-    m_din_link->send(new SST::Interfaces::StringEvent(
-        std::to_string(keep_send) +
-        std::to_string(keep_recv) +
-        std::to_string(load) +
-        std::to_string(start_green) +
-        std::to_string(green_time) +
-        std::to_string(yellow_time) +
-        std::to_string(red_time) +
-        std::to_string(0)));
 
 }
 
@@ -140,8 +116,8 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
 
-    int load;
-    int start_green;
+    bool load;
+    bool start_green;
     int green_time;
     int yellow_time;
     int red_time;
@@ -149,20 +125,18 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     // turn reset off at 3 ns
     if (current_cycle == 1) {
         m_output.verbose(CALL_INFO, 1, 0, "INITIAL VALUES\n");
-        load = 1;
+        load = true;
         start_green = STARTGREEN;
         green_time = GREENTIME;
         yellow_time = YELLOWTIME;
         red_time = REDTIME;
     } else {
-        load = 0;
-        start_green = 0;
+        load = false;
+        start_green = false;
         green_time = 0;
         yellow_time = 0;
         red_time = 0;
     }
-
-    std::cout << "light_state " << light_state << std::endl;
 
     m_din_link->send(new SST::Interfaces::StringEvent(
         std::to_string(keep_send) +
@@ -185,9 +159,12 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
         case '2':
             c = "red";
             break;
+//        default:
+//            c = "green";
     }
 
     port->send(new SST::Interfaces::StringEvent(c));
+//    std::cout << "light_state " << c << std::endl;
 
     return false;
 

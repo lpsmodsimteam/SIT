@@ -115,7 +115,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
 
         // inputs from parent SST model, outputs to SystemC child process
         m_signal_io.set("reset", std::stoi(_data_in.substr(2, 1)));
-        m_signal_io.set("clock", std::stoi(_data_in.substr(3, 2)));
+        m_signal_io.set("clock", std::stoi(_data_in.substr(3)));
 
         if (keep_send) {
             m_signal_io.set_state(keep_recv);

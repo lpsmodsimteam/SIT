@@ -9,9 +9,9 @@ int sc_main(int argc, char *argv[]) {
     sc_signal<bool> load;
     sc_signal<bool> start_green;
     sc_signal<sc_uint<6> > green_time;
-    sc_signal<sc_uint<6> > yellow_time;
+    sc_signal<sc_uint<2> > yellow_time;
     sc_signal<sc_uint<6> > red_time;
-    sc_signal<light_state> state;
+    sc_signal<sc_uint<2> > state;
 
     // Connect the DUT
     stoplight DUT("stoplight");

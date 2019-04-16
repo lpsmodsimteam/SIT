@@ -31,8 +31,8 @@ if __name__ == "__main__":
         "<bool> load": "input",
         "<bool> start_green": "input",
         "<sc_uint<6> > green_time": "input",
-        "<sc_uint<6> > yellow_time": "input",
+        "<sc_uint<2> > yellow_time": "input",
         "<sc_uint<6> > red_time": "input",
-        "<light_state> state": "output",
+        "<sc_uint<2> > state": "output",
     })
     boilerplate_obj.generate_bbox()
