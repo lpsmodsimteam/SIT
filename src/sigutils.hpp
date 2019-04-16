@@ -7,8 +7,6 @@
 
 #include "msgpack/msgpack.hpp"  // to pack/unpack signals
 
-#include <iostream>
-
 #include <sstream>
 #include <unistd.h>
 #include <unordered_map>
@@ -120,7 +118,6 @@ T SignalIO::get(const std::string &key) {
     if (m_data.find(key) != m_data.end()) {
         return static_cast<T>(std::stoi(m_data[key]));
     }
-    std::cout << "HERE" << std::endl;
 
     throw std::invalid_argument("Key does not exist");
 

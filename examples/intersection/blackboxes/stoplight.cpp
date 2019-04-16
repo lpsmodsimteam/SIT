@@ -100,7 +100,6 @@ void stoplight::setup() {
 void stoplight::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
-    
 
 }
 

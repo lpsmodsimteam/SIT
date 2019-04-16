@@ -18,13 +18,11 @@ public:
 
     intersection(SST::ComponentId_t, SST::Params &);
 
-    ~intersection();
+    void setup() override;
 
-    void setup();
+    void finish() override;
 
-    void finish();
-
-    bool clockTick(SST::Cycle_t);
+    bool tick(SST::Cycle_t);
 
     void handleLight0(SST::Event *);
 
@@ -90,7 +88,7 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     output.verbose(CALL_INFO, 1, 0, "simDuration=%d Hours\n", ((int) simDuration / 3600));
 
     // Just register a plain clock for this simple example
-    registerClock(clock, new SST::Clock::Handler<intersection>(this, &intersection::clockTick));
+    registerClock(clock, new SST::Clock::Handler<intersection>(this, &intersection::tick));
 
     // Configure our ports
     light0 = configureLink("light0", new SST::Event::Handler<intersection>(this, &intersection::handleLight0));
@@ -115,10 +113,6 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     primaryComponentDoNotEndSim();
 }
 
-intersection::~intersection() {
-
-}
-
 void intersection::setup() {
     road0 = 0;
     road1 = 0;
@@ -137,8 +131,8 @@ void intersection::finish() {
 }
 
 // Exit when enough clock ticks have happened
-bool intersection::clockTick(SST::Cycle_t currentCycle) {
-    if (currentCycle == 1) {
+bool intersection::tick(SST::Cycle_t current_cycle) {
+    if (current_cycle == 1) {
         printf("\n Hour | Total Cars TL0 | Total Cars TL1\n");
         printf("------+----------------+---------------\n");
     }
@@ -146,7 +140,7 @@ bool intersection::clockTick(SST::Cycle_t currentCycle) {
     if (!(numtics % 3600)) {
         printf(" %4d | %14d | %14d\n", numtics / 3600, totalCars0, totalCars1);
     }
-    if (currentCycle >= simDuration) {
+    if (current_cycle >= simDuration) {
         primaryComponentOKToEndSim();
         return true;
     } else {
@@ -158,6 +152,8 @@ bool intersection::clockTick(SST::Cycle_t currentCycle) {
 void intersection::handleLight0(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
+        std::cout << "HERE handleLight0" << std::endl;
+
         //output.output("Light0: %s\n", se->getString().c_str());
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
             if (road0 > 0) {
@@ -172,6 +168,8 @@ void intersection::handleLight0(SST::Event *ev) {
 void intersection::handleLight1(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
+        std::cout << "HERE handleLight1" << std::endl;
+
         //output.output("Light1: %s\n", se->getString().c_str());
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
             if (road1 > 0) {
@@ -186,6 +184,8 @@ void intersection::handleLight1(SST::Event *ev) {
 void intersection::handleCars0(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
+        std::cout << "HERE handleCars0" << std::endl;
+
         if (se->getString().c_str()[0] == '1') {
             road0++;
             totalCars0++;
@@ -201,6 +201,8 @@ void intersection::handleCars0(SST::Event *ev) {
 void intersection::handleCars1(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
+        std::cout << "HERE handleCars1" << std::endl;
+
         if (se->getString().c_str()[0] == '1') {
             road1++;
             totalCars1++;

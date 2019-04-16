@@ -4,7 +4,7 @@
 #include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
 
-#define SIMTIME 100
+#define SIMTIME 86400
 
 class traffic_light : public SST::Component {
 
@@ -100,10 +100,11 @@ void traffic_light::finish() {
 
 void traffic_light::handle_data_out(SST::Event *ev) {
 
+    std::cout << "HANDLING" << std::endl;
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         m_output.verbose(CALL_INFO, 1, 0, "state -> %s\n", se->getString().c_str());
-        strncpy(light_state, se->getString().c_str(), 1);
+        strncpy(light_state, se->getString().c_str(), 2);
     }
     delete ev;
 
@@ -159,12 +160,12 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
         case '2':
             c = "red";
             break;
-//        default:
-//            c = "green";
+        default:
+            c = "green";
     }
 
     port->send(new SST::Interfaces::StringEvent(c));
-//    std::cout << "light_state " << c << std::endl;
+    std::cout << "light_state " << c << std::endl;
 
     return false;
 

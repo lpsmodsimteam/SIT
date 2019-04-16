@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(proto CXX)
+project(simple CXX)
 include(../../src/CMakeLists.txt)
 
 # -------------------- EXECUTABLES --------------------
