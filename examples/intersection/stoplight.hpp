@@ -23,7 +23,7 @@ SC_MODULE (stoplight) {
 
         if (load.read()) {
 
-            std::cout << "init" << std::endl;
+            // std::cout << "init" << std::endl;
             counter = 0;
             if (start_green.read()) {
                 next_state = green;
@@ -37,7 +37,7 @@ SC_MODULE (stoplight) {
 
                 case green: {
 
-                    std::cout << "green" << std::endl;
+                    // std::cout << "green" << std::endl;
                     if (counter == green_time) {
                         next_state = yellow;
                         counter = 0;
@@ -50,7 +50,7 @@ SC_MODULE (stoplight) {
 
                 case yellow: {
 
-                    std::cout << "yellow" << std::endl;
+                    // std::cout << "yellow" << std::endl;
                     if (counter == yellow_time) {
                         next_state = red;
                         counter = 0;
@@ -63,7 +63,7 @@ SC_MODULE (stoplight) {
 
                 case red: {
 
-                    std::cout << "red" << std::endl;
+                    // std::cout << "red" << std::endl;
                     if (counter == red_time) {
                         next_state = green;
                         counter = 0;

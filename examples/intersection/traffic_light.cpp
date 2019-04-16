@@ -1,20 +1,10 @@
-/**
-Simple Model with one clock that functions as a wrapper for a PyRTL simulation
-
-Uses named pipes to send and receive data between SST and PyRTL
-*/
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
 #include <sst/core/sst_config.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/component.h>
 #include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
+
+#define SIMTIME 100
 
 class traffic_light : public SST::Component {
 
@@ -25,6 +15,8 @@ public:
     void setup() override;
 
     void finish() override;
+
+    void handle_data_out(SST::Event *);
 
     bool tick(SST::Cycle_t);
 
@@ -37,114 +29,158 @@ public:
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
-    SST_ELI_DOCUMENT_PARAMS(
-        { "clock", "Clock frequency or period", "1Hz" },
-        { "greenTime", "How long the green light stays on", "30" },
-        { "yellowTime", "How long the yellow light stays on", "3" },
-        { "redTime", "How long the red light stays on", "33" },
-        { "startGreen", "Start the light as Green (0 -> start on Red)", "0" },
-        { "inputPipe", "Name of the input pipe", "/tmp/output" },
-        { "outputPipe", "Name of the output pipe", "/tmp/input" }
-    )
-
+    // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
+        { "stoplight_din", "Stoplight data_in", { "sst.Interfaces.StringEvent" }},
+        { "stoplight_dout", "Stoplight data_out", { "sst.Interfaces.StringEvent" }},
         { "port", "Port on which to send/recv messages", { "sst.Interfaces.StringEvent" }}
     )
 
 private:
-    SST::Output output;
-    SST::Link *port;
 
-    int inFifo{};
-    int outFifo{};
+    std::string m_clock;
+    SST::Link *port, *m_din_link, *m_dout_link;
+    SST::Output m_output;
 
-    std::string clock;
-    std::string inputPipe;
-    std::string outputPipe;
-    int greenTime;
-    int yellowTime;
-    int redTime;
-    int startGreen;
-    char s[9]{};
+    int GREENTIME;
+    int YELLOWTIME;
+    int REDTIME;
+    int STARTGREEN;
+    char light_state[2]{};
+    char s[3]{};
 };
 
 traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
     // Collect all the parameters from the project driver
-    clock(params.find<std::string>("clock", "1Hz")),
-    greenTime(params.find<int>("greenTime", 30)),
-    yellowTime(params.find<int>("yellowTime", 3)),
-    redTime(params.find<int>("redTime", 33)),
-    startGreen(params.find<int>("startGreen", 0)),
-    inputPipe(params.find<std::string>("inputPipe", "/tmp/output")),
-    outputPipe(params.find<std::string>("outputPipe", "/tmp/input")),
-    port(configureLink("port")) {
+    m_clock(params.find<std::string>("clock", "1Hz")),
+    GREENTIME(params.find<int>("GREENTIME", 30)),
+    YELLOWTIME(params.find<int>("YELLOWTIME", 3)),
+    REDTIME(params.find<int>("REDTIME", 33)),
+    STARTGREEN(params.find<int>("STARTGREEN", 0)),
+    port(configureLink("port")),
+    m_din_link(configureLink("stoplight_din")),
+    m_dout_link(configureLink(
+        "stoplight_dout",
+        new SST::Event::Handler<traffic_light>(this, &traffic_light::handle_data_out)
+    )) {
 
-    output.init("traffic_light-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("traffic_light-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
     // Check parameters
-    if (!(greenTime && yellowTime && redTime)) {
-        output.fatal(CALL_INFO, -1, "Error: times must be greater than zero.\n");
+    if (!(GREENTIME && YELLOWTIME && REDTIME)) {
+        m_output.fatal(CALL_INFO, -1, "Error: times must be greater than zero.\n");
     }
 
     // Print parameters
-    output.verbose(CALL_INFO, 1, 0, "greenTime=%d, yellowTime=%d, redTime=%d, startGreen=%d\n",
-                   greenTime, yellowTime, redTime, startGreen);
+    m_output.verbose(CALL_INFO, 1, 0, "GREENTIME=%d, YELLOWTIME=%d, REDTIME=%d, STARTGREEN=%d\n",
+                     GREENTIME, YELLOWTIME, REDTIME, STARTGREEN);
 
     // Just register a plain clock for this simple example
-    registerClock(clock, new SST::Clock::Handler<traffic_light>(this, &traffic_light::tick));
+    registerClock(m_clock, new SST::Clock::Handler<traffic_light>(this, &traffic_light::tick));
 
-    // Configure our port
-    if (!port) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+    // Configure our ports
+    if (!(port && m_din_link && m_dout_link)) {
+        m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
     }
 
 }
 
 void traffic_light::setup() {
 
-    // Connect to the named pipes when they are available
-    while (access(inputPipe.c_str(), R_OK) != 0) {}
-    inFifo = open(inputPipe.c_str(), O_RDONLY);
-    while (access(outputPipe.c_str(), W_OK) != 0) {}
-    outFifo = open(outputPipe.c_str(), O_WRONLY);
+    m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
+    bool keep_send = true;
+    bool keep_recv = true;
 
-    // Load the initial times into the PyRTL stopLight
-    sprintf(s, "1%x%02x%02x%02x", startGreen, greenTime, yellowTime, redTime);
-    write(outFifo, s, 8);
-    char r[2] = "\0";
-    read(inFifo, r, 1);
-    strncpy(s, "00000000", 8);
+    int load;
+    int start_green;
+    int green_time;
+    int yellow_time;
+    int red_time;
+
+    load = 1;
+    start_green = STARTGREEN;
+    green_time = GREENTIME;
+    yellow_time = YELLOWTIME;
+    red_time = REDTIME;
+
+    m_din_link->send(new SST::Interfaces::StringEvent(
+        std::to_string(keep_send) +
+        std::to_string(keep_recv) +
+        std::to_string(load) +
+        std::to_string(start_green) +
+        std::to_string(green_time) +
+        std::to_string(yellow_time) +
+        std::to_string(red_time) +
+        std::to_string(0)));
 
 }
 
 void traffic_light::finish() {
 
-    // Sent the quit signal to the PyRTL stopLight
-    write(outFifo, "q", 1);
-    close(inFifo);
-    close(outFifo);
+    m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
 
 }
 
+void traffic_light::handle_data_out(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+        m_output.verbose(CALL_INFO, 1, 0, "state -> %s\n", se->getString().c_str());
+        strncpy(light_state, se->getString().c_str(), 1);
+    }
+    delete ev;
+
+}
+
+
 // Send a command to the PyRTL stopLight every clock
-bool traffic_light::tick(SST::Cycle_t) {
+bool traffic_light::tick(SST::Cycle_t current_cycle) {
 
-    write(outFifo, s, 8);
-    // Clear the command so we don't send the same command over and over
-    // need to receive a command from the port
-    strncpy(s, "00000000", 8);
+    bool keep_send = current_cycle < SIMTIME;
+    bool keep_recv = current_cycle < SIMTIME - 1;
 
-    // Read from the PyRTL stopLight to see what state the light is in
-    char r[2] = "\0";
-    read(inFifo, r, 1);
+    int load;
+    int start_green;
+    int green_time;
+    int yellow_time;
+    int red_time;
+
+    // turn reset off at 3 ns
+    if (current_cycle == 1) {
+        m_output.verbose(CALL_INFO, 1, 0, "INITIAL VALUES\n");
+        load = 1;
+        start_green = STARTGREEN;
+        green_time = GREENTIME;
+        yellow_time = YELLOWTIME;
+        red_time = REDTIME;
+    } else {
+        load = 0;
+        start_green = 0;
+        green_time = 0;
+        yellow_time = 0;
+        red_time = 0;
+    }
+
+    std::cout << "light_state " << light_state << std::endl;
+
+    m_din_link->send(new SST::Interfaces::StringEvent(
+        std::to_string(keep_send) +
+        std::to_string(keep_recv) +
+        std::to_string(load) +
+        std::to_string(start_green) +
+        std::to_string(green_time) +
+        std::to_string(yellow_time) +
+        std::to_string(red_time) +
+        std::to_string(current_cycle)));
+
     std::string c;
-    switch (r[0]) {
+    switch (light_state[0]) {
         case '0':
-            c = "googoo";
+            c = "green";
             break;
         case '1':
-            c = "yoooooooooooooo";
+            c = "yellow";
             break;
         case '2':
             c = "red";
@@ -152,6 +188,7 @@ bool traffic_light::tick(SST::Cycle_t) {
     }
 
     port->send(new SST::Interfaces::StringEvent(c));
+
     return false;
 
 }

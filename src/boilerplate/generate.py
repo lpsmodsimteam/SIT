@@ -7,6 +7,7 @@ This class generates the boilerplate code required to build the blackbox
 interface in SSTSCIT.
 """
 
+import math
 import os
 
 
@@ -29,7 +30,6 @@ class BoilerPlate(object):
                 where they're assigned as the receiving and transmitting SST
                 links respectively.
         """
-
         if ipc in ("sock", "zmq"):
             self.ipc = ipc
         else:
@@ -97,14 +97,16 @@ class BoilerPlate(object):
         Returns:
             {tuple(str,int)} -- C++ datatype and its size
         """
-
         if "sc" in signal:
 
             def __get_ints(sig):
 
                 return int("".join(s for s in sig if s.isdigit()))
 
-            if "int" in signal or "bv" in signal or "lv" in signal:
+            if "int" in signal:
+                return "<int>", math.floor(math.log2(__get_ints(signal)))
+
+            if "bv" in signal or "lv" in signal:
                 return "<int>", __get_ints(signal)
 
             if "bit" in signal or "logic" in signal:
@@ -176,7 +178,7 @@ class BoilerPlate(object):
         return self.__format(
             "{sig} = {recv}.get_clock_pulse(\"{sig}\")",
             lambda x: {"sig": x[-1], "recv": self.receiver}, self.clocks
-        ) if driver else [["<sc_int<2>>", i[-1]] for i in self.clocks]
+        ) if driver else [["<sc_bv<2>>", i[-1]] for i in self.clocks]
 
     def get_inputs(self, driver=True):
         """Generates input bindings for both the components in the blackbox

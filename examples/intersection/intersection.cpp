@@ -132,8 +132,8 @@ void intersection::setup() {
 void intersection::finish() {
     printf("\nCars that drove through Traffic Light 0: %d\n", totalCars0);
     printf("Cars that drove through Traffic Light 1: %d\n", totalCars1);
-    printf("Largest backup at Traffic Light0: %d\n", backup0);
-    printf("Largest backup at Traffic Light1: %d\n\n", backup1);
+    printf("Largest backup at Traffic Light 0: %d\n", backup0);
+    printf("Largest backup at Traffic Light 1: %d\n\n", backup1);
 }
 
 // Exit when enough clock ticks have happened

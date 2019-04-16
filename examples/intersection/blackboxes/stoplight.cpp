@@ -1,4 +1,4 @@
-#include "sstscit.hpp"
+#include "../../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
@@ -100,7 +100,7 @@ void stoplight::setup() {
 void stoplight::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
-    
+
 
 }
 
@@ -117,10 +117,10 @@ void stoplight::handle_event(SST::Event *ev) {
         // inputs from parent SST model, outputs to SystemC child process
         m_signal_io.set("load", std::stoi(_data_in.substr(2, 1)));
         m_signal_io.set("start_green", std::stoi(_data_in.substr(3, 1)));
-        m_signal_io.set("green_time", std::stoi(_data_in.substr(4, 6)));
-        m_signal_io.set("yellow_time", std::stoi(_data_in.substr(10, 6)));
-        m_signal_io.set("red_time", std::stoi(_data_in.substr(16, 6)));
-        m_signal_io.set("clock", std::stoi(_data_in.substr(22, 2)));
+        m_signal_io.set("green_time", std::stoi(_data_in.substr(4, 2)));
+        m_signal_io.set("yellow_time", std::stoi(_data_in.substr(6, 2)));
+        m_signal_io.set("red_time", std::stoi(_data_in.substr(8, 2)));
+        m_signal_io.set("clock", std::stoi(_data_in.substr(10, 2)));
 
         if (keep_send) {
             m_signal_io.set_state(keep_recv);
@@ -131,7 +131,7 @@ void stoplight::handle_event(SST::Event *ev) {
         }
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_signal_io.get<light_state>("state"));
+        std::string _data_out = std::to_string(m_signal_io.get<int>("state"));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }
