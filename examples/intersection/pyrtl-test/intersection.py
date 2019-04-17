@@ -8,8 +8,12 @@ light0green = 30
 light1green = 60
 yellow = 3
 
+
 def get_rand_tmp():
-    return ''.join(SystemRandom().choice(ascii_uppercase + digits) for _ in range(8))
+    return ''.join(
+        SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)
+    )
+
 
 input0 = "/tmp/" + get_rand_tmp()
 output0 = "/tmp/" + get_rand_tmp()
@@ -57,7 +61,19 @@ intersection.addParams({
     "simDuration": 86400
 })
 
-sst.Link("light0").connect((intersection, "light0", "1ps"), (light0, "port", "1ps"))
-sst.Link("light1").connect((intersection, "light1", "1ps"), (light1, "port", "1ps"))
-sst.Link("cars0").connect((intersection, "cars0", "1ps"), (carGenerator0, "port", "1ps"))
-sst.Link("cars1").connect((intersection, "cars1", "1ps"), (carGenerator1, "port", "1ps"))
+sst.Link("light0").connect(
+    (intersection, "light0", "1ps"),
+    (light0, "port", "1ps")
+)
+sst.Link("light1").connect(
+    (intersection, "light1", "1ps"),
+    (light1, "port", "1ps")
+)
+sst.Link("cars0").connect(
+    (intersection, "cars0", "1ps"),
+    (carGenerator0, "port", "1ps")
+)
+sst.Link("cars1").connect(
+    (intersection, "cars1", "1ps"),
+    (carGenerator1, "port", "1ps")
+)

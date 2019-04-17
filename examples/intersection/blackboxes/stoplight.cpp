@@ -1,4 +1,4 @@
-#include "sstscit.hpp"
+#include "../../../src/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>

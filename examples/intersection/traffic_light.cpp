@@ -172,7 +172,6 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     }
 
     port->send(new SST::Interfaces::StringEvent(c));
-//    std::cout << "light_state " << c << std::endl;
 
     return false;
 

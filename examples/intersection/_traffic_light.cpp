@@ -141,10 +141,10 @@ bool traffic_light::tick(SST::Cycle_t) {
     std::string c;
     switch (r[0]) {
         case '0':
-            c = "googoo";
+            c = "green";
             break;
         case '1':
-            c = "yoooooooooooooo";
+            c = "yellow";
             break;
         case '2':
             c = "red";

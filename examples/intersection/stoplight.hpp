@@ -38,7 +38,7 @@ SC_MODULE (stoplight) {
 
                     if (counter == green_time) {
                         next_state = yellow;
-                        state = 0;
+//                        state = 0;
                         counter = 0;
                     } else {
                         counter++;
@@ -51,7 +51,7 @@ SC_MODULE (stoplight) {
 
                     if (counter == yellow_time) {
                         next_state = red;
-                        state = 1;
+//                        state = 1;
                         counter = 0;
                     } else {
                         counter++;
@@ -64,7 +64,7 @@ SC_MODULE (stoplight) {
 
                     if (counter == red_time) {
                         next_state = green;
-                        state = 2;
+//                        state = 2;
                         counter = 0;
                     } else {
                         counter++;
@@ -78,7 +78,7 @@ SC_MODULE (stoplight) {
         }
 
         cur_state = next_state;
-//        state.write(static_cast<int>(cur_state));
+        state.write(static_cast<int>(cur_state));
 
     }
 

@@ -32,13 +32,13 @@ galois_lfsr_comp.addParams({
     "clock": CLOCK,
 })
 
-# galois_lfsr_comp2 = sst.Component("galois_lfsr2", "proto.galois_lfsr")
-# # override default parameters
-# galois_lfsr_comp2.addParams({
-#     "proc": os.path.join(BASE_PATH, "galois_lfsr.o"),
-#     "ipc_port": "/tmp/" + get_rand_tmp(),
-#     "clock": CLOCK,
-# })
+galois_lfsr_comp2 = sst.Component("galois_lfsr2", "proto.galois_lfsr")
+# override default parameters
+galois_lfsr_comp2.addParams({
+    "proc": os.path.join(BASE_PATH, "galois_lfsr.o"),
+    "ipc_port": "/tmp/" + get_rand_tmp(),
+    "clock": CLOCK,
+})
 
 fib_lfsr_comp = sst.Component("fib_lfsr", "proto.fib_lfsr")
 # override default parameters
@@ -57,14 +57,14 @@ sst.Link("galois_lfsr_dout").connect(
     (proto_comp, "galois_lfsr_dout", "1ps"),
 )
 
-# sst.Link("galois_lfsr_din2").connect(
-#     (galois_lfsr_comp2, "galois_lfsr_din", "1ps"),
-#     (proto_comp, "galois_lfsr_din", "1ps"),
-# )
-# sst.Link("galois_lfsr_dout2").connect(
-#     (galois_lfsr_comp2, "galois_lfsr_dout", "1ps"),
-#     (proto_comp, "galois_lfsr_dout", "1ps"),
-# )
+sst.Link("galois_lfsr_din2").connect(
+    (galois_lfsr_comp2, "galois_lfsr_din", "1ps"),
+    (proto_comp, "galois_lfsr_din", "1ps"),
+)
+sst.Link("galois_lfsr_dout2").connect(
+    (galois_lfsr_comp2, "galois_lfsr_dout", "1ps"),
+    (proto_comp, "galois_lfsr_dout", "1ps"),
+)
 
 sst.Link("fib_lfsr_din").connect(
     (fib_lfsr_comp, "fib_lfsr_din", "1ps"),
