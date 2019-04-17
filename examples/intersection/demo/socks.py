@@ -9,6 +9,7 @@ import sst
 
 BASE_PATH = os.getcwd()
 CLOCK = "1Hz"
+LINK_DELAY = "1ps"
 
 GREEN0TIME = 30
 GREEN1TIME = 60
@@ -61,20 +62,20 @@ intersection.addParams({
 })
 
 
-# connect the subcompononents
+# connect the subcomponents
 sst.Link("light0").connect(
-    (intersection, "light0", "1ps"),
-    (light_comp0, "port", "1ps")
+    (intersection, "light0", LINK_DELAY),
+    (light_comp0, "port", LINK_DELAY)
 )
 sst.Link("light1").connect(
-    (intersection, "light1", "1ps"),
-    (light_comp1, "port", "1ps")
+    (intersection, "light1", LINK_DELAY),
+    (light_comp1, "port", LINK_DELAY)
 )
 sst.Link("cars0").connect(
-    (intersection, "cars0", "1ps"),
-    (car_generator0, "port", "1ps")
+    (intersection, "cars0", LINK_DELAY),
+    (car_generator0, "port", LINK_DELAY)
 )
 sst.Link("cars1").connect(
-    (intersection, "cars1", "1ps"),
-    (car_generator1, "port", "1ps")
+    (intersection, "cars1", LINK_DELAY),
+    (car_generator1, "port", LINK_DELAY)
 )

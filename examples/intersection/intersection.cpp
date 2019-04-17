@@ -184,9 +184,9 @@ void intersection::handleLight1(SST::Event *ev) {
 void intersection::handleCars0(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-//        std::cout << "HERE handleCars0" << std::endl;
 
         if (se->getString().c_str()[0] == '1') {
+//            std::cout << "HERE handleCars0" << se->getString() << std::endl;
             road0++;
             totalCars0++;
             if (road0 > backup0) {
@@ -201,9 +201,9 @@ void intersection::handleCars0(SST::Event *ev) {
 void intersection::handleCars1(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-//        std::cout << "HERE handleCars1" << std::endl;
 
         if (se->getString().c_str()[0] == '1') {
+//            std::cout << "HERE handleCars1" << se->getString() << std::endl;
             road1++;
             totalCars1++;
             if (road1 > backup1) {

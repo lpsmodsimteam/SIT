@@ -1,10 +1,11 @@
 #include <systemc.h>
 
-enum light_state {
-    green, yellow, red
-};
 
 SC_MODULE (stoplight) {
+
+    enum light_state {
+        green, yellow, red
+    };
 
     sc_in_clk clock;
     sc_in<bool> load;
@@ -24,11 +25,7 @@ SC_MODULE (stoplight) {
         if (load.read()) {
 
             counter = 0;
-            if (start_green.read()) {
-                next_state = green;
-            } else {
-                next_state = red;
-            }
+            next_state = start_green.read() ? green : red;
 
         } else {
 
@@ -38,7 +35,6 @@ SC_MODULE (stoplight) {
 
                     if (counter == green_time) {
                         next_state = yellow;
-//                        state = 0;
                         counter = 0;
                     } else {
                         counter++;
@@ -51,7 +47,6 @@ SC_MODULE (stoplight) {
 
                     if (counter == yellow_time) {
                         next_state = red;
-//                        state = 1;
                         counter = 0;
                     } else {
                         counter++;
@@ -64,7 +59,6 @@ SC_MODULE (stoplight) {
 
                     if (counter == red_time) {
                         next_state = green;
-//                        state = 2;
                         counter = 0;
                     } else {
                         counter++;
@@ -85,8 +79,8 @@ SC_MODULE (stoplight) {
     // Constructor
     SC_CTOR(stoplight) {
         std::cout << "INSTANTIATING STOPLIGHT" << std::endl;
-        SC_METHOD(get_next_state);
-        sensitive << next_state << cur_state << load << start_green << clock.pos();
+        SC_METHOD(get_next_state)
+        sensitive << clock.pos();
     }
 
     ~stoplight() override {

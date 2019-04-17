@@ -1,6 +1,7 @@
 _CXX ?= /usr/bin/clang++
 USE_ZMQ ?= OFF
 PYRTL ?= OFF
+DRIVER ?= OFF
 
 install:
 	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DZMQ=${USE_ZMQ} \

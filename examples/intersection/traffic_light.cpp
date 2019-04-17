@@ -45,8 +45,6 @@ private:
     SST::Output m_output;
     int GREENTIME, YELLOWTIME, REDTIME, STARTGREEN;
 
-    std::string light_state;
-    char s[3]{};
 };
 
 traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
@@ -120,26 +118,26 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
 
-    bool load;
-    bool start_green;
-    int green_time;
-    int yellow_time;
-    int red_time;
+    std::string load;
+    std::string start_green;
+    std::string green_time;
+    std::string yellow_time;
+    std::string red_time;
 
     // turn reset off at 3 ns
     if (current_cycle == 1) {
         m_output.verbose(CALL_INFO, 1, 0, "INITIAL VALUES\n");
-        load = true;
-        start_green = STARTGREEN;
-        green_time = GREENTIME;
-        yellow_time = YELLOWTIME;
-        red_time = REDTIME;
+        load = "1";
+        start_green = std::to_string(STARTGREEN);
+        green_time = std::to_string(GREENTIME);
+        yellow_time = std::to_string(YELLOWTIME);
+        red_time = std::to_string(REDTIME);
     } else {
-        load = false;
-        start_green = false;
-        green_time = 0;
-        yellow_time = 0;
-        red_time = 0;
+        load = "0";
+        start_green = "0";
+        green_time = "0";
+        yellow_time = "0";
+        red_time = "0";
     }
 
     // inputs from parent SST model, outputs to SystemC child process
@@ -148,7 +146,7 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     m_signal_io.set("green_time", green_time);
     m_signal_io.set("yellow_time", yellow_time);
     m_signal_io.set("red_time", red_time);
-    m_signal_io.set("clock", clock);
+    m_signal_io.set("clock", current_cycle);
 
     if (keep_send) {
         m_signal_io.set_state(keep_recv);
@@ -164,6 +162,7 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
             c = "green";
             break;
         case 1:
+            // std::cout << m_signal_io.get<int>("state") << std::endl;
             c = "yellow";
             break;
         case 2:
