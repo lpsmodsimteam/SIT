@@ -5,7 +5,7 @@
 #ifndef SOCKSIGS_HPP
 #define SOCKSIGS_HPP
 
-#define BUFSIZE 100
+#define BUFSIZE 500
 
 #include "sigutils.hpp"
 

@@ -97,6 +97,7 @@ class BoilerPlate(object):
         Returns:
             {tuple(str,int)} -- C++ datatype and its size
         """
+        # print(signal)
         if "sc" in signal:
 
             def __get_ints(sig):
@@ -111,6 +112,9 @@ class BoilerPlate(object):
 
             if "bit" in signal or "logic" in signal:
                 return "<bool>", __get_ints(signal)
+
+        if "__clock__" in signal:
+            return None, 0
 
         return signal, 1
 
@@ -178,7 +182,7 @@ class BoilerPlate(object):
         return self.__format(
             "{sig} = {recv}.get_clock_pulse(\"{sig}\")",
             lambda x: {"sig": x[-1], "recv": self.receiver}, self.clocks
-        ) if driver else [["<sc_bv<2>>", i[-1]] for i in self.clocks]
+        ) if driver else [["<__clock__>", i[-1]] for i in self.clocks]
 
     def get_inputs(self, driver=True):
         """Generates input bindings for both the components in the blackbox
@@ -233,11 +237,12 @@ class BoilerPlate(object):
             ix += sig_len
 
         return self.__format(
-            "{send}.set(\"{sig}\", std::stoi(_data_in.substr({p}, {l})))",
+            "{send}.set(\"{sig}\", std::stoi(_data_in.substr({p}{l})))",
             lambda x: {
                 "sig": x[-1],
                 "p": sig_lens[sst_model_inputs.index(x)][0],
-                "l": sig_lens[sst_model_inputs.index(x)][-1],
+                "l": (", " + str(sig_lens[sst_model_inputs.index(x)][-1])) *
+                bool(sig_lens[sst_model_inputs.index(x)][-1]),
                 "send": self.sender
             }, sst_model_inputs, ";\n" + " " * 8
         )

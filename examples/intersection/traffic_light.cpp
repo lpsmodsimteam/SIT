@@ -46,7 +46,7 @@ private:
     int YELLOWTIME;
     int REDTIME;
     int STARTGREEN;
-    char light_state[2]{};
+    std::string light_state;
     char s[3]{};
 };
 
@@ -103,10 +103,10 @@ void traffic_light::handle_data_out(SST::Event *ev) {
     std::cout << "HANDLING" << std::endl;
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        m_output.verbose(CALL_INFO, 1, 0, "state -> %s\n", se->getString().c_str());
-        strncpy(light_state, se->getString().c_str(), 2);
+        light_state = se->getString();
+        m_output.verbose(CALL_INFO, 1, 0, "state -> %s\n", light_state.c_str());
     }
-    delete ev;
+//    delete ev;
 
 }
 

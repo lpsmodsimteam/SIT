@@ -100,6 +100,7 @@ void stoplight::setup() {
 void stoplight::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
+    
 
 }
 
@@ -119,7 +120,7 @@ void stoplight::handle_event(SST::Event *ev) {
         m_signal_io.set("green_time", std::stoi(_data_in.substr(4, 2)));
         m_signal_io.set("yellow_time", std::stoi(_data_in.substr(6, 1)));
         m_signal_io.set("red_time", std::stoi(_data_in.substr(7, 2)));
-        m_signal_io.set("clock", std::stoi(_data_in.substr(9, 2)));
+        m_signal_io.set("clock", std::stoi(_data_in.substr(9)));
 
         if (keep_send) {
             m_signal_io.set_state(keep_recv);
