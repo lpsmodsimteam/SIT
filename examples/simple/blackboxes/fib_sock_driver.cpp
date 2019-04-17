@@ -28,7 +28,7 @@ int sc_main(int argc, char *argv[]) {
 
     while (true) {
 
-        sc_start(1, SC_NS);
+        sc_start();
 
         // RECEIVING
         m_signal_io.recv();

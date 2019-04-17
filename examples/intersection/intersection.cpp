@@ -152,7 +152,7 @@ bool intersection::tick(SST::Cycle_t current_cycle) {
 void intersection::handleLight0(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        std::cout << "HERE handleLight0" << std::endl;
+//        std::cout << "HERE handleLight0" << std::endl;
 
         //output.output("Light0: %s\n", se->getString().c_str());
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
@@ -168,7 +168,7 @@ void intersection::handleLight0(SST::Event *ev) {
 void intersection::handleLight1(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        std::cout << "HERE handleLight1" << std::endl;
+//        std::cout << "HERE handleLight1" << std::endl;
 
         //output.output("Light1: %s\n", se->getString().c_str());
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
@@ -184,7 +184,7 @@ void intersection::handleLight1(SST::Event *ev) {
 void intersection::handleCars0(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        std::cout << "HERE handleCars0" << std::endl;
+//        std::cout << "HERE handleCars0" << std::endl;
 
         if (se->getString().c_str()[0] == '1') {
             road0++;
@@ -201,7 +201,7 @@ void intersection::handleCars0(SST::Event *ev) {
 void intersection::handleCars1(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
-        std::cout << "HERE handleCars1" << std::endl;
+//        std::cout << "HERE handleCars1" << std::endl;
 
         if (se->getString().c_str()[0] == '1') {
             road1++;

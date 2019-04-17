@@ -27,7 +27,9 @@ light_comp0.addParams({
     "GREENTIME": GREEN0TIME,
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN1TIME + YELLOWTIME,
-    "STARTGREEN": 0
+    "STARTGREEN": 0,
+    "proc": os.path.join(BASE_PATH, "stoplight.o"),
+    "ipc_port": "/tmp/" + get_rand_tmp(),
 })
 light_comp1 = sst.Component("Traffic Light 1", "intersection.traffic_light")
 light_comp1.addParams({
@@ -35,23 +37,9 @@ light_comp1.addParams({
     "GREENTIME": GREEN1TIME,
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN0TIME + YELLOWTIME,
-    "STARTGREEN": 1
-})
-
-stoplight_comp0 = sst.Component(
-    "Stoplight Blackbox 0", "intersection.stoplight")
-stoplight_comp0.addParams({
+    "STARTGREEN": 1,
     "proc": os.path.join(BASE_PATH, "stoplight.o"),
     "ipc_port": "/tmp/" + get_rand_tmp(),
-    "clock": CLOCK,
-})
-
-stoplight_comp1 = sst.Component(
-    "Stoplight Blackbox 1", "intersection.stoplight")
-stoplight_comp1.addParams({
-    "proc": os.path.join(BASE_PATH, "stoplight.o"),
-    "ipc_port": "/tmp/" + get_rand_tmp(),
-    "clock": CLOCK,
 })
 
 car_generator0 = sst.Component("Car Generator 0", "intersection.car_generator")
@@ -72,24 +60,6 @@ intersection.addParams({
     "simDuration": 86400
 })
 
-# connect the blackbox interface components
-sst.Link("stoplight_din0").connect(
-    (stoplight_comp0, "stoplight_din", "1ps"),
-    (light_comp0, "stoplight_din", "1ps"),
-)
-sst.Link("stoplight_dout0").connect(
-    (stoplight_comp0, "stoplight_dout", "1ps"),
-    (light_comp0, "stoplight_dout", "1ps"),
-)
-
-sst.Link("stoplight_din1").connect(
-    (stoplight_comp1, "stoplight_din", "1ps"),
-    (light_comp1, "stoplight_din", "1ps"),
-)
-sst.Link("stoplight_dout1").connect(
-    (stoplight_comp1, "stoplight_dout", "1ps"),
-    (light_comp1, "stoplight_dout", "1ps"),
-)
 
 # connect the subcompononents
 sst.Link("light0").connect(

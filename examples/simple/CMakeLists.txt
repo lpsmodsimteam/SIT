@@ -25,30 +25,16 @@ else ()
     add_compile_options(-Wall -Wextra -Wpedantic)
 
     # -------------------- DEMO EXECUTABLES --------------------
-    if (${SIM})
-        if (${DEMO_ZMQ})
-            add_executable(libproto.so car_wash/car_wash.cpp car_wash/car_generator.cpp car_wash/bay.cpp blackboxes/galois_zmq.cpp blackboxes/fib_zmq.cpp)
+    if (${DEMO_ZMQ})
+        add_executable(libproto.so prototype.cpp blackboxes/galois_zmq.cpp blackboxes/fib_zmq.cpp)
 
-            add_executable(galois_lfsr.o blackboxes/galois_zmq_driver.cpp)
-            add_executable(fib_lfsr.o blackboxes/fib_zmq_driver.cpp)
-        else ()
-            add_executable(libproto.so car_wash/car_wash.cpp car_wash/car_generator.cpp car_wash/bay.cpp blackboxes/galois_sock.cpp blackboxes/fib_sock.cpp)
-
-            add_executable(galois_lfsr.o blackboxes/galois_sock_driver.cpp)
-            add_executable(fib_lfsr.o blackboxes/fib_sock_driver.cpp)
-        endif ()
+        add_executable(galois_lfsr.o blackboxes/galois_zmq_driver.cpp)
+        add_executable(fib_lfsr.o blackboxes/fib_zmq_driver.cpp)
     else ()
-        if (${DEMO_ZMQ})
-            add_executable(libproto.so prototype.cpp blackboxes/galois_zmq.cpp blackboxes/fib_zmq.cpp)
+        add_executable(libproto.so prototype.cpp blackboxes/galois_sock.cpp blackboxes/fib_sock.cpp)
 
-            add_executable(galois_lfsr.o blackboxes/galois_zmq_driver.cpp)
-            add_executable(fib_lfsr.o blackboxes/fib_zmq_driver.cpp)
-        else ()
-            add_executable(libproto.so prototype.cpp blackboxes/galois_sock.cpp blackboxes/fib_sock.cpp)
-
-            add_executable(galois_lfsr.o blackboxes/galois_sock_driver.cpp)
-            add_executable(fib_lfsr.o blackboxes/fib_sock_driver.cpp)
-        endif ()
+        add_executable(galois_lfsr.o blackboxes/galois_sock_driver.cpp)
+        add_executable(fib_lfsr.o blackboxes/fib_sock_driver.cpp)
     endif ()
 
     # -------------------- DEMO EXECUTABLES --------------------
