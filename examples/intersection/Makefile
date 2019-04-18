@@ -4,9 +4,8 @@ PYRTL ?= OFF
 DRIVER ?= OFF
 
 install:
-	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DZMQ=${USE_ZMQ} \
-	-DPYRTL=${PYRTL} -DDRIVER=${DRIVER} .. && $(MAKE)
-	sst-register proto proto_LIBDIR=$(CURDIR)/build
+	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DZMQ=${USE_ZMQ} .. && $(MAKE)
+	sst-register intersection intersection_LIBDIR=$(CURDIR)/build
 
 run:
 	cd build && sst ../demo/${TEST}
