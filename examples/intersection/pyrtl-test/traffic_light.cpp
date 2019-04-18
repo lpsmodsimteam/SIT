@@ -151,8 +151,6 @@ bool traffic_light::tick(SST::Cycle_t) {
             break;
     }
 
-    std::cout << c << '\n';
-
     port->send(new SST::Interfaces::StringEvent(c));
     return false;
 

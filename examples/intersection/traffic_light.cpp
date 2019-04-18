@@ -156,20 +156,20 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
         m_signal_io.recv();
     }
 
-    std::string c;
+    std::string light_state;
     switch (m_signal_io.get<int>("state")) {
         case 0:
-            c = "green";
+            light_state = "green";
             break;
         case 1:
-            c = "yellow";
+            light_state = "yellow";
             break;
         case 2:
-            c = "red";
+            light_state = "red";
             break;
     }
 
-    port->send(new SST::Interfaces::StringEvent(c));
+    port->send(new SST::Interfaces::StringEvent(light_state));
 
     return false;
 

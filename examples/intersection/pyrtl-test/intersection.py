@@ -58,7 +58,7 @@ carGenerator1.addParams({
 intersection = sst.Component("Intersection", "intersection.intersection")
 intersection.addParams({
     "clock": "1Hz",
-    "simDuration": 3600
+    "simDuration": 86400
 })
 
 sst.Link("light0").connect(

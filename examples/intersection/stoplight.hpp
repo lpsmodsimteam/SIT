@@ -1,7 +1,5 @@
 #include <systemc.h>
 
-#include <unistd.h>
-
 SC_MODULE (stoplight) {
 
     enum light_state {
@@ -88,11 +86,7 @@ SC_MODULE (stoplight) {
     SC_CTOR(stoplight) {
         std::cout << "INSTANTIATING STOPLIGHT" << std::endl;
         SC_METHOD(get_next_state)
-        sensitive << clock.pos();
-    }
-
-    ~stoplight() override {
-        std::cout << "DESTROYING STOPLIGHT" << std::endl;
+        sensitive << clock;
     }
 
 }; // End of Module stoplight

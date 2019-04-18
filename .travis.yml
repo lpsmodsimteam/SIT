@@ -156,6 +156,7 @@ install:
 
 before_script:
   - cd examples
+  - export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
 
 script:
   - pyenv local 3.6.7
