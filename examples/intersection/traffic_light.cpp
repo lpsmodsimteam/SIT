@@ -162,7 +162,6 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
             c = "green";
             break;
         case 1:
-            // std::cout << m_signal_io.get<int>("state") << std::endl;
             c = "yellow";
             break;
         case 2:

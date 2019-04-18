@@ -3,7 +3,7 @@ project(intersection CXX)
 include(../../src/CMakeLists.txt)
 
 if (${PYRTL})
-    add_executable(libintersection.so intersection.cpp car_generator.cpp _traffic_light.cpp)
+    add_executable(libintersection.so intersection.cpp car_generator.cpp pyrtl-test/traffic_light.cpp)
     _sst_compile_link(libintersection.so)
 elseif (${DRIVER})
     add_executable(stoplight.o blackboxes/test_driver.cpp)

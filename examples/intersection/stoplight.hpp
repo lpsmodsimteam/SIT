@@ -1,5 +1,6 @@
 #include <systemc.h>
 
+#include <unistd.h>
 
 SC_MODULE (stoplight) {
 
@@ -15,6 +16,10 @@ SC_MODULE (stoplight) {
     sc_in<sc_uint<6> > red_time;
 
     sc_uint<6> counter;
+    sc_uint<6> green_time_reg;
+    sc_uint<2> yellow_time_reg;
+    sc_uint<6> red_time_reg;
+
     sc_signal<light_state> next_state;
     sc_signal<light_state> cur_state;
 
@@ -26,14 +31,29 @@ SC_MODULE (stoplight) {
 
             counter = 0;
             next_state = start_green.read() ? green : red;
+            green_time_reg = green_time.read() - 1;
+            yellow_time_reg = yellow_time.read() - 1;
+            red_time_reg = red_time.read() - 1;
 
         } else {
 
             switch (cur_state) {
 
+                case red: {
+
+                    if (counter == red_time_reg) {
+                        next_state = green;
+                        counter = 0;
+                    } else {
+                        counter++;
+                    }
+                    break;
+
+                }
+
                 case green: {
 
-                    if (counter == green_time) {
+                    if (counter == green_time_reg) {
                         next_state = yellow;
                         counter = 0;
                     } else {
@@ -45,20 +65,8 @@ SC_MODULE (stoplight) {
 
                 case yellow: {
 
-                    if (counter == yellow_time) {
+                    if (counter == yellow_time_reg) {
                         next_state = red;
-                        counter = 0;
-                    } else {
-                        counter++;
-                    }
-                    break;
-
-                }
-
-                case red: {
-
-                    if (counter == red_time) {
-                        next_state = green;
                         counter = 0;
                     } else {
                         counter++;

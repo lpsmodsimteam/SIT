@@ -150,66 +150,76 @@ bool intersection::tick(SST::Cycle_t current_cycle) {
 
 // If the light is green or yellow, allow cars to go through one at a time
 void intersection::handleLight0(SST::Event *ev) {
-    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se) {
-//        std::cout << "HERE handleLight0" << std::endl;
 
-        //output.output("Light0: %s\n", se->getString().c_str());
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+
+    if (se) {
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
             if (road0 > 0) {
                 road0--;
             }
         }
     }
+
     delete ev;
+
 }
 
 // If the light is green or yellow, allow cars to go through one at a time
 void intersection::handleLight1(SST::Event *ev) {
-    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se) {
-//        std::cout << "HERE handleLight1" << std::endl;
 
-        //output.output("Light1: %s\n", se->getString().c_str());
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+
+    if (se) {
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
             if (road1 > 0) {
                 road1--;
             }
         }
     }
+
     delete ev;
+
 }
 
 // Add cars to the road when they arrive and keep track of the largest backup
 void intersection::handleCars0(SST::Event *ev) {
+
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+
     if (se) {
 
         if (se->getString().c_str()[0] == '1') {
-//            std::cout << "HERE handleCars0" << se->getString() << std::endl;
             road0++;
             totalCars0++;
             if (road0 > backup0) {
                 backup0 = road0;
             }
         }
+
     }
+
     delete ev;
+
 }
 
 // Add cars to the road when they arrive and keep track of the largest backup
 void intersection::handleCars1(SST::Event *ev) {
+
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+
     if (se) {
 
         if (se->getString().c_str()[0] == '1') {
-//            std::cout << "HERE handleCars1" << se->getString() << std::endl;
             road1++;
             totalCars1++;
             if (road1 > backup1) {
                 backup1 = road1;
             }
         }
+
     }
+
     delete ev;
+
 }

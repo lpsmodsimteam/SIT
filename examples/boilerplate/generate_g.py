@@ -8,7 +8,7 @@ import unittest
 
 BASE_DIR = os.path.dirname(os.getcwd())
 SCRIPT_PATH = os.path.join(BASE_DIR, "src", "boilerplate")
-BBOX_DIR_PATH = os.path.join(BASE_DIR, "examples", "simple", "blackboxes")
+BBOX_DIR_PATH = os.path.join(BASE_DIR, "examples", "unit", "blackboxes")
 DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "driver.tmp")
 MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "model.tmp")
 sys.path.append(SCRIPT_PATH)
