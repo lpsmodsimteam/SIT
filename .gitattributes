@@ -1,3 +1,2 @@
-*.tmp linguist-language=C++
-examples/ linguist-detectable=false
+examples/* linguist-detectable=false
 docs/* linguist-documentation

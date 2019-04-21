@@ -84,8 +84,8 @@ class BoilerPlate(object):
             self.receiver = "m_signal_i"
 
         self.bbox_dir = "blackboxes"
-        self.sc_driver_path = self.bbox_dir + "/" + self.module + "_driver.cpp"
-        self.sst_model_path = self.bbox_dir + "/" + self.module + ".cpp"
+        self.sc_driver_path = self.bbox_dir + "/" + self.module + "_driver.hpp"
+        self.sst_model_path = self.bbox_dir + "/" + self.module + ".hpp"
 
     @staticmethod
     def __parse_signal_type(signal):
