@@ -119,7 +119,7 @@ T SignalIO::get(const std::string &key) {
         return static_cast<T>(std::stoi(m_data[key]));
     }
 
-    throw std::invalid_argument("Key does not exist");
+    throw std::invalid_argument("Key '"+ key +"' does not exist");
 
 }
 

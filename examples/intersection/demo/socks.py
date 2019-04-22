@@ -65,11 +65,11 @@ intersection.addParams({
 # connect the subcomponents
 sst.Link("light0").connect(
     (intersection, "light0", LINK_DELAY),
-    (light_comp0, "port", LINK_DELAY)
+    (light_comp0, "light_state", LINK_DELAY)
 )
 sst.Link("light1").connect(
     (intersection, "light1", LINK_DELAY),
-    (light_comp1, "port", LINK_DELAY)
+    (light_comp1, "light_state", LINK_DELAY)
 )
 sst.Link("cars0").connect(
     (intersection, "cars0", LINK_DELAY),

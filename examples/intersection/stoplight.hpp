@@ -84,7 +84,6 @@ SC_MODULE (stoplight) {
 
     // Constructor
     SC_CTOR(stoplight) {
-        std::cout << "INSTANTIATING STOPLIGHT" << std::endl;
         SC_METHOD(get_next_state)
         sensitive << clock;
     }

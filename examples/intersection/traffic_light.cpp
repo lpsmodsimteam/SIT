@@ -29,9 +29,14 @@ public:
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
+    SST_ELI_DOCUMENT_PARAMS(
+        { "clock", "Clock frequency or period", "1Hz" },
+        { "simDuration", "How long to run the simulation (ticks)", "200" }
+    )
+
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "port", "Port on which to send/recv messages", { "sst.Interfaces.StringEvent" }}
+        { "light_state", "Port on which to send/recv messages", { "sst.Interfaces.StringEvent" }}
     )
 
 private:
@@ -39,10 +44,12 @@ private:
     // Prepare the signal handler
     SocketSignal m_signal_io;
 
-    // SST parameters
-    SST::Link *port;
+    // SST links and variables
     std::string m_clock, m_proc, m_ipc_port;
     SST::Output m_output;
+
+    // SST parameters
+    SST::Link *light_state;
     int GREENTIME, YELLOWTIME, REDTIME, STARTGREEN;
 
 };
@@ -58,7 +65,7 @@ traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     STARTGREEN(params.find<int>("STARTGREEN", false)),
     m_proc(params.find<std::string>("proc", "")),
     m_ipc_port(params.find<std::string>("ipc_port", "")),
-    port(configureLink("port")) {
+    light_state(configureLink("light_state")) {
 
     m_output.init("traffic_light-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
@@ -75,8 +82,8 @@ traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     registerClock(m_clock, new SST::Clock::Handler<traffic_light>(this, &traffic_light::tick));
 
     // Configure our ports
-    if (!port) {
-        m_output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+    if (!light_state) {
+        m_output.fatal(CALL_INFO, -1, "Failed to configure light_state 'light_state'\n");
     }
 
 }
@@ -118,29 +125,28 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
 
-    std::string load;
-    std::string start_green;
-    std::string green_time;
-    std::string yellow_time;
-    std::string red_time;
+    bool load;
+    int start_green;
+    int green_time;
+    int yellow_time;
+    int red_time;
 
     // turn reset off at 3 ns
     if (current_cycle == 1) {
-        m_output.verbose(CALL_INFO, 1, 0, "INITIAL VALUES\n");
-        load = "1";
-        start_green = std::to_string(STARTGREEN);
-        green_time = std::to_string(GREENTIME);
-        yellow_time = std::to_string(YELLOWTIME);
-        red_time = std::to_string(REDTIME);
+        load = true;
+        start_green = STARTGREEN;
+        green_time = GREENTIME;
+        yellow_time = YELLOWTIME;
+        red_time = REDTIME;
     } else {
-        load = "0";
-        start_green = "0";
-        green_time = "0";
-        yellow_time = "0";
-        red_time = "0";
+        load = false;
+        start_green = 0;
+        green_time = 0;
+        yellow_time = 0;
+        red_time = 0;
     }
 
-    // inputs from parent SST model, outputs to SystemC child process
+    // outputs to SystemC child process
     m_signal_io.set("load", load);
     m_signal_io.set("start_green", start_green);
     m_signal_io.set("green_time", green_time);
@@ -156,20 +162,17 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
         m_signal_io.recv();
     }
 
-    std::string light_state;
     switch (m_signal_io.get<int>("state")) {
         case 0:
-            light_state = "green";
+            light_state->send(new SST::Interfaces::StringEvent("green"));
             break;
         case 1:
-            light_state = "yellow";
+            light_state->send(new SST::Interfaces::StringEvent("yellow"));
             break;
         case 2:
-            light_state = "red";
+            light_state->send(new SST::Interfaces::StringEvent("red"));
             break;
     }
-
-    port->send(new SST::Interfaces::StringEvent(light_state));
 
     return false;
 

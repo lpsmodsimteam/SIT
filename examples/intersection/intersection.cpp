@@ -24,13 +24,13 @@ public:
 
     bool tick(SST::Cycle_t);
 
-    void handleLight0(SST::Event *);
+    void handle_light0(SST::Event *);
 
-    void handleLight1(SST::Event *);
+    void handle_light1(SST::Event *);
 
-    void handleCars0(SST::Event *);
+    void handle_cars0(SST::Event *);
 
-    void handleCars1(SST::Event *);
+    void handle_cars1(SST::Event *);
 
     SST_ELI_REGISTER_COMPONENT(
         intersection,
@@ -73,16 +73,31 @@ private:
 };
 
 intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
-    SST::Component(id) {
+    SST::Component(id),
+    // Collect parameters
+    clock(params.find<std::string>("clock", "1Hz")),
+    simDuration(params.find<SST::Cycle_t>("simDuration", 200)),
+    light0(configureLink(
+        "light0",
+        new SST::Event::Handler<intersection>(this, &intersection::handle_light0))
+    ),
+    light1(configureLink(
+        "light1",
+        new SST::Event::Handler<intersection>(this, &intersection::handle_light1))
+    ),
+    cars0(configureLink(
+        "cars0",
+        new SST::Event::Handler<intersection>(this, &intersection::handle_cars0))
+    ),
+    cars1(configureLink(
+        "cars1",
+        new SST::Event::Handler<intersection>(this, &intersection::handle_cars1))
+    ) {
 
     output.init("intersection-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
-    // Collect parameters
-    clock = params.find<std::string>("clock", "1Hz");
-    simDuration = params.find<SST::Cycle_t>("simDuration", 200);
-
     // Error check params
-    if (!(simDuration > 0)) {
+    if (simDuration <= 0) {
         output.fatal(CALL_INFO, -1, "Error: simDuration must be greater than zero.\n");
     }
     output.verbose(CALL_INFO, 1, 0, "simDuration=%d Hours\n", ((int) simDuration / 3600));
@@ -91,21 +106,8 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     registerClock(clock, new SST::Clock::Handler<intersection>(this, &intersection::tick));
 
     // Configure our ports
-    light0 = configureLink("light0", new SST::Event::Handler<intersection>(this, &intersection::handleLight0));
-    if (!light0) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'light0'\n");
-    }
-    light1 = configureLink("light1", new SST::Event::Handler<intersection>(this, &intersection::handleLight1));
-    if (!light1) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'light1'\n");
-    }
-    cars0 = configureLink("cars0", new SST::Event::Handler<intersection>(this, &intersection::handleCars0));
-    if (!cars0) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'cars0'\n");
-    }
-    cars1 = configureLink("cars1", new SST::Event::Handler<intersection>(this, &intersection::handleCars1));
-    if (!cars1) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'cars1'\n");
+    if (!(light0 && light1 && cars0 && cars1)) {
+        output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }
 
     // Tell SST to wait until we authorize it to exit
@@ -149,7 +151,7 @@ bool intersection::tick(SST::Cycle_t current_cycle) {
 }
 
 // If the light is green or yellow, allow cars to go through one at a time
-void intersection::handleLight0(SST::Event *ev) {
+void intersection::handle_light0(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
@@ -166,7 +168,7 @@ void intersection::handleLight0(SST::Event *ev) {
 }
 
 // If the light is green or yellow, allow cars to go through one at a time
-void intersection::handleLight1(SST::Event *ev) {
+void intersection::handle_light1(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
@@ -183,7 +185,7 @@ void intersection::handleLight1(SST::Event *ev) {
 }
 
 // Add cars to the road when they arrive and keep track of the largest backup
-void intersection::handleCars0(SST::Event *ev) {
+void intersection::handle_cars0(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
@@ -204,7 +206,7 @@ void intersection::handleCars0(SST::Event *ev) {
 }
 
 // Add cars to the road when they arrive and keep track of the largest backup
-void intersection::handleCars1(SST::Event *ev) {
+void intersection::handle_cars1(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
