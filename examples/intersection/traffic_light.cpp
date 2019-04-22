@@ -25,7 +25,7 @@ public:
         "intersection",
         "traffic_light",
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Demonstration of a PyRTL hardware simulation in SST",
+        "Traffic light simulator for the intersection",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 

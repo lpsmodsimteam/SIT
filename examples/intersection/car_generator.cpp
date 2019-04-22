@@ -26,7 +26,7 @@ public:
         "intersection", // element library
         "car_generator", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Car Generator for the intersection",
+        "Car generator for the intersection",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
@@ -38,7 +38,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "port", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }}
+        { "is_car", "Port on which cars are sent", { "sst.Interfaces.StringEvent" }}
     )
 
 private:
@@ -46,7 +46,7 @@ private:
     std::string clock;
     int64_t RandomSeed;
     SST::RNG::MarsagliaRNG *rng;
-    SST::Link *port;
+    SST::Link *is_car;
 };
 
 
@@ -55,7 +55,7 @@ car_generator::car_generator(SST::ComponentId_t id, SST::Params &params) :
     clock(params.find<std::string>("delay", "1s")),
     RandomSeed(params.find<int64_t>("randomseed", 151515)),
     rng(new SST::RNG::MarsagliaRNG(11, RandomSeed)),
-    port(configureLink("port")) {
+    is_car(configureLink("is_car")) {
 
     output.init("car_generator-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
 
@@ -66,8 +66,8 @@ car_generator::car_generator(SST::ComponentId_t id, SST::Params &params) :
     // Register the clock
     registerClock(clock, new SST::Clock::Handler<car_generator>(this, &car_generator::tick));
 
-    if (!port) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'port'\n");
+    if (!is_car) {
+        output.fatal(CALL_INFO, -1, "Failed to configure port 'is_car'\n");
     }
 }
 
@@ -78,7 +78,7 @@ bool car_generator::tick(SST::Cycle_t) {
     int rndNumber = rng->generateNextInt32();
     rndNumber = (rndNumber & 0x0000FFFF) ^ ((rndNumber & 0xFFFF0000) >> 16);
 
-    port->send(new SST::Interfaces::StringEvent(std::to_string(abs(rndNumber % 2))));
+    is_car->send(new SST::Interfaces::StringEvent(std::to_string(abs(rndNumber % 2))));
     return false;
 
 }

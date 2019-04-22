@@ -73,9 +73,9 @@ sst.Link("light1").connect(
 )
 sst.Link("cars0").connect(
     (intersection, "cars0", LINK_DELAY),
-    (car_generator0, "port", LINK_DELAY)
+    (car_generator0, "is_car", LINK_DELAY)
 )
 sst.Link("cars1").connect(
     (intersection, "cars1", LINK_DELAY),
-    (car_generator1, "port", LINK_DELAY)
+    (car_generator1, "is_car", LINK_DELAY)
 )

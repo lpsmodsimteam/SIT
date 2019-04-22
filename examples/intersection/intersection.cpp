@@ -103,7 +103,7 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
 
     // Configure our ports
     if (!(light0 && light1 && cars0 && cars1)) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port\n");
+        output.fatal(CALL_INFO, -1, "Failed to configure is_car\n");
     }
 
     // Tell SST to wait until we authorize it to exit
