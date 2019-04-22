@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(intersection CXX)
-include(../../src/CMakeLists.txt)
+include(../CMakeLists.txt)
 
 add_executable(stoplight.o blackboxes/stoplight_driver.cpp)
 target_link_libraries(stoplight.o SystemC::systemc)

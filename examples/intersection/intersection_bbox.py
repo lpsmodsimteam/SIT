@@ -5,7 +5,7 @@ import os
 import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.getcwd()))
-SCRIPT_PATH = os.path.join(BASE_DIR, "src", "boilerplate")
+SCRIPT_PATH = os.path.join(BASE_DIR, "sstscit", "boilerplate")
 BBOX_DIR_PATH = os.path.join(BASE_DIR, "examples", "unit", "blackboxes")
 DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "driver.hpp")
 MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "model.hpp")

@@ -1,10 +1,10 @@
-#include "../../src/sstscit.hpp"
+#include "../../sstscit/sstscit.hpp"
 
 #include <sst/core/sst_config.h>
-#include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/component.h>
-#include <sst/core/link.h>
 #include <sst/core/elementinfo.h>
+#include <sst/core/interfaces/stringEvent.h>
+#include <sst/core/link.h>
 
 #define SIMTIME 86400
 
@@ -31,7 +31,12 @@ public:
 
     SST_ELI_DOCUMENT_PARAMS(
         { "clock", "Clock frequency or period", "1Hz" },
-        { "simDuration", "How long to run the simulation (ticks)", "200" }
+        { "GREENTIME", "Duration of the green light staying on", "30" },
+        { "YELLOWTIME", "Duration of the yellow light staying on", "3" },
+        { "REDTIME", "Duration of the red light staying on", "33" },
+        { "STARTGREEN", "Flag to initiate the light as green or red", "0" },
+        { "proc", "Path to compiled SystemC driver", "/path/to/systemc/driver" },
+        { "ipc_port", "Path to the IPC file", "/tmp/ABCDEF" },
     )
 
     // Port name, description, event type

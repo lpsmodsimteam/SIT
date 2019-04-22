@@ -65,8 +65,8 @@ private:
 
     int road0;
     int road1;
-    int totalCars0;
-    int totalCars1;
+    int total_cars0;
+    int total_cars1;
     int backup0;
     int backup1;
     int numtics;
@@ -76,22 +76,18 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
     // Collect parameters
     clock(params.find<std::string>("clock", "1Hz")),
-    simDuration(params.find<SST::Cycle_t>("simDuration", 200)),
+    simDuration(params.find<SST::Cycle_t>("sim_duration", 200)),
     light0(configureLink(
-        "light0",
-        new SST::Event::Handler<intersection>(this, &intersection::handle_light0))
+        "light0", new SST::Event::Handler<intersection>(this, &intersection::handle_light0))
     ),
     light1(configureLink(
-        "light1",
-        new SST::Event::Handler<intersection>(this, &intersection::handle_light1))
+        "light1", new SST::Event::Handler<intersection>(this, &intersection::handle_light1))
     ),
     cars0(configureLink(
-        "cars0",
-        new SST::Event::Handler<intersection>(this, &intersection::handle_cars0))
+        "cars0", new SST::Event::Handler<intersection>(this, &intersection::handle_cars0))
     ),
     cars1(configureLink(
-        "cars1",
-        new SST::Event::Handler<intersection>(this, &intersection::handle_cars1))
+        "cars1", new SST::Event::Handler<intersection>(this, &intersection::handle_cars1))
     ) {
 
     output.init("intersection-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
@@ -118,16 +114,16 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
 void intersection::setup() {
     road0 = 0;
     road1 = 0;
-    totalCars0 = 0;
-    totalCars1 = 0;
+    total_cars0 = 0;
+    total_cars1 = 0;
     backup0 = 0;
     backup1 = 0;
     numtics = 0;
 }
 
 void intersection::finish() {
-    printf("\nCars that drove through Traffic Light 0: %d\n", totalCars0);
-    printf("Cars that drove through Traffic Light 1: %d\n", totalCars1);
+    printf("\nCars that drove through Traffic Light 0: %d\n", total_cars0);
+    printf("Cars that drove through Traffic Light 1: %d\n", total_cars1);
     printf("Largest backup at Traffic Light 0: %d\n", backup0);
     printf("Largest backup at Traffic Light 1: %d\n\n", backup1);
 }
@@ -140,7 +136,7 @@ bool intersection::tick(SST::Cycle_t current_cycle) {
     }
     numtics++;
     if (!(numtics % 3600)) {
-        printf(" %4d | %14d | %14d\n", numtics / 3600, totalCars0, totalCars1);
+        printf(" %4d | %14d | %14d\n", numtics / 3600, total_cars0, total_cars1);
     }
     if (current_cycle >= simDuration) {
         primaryComponentOKToEndSim();
@@ -193,7 +189,7 @@ void intersection::handle_cars0(SST::Event *ev) {
 
         if (se->getString().c_str()[0] == '1') {
             road0++;
-            totalCars0++;
+            total_cars0++;
             if (road0 > backup0) {
                 backup0 = road0;
             }
@@ -214,7 +210,7 @@ void intersection::handle_cars1(SST::Event *ev) {
 
         if (se->getString().c_str()[0] == '1') {
             road1++;
-            totalCars1++;
+            total_cars1++;
             if (road1 > backup1) {
                 backup1 = road1;
             }

@@ -1,6 +1,6 @@
 #include "../stoplight.hpp"
 
-#include "../../../src/sstscit.hpp"
+#include "../../../sstscit/sstscit.hpp"
 
 int sc_main(int argc, char *argv[]) {
 

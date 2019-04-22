@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(simple CXX)
-include(../../src/CMakeLists.txt)
+include(../CMakeLists.txt)
 
 # -------------------- EXECUTABLES --------------------
 if (${UNIT_TEST})

@@ -58,7 +58,7 @@ car_generator1.addParams({
 intersection = sst.Component("Intersection", "intersection.intersection")
 intersection.addParams({
     "clock": CLOCK,
-    "simDuration": 86400
+    "sim_duration": 86400
 })
 
 

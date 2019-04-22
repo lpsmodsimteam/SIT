@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(sstscit CXX)
-set(CMAKE_BUILD_TYPE Release)
+project(examples CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -59,7 +58,7 @@ if (${ZMQ})
 
 endif ()
 
-get_filename_component(SRC_DIR ../../src ABSOLUTE)
+get_filename_component(SRC_DIR ../../sstscit ABSOLUTE)
 include_directories(${SRC_DIR}/msgpack)
 
 # -------------------- EXTERNAL LIBRARIES --------------------
