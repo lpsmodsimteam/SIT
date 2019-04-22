@@ -14,10 +14,6 @@ matrix:
         apt:
           packages:
             - clang-6.0
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool
-            - openmpi-bin
           sources:
             - llvm-toolchain-xenial-6.0
 
@@ -28,12 +24,7 @@ matrix:
         apt:
           packages:
             - clang-7
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool
-            - openmpi-bin
           sources:
-            - ubuntu-toolchain-r-test
             - llvm-toolchain-xenial-7
 
     # Clang 8
@@ -43,12 +34,7 @@ matrix:
         apt:
           packages:
             - clang-8
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool
-            - openmpi-bin
           sources:
-            - ubuntu-toolchain-r-test
             - llvm-toolchain-xenial-8
 
     # --------------- GCC on Linux --------------- #
@@ -60,9 +46,6 @@ matrix:
         apt:
           packages:
             - g++-6
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool-bin
           sources:
             - ubuntu-toolchain-r-test
 
@@ -73,9 +56,6 @@ matrix:
         apt:
           packages:
             - g++-7
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool-bin
           sources:
             - ubuntu-toolchain-r-test
 
@@ -86,13 +66,12 @@ matrix:
         apt:
           packages:
             - g++-8
-            - libhwloc-dev
-            - libopenmpi-dev
-            - libtool-bin
           sources:
             - ubuntu-toolchain-r-test
 
 install:
+  # install necessary packages
+  - sudo apt install libhwloc-dev libopenmpi-dev libtool-bin
   # set the proper C++ compiler
   - export CXX=${_CXX}
 
