@@ -142,11 +142,21 @@ void demo::handle_event(SST::Event *ev) {
     \subsection{SystemC-Black Box Communication}
     A SystemC module can be interfaced by a standard source file inclusion.
 
-  \section{Proof of Concept}
+  \section{Proof of Concept: Traffic Intersection Simulation}
+  A simulation model has been developed to demonstrate the project. The model simulates a traffic intersection controlled by two traffic lights. A flow of traffic is simulated through a road only when its traffic light generates a green or yellow light with the other generating a red light.
 
-    \subsection{Intersection Simulation}
-    A simulation prototype has been developed to test the project.
+  The concept is derived from <INCLUDE REFERENCE HERE>.
 
-    \subsection{Continuous Integration}
+    \subsection{SST Components}
+    The simulation project consists of three SST components: \lstinline{car_generator}, \lstinline{traffic_light} and \lstinline{intersection}.  All the components with the exception of \lstinline{traffic_light} were inherited from the original project.
+
+      \subsubsection{car\_generator} A component 
+
+      \subsubsection{traffic\_light}
+
+      \subsubsection{intersection}
+
+    \subsection{SystemC Drivers}
+    The project also includes a SystemC module and its driver.
 
 \end{document}
