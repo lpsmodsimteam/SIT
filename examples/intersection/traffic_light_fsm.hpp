@@ -1,6 +1,6 @@
 #include <systemc.h>
 
-SC_MODULE (stoplight) {
+SC_MODULE (traffic_light_fsm) {
 
     enum light_state {
         green, yellow, red
@@ -83,9 +83,9 @@ SC_MODULE (stoplight) {
     }
 
     // Constructor
-    SC_CTOR(stoplight) {
+    SC_CTOR(traffic_light_fsm) {
         SC_METHOD(get_next_state)
         sensitive << clock;
     }
 
-}; // End of Module stoplight
+}; // End of Module traffic_light_fsm

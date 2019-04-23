@@ -29,7 +29,7 @@ light_comp0.addParams({
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN1TIME + YELLOWTIME,
     "STARTGREEN": 0,
-    "proc": os.path.join(BASE_PATH, "stoplight.o"),
+    "proc": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
     "ipc_port": "/tmp/" + get_rand_tmp(),
 })
 light_comp1 = sst.Component("Traffic Light 1", "intersection.traffic_light")
@@ -39,7 +39,7 @@ light_comp1.addParams({
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN0TIME + YELLOWTIME,
     "STARTGREEN": 1,
-    "proc": os.path.join(BASE_PATH, "stoplight.o"),
+    "proc": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
     "ipc_port": "/tmp/" + get_rand_tmp(),
 })
 

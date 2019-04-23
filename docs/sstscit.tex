@@ -143,16 +143,18 @@ void demo::handle_event(SST::Event *ev) {
     A SystemC module can be interfaced by a standard source file inclusion.
 
   \section{Proof of Concept: Traffic Intersection Simulation}
-  A simulation model has been developed to demonstrate the project. The model simulates a traffic intersection controlled by two traffic lights. A flow of traffic is simulated through a road only when its traffic light generates a green or yellow light with the other generating a red light.
+  A simulation model has been developed to demonstrate the project. The model simulates a traffic intersection controlled by two traffic lights. A flow of traffic is simulated through a road only when its traffic light generates a green or yellow light with the other generating a red light. The number of cars in a traffic flow is represented by random number generators.
 
   The concept is derived from <INCLUDE REFERENCE HERE>.
 
     \subsection{SST Components}
-    The simulation project consists of three SST components: \lstinline{car_generator}, \lstinline{traffic_light} and \lstinline{intersection}.  All the components with the exception of \lstinline{traffic_light} were inherited from the original project.
+    The simulation project consists of three SST components: \lstinline{car_generator}, \lstinline{traffic_light_controller} and \lstinline{intersection}. All the components with the exception of most of \lstinline{traffic_light_controller} were inherited from the original project.
 
-      \subsubsection{car\_generator} A component 
+      \subsubsection{car\_generator}
+      The \lstinline{car_generator} component consists of a random number generator that yields $0$ or $1$. The output is communicated to lstinline{intersection} via SST Links.
 
       \subsubsection{traffic\_light}
+      The \lstinline{traffic_light_controller} component generates the light colors of the traffic lights using a simple finite state machine (FSM). The component delegates the FSM portion of its algorithm to the SystemC module \lstlisting{traffic_light_fsm}
 
       \subsubsection{intersection}
 

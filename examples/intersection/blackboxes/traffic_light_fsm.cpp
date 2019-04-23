@@ -1,4 +1,4 @@
-#include "../stoplight.hpp"
+#include "../traffic_light_fsm.hpp"
 
 #include "../../../sstscit/sstscit.hpp"
 
@@ -14,7 +14,7 @@ int sc_main(int argc, char *argv[]) {
     sc_signal<sc_uint<2> > state;
 
     // Connect the DUT
-    stoplight DUT("stoplight");
+    traffic_light_fsm DUT("traffic_light_fsm");
     DUT.clock(clock);
     DUT.load(load);
     DUT.start_green(start_green);
