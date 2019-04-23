@@ -64,9 +64,9 @@
 
   \begin{figure}[!h]
     \centering
-    \includegraphics[width=6in]{comm.png}
+    \includegraphics[width=6in]{diagrams/comm.png}
     \caption{Components of SSTSCIT}
-    \label{fig:fig1}
+    \label{fig:comm}
   \end{figure}
 
   \section{Components} \label{sec:comp}
@@ -165,6 +165,13 @@ void demo::handle_event(SST::Event *ev) {
   when its traffic light generates a green or yellow light with the other generating a red light.
   The number of cars in a traffic flow is represented by random number generators.
 
+  \begin{figure}[!h]
+    \centering
+    \includegraphics[width=3.5in]{diagrams/intersection.png}
+    \caption{Simple Two-Road Intersection}
+    \label{fig:intersection}
+  \end{figure}
+
   The concept of this simulation is derived from the original project that established
   interoperability between SST and PyRTL - a Python based hardware description
   language.\cite{pyrtl-sst}
@@ -181,9 +188,9 @@ void demo::handle_event(SST::Event *ev) {
 
     \begin{figure}[!h]
       \centering
-      \includegraphics[width=4in]{fsm.png}
+      \includegraphics[width=4in]{diagrams/fsm.png}
       \caption{Traffic Light Finite State Machine}
-      \label{fig:fig2}
+      \label{fig:fsm}
     \end{figure}
 
     \subsection{SST Components}

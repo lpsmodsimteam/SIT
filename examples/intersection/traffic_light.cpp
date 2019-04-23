@@ -49,13 +49,14 @@ private:
     // Prepare the signal handler
     SocketSignal m_signal_io;
 
-    // SST links and variables
-    std::string m_clock, m_proc, m_ipc_port;
-    SST::Output m_output;
-
     // SST parameters
+    std::string m_clock;
+    int STARTGREEN, GREENTIME, YELLOWTIME, REDTIME;
+    std::string m_proc, m_ipc_port;
+
+    // SST links and variables
+    SST::Output m_output;
     SST::Link *light_state;
-    int GREENTIME, YELLOWTIME, REDTIME, STARTGREEN;
 
 };
 
@@ -64,10 +65,10 @@ traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
     // Collect all the parameters from the project driver
     m_clock(params.find<std::string>("clock", "1Hz")),
+    STARTGREEN(params.find<int>("STARTGREEN", false)),
     GREENTIME(params.find<int>("GREENTIME", 30)),
     YELLOWTIME(params.find<int>("YELLOWTIME", 3)),
     REDTIME(params.find<int>("REDTIME", 33)),
-    STARTGREEN(params.find<int>("STARTGREEN", false)),
     m_proc(params.find<std::string>("proc", "")),
     m_ipc_port(params.find<std::string>("ipc_port", "")),
     light_state(configureLink("light_state")) {

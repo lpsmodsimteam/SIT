@@ -43,7 +43,7 @@ public:
 
     SST_ELI_DOCUMENT_PARAMS(
         { "clock", "Clock frequency or period", "1Hz" },
-        { "simDuration", "How long to run the simulation (ticks)", "200" }
+        { "sim_duration", "How long to run the simulation (ticks)", "200" }
     )
 
     SST_ELI_DOCUMENT_PORTS(
@@ -54,56 +54,54 @@ public:
     )
 
 private:
-    SST::Output output;
+    SST::Output m_output;
     std::string clock;
-    SST::Cycle_t simDuration;
+    SST::Cycle_t sim_duration;
 
-    SST::Link *light0;
-    SST::Link *light1;
-    SST::Link *cars0;
-    SST::Link *cars1;
+    SST::Link *light[2], *cars[2];
 
-    int road0;
-    int road1;
-    int total_cars0;
-    int total_cars1;
-    int backup0;
-    int backup1;
-    int numtics;
+    int road[2];
+    int total_cars[2];
+    int backup[2];
+    int n_ticks;
 };
 
 intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
-    // Collect parameters
     clock(params.find<std::string>("clock", "1Hz")),
-    simDuration(params.find<SST::Cycle_t>("sim_duration", 200)),
-    light0(configureLink(
-        "light0", new SST::Event::Handler<intersection>(this, &intersection::handle_light0))
-    ),
-    light1(configureLink(
-        "light1", new SST::Event::Handler<intersection>(this, &intersection::handle_light1))
-    ),
-    cars0(configureLink(
-        "cars0", new SST::Event::Handler<intersection>(this, &intersection::handle_cars0))
-    ),
-    cars1(configureLink(
-        "cars1", new SST::Event::Handler<intersection>(this, &intersection::handle_cars1))
-    ) {
+    sim_duration(params.find<SST::Cycle_t>("sim_duration", 200)),
+    light{
+        configureLink(
+            "light0", new SST::Event::Handler<intersection>(this, &intersection::handle_light0)
+        ),
+        configureLink(
+            "light1", new SST::Event::Handler<intersection>(this, &intersection::handle_light1)
+        )
+    },
+    cars{
+        configureLink(
+            "cars0", new SST::Event::Handler<intersection>(this, &intersection::handle_cars0)
+        ),
+        configureLink(
+            "cars1", new SST::Event::Handler<intersection>(this, &intersection::handle_cars1)
+        )
+    },
+    road{0, 0}, total_cars{0, 0}, backup{0, 0}, n_ticks(0) {
 
-    output.init("intersection-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[32mintersection-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Error check params
-    if (simDuration <= 0) {
-        output.fatal(CALL_INFO, -1, "Error: simDuration must be greater than zero.\n");
+    if (sim_duration <= 0) {
+        m_output.fatal(CALL_INFO, -1, "Error: sim_duration must be greater than zero.\n");
     }
-    output.verbose(CALL_INFO, 1, 0, "simDuration=%d Hours\n", ((int) simDuration / 3600));
+    m_output.verbose(CALL_INFO, 1, 0, "sim_duration=%d Hours\n", ((int) sim_duration / 3600));
 
     // Just register a plain clock for this simple example
     registerClock(clock, new SST::Clock::Handler<intersection>(this, &intersection::tick));
 
     // Configure our ports
-    if (!(light0 && light1 && cars0 && cars1)) {
-        output.fatal(CALL_INFO, -1, "Failed to configure is_car\n");
+    if (!(light[0] && light[1] && cars[0] && cars[1])) {
+        m_output.fatal(CALL_INFO, -1, "Failed to configure is_car\n");
     }
 
     // Tell SST to wait until we authorize it to exit
@@ -112,20 +110,18 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
 }
 
 void intersection::setup() {
-    road0 = 0;
-    road1 = 0;
-    total_cars0 = 0;
-    total_cars1 = 0;
-    backup0 = 0;
-    backup1 = 0;
-    numtics = 0;
+
+    m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
+
 }
 
 void intersection::finish() {
-    printf("\nCars that drove through Traffic Light 0: %d\n", total_cars0);
-    printf("Cars that drove through Traffic Light 1: %d\n", total_cars1);
-    printf("Largest backup at Traffic Light 0: %d\n", backup0);
-    printf("Largest backup at Traffic Light 1: %d\n\n", backup1);
+
+    m_output.verbose(CALL_INFO, 1, 0, "Cars that drove through Traffic Light 0: %d\n", total_cars[0]);
+    m_output.verbose(CALL_INFO, 1, 0, "Cars that drove through Traffic Light 1: %d\n", total_cars[1]);
+    m_output.verbose(CALL_INFO, 1, 0, "Largest backup at Traffic Light 0: %d\n", backup[0]);
+    m_output.verbose(CALL_INFO, 1, 0, "Largest backup at Traffic Light 1: %d\n\n", backup[1]);
+
 }
 
 // Exit when enough clock ticks have happened
@@ -134,11 +130,11 @@ bool intersection::tick(SST::Cycle_t current_cycle) {
         printf("\n Hour | Total Cars TL0 | Total Cars TL1\n");
         printf("------+----------------+---------------\n");
     }
-    numtics++;
-    if (!(numtics % 3600)) {
-        printf(" %4d | %14d | %14d\n", numtics / 3600, total_cars0, total_cars1);
+    n_ticks++;
+    if (!(n_ticks % 3600)) {
+        printf(" %4d | %14d | %14d\n", n_ticks / 3600, total_cars[0], total_cars[1]);
     }
-    if (current_cycle >= simDuration) {
+    if (current_cycle >= sim_duration) {
         primaryComponentOKToEndSim();
         return true;
     } else {
@@ -153,8 +149,8 @@ void intersection::handle_light0(SST::Event *ev) {
 
     if (se) {
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
-            if (road0 > 0) {
-                road0--;
+            if (road[0] > 0) {
+                road[0]--;
             }
         }
     }
@@ -170,8 +166,8 @@ void intersection::handle_light1(SST::Event *ev) {
 
     if (se) {
         if (se->getString().c_str()[0] == 'g' || se->getString().c_str()[0] == 'y') {
-            if (road1 > 0) {
-                road1--;
+            if (road[1] > 0) {
+                road[1]--;
             }
         }
     }
@@ -188,10 +184,10 @@ void intersection::handle_cars0(SST::Event *ev) {
     if (se) {
 
         if (se->getString().c_str()[0] == '1') {
-            road0++;
-            total_cars0++;
-            if (road0 > backup0) {
-                backup0 = road0;
+            road[0]++;
+            total_cars[0]++;
+            if (road[0] > backup[0]) {
+                backup[0] = road[0];
             }
         }
 
@@ -209,10 +205,10 @@ void intersection::handle_cars1(SST::Event *ev) {
     if (se) {
 
         if (se->getString().c_str()[0] == '1') {
-            road1++;
-            total_cars1++;
-            if (road1 > backup1) {
-                backup1 = road1;
+            road[1]++;
+            total_cars[1]++;
+            if (road[1] > backup[1]) {
+                backup[1] = road[1];
             }
         }
 
