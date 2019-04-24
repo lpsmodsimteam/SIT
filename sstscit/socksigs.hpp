@@ -5,7 +5,10 @@
 #ifndef SOCKSIGS_HPP
 #define SOCKSIGS_HPP
 
-#define BUFSIZE 500
+// default buffer size
+#ifndef BUFSIZE
+#define BUFSIZE 100
+#endif
 
 #include "sigutils.hpp"
 
@@ -129,14 +132,25 @@ inline void SocketSignal::send() {
 
 inline void SocketSignal::recv() {
 
-    m_rd_bytes = static_cast<size_t>(
-        (m_server_side) ? read(m_rd_socket, m_buf, BUFSIZE) :
-        read(m_socket, m_buf, BUFSIZE));
 
-    m_buf[m_rd_bytes] = '\0';
+    try {
 
-    msgpack::unpack(m_unpacker, m_buf, m_rd_bytes);
-    m_unpacker.get().convert(*this);
+        m_rd_bytes = static_cast<size_t>(
+            (m_server_side) ? read(m_rd_socket, m_buf, BUFSIZE) :
+            read(m_socket, m_buf, BUFSIZE));
+
+        m_buf[m_rd_bytes] = '\0';
+
+        msgpack::unpack(m_unpacker, m_buf, m_rd_bytes);
+        m_unpacker.get().convert(*this);
+
+
+    } catch (msgpack::v1::insufficient_bytes &e) {
+
+        perror("\033[31mInsufficient size for transfer buffers. Try increasing BUFSIZE\033[0m\n");
+        throw;
+
+    }
 
 }
 
