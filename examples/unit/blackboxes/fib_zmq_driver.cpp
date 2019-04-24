@@ -2,7 +2,7 @@
 
 #include "../../../sstscit/sstscit.hpp"
 
-int sc_main(int argc, char *argv[]) {
+int sc_main(int, char *argv[]) {
 
     // ---------- SYSTEMC UUT INIT ---------- //
     sc_signal<bool> clock;

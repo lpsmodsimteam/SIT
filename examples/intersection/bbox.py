@@ -15,15 +15,15 @@ from generate import BoilerPlate
 if __name__ == "__main__":
 
     boilerplate_obj = BoilerPlate(
-        module="stoplight",
+        module="traffic_light_fsm",
         lib="intersection",
         ipc="sock",
         drvr_templ_path=DRVR_TEMPL_PATH,
         sst_model_templ_path=MODEL_TEMPL_PATH,
         desc="Demonstration of a SystemC hardware simulation in SST",
         link_desc={
-            "link_desc0": "Stoplight data_in",
-            "link_desc1": "Stoplight data_out",
+            "link_desc0": "Traffic Light FSM data_in",
+            "link_desc1": "Traffic Light FSM data_out",
         }
     )
     boilerplate_obj.set_ports({

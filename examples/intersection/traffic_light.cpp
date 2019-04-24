@@ -132,10 +132,7 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     bool keep_recv = current_cycle < SIMTIME - 1;
 
     bool load;
-    int start_green;
-    int green_time;
-    int yellow_time;
-    int red_time;
+    int start_green, green_time, yellow_time, red_time;
 
     // turn reset off at 3 ns
     if (current_cycle == 1) {

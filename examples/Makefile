@@ -1,3 +1,4 @@
+MAKEFLAGS += --no-print-directory
 test_dir ?= unit/build
 test: boilerplate unit clean
 

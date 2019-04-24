@@ -1,9 +1,3 @@
-/**
-Car Generator for carWash simulator
-
-This component generates "cars" which are sent to the carwash
-*/
-
 #include <sst/core/sst_config.h>
 #include <sst/core/interfaces/stringEvent.h>
 

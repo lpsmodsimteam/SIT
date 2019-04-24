@@ -140,4 +140,4 @@ before_script:
 
 script:
   - pyenv local 3.6.7
-  - make --no-print-directory test
+  - make test
