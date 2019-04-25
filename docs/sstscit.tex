@@ -114,9 +114,7 @@
     The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST
     environment to the black box interface.
 
-\begin{lstlisting}[language=C++]
-// parent_sst.cpp
-
+\begin{lstlisting}[language=C++, caption={Snippet of \texttt{parent\_sst.cpp}}, captionpos=b]
 // register a string event in the class declaration
 SST_ELI_DOCUMENT_PORTS(
     { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
@@ -133,9 +131,7 @@ demo_din = configureLink("demo_din");
 demo_din->send(new SST::Interfaces::StringEvent(...));
 \end{lstlisting}
 
-\begin{lstlisting}[language=C++]
-// blackboxes/demo.cpp
-
+\begin{lstlisting}[language=C++, caption={Snippet of \texttt{blackboxes/demo.cpp}}, captionpos=b]
 // register the same string event in the class declaration
 SST_ELI_DOCUMENT_PORTS(
     { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
@@ -198,6 +194,7 @@ void demo::handle_event(SST::Event *ev) {
       \caption{Traffic Light Finite State Machine}
       \label{fig:fsm}
     \end{figure}
+    \newpage
 
     \subsection{SST Components}
     The project also consists of three SST components: \lstinline{car_generator},
@@ -242,7 +239,7 @@ void demo::handle_event(SST::Event *ev) {
       \clearpage
     \subsection{Example Simulation}
 
-\begin{lstlisting}
+\begin{lstlisting}[caption={Sample Simulation Output}, captionpos=b]
 <@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> GREENTIME=30, YELLOWTIME=3, REDTIME=63, STARTGREEN=0
 <@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> GREENTIME=60, YELLOWTIME=3, REDTIME=33, STARTGREEN=1
 <@\textcolor{mauve}{car\_generator-Car Generator 0 ->}@> Minimum Delay Between Cars=3s, Random Number Seed=151515
@@ -298,9 +295,7 @@ void demo::handle_event(SST::Event *ev) {
 <@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Destroying Traffic Light 0...
 <@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Destroying Traffic Light 1...
 Simulation is complete, simulated time: 86.4 Ks
-
 \end{lstlisting}
-\newpage
 
   \begin{thebibliography}{5}
 
