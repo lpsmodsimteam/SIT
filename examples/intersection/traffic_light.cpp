@@ -30,13 +30,13 @@ public:
     )
 
     SST_ELI_DOCUMENT_PARAMS(
-        { "clock", "Clock frequency or period", "1Hz" },
+        { "CLOCK", "Clock frequency or period", "1Hz" },
         { "GREENTIME", "Duration of the green light staying on", "30" },
         { "YELLOWTIME", "Duration of the yellow light staying on", "3" },
         { "REDTIME", "Duration of the red light staying on", "33" },
         { "STARTGREEN", "Flag to initiate the light as green or red", "0" },
-        { "proc", "Path to compiled SystemC driver", "/path/to/systemc/driver" },
-        { "ipc_port", "Path to the IPC file", "/tmp/ABCDEF" },
+        { "PROC", "Path to compiled SystemC driver", "/path/to/systemc/driver" },
+        { "IPC_PORT", "Path to the IPC file", "/tmp/ABCDEF" },
     )
 
     // Port name, description, event type
@@ -64,16 +64,16 @@ traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
     m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
     // Collect all the parameters from the project driver
-    m_clock(params.find<std::string>("clock", "1Hz")),
+    m_clock(params.find<std::string>("CLOCK", "1Hz")),
     STARTGREEN(params.find<int>("STARTGREEN", false)),
     GREENTIME(params.find<int>("GREENTIME", 30)),
     YELLOWTIME(params.find<int>("YELLOWTIME", 3)),
     REDTIME(params.find<int>("REDTIME", 33)),
-    m_proc(params.find<std::string>("proc", "")),
-    m_ipc_port(params.find<std::string>("ipc_port", "")),
+    m_proc(params.find<std::string>("PROC", "")),
+    m_ipc_port(params.find<std::string>("IPC_PORT", "")),
     light_state(configureLink("light_state")) {
 
-    m_output.init("traffic_light-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[93mtraffic_light-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Check parameters
     if (!(GREENTIME && YELLOWTIME && REDTIME)) {

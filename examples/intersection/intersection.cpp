@@ -42,8 +42,8 @@ public:
     )
 
     SST_ELI_DOCUMENT_PARAMS(
-        { "clock", "Clock frequency or period", "1Hz" },
-        { "sim_duration", "How long to run the simulation (ticks)", "200" }
+        { "CLOCK", "Clock frequency or period", "1Hz" },
+        { "SIM_DURATION", "How long to run the simulation (ticks)", "200" }
     )
 
     SST_ELI_DOCUMENT_PORTS(
@@ -68,8 +68,8 @@ private:
 
 intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
-    clock(params.find<std::string>("clock", "1Hz")),
-    sim_duration(params.find<SST::Cycle_t>("sim_duration", 200)),
+    clock(params.find<std::string>("CLOCK", "1Hz")),
+    sim_duration(params.find<SST::Cycle_t>("SIM_DURATION", 200)),
     light{
         configureLink(
             "light0", new SST::Event::Handler<intersection>(this, &intersection::handle_light0)
@@ -88,7 +88,7 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     },
     road{0, 0}, total_cars{0, 0}, backup{0, 0}, n_ticks(0) {
 
-    m_output.init("\033[32mintersection-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[34mintersection-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Error check params
     if (sim_duration <= 0) {
@@ -117,29 +117,15 @@ void intersection::setup() {
 
 void intersection::finish() {
 
-    m_output.verbose(CALL_INFO, 1, 0, "Cars that drove through Traffic Light 0: %d\n", total_cars[0]);
-    m_output.verbose(CALL_INFO, 1, 0, "Cars that drove through Traffic Light 1: %d\n", total_cars[1]);
-    m_output.verbose(CALL_INFO, 1, 0, "Largest backup at Traffic Light 0: %d\n", backup[0]);
-    m_output.verbose(CALL_INFO, 1, 0, "Largest backup at Traffic Light 1: %d\n\n", backup[1]);
+    m_output.verbose(CALL_INFO, 1, 0, "-------------------------------------------\n");
+    m_output.verbose(CALL_INFO, 1, 0, "---------- SIMULATION STATISTICS ----------\n");
+    m_output.verbose(CALL_INFO, 1, 0, "-------------------------------------------\n");
+    m_output.verbose(CALL_INFO, 1, 0, "Traffic Light | Total Cars | Largest Backup\n");
+    m_output.verbose(CALL_INFO, 1, 0, "--------------+------------+---------------\n");
+    m_output.verbose(CALL_INFO, 1, 0, "            0 | %10d | %13d\n", total_cars[0], backup[0]);
+    m_output.verbose(CALL_INFO, 1, 0, "            1 | %10d | %13d\n", total_cars[1], backup[1]);
+    m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
 
-}
-
-// Exit when enough clock ticks have happened
-bool intersection::tick(SST::Cycle_t current_cycle) {
-    if (current_cycle == 1) {
-        printf("\n Hour | Total Cars TL0 | Total Cars TL1\n");
-        printf("------+----------------+---------------\n");
-    }
-    n_ticks++;
-    if (!(n_ticks % 3600)) {
-        printf(" %4d | %14d | %14d\n", n_ticks / 3600, total_cars[0], total_cars[1]);
-    }
-    if (current_cycle >= sim_duration) {
-        primaryComponentOKToEndSim();
-        return true;
-    } else {
-        return false;
-    }
 }
 
 // If the light is green or yellow, allow cars to go through one at a time
@@ -216,4 +202,25 @@ void intersection::handle_cars1(SST::Event *ev) {
 
     delete ev;
 
+}
+
+// Exit when enough clock ticks have happened
+bool intersection::tick(SST::Cycle_t current_cycle) {
+    if (current_cycle == 1) {
+        m_output.verbose(CALL_INFO, 1, 0, "--------------------------------------\n");
+        m_output.verbose(CALL_INFO, 1, 0, "-------- SIMULATION INITIATED --------\n");
+        m_output.verbose(CALL_INFO, 1, 0, "--------------------------------------\n");
+        m_output.verbose(CALL_INFO, 1, 0, "Hour | Total Cars TL0 | Total Cars TL1\n");
+        m_output.verbose(CALL_INFO, 1, 0, "-----+----------------+---------------\n");
+    }
+    n_ticks++;
+    if (!(n_ticks % 3600)) {
+        m_output.verbose(CALL_INFO, 1, 0, " %3d | %14d | %14d\n", n_ticks / 3600, total_cars[0], total_cars[1]);
+    }
+    if (current_cycle >= sim_duration) {
+        primaryComponentOKToEndSim();
+        return true;
+    } else {
+        return false;
+    }
 }

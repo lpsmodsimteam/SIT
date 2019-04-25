@@ -14,6 +14,8 @@ public:
 
     bool tick(SST::Cycle_t);
 
+    void finish() override;
+
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
         car_generator, // class
@@ -26,8 +28,8 @@ public:
 
     // Parameter name, description, default value
     SST_ELI_DOCUMENT_PARAMS(
-        { "delay", "How long to wait between sending car events", "1s" },
-        { "randomseed", "Random Seed for car type generation", "151515" }
+        { "DELAY", "How long to wait between sending car events", "1s" },
+        { "RANDOMSEED", "Random Seed for car type generation", "151515" }
     )
 
     // Port name, description, event type
@@ -36,7 +38,7 @@ public:
     )
 
 private:
-    SST::Output output;
+    SST::Output m_output;
     std::string clock;
     int64_t RandomSeed;
     SST::RNG::MarsagliaRNG *rng;
@@ -46,23 +48,29 @@ private:
 
 car_generator::car_generator(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
-    clock(params.find<std::string>("delay", "1s")),
-    RandomSeed(params.find<int64_t>("randomseed", 151515)),
+    clock(params.find<std::string>("DELAY", "1s")),
+    RandomSeed(params.find<int64_t>("RANDOMSEED", 151515)),
     rng(new SST::RNG::MarsagliaRNG(11, RandomSeed)),
     is_car(configureLink("is_car")) {
 
-    output.init("car_generator-" + getName() + "-> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[33mcar_generator-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Get parameters
-    output.verbose(CALL_INFO, 1, 0, "Minimum Delay Between Cars=%gs, Random Number Seed=%ld\n", std::stof(clock),
+    m_output.verbose(CALL_INFO, 1, 0, "Minimum Delay Between Cars=%gs, Random Number Seed=%ld\n", std::stof(clock),
                    RandomSeed);
 
     // Register the clock
     registerClock(clock, new SST::Clock::Handler<car_generator>(this, &car_generator::tick));
 
     if (!is_car) {
-        output.fatal(CALL_INFO, -1, "Failed to configure port 'is_car'\n");
+        m_output.fatal(CALL_INFO, -1, "Failed to configure port 'is_car'\n");
     }
+}
+
+void car_generator::finish() {
+
+    m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
+
 }
 
 bool car_generator::tick(SST::Cycle_t) {

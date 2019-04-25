@@ -1,5 +1,7 @@
 MAKEFLAGS += --no-print-directory
 test_dir ?= unit/build
+
+.PHONY: test_min test
 test_min: boilerplate unit clean
 test: boilerplate unit unit-extra-ipc clean
 

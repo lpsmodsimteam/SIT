@@ -17,48 +17,48 @@ YELLOWTIME = 3
 
 
 def get_rand_tmp():
-    return ''.join(
+    return "/tmp/" + ''.join(
         SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)
     )
 
 
 light_comp0 = sst.Component("Traffic Light 0", "intersection.traffic_light")
 light_comp0.addParams({
-    "clock": CLOCK,
+    "CLOCK": CLOCK,
     "GREENTIME": GREEN0TIME,
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN1TIME + YELLOWTIME,
     "STARTGREEN": 0,
-    "proc": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
-    "ipc_port": "/tmp/" + get_rand_tmp(),
+    "PROC": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
+    "IPC_PORT": get_rand_tmp(),
 })
 light_comp1 = sst.Component("Traffic Light 1", "intersection.traffic_light")
 light_comp1.addParams({
-    "clock": CLOCK,
+    "CLOCK": CLOCK,
     "GREENTIME": GREEN1TIME,
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN0TIME + YELLOWTIME,
     "STARTGREEN": 1,
-    "proc": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
-    "ipc_port": "/tmp/" + get_rand_tmp(),
+    "PROC": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
+    "IPC_PORT": get_rand_tmp(),
 })
 
 car_generator0 = sst.Component("Car Generator 0", "intersection.car_generator")
 car_generator0.addParams({
-    "delay": "3s",
-    "randomseed": 151515
+    "DELAY": "3s",
+    "RANDOMSEED": 151515
 })
 
 car_generator1 = sst.Component("Car Generator 1", "intersection.car_generator")
 car_generator1.addParams({
-    "delay": "5s",
-    "randomseed": 239478
+    "DELAY": "5s",
+    "RANDOMSEED": 239478
 })
 
 intersection = sst.Component("Intersection", "intersection.intersection")
 intersection.addParams({
-    "clock": CLOCK,
-    "sim_duration": 86400
+    "CLOCK": CLOCK,
+    "SIM_DURATION": 86400
 })
 
 

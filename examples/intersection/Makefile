@@ -1,3 +1,5 @@
+MAKEFLAGS += --no-print-directory -s
+
 _CXX ?= /usr/bin/clang++
 USE_ZMQ ?= OFF
 PYRTL ?= OFF
