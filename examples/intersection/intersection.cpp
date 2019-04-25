@@ -117,6 +117,7 @@ void intersection::setup() {
 
 void intersection::finish() {
 
+    m_output.verbose(CALL_INFO, 1, 0, "\n");
     m_output.verbose(CALL_INFO, 1, 0, "-------------------------------------------\n");
     m_output.verbose(CALL_INFO, 1, 0, "---------- SIMULATION STATISTICS ----------\n");
     m_output.verbose(CALL_INFO, 1, 0, "-------------------------------------------\n");
@@ -206,6 +207,7 @@ void intersection::handle_cars1(SST::Event *ev) {
 
 // Exit when enough clock ticks have happened
 bool intersection::tick(SST::Cycle_t current_cycle) {
+
     if (current_cycle == 1) {
         m_output.verbose(CALL_INFO, 1, 0, "--------------------------------------\n");
         m_output.verbose(CALL_INFO, 1, 0, "-------- SIMULATION INITIATED --------\n");
@@ -213,14 +215,22 @@ bool intersection::tick(SST::Cycle_t current_cycle) {
         m_output.verbose(CALL_INFO, 1, 0, "Hour | Total Cars TL0 | Total Cars TL1\n");
         m_output.verbose(CALL_INFO, 1, 0, "-----+----------------+---------------\n");
     }
+
     n_ticks++;
+
     if (!(n_ticks % 3600)) {
         m_output.verbose(CALL_INFO, 1, 0, " %3d | %14d | %14d\n", n_ticks / 3600, total_cars[0], total_cars[1]);
     }
+
     if (current_cycle >= sim_duration) {
         primaryComponentOKToEndSim();
+
         return true;
+
     } else {
+
         return false;
+
     }
+
 }

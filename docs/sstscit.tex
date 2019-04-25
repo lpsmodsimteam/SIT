@@ -33,7 +33,8 @@
   stringstyle=\color{mauve},
   breaklines=true,
   breakatwhitespace=true,
-  tabsize=4
+  tabsize=4,
+  escapeinside={<@}{@>}
 }
 
 \title{SST-SystemC Interoperability Toolkit}
@@ -86,7 +87,12 @@
     The toolkit includes a Python class that generates the boilerplate code required for the black
     box interface.
 
-    \subsection{UML}
+  \begin{figure}[!h]
+    \centering
+    \includegraphics[width=5.5in]{diagrams/data_flow.png}
+    \caption{Black Box Interface Data Flow Diagram}
+    \label{fig:data_flow}
+  \end{figure}
 
   \section{Communication}
 
@@ -233,14 +239,78 @@ void demo::handle_event(SST::Event *ev) {
       \end{figure}
 
       \newpage
+      \clearpage
+    \subsection{Example Simulation}
+
+\begin{lstlisting}
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> GREENTIME=30, YELLOWTIME=3, REDTIME=63, STARTGREEN=0
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> GREENTIME=60, YELLOWTIME=3, REDTIME=33, STARTGREEN=1
+<@\textcolor{mauve}{car\_generator-Car Generator 0 ->}@> Minimum Delay Between Cars=3s, Random Number Seed=151515
+<@\textcolor{mauve}{car\_generator-Car Generator 1 ->}@> Minimum Delay Between Cars=5s, Random Number Seed=239478
+<@\textcolor{blue}{intersection-Intersection ->}@> sim_duration=24 Hours
+<@\textcolor{blue}{intersection-Intersection ->}@> Component is being set up.
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Component is being set up.
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Forking process "/home/sabbir/projects/sstscit/examples/intersection/build/traffic_light_fsm.o"...
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Process "/home/sabbir/projects/sstscit/examples/intersection/build/traffic_light_fsm.o" successfully synchronized
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Component is being set up.
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Forking process "/home/sabbir/projects/sstscit/examples/intersection/build/traffic_light_fsm.o"...
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Process "/home/sabbir/projects/sstscit/examples/intersection/build/traffic_light_fsm.o" successfully synchronized
+<@\textcolor{blue}{intersection-Intersection ->}@> --------------------------------------
+<@\textcolor{blue}{intersection-Intersection ->}@> -------- SIMULATION INITIATED --------
+<@\textcolor{blue}{intersection-Intersection ->}@> --------------------------------------
+<@\textcolor{blue}{intersection-Intersection ->}@> Hour | Total Cars TL0 | Total Cars TL1
+<@\textcolor{blue}{intersection-Intersection ->}@> -----+----------------+---------------
+<@\textcolor{blue}{intersection-Intersection ->}@>    1 |              618 |            369
+<@\textcolor{blue}{intersection-Intersection ->}@>    2 |             1238 |            719
+<@\textcolor{blue}{intersection-Intersection ->}@>    3 |             1851 |           1074
+<@\textcolor{blue}{intersection-Intersection ->}@>    4 |             2432 |           1426
+<@\textcolor{blue}{intersection-Intersection ->}@>    5 |             3041 |           1774
+<@\textcolor{blue}{intersection-Intersection ->}@>    6 |             3688 |           2121
+<@\textcolor{blue}{intersection-Intersection ->}@>    7 |             4290 |           2467
+<@\textcolor{blue}{intersection-Intersection ->}@>    8 |             4892 |           2813
+<@\textcolor{blue}{intersection-Intersection ->}@>    9 |             5467 |           3175
+<@\textcolor{blue}{intersection-Intersection ->}@>   10 |             6054 |           3525
+<@\textcolor{blue}{intersection-Intersection ->}@>   11 |             6644 |           3885
+<@\textcolor{blue}{intersection-Intersection ->}@>   12 |             7228 |           4233
+<@\textcolor{blue}{intersection-Intersection ->}@>   13 |             7813 |           4607
+<@\textcolor{blue}{intersection-Intersection ->}@>   14 |             8435 |           4973
+<@\textcolor{blue}{intersection-Intersection ->}@>   15 |             9047 |           5337
+<@\textcolor{blue}{intersection-Intersection ->}@>   16 |             9656 |           5691
+<@\textcolor{blue}{intersection-Intersection ->}@>   17 |            10255 |           6059
+<@\textcolor{blue}{intersection-Intersection ->}@>   18 |            10843 |           6428
+<@\textcolor{blue}{intersection-Intersection ->}@>   19 |            11448 |           6791
+<@\textcolor{blue}{intersection-Intersection ->}@>   20 |            12025 |           7140
+<@\textcolor{blue}{intersection-Intersection ->}@>   21 |            12617 |           7499
+<@\textcolor{blue}{intersection-Intersection ->}@>   22 |            13225 |           7867
+<@\textcolor{blue}{intersection-Intersection ->}@>   23 |            13807 |           8223
+<@\textcolor{blue}{intersection-Intersection ->}@>   24 |            14400 |           8580
+<@\textcolor{blue}{intersection-Intersection ->}@> 
+<@\textcolor{blue}{intersection-Intersection ->}@> -------------------------------------------
+<@\textcolor{blue}{intersection-Intersection ->}@> ---------- SIMULATION STATISTICS ----------
+<@\textcolor{blue}{intersection-Intersection ->}@> -------------------------------------------
+<@\textcolor{blue}{intersection-Intersection ->}@> Traffic Light | Total Cars | Largest Backup
+<@\textcolor{blue}{intersection-Intersection ->}@> --------------+------------+---------------
+<@\textcolor{blue}{intersection-Intersection ->}@>              0 |       14400 |            18
+<@\textcolor{blue}{intersection-Intersection ->}@>              1 |        8581 |             7
+<@\textcolor{blue}{intersection-Intersection ->}@> Destroying Intersection...
+<@\textcolor{mauve}{car\_generator-Car Generator 1 ->}@> Destroying Car Generator 1...
+<@\textcolor{mauve}{car\_generator-Car Generator 0 ->}@> Destroying Car Generator 0...
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Destroying Traffic Light 0...
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Destroying Traffic Light 1...
+Simulation is complete, simulated time: 86.4 Ks
+
+\end{lstlisting}
+\newpage
 
   \begin{thebibliography}{5}
 
     \bibitem{sst} SST Simulator - The Structural Simulation Toolkit. \texttt{sst-simulator.org}.
 
-    \bibitem{sysc} 1666-2011 - IEEE Standard for Standard SystemC Language Reference Manual. IEEE, 9 Jan. 2012, \texttt{standards.ieee.org/standard/1666-2011.html}.
+    \bibitem{sysc} 1666-2011 - IEEE Standard for Standard SystemC Language Reference Manual. IEEE, 9
+    Jan. 2012, \texttt{standards.ieee.org/standard/1666-2011.html}.
 
-    \bibitem{pyrtl-sst} Mrosky, Robert P, et al. \textit{Creating Heterogeneous Simulations with SST and PyRTL}.
+    \bibitem{pyrtl-sst} Mrosky, Robert P, et al.
+    \textit{Creating Heterogeneous Simulations with SST and PyRTL}.
 
 
   \end{thebibliography}
