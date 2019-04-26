@@ -23,7 +23,6 @@
 \lstset{frame=tb,
   aboveskip=3mm,
   belowskip=3mm,
-  showstringspaces=false,
   columns=flexible,
   basicstyle={\small\ttfamily},
   numbers=none,
@@ -46,6 +45,27 @@
 \begin{document}
   \maketitle
 
+\iffalse
+  1. Background of your project (why you did it / why the project was necessary)
+  Heterogeneous computing usually refers to processor-level 
+
+  2. Aim(s) of your experiment/research/project (what you were specifically trying to do)
+
+  3. What you actually did (your procedure or experimental method)
+  SSTSCIT aims to provide the capability to interoperate the two systems without interfering with
+  any of the kernels by concealing the communication protocols in black box interfaces.
+
+  4. What you found (your results)
+  This project provides a demonstration of the interoperability by simulating a traffic
+  intersection, where the traffic lights are determined by SystemC processes.
+
+  5. What your results mean (your conclusion)
+
+  6. Any recommendations and/or special considerations for the future (implications)
+
+  7. Any limits to how far your conclusions can be applied (limitations)
+
+\fi
   \begin{abstract}
     SST-SystemC Interoperability Toolkit (SSTSCIT) is a collection of header files developed to
     provide interoperability between Structural Simulation Toolkit (SST) and SystemC. SST is a
@@ -112,9 +132,9 @@
     An SST model can interface the black box via standard SST links.
 
     The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST
-    environment to the black box interface.
+    environment to the black box interface in an example component, \lstinline{demo}.
 
-\begin{lstlisting}[language=C++, caption={Snippet of \texttt{parent\_sst.cpp}}, captionpos=b]
+\begin{lstlisting}[language=C++, caption={Snippet of \lstinline{demo.cpp}}, captionpos=b]
 // register a string event in the class declaration
 SST_ELI_DOCUMENT_PORTS(
     { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
@@ -131,7 +151,7 @@ demo_din = configureLink("demo_din");
 demo_din->send(new SST::Interfaces::StringEvent(...));
 \end{lstlisting}
 
-\begin{lstlisting}[language=C++, caption={Snippet of \texttt{blackboxes/demo.cpp}}, captionpos=b]
+\begin{lstlisting}[language=C++, caption={Snippet of \lstinline{blackboxes/demo_comp.cpp}}, captionpos=b]
 // register the same string event in the class declaration
 SST_ELI_DOCUMENT_PORTS(
     { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
