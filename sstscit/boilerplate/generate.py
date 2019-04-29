@@ -97,7 +97,6 @@ class BoilerPlate(object):
         Returns:
             {tuple(str,int)} -- C++ datatype and its size
         """
-        # print(signal)
         if "sc" in signal:
 
             def __get_ints(sig):

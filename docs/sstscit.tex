@@ -23,6 +23,7 @@
 \lstset{frame=tb,
   aboveskip=3mm,
   belowskip=3mm,
+  showstringspaces=false,
   columns=flexible,
   basicstyle={\small\ttfamily},
   numbers=none,
@@ -39,7 +40,17 @@
 \title{SST-SystemC Interoperability Toolkit}
 
 \author{
-  Sabbir Ahmed
+  Sabbir Ahmed \\
+  Booz Allen Hamilton \\
+  ahmed\_sabbir@bah.com
+  \And
+  Noel S. Wheeler \\
+  Laboratory for Physical Sciences \\
+  nwheeler@lps.umd.edu
+  \And
+  Robert P. Mrosky \\
+  Laboratory for Physical Sciences \\
+  rmrosky1@lps.umd.edu
 }
 
 \begin{document}
@@ -47,35 +58,64 @@
 
 \iffalse
   1. Background of your project (why you did it / why the project was necessary)
-  Heterogeneous computing usually refers to processor-level 
+
+  Implementing new computer system designs involves modification of both programming models and
+  hardware organization which frequently introduces distinct challenges. Hardware and software
+  definitions are often simulated to undertake these difficulties. Structural Simulation Toolkit
+  (SST), a parallel event-based simulation framework that allows custom and vendor models to be
+  interconnected to create a simulation environment \cite{sst}, is one such toolkit. However, SST
+  must be able to support models implemented in various frameworks and languages. SystemC is a
+  popular system-level modeling language composed of C++ classes and macros \cite{sysc}.
+  Establishing communication with SystemC modules would allow SST to interface numerous existing
+  synthesizable hardware models.
 
   2. Aim(s) of your experiment/research/project (what you were specifically trying to do)
 
+  SST-SystemC Interoperability Toolkit (SSTSCIT) is a collection of header files developed to
+  provide interoperability between SST and SystemC.
+
   3. What you actually did (your procedure or experimental method)
-  SSTSCIT aims to provide the capability to interoperate the two systems without interfering with
-  any of the kernels by concealing the communication protocols in black box interfaces.
+
+  SSTSCIT aims to achieve this capability in a modular design without interfering with the kernels
+  by concealing the communication protocols in black box interfaces.
 
   4. What you found (your results)
-  This project provides a demonstration of the interoperability by simulating a traffic
-  intersection, where the traffic lights are determined by SystemC processes.
+
+  This project includes a demonstration of the interoperability by simulating a traffic intersection
+  with traffic lights driven by SystemC processes.
 
   5. What your results mean (your conclusion)
 
+
+
   6. Any recommendations and/or special considerations for the future (implications)
+
+  The modular implementation of the black box interface allowed for sufficient flexibility in
+  establishing communication between the different systems. This design can, therefore, be
+  configured to interoperate SST with various model simulation frameworks and even hardware to
+  achieve further heterogeneity.
 
   7. Any limits to how far your conclusions can be applied (limitations)
 
 \fi
   \begin{abstract}
-    SST-SystemC Interoperability Toolkit (SSTSCIT) is a collection of header files developed to
-    provide interoperability between Structural Simulation Toolkit (SST) and SystemC. SST is a
-    parallel event based simulation framework that allows custom and vendor models to be
-    interconnected to create a simulation environment \cite{sst}. SystemC is a system-level modeling
-    language composed of C++ classes and macros \cite{sysc}. SSTSCIT aims to provide the capability
-    to interoperate the two systems without interfering with any of the kernels by concealing the
-    communication protocols in black box interfaces. This project provides a demonstration of the
-    interoperability by simulating a traffic intersection, where the traffic lights are determined
-    by SystemC processes.
+    Implementing new computer system designs involves modification of both programming models and
+    hardware organization which frequently introduces distinct challenges. Hardware and software
+    definitions are often simulated to undertake these difficulties. Structural Simulation Toolkit
+    (SST), a parallel event-based simulation framework that allows custom and vendor models to be
+    interconnected to create a simulation environment \cite{sst}, is one such toolkit. However, SST
+    must be able to support models implemented in various frameworks and languages. SystemC is a
+    popular system-level modeling language composed of C++ classes and macros \cite{sysc}.
+    Establishing communication with SystemC modules would allow SST to interface numerous existing
+    synthesizable hardware models. SST-SystemC Interoperability Toolkit (SSTSCIT) is a collection of
+    header files developed to provide interoperability between SST and SystemC. SSTSCIT aims to
+    achieve this capability in a modular design without interfering with the kernels by concealing
+    the communication protocols in black box interfaces. This project includes a demonstration of
+    the interoperability by simulating a traffic intersection with traffic lights driven by SystemC
+    processes. The modular implementation of the black box interface allowed for sufficient
+    flexibility in establishing communication between the different systems. This design can,
+    therefore, be configured to interoperate SST with various model simulation frameworks and
+    even hardware to achieve further heterogeneity.
   \end{abstract}
 
   \section{Introduction}
@@ -110,7 +150,7 @@
   \begin{figure}[!h]
     \centering
     \includegraphics[width=5.5in]{diagrams/data_flow.png}
-    \caption{Black Box Interface Data Flow Diagram}
+    \caption{Black Box Interface Data Flow Diagram. Arrows Highlighted in Red Indicate Communication Signals.}
     \label{fig:data_flow}
   \end{figure}
 
@@ -307,8 +347,8 @@ void demo::handle_event(SST::Event *ev) {
 <@\textcolor{blue}{intersection-Intersection ->}@> -------------------------------------------
 <@\textcolor{blue}{intersection-Intersection ->}@> Traffic Light | Total Cars | Largest Backup
 <@\textcolor{blue}{intersection-Intersection ->}@> --------------+------------+---------------
-<@\textcolor{blue}{intersection-Intersection ->}@>              0 |       14400 |            18
-<@\textcolor{blue}{intersection-Intersection ->}@>              1 |        8581 |             7
+<@\textcolor{blue}{intersection-Intersection ->}@>              0 |       14400 |              18
+<@\textcolor{blue}{intersection-Intersection ->}@>              1 |        8581 |               7
 <@\textcolor{blue}{intersection-Intersection ->}@> Destroying Intersection...
 <@\textcolor{mauve}{car\_generator-Car Generator 1 ->}@> Destroying Car Generator 1...
 <@\textcolor{mauve}{car\_generator-Car Generator 0 ->}@> Destroying Car Generator 0...
