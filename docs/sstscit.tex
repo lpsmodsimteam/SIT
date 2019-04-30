@@ -9,12 +9,11 @@
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
-\usepackage{lipsum}
 
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{color}
+\usepackage[labelfont=bf]{caption}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -56,48 +55,6 @@
 \begin{document}
   \maketitle
 
-\iffalse
-  1. Background of your project (why you did it / why the project was necessary)
-
-  Implementing new computer system designs involves modification of both programming models and
-  hardware organization which frequently introduces distinct challenges. Hardware and software
-  definitions are often simulated to undertake these difficulties. Structural Simulation Toolkit
-  (SST), a parallel event-based simulation framework that allows custom and vendor models to be
-  interconnected to create a simulation environment \cite{sst}, is one such toolkit. However, SST
-  must be able to support models implemented in various frameworks and languages. SystemC is a
-  popular system-level modeling language composed of C++ classes and macros \cite{sysc}.
-  Establishing communication with SystemC modules would allow SST to interface numerous existing
-  synthesizable hardware models.
-
-  2. Aim(s) of your experiment/research/project (what you were specifically trying to do)
-
-  SST-SystemC Interoperability Toolkit (SSTSCIT) is a collection of header files developed to
-  provide interoperability between SST and SystemC.
-
-  3. What you actually did (your procedure or experimental method)
-
-  SSTSCIT aims to achieve this capability in a modular design without interfering with the kernels
-  by concealing the communication protocols in black box interfaces.
-
-  4. What you found (your results)
-
-  This project includes a demonstration of the interoperability by simulating a traffic intersection
-  with traffic lights driven by SystemC processes.
-
-  5. What your results mean (your conclusion)
-
-
-
-  6. Any recommendations and/or special considerations for the future (implications)
-
-  The modular implementation of the black box interface allowed for sufficient flexibility in
-  establishing communication between the different systems. This design can, therefore, be
-  configured to interoperate SST with various model simulation frameworks and even hardware to
-  achieve further heterogeneity.
-
-  7. Any limits to how far your conclusions can be applied (limitations)
-
-\fi
   \begin{abstract}
     Implementing new computer system designs involves modification of both programming models and
     hardware organization which frequently introduces distinct challenges. Hardware and software
@@ -110,7 +67,7 @@
     synthesizable hardware models. SST-SystemC Interoperability Toolkit (SSTSCIT) is a collection of
     header files developed to provide interoperability between SST and SystemC. SSTSCIT aims to
     achieve this capability in a modular design without interfering with the kernels by concealing
-    the communication protocols in black box interfaces. This project includes a demonstration of
+    the communication protocols in black box interfaces. This paper includes a demonstration of
     the interoperability by simulating a traffic intersection with traffic lights driven by SystemC
     processes. The modular implementation of the black box interface allowed for sufficient
     flexibility in establishing communication between the different systems. This design can,
@@ -119,9 +76,16 @@
   \end{abstract}
 
   \section{Introduction}
-  This collection of header files provides methods to transmit and receive signals between SST
-  components and SystemC modules. The toolkit provides a black box interface that can be interfaced
-  with both SST and SystemC via their internal communication transports. 
+  The increasing size and complexity of systems require engineers heavily rely on simulation
+  techniques during the development phases. Typically, simulations of these complex systems require
+  both custom and off-the-shelf logic functionality in ASICs or FPGAs. High-level commercial tools
+  simulate and model these components in their native environments. On the other side, developers
+  create the register transfer level (RTL) models representing the systems to simulate them with
+  computer-aided design (CAD) tools and test benches. These duplicative strategies require a method
+  that simulates the entire system in one heterogeneous model. Successful attempts have made to
+  establish interoperability between Structural Simulation Toolkit (SST) and the Python-based RTL
+  language, PyRTL. This project establishes interoperability between SST and SystemC and
+  demonstrates the possibility of extending to further systems due to its modular design.
 
   \begin{figure}[!h]
     \centering
@@ -135,9 +99,16 @@
     \subsection{Black Box Interface}
     The black box interface consists of:
     \begin{enumerate}
-        \item A SystemC driver
-        \item An SST component
+      \item A SystemC driver
+      \item An SST component
     \end{enumerate}
+
+    \begin{figure}[!h]
+      \centering
+      \includegraphics[width=5in]{diagrams/data_flow.png}
+      \caption{Black Box Interface Data Flow Diagram. Arrows Highlighted in Red Indicate Communication Signals.}
+      \label{fig:data_flow}
+    \end{figure}
 
     Each SystemC modules must have their corresponding driver file to interoperate within the black
     box interface. It is possible to interoperate multiple SystemC modules with a single driver
@@ -146,13 +117,6 @@
 
     The toolkit includes a Python class that generates the boilerplate code required for the black
     box interface.
-
-  \begin{figure}[!h]
-    \centering
-    \includegraphics[width=5.5in]{diagrams/data_flow.png}
-    \caption{Black Box Interface Data Flow Diagram. Arrows Highlighted in Red Indicate Communication Signals.}
-    \label{fig:data_flow}
-  \end{figure}
 
   \section{Communication}
 
@@ -229,7 +193,7 @@ void demo::handle_event(SST::Event *ev) {
 
   \begin{figure}[!h]
     \centering
-    \includegraphics[width=3.5in]{diagrams/intersection.png}
+    \includegraphics[width=3in]{diagrams/intersection.png}
     \caption{Simple Two-Road Intersection}
     \label{fig:intersection}
   \end{figure}
@@ -250,11 +214,10 @@ void demo::handle_event(SST::Event *ev) {
 
     \begin{figure}[!h]
       \centering
-      \includegraphics[width=4in]{diagrams/fsm.png}
+      \includegraphics[width=3.5in]{diagrams/fsm.png}
       \caption{Traffic Light Finite State Machine}
       \label{fig:fsm}
     \end{figure}
-    \newpage
 
     \subsection{SST Components}
     The project also consists of three SST components: \lstinline{car_generator},
@@ -291,13 +254,13 @@ void demo::handle_event(SST::Event *ev) {
       \begin{figure}[!h]
         \centering
         \includegraphics[width=4in]{diagrams/intersection_comp.png}
-        \caption{Simple Two-Road Intersection}
+        \caption{Simple Two-Road Intersection Represented by SST Components}
         \label{fig:intersection_comp}
       \end{figure}
-
-      \newpage
       \clearpage
+
     \subsection{Example Simulation}
+    A sample output of the simulation has been generated and provided below. The SST components were linked along with the parameters in the SST Python module.
 
 \begin{lstlisting}[caption={Sample Simulation Output}, captionpos=b]
 <@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> GREENTIME=30, YELLOWTIME=3, REDTIME=63, STARTGREEN=0
@@ -307,11 +270,11 @@ void demo::handle_event(SST::Event *ev) {
 <@\textcolor{blue}{intersection-Intersection ->}@> sim_duration=24 Hours
 <@\textcolor{blue}{intersection-Intersection ->}@> Component is being set up.
 <@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Component is being set up.
-<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Forking process "/home/sabbir/projects/sstscit/examples/intersection/build/traffic_light_fsm.o"...
-<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Process "/home/sabbir/projects/sstscit/examples/intersection/build/traffic_light_fsm.o" successfully synchronized
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Forking process "/path/to/traffic_light_fsm.o"...
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> Process "/path/to/traffic_light_fsm.o" successfully synchronized
 <@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Component is being set up.
-<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Forking process "/home/sabbir/projects/sstscit/examples/intersection/build/traffic_light_fsm.o"...
-<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Process "/home/sabbir/projects/sstscit/examples/intersection/build/traffic_light_fsm.o" successfully synchronized
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Forking process "/path/to/traffic_light_fsm.o"...
+<@\textcolor{dkgreen}{traffic\_light-Traffic Light 1 ->}@> Process "/path/to/traffic_light_fsm.o" successfully synchronized
 <@\textcolor{blue}{intersection-Intersection ->}@> --------------------------------------
 <@\textcolor{blue}{intersection-Intersection ->}@> -------- SIMULATION INITIATED --------
 <@\textcolor{blue}{intersection-Intersection ->}@> --------------------------------------
@@ -366,7 +329,6 @@ Simulation is complete, simulated time: 86.4 Ks
 
     \bibitem{pyrtl-sst} Mrosky, Robert P, et al.
     \textit{Creating Heterogeneous Simulations with SST and PyRTL}.
-
 
   \end{thebibliography}
 
