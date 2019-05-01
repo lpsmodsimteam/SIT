@@ -75,17 +75,29 @@
     even hardware to achieve further heterogeneity.
   \end{abstract}
 
-  \section{Introduction}
+  \section{Introduction}  
   The increasing size and complexity of systems require engineers heavily rely on simulation
   techniques during the development phases. Typically, simulations of these complex systems require
   both custom and off-the-shelf logic functionality in ASICs or FPGAs. High-level commercial tools
   simulate and model these components in their native environments. On the other side, developers
   create the register transfer level (RTL) models representing the systems to simulate them with
   computer-aided design (CAD) tools and test benches. These duplicative strategies require a method
-  that simulates the entire system in one heterogeneous model. Successful attempts have made to
-  establish interoperability between Structural Simulation Toolkit (SST) and the Python-based RTL
-  language, PyRTL. This project establishes interoperability between SST and SystemC and
-  demonstrates the possibility of extending to further systems due to its modular design.
+  that simulates the entire system in one heterogeneous model.
+
+  Successful attempts have made to establish interoperability between Structural Simulation Toolkit
+  (SST) and the Python-based RTL language, PyRTL \cite{pyrtl-sst}. This project establishes
+  interoperability between SST and SystemC and demonstrates the possibility of extending to further
+  systems due to its modular design. SST is an event-based framework that has the capabilities to
+  simulate not only functionality but timing, power or any other information required. Each SST
+  components can be assigned a clock to synchronize tasks. They communicate events with each other
+  via SST links by triggering their corresponding event handlers. The SST models are constructed in
+  C++ and consist of the functionality of the element, the definition of each links' ports and the
+  event handlers. The models are connected and initialized through the SST Python module. SystemC is
+  a set of C++ classes and macros that deliberately mimics hardware description languages like VHDL
+  and Verilog. The system-level modeling language provides an event-driven simulation kernel along
+  with signals, events and synchronization primitives. Implementing a heterogeneous system to
+  synchronize signals and events between the two kernels would allow the developers to work
+  cooperatively and efficiently.
 
   \begin{figure}[!h]
     \centering
@@ -94,29 +106,31 @@
     \label{fig:comm}
   \end{figure}
 
-  \section{Components} \label{sec:comp}
+  \section{Black Box Interface}
+  SSTSCIT conceals the communication implementation in black box driver files. This strategy allows
+  the SST component to connect with the SystemC process via SST links as if it were a component
+  itself.
 
-    \subsection{Black Box Interface}
-    The black box interface consists of:
-    \begin{enumerate}
-      \item A SystemC driver
-      \item An SST component
-    \end{enumerate}
+  \begin{figure}[!h]
+    \centering
+    \includegraphics[width=5in]{diagrams/data_flow.png}
+    \caption{Black Box Interface Data Flow Diagram. Arrows Highlighted in Red Indicate Communication Signals.}
+    \label{fig:data_flow}
+  \end{figure}
 
-    \begin{figure}[!h]
-      \centering
-      \includegraphics[width=5in]{diagrams/data_flow.png}
-      \caption{Black Box Interface Data Flow Diagram. Arrows Highlighted in Red Indicate Communication Signals.}
-      \label{fig:data_flow}
-    \end{figure}
+  The interface consists of:
+  \begin{enumerate}
+    \item A SystemC driver
+    \item An SST component
+  \end{enumerate}
 
-    Each SystemC modules must have their corresponding driver file to interoperate within the black
-    box interface. It is possible to interoperate multiple SystemC modules with a single driver
-    file. However, the additional communication lines must be accounted for in the corresponding
-    black box SST component.
+  Each SystemC modules must have their corresponding driver file to interoperate within the black
+  box interface. It is possible to interoperate multiple SystemC modules with a single driver
+  file. However, the additional communication lines must be accounted for in the corresponding
+  black box SST component.
 
-    The toolkit includes a Python class that generates the boilerplate code required for the black
-    box interface.
+  The toolkit includes a Python class that generates the boilerplate code required for the black
+  box interface.
 
   \section{Communication}
 
@@ -199,8 +213,7 @@ void demo::handle_event(SST::Event *ev) {
   \end{figure}
 
   The concept of this simulation is derived from the original project that established
-  interoperability between SST and PyRTL - a Python based hardware description
-  language.\cite{pyrtl-sst}
+  interoperability between SST and PyRTL.\cite{pyrtl-sst}
 
     \subsection{SystemC Drivers}
     The simulation project includes a SystemC module and its driver, \lstinline{traffic_light_fsm},
@@ -225,12 +238,18 @@ void demo::handle_event(SST::Event *ev) {
     exception of most of \lstinline{traffic_light_controller} were inherited from the original
     project.
 
+      \begin{figure}[!h]
+        \centering
+        \includegraphics[width=4in]{diagrams/intersection_comp.png}
+        \caption{Simple Two-Road Intersection Represented by SST Components}
+        \label{fig:intersection_comp}
+      \end{figure}
+
       \subsubsection{car\_generator}
       The \lstinline{car_generator} component consists of a random number generator that yields $0$
       or $1$. The output is redirected to \lstinline{intersection} via SST links.
 
       \subsubsection{traffic\_light}
-
       The \lstinline{traffic_light} component generates the light colors of the traffic lights using
       a simple finite state machine (FSM). The component delegates the FSM portion of its algorithm
       to the SystemC module \lstinline{traffic_light_fsm} and inter-procedurally communicates with
@@ -250,14 +269,7 @@ void demo::handle_event(SST::Event *ev) {
       the \lstinline{traffic_light} subcomponents yield ``green'' during the same clock cycle. The
       SST Python module is responsible for setting up the \lstinline{traffic_light} components with
       the proper initial values.
-
-      \begin{figure}[!h]
-        \centering
-        \includegraphics[width=4in]{diagrams/intersection_comp.png}
-        \caption{Simple Two-Road Intersection Represented by SST Components}
-        \label{fig:intersection_comp}
-      \end{figure}
-      \clearpage
+      % \clearpage
 
     \subsection{Example Simulation}
     A sample output of the simulation has been generated and provided below. The SST components were linked along with the parameters in the SST Python module.

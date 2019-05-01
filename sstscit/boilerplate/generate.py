@@ -100,7 +100,6 @@ class BoilerPlate(object):
         if "sc" in signal:
 
             def __get_ints(sig):
-
                 return int("".join(s for s in sig if s.isdigit()))
 
             if "int" in signal:
