@@ -38,3 +38,53 @@ Due to limitations with SST, this library currently only works on Linux systems.
 ## Usage
 
 To establish interoperability between an SST model and a SystemC module, a black box SST model and SystemC driver must be generated. The black boxes establish interprocess communication (IPC) between the SST and SystemC processes. The Python class `generate.BoilerPlate` can be used to generate the black boxes.
+
+<!-- 
+    The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST
+    environment to the black box interface in an example component, \lstinline{demo}.
+
+\begin{lstlisting}[language=C++, caption={Snippet of \lstinline{demo.cpp}}, captionpos=b]
+// register a string event in the class declaration
+SST_ELI_DOCUMENT_PORTS(
+    { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
+    ...
+)
+
+// initialize the link in the class declaration
+SST::Link *demo_din;
+
+// set up the SST link in the constructor
+demo_din = configureLink("demo_din");
+
+// trigger the event in the clocked function
+demo_din->send(new SST::Interfaces::StringEvent(...));
+\end{lstlisting}
+
+\begin{lstlisting}[language=C++, caption={Snippet of \lstinline{blackboxes/demo_comp.cpp}}, captionpos=b]
+// register the same string event in the class declaration
+SST_ELI_DOCUMENT_PORTS(
+    { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
+    ...
+)
+
+// initialize the same link in the class declaration
+SST::Link *demo_din;
+
+// set up the SST link in the constructor with an event handler
+demo_din = configureLink(
+    "demo_din",
+    new SST::Event::Handler<demo>(this, &demo::handle_event)
+);
+
+// receive and parse the event in the event handler
+void demo::handle_event(SST::Event *ev) {
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+        std::string _data_in = se->getString();
+        ...
+    }
+    delete ev;
+}
+\end{lstlisting}
+
+ -->

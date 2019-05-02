@@ -56,22 +56,22 @@
   \maketitle
 
   \begin{abstract}
-    Implementing new computer system designs involves modification of both programming models and
-    hardware organization which frequently introduces distinct challenges. Hardware and software
-    definitions are often simulated to undertake these difficulties. Structural Simulation Toolkit
-    (SST), a parallel event-based simulation framework that allows custom and vendor models to be
-    interconnected to create a simulation environment \cite{sst}, is one such toolkit. However, SST
-    must be able to support models implemented in various frameworks and languages. SystemC is a
-    popular system-level modeling language composed of C++ classes and macros \cite{sysc}.
-    Establishing communication with SystemC modules would allow SST to interface numerous existing
-    synthesizable hardware models. SST-SystemC Interoperability Toolkit (SSTSCIT) is a collection of
-    header files developed to provide interoperability between SST and SystemC. SSTSCIT aims to
+    Implementing new computer system designs involves careful study of both programming models and
+    hardware design and organization, a process that frequently introduces distinct challenges.
+    Hardware and software definitions are often simulated to undertake these difficulties.
+    Structural Simulation Toolkit (SST), a parallel event-based simulation framework that allows
+    custom and vendor models to be interconnected to create a system simulation \cite{sst}, is one
+    such toolkit. However, SST must be able to support models implemented in various frameworks and
+    languages. SystemC is a popular hardware-level modeling language composed of C++ classes and
+    macros \cite{sysc}. Establishing communication with SystemC modules would allow SST to interface
+    numerous existing synthesizable hardware models. SST-SystemC Interoperability Toolkit (SSTSCIT)
+    is a library developed to provide interoperability between SST and SystemC. SSTSCIT aims to
     achieve this capability in a modular design without interfering with the kernels by concealing
-    the communication protocols in black box interfaces. This paper includes a demonstration of
-    the interoperability by simulating a traffic intersection with traffic lights driven by SystemC
-    processes. The modular implementation of the black box interface allowed for sufficient
-    flexibility in establishing communication between the different systems. This design can,
-    therefore, be configured to interoperate SST with various model simulation frameworks and
+    the communication protocols in black box interfaces. This project includes a demonstration of
+    the interoperability by simulating a vehicular traffic intersection with traffic lights driven
+    by SystemC processes. The modular implementation of the black box interface allowed for
+    sufficient flexibility in establishing communication between the different systems. This design
+    can, therefore, be configured to interoperate SST with various model simulation frameworks and
     even hardware to achieve further heterogeneity.
   \end{abstract}
 
@@ -101,7 +101,7 @@
 
   \begin{figure}[!h]
     \centering
-    \includegraphics[width=6in]{diagrams/comm.png}
+    \includegraphics[width=6.5in]{diagrams/comm.png}
     \caption{Components of SSTSCIT}
     \label{fig:comm}
   \end{figure}
@@ -149,53 +149,6 @@
     \subsection{SST-Black Box Communication}
     An SST model can interface the black box via standard SST links.
 
-    The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST
-    environment to the black box interface in an example component, \lstinline{demo}.
-
-\begin{lstlisting}[language=C++, caption={Snippet of \lstinline{demo.cpp}}, captionpos=b]
-// register a string event in the class declaration
-SST_ELI_DOCUMENT_PORTS(
-    { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
-    ...
-)
-
-// initialize the link in the class declaration
-SST::Link *demo_din;
-
-// set up the SST link in the constructor
-demo_din = configureLink("demo_din");
-
-// trigger the event in the clocked function
-demo_din->send(new SST::Interfaces::StringEvent(...));
-\end{lstlisting}
-
-\begin{lstlisting}[language=C++, caption={Snippet of \lstinline{blackboxes/demo_comp.cpp}}, captionpos=b]
-// register the same string event in the class declaration
-SST_ELI_DOCUMENT_PORTS(
-    { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
-    ...
-)
-
-// initialize the same link in the class declaration
-SST::Link *demo_din;
-
-// set up the SST link in the constructor with an event handler
-demo_din = configureLink(
-    "demo_din",
-    new SST::Event::Handler<demo>(this, &demo::handle_event)
-);
-
-// receive and parse the event in the event handler
-void demo::handle_event(SST::Event *ev) {
-    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se) {
-        std::string _data_in = se->getString();
-        ...
-    }
-    delete ev;
-}
-\end{lstlisting}
-
     \subsection{SystemC-Black Box Communication}
     A SystemC module can be interfaced by a standard source file inclusion.
 
@@ -207,7 +160,7 @@ void demo::handle_event(SST::Event *ev) {
 
   \begin{figure}[!h]
     \centering
-    \includegraphics[width=3in]{diagrams/intersection.png}
+    \includegraphics[width=3.5in]{diagrams/intersection.png}
     \caption{Simple Two-Road Intersection}
     \label{fig:intersection}
   \end{figure}
@@ -227,7 +180,7 @@ void demo::handle_event(SST::Event *ev) {
 
     \begin{figure}[!h]
       \centering
-      \includegraphics[width=3.5in]{diagrams/fsm.png}
+      \includegraphics[width=4in]{diagrams/fsm.png}
       \caption{Traffic Light Finite State Machine}
       \label{fig:fsm}
     \end{figure}
@@ -240,7 +193,7 @@ void demo::handle_event(SST::Event *ev) {
 
       \begin{figure}[!h]
         \centering
-        \includegraphics[width=4in]{diagrams/intersection_comp.png}
+        \includegraphics[width=4.5in]{diagrams/intersection_comp.png}
         \caption{Simple Two-Road Intersection Represented by SST Components}
         \label{fig:intersection_comp}
       \end{figure}
@@ -269,7 +222,6 @@ void demo::handle_event(SST::Event *ev) {
       the \lstinline{traffic_light} subcomponents yield ``green'' during the same clock cycle. The
       SST Python module is responsible for setting up the \lstinline{traffic_light} components with
       the proper initial values.
-      % \clearpage
 
     \subsection{Example Simulation}
     A sample output of the simulation has been generated and provided below. The SST components were linked along with the parameters in the SST Python module.
