@@ -36,7 +36,7 @@
   escapeinside={<@}{@>}
 }
 
-\title{SST-SystemC Interoperability Toolkit}
+\title{Creating Heterogeneous Simulations with SST and SystemC}
 
 \author{
   Sabbir Ahmed \\
@@ -147,7 +147,7 @@
     \lstinline{sigutils::SignalIO} with customized sending and receiving methods.
 
     \subsection{SST-Black Box Communication}
-    An SST model can interface the black box via standard SST links.
+    An SST component can interface the black box via standard SST links.
 
     \subsection{SystemC-Black Box Communication}
     A SystemC module can be interfaced by a standard source file inclusion.
@@ -224,7 +224,8 @@
       the proper initial values.
 
     \subsection{Example Simulation}
-    A sample output of the simulation has been generated and provided below. The SST components were linked along with the parameters in the SST Python module.
+    A sample output of the simulation has been generated and provided below. The SST components were
+    linked along with the parameters in the SST Python module.
 
 \begin{lstlisting}[caption={Sample Simulation Output}, captionpos=b]
 <@\textcolor{dkgreen}{traffic\_light-Traffic Light 0 ->}@> GREENTIME=30, YELLOWTIME=3, REDTIME=63, STARTGREEN=0

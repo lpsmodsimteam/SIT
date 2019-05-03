@@ -10,27 +10,14 @@
 \usepackage[verbose=true,letterpaper]{geometry}
 \AtBeginDocument{
   \newgeometry{
-    textheight=9in,
+    textheight=9.5in,
     textwidth=6.5in,
     top=0.5in,
-    headheight=14pt,
-    headsep=25pt,
-    footskip=30pt
+    headheight=12pt,
+    headsep=20pt,
+    footskip=25pt
   }
 }
-
-\widowpenalty=10000
-\clubpenalty=10000
-\flushbottom
-\sloppy
-
-\usepackage{fancyhdr}
-\fancyhf{}
-\pagestyle{fancy}
-\renewcommand{\headrulewidth}{0pt}
-\fancyheadoffset{0pt}
-% \rhead{\scshape A preprint - \today}
-\cfoot{\thepage}
 
 %Handling Keywords
 \def\keywordname{{\bfseries \emph Keywords}}%
@@ -38,30 +25,30 @@
 \def\and{\ifhmode\unskip\nobreak\fi\ $\cdot$
 }\noindent\keywordname\enspace\ignorespaces#1\par}}
 
-% font sizes with reduced leading
-\renewcommand{\normalsize}{%
-  \@setfontsize\normalsize\@xpt\@xipt
-  \abovedisplayskip      7\p@ \@plus 2\p@ \@minus 5\p@
-  \abovedisplayshortskip \z@ \@plus 3\p@
-  \belowdisplayskip      \abovedisplayskip
-  \belowdisplayshortskip 4\p@ \@plus 3\p@ \@minus 3\p@
-}
-\normalsize
-\renewcommand{\small}{%
-  \@setfontsize\small\@ixpt\@xpt
-  \abovedisplayskip      6\p@ \@plus 1.5\p@ \@minus 4\p@
-  \abovedisplayshortskip \z@  \@plus 2\p@
-  \belowdisplayskip      \abovedisplayskip
-  \belowdisplayshortskip 3\p@ \@plus 2\p@   \@minus 2\p@
-}
-\renewcommand{\footnotesize}{\@setfontsize\footnotesize\@ixpt\@xpt}
-\renewcommand{\scriptsize}{\@setfontsize\scriptsize\@viipt\@viiipt}
-\renewcommand{\tiny}{\@setfontsize\tiny\@vipt\@viipt}
-\renewcommand{\large}{\@setfontsize\large\@xiipt{14}}
-\renewcommand{\Large}{\@setfontsize\Large\@xivpt{16}}
-\renewcommand{\LARGE}{\@setfontsize\LARGE\@xviipt{20}}
-\renewcommand{\huge}{\@setfontsize\huge\@xxpt{23}}
-\renewcommand{\Huge}{\@setfontsize\Huge\@xxvpt{28}}
+% % font sizes with reduced leading
+% \renewcommand{\normalsize}{%
+%   \@setfontsize\normalsize\@xpt\@xipt
+%   \abovedisplayskip      7\p@ \@plus 2\p@ \@minus 5\p@
+%   \abovedisplayshortskip \z@ \@plus 3\p@
+%   \belowdisplayskip      \abovedisplayskip
+%   \belowdisplayshortskip 4\p@ \@plus 3\p@ \@minus 3\p@
+% }
+% \normalsize
+% \renewcommand{\small}{%
+%   \@setfontsize\small\@ixpt\@xpt
+%   \abovedisplayskip      6\p@ \@plus 1.5\p@ \@minus 4\p@
+%   \abovedisplayshortskip \z@  \@plus 2\p@
+%   \belowdisplayskip      \abovedisplayskip
+%   \belowdisplayshortskip 3\p@ \@plus 2\p@   \@minus 2\p@
+% }
+% \renewcommand{\footnotesize}{\@setfontsize\footnotesize\@ixpt\@xpt}
+% \renewcommand{\scriptsize}{\@setfontsize\scriptsize\@viipt\@viiipt}
+% \renewcommand{\tiny}{\@setfontsize\tiny\@vipt\@viipt}
+% \renewcommand{\large}{\@setfontsize\large\@xiipt{14}}
+% \renewcommand{\Large}{\@setfontsize\Large\@xivpt{50}}
+% \renewcommand{\LARGE}{\@setfontsize\LARGE\@xviipt{20}}
+% \renewcommand{\huge}{\@setfontsize\huge\@xxpt{23}}
+% \renewcommand{\Huge}{\@setfontsize\Huge\@xxvpt{28}}
 
 % sections with less space
 \providecommand{\section}{}
@@ -213,7 +200,7 @@
     \vskip 0.1in
     \@toptitlebar
     \centering
-    {\LARGE\sc \@title\par}
+    {\Large\sc \@title\par}
     \@bottomtitlebar
     \def\And{%
       \end{tabular}\hfil\linebreak[0]\hfil%
@@ -226,16 +213,6 @@
     \begin{tabular}[t]{c}\bf\rule{\z@}{24\p@}\@author\end{tabular}%
     \vskip 0.2in
   }
-}
-
-% add conference notice to bottom of first page
-\newcommand{\ftype@noticebox}{8}
-\newcommand{\@notice}{%
-  % give a bit of extra room back to authors on first page
-  \enlargethispage{2\baselineskip}%
-  \@float{noticebox}[b]%
-    \footnotesize\@noticestring%
-  \end@float%
 }
 
 % abstract styling

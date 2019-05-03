@@ -37,13 +37,33 @@ Due to limitations with SST, this library currently only works on Linux systems.
 
 ## Usage
 
-To establish interoperability between an SST model and a SystemC module, a black box SST model and SystemC driver must be generated. The black boxes establish interprocess communication (IPC) between the SST and SystemC processes. The Python class `generate.BoilerPlate` can be used to generate the black boxes.
+To establish interoperability between an SST model and a SystemC module, a black box SST model and SystemC driver must be generated. The black boxes establish the configurations required for the interprocess communication (IPC) between the SST and SystemC processes. The Python class `generate.BoilerPlate` can be used to generate the black boxes.
 
-<!-- 
-    The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST
-    environment to the black box interface in an example component, \lstinline{demo}.
+The following snippet demonstrates an example usage of the class to generate black box components for `demo`.
 
-\begin{lstlisting}[language=C++, caption={Snippet of \lstinline{demo.cpp}}, captionpos=b]
+```python
+DEMO_ARGS = {
+    "module" : "demo",
+    "lib" : "demo_lib",
+    "ipc" : "sock",
+    "drvr_templ_path" : "/path/to/drvr_templ_path.hpp",
+    "sst_model_templ_path" : "/path/to/model_templ_path.hpp",
+    "desc" : "Demo SST Black Box Component",
+    "link_desc" : {
+        "link_desc0" : "Demo data_in",
+        "link_desc1" : "Demo data_out",
+    }
+}
+
+generate.BoilerPlate(**DEMO_ARGS).generate_bbox()
+```
+
+The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST
+environment to the black box interface.
+
+```c++
+// demo.cpp
+
 // register a string event in the class declaration
 SST_ELI_DOCUMENT_PORTS(
     { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
@@ -58,9 +78,12 @@ demo_din = configureLink("demo_din");
 
 // trigger the event in the clocked function
 demo_din->send(new SST::Interfaces::StringEvent(...));
-\end{lstlisting}
+```
 
-\begin{lstlisting}[language=C++, caption={Snippet of \lstinline{blackboxes/demo_comp.cpp}}, captionpos=b]
+
+```c++
+// blackboxes/demo_comp.cpp
+
 // register the same string event in the class declaration
 SST_ELI_DOCUMENT_PORTS(
     { "demo_din", "Demo model data in", { "sst.Interfaces.StringEvent" }},
@@ -85,6 +108,4 @@ void demo::handle_event(SST::Event *ev) {
     }
     delete ev;
 }
-\end{lstlisting}
-
- -->
+```
