@@ -9,6 +9,7 @@ For further details on the implementation, see the [system design document](/doc
 ## Table of Contents
 
 - [Usage](#usage)
+  - [Tests](#tests)
 - [Installation](#installation)
   - [CMake](#cmake)
   - [SystemC](#systemc)
@@ -94,6 +95,16 @@ void demo::handle_event(SST::Event *ev) {
     delete ev;
 }
 ```
+
+### Tests
+
+To test the Python boilerplate code generator and the synchronization of SST and
+SystemC processes via UNIX domain sockets, run `make test_min`.
+
+To run all the unit tests, run `make test`. The unit tests essentially run the minimum unit tests
+with all the supported IPC.
+
+To run the intersection simulation, run `make install run TEST=socks.py`.
 
 ## Installation
 
