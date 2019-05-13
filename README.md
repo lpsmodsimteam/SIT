@@ -6,11 +6,30 @@ A toolkit to provide interoperability between [Structural Simulation Toolkit (SS
 
 For further details on the implementation, see the [system design document](/docs/sstscit.pdf).
 
+## Table of Contents
+
+- [Installation](#installation)
+  - [CMake](#cmake)
+  - [SystemC](#systemc)
+  - [SST Core and Elements](#sst-core-and-elements)
+  - [msgpack](#msgpack)
+- [Requirements](#requirements)
+  - [Languages and Compilers](#languages-and-compilers)
+  - [Libraries](#libraries)
+  - [Systems](#systems)
+- [Usage](#usage)
+
+
 ## Installation
 
-The toolkit itself is a collection of static header files that does not require any installation. The requirements for the project are listed below.
+The toolkit itself is a collection of static header files that does not require any installation.
+The requirements for the project are listed below.
 
 ### CMake
+
+CMake is used to build the requirements as well as the toolkit. It is possible to build the project
+with other build tools, but CMake makes project management extremely convenient.
+
 ```shell
 CMAKE_URL="https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
 curl -L ${CMAKE_URL} | tar xz -C deps
@@ -20,23 +39,23 @@ cmake --version
 
 ### SystemC
 ```shell
-sysc_url="https://www.accellera.org/images/downloads/standards/systemc/"
-curl -L ${sysc_url}${SYSC_VER}.tar.gz | tar xz -C deps
+SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
+curl -L ${SYSC_URL}${SYSC_VER}.tar.gz | tar xz -C deps
 mkdir -p deps/${SYSC_VER}/build
 cd deps/${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
 ```
 
 ### SST Core and Elements
 ```shell
-sst_core_url="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
 mkdir -p ~/.sst
 touch ~/.sst/sstsimulator.conf
-curl -L ${sst_core_url}sstcore-${SST_VER}.tar.gz | tar xz -C deps
+curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C deps
 cd deps/sstcore-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
 cd -
 
-sst_elem_url="https://github.com/sstsimulator/sst-elements/releases/download/v${SST_VER}_Final/"
-curl -L ${sst_elem_url}sstelements-${SST_VER}.tar.gz | tar xz -C deps
+SST_ELEM_URL="https://github.com/sstsimulator/sst-elements/releases/download/v${SST_VER}_Final/"
+curl -L ${SST_ELEM_URL}sstelements-${SST_VER}.tar.gz | tar xz -C deps
 mv deps/sst-elements* deps/sstelements-${SST_VER}
 cd deps/sstelements-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
 ```
