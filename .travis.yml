@@ -77,7 +77,7 @@ install:
   - export CXX=${_CXX}
 
   # set the maximum number of cores supported on Travis
-  - JOBS=${nproc --all}
+  - JOBS=$(nproc --all)
   - echo "Using ${JOBS} processors"
 
   # set versions for requirements
