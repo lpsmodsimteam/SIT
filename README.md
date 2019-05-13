@@ -2,12 +2,13 @@
 [![Build Status](https://travis-ci.org/sabbirahm3d/sstscit.svg?branch=master)](https://travis-ci.org/sabbirahm3d/sstscit)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/88c38abb1f2a4a369b4a6f9c49e8d237)](https://www.codacy.com/app/sabbirahm3d/sstscit?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sabbirahm3d/sstscit&amp;utm_campaign=Badge_Grade)
 
-A toolkit to provide interoperability between [Structural Simulation Toolkit (SST 8)](https://github.com/sstsimulator/sst-core) (with [SST Elements 8](https://github.com/sstsimulator/sst-elements)) and [SystemC 2.3](http://www.accellera.org/downloads/standards/systemc) (with [Transaction-Level Modeling Library (TLM 2)](https://www.doulos.com/knowhow/systemc/tlm2/))
+A toolkit to provide interoperability between [Structural Simulation Toolkit (SST)](https://github.com/sstsimulator/sst-core) (with [SST Elements](https://github.com/sstsimulator/sst-elements)) and [SystemC](http://www.accellera.org/downloads/standards/systemc).
 
 For further details on the implementation, see the [system design document](/docs/sstscit.pdf).
 
 ## Table of Contents
 
+- [Usage](#usage)
 - [Installation](#installation)
   - [CMake](#cmake)
   - [SystemC](#systemc)
@@ -17,82 +18,7 @@ For further details on the implementation, see the [system design document](/doc
   - [Languages and Compilers](#languages-and-compilers)
   - [Libraries](#libraries)
   - [Systems](#systems)
-- [Usage](#usage)
 
-
-## Installation
-
-The toolkit itself is a collection of static header files that does not require any installation.
-The requirements for the project are listed below.
-
-### CMake
-
-CMake is used to build the requirements as well as the toolkit. It is possible to build the project
-with other build tools, but CMake makes project management extremely convenient.
-
-```shell
-CMAKE_URL="https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
-curl -L ${CMAKE_URL} | tar xz -C deps
-export PATH=deps/cmake-${CMAKE_VER}-Linux-x86_64/bin:${PATH}
-cmake --version
-```
-
-### SystemC
-```shell
-SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
-curl -L ${SYSC_URL}${SYSC_VER}.tar.gz | tar xz -C deps
-mkdir -p deps/${SYSC_VER}/build
-cd deps/${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
-```
-
-### SST Core and Elements
-```shell
-SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
-mkdir -p ~/.sst
-touch ~/.sst/sstsimulator.conf
-curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C deps
-cd deps/sstcore-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
-cd -
-
-SST_ELEM_URL="https://github.com/sstsimulator/sst-elements/releases/download/v${SST_VER}_Final/"
-curl -L ${SST_ELEM_URL}sstelements-${SST_VER}.tar.gz | tar xz -C deps
-mv deps/sst-elements* deps/sstelements-${SST_VER}
-cd deps/sstelements-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
-```
-
-### msgpack
-```
-./install
-```
-
-## Requirements
-
-The following tables summarize the minimum versions of the languages and libraries used in the project.
-
-### Languages and Compilers
-
-|Language|Version|
-|--------|-------|
-|C++     |11     |
-|Python  |3.6    |
-
-|Compiler|Version|
-|--------|-------|
-|Clang   |6.0    |
-|GCC     |6.0    |
-
-### Libraries
-
-|Requirement|Version|
-|-----------|-------|
-|CMake      |3.14   |
-|msgpack    |3.1.1  |
-|SST        |8.0.0  |
-|SystemC    |2.3.3  |
-
-### Systems
-
-Due to limitations with SST, this toolkit currently only works on UNIX systems. A list of supported Ubuntu Linux distributions can be found in `.travis.yml`.
 
 ## Usage
 
@@ -168,3 +94,88 @@ void demo::handle_event(SST::Event *ev) {
     delete ev;
 }
 ```
+
+## Installation
+
+The toolkit itself is a collection of static header files that does not require any installation.
+The requirements for the project are listed below.
+
+### CMake
+
+CMake is used to build the requirements as well as the toolkit. It is possible to build the project
+with other build tools, but CMake makes project management extremely convenient. Instructions on installing CMake can be found [here](https://cmake.org/install/).
+
+### SystemC
+
+SystemC can be built with CMake to allow more convenient inclusion in the project `CMakeLists.txt`.
+The following snippet details instructions on installing SystemC with CMake in the project's home
+directory.
+
+```shell
+SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
+mkdir -p deps
+mkdir -p deps/${SYSC_VER}/build
+curl -L ${SYSC_URL}${SYSC_VER}.tar.gz | tar xz -C deps
+cd deps/${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
+```
+
+### SST Core and Elements
+
+The following snippet details instructions on installing SST Core and Elements in the project's home
+directory. The installation process may be time consuming.
+
+```shell
+mkdir -p ~/.sst
+touch ~/.sst/sstsimulator.conf
+mkdir -p deps
+
+SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C deps
+cd deps/sstcore-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
+cd -
+
+SST_ELEM_URL="https://github.com/sstsimulator/sst-elements/releases/download/v${SST_VER}_Final/"
+curl -L ${SST_ELEM_URL}sstelements-${SST_VER}.tar.gz | tar xz -C deps
+mv deps/sst-elements* deps/sstelements-${SST_VER}
+cd deps/sstelements-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
+```
+
+### msgpack
+
+msgpack is required to maintain the complex data structures being passed via IPC. Installation of
+this third party library is not necessary since inclusion of its header files are sufficient.
+Running the script attached to the project will set up msgpack for the toolkit.
+
+```shell
+./install
+```
+
+## Requirements
+
+The following tables summarize the minimum versions of the languages and libraries used in the project.
+
+### Languages and Compilers
+
+|Language|Version|
+|--------|-------|
+|C++     |11     |
+|Python  |3.6    |
+
+|Compiler|Version|
+|--------|-------|
+|Clang   |6.0    |
+|GCC     |6.0    |
+
+### Libraries
+
+|Requirement|Version|
+|-----------|-------|
+|CMake      |3.14   |
+|msgpack    |3.1.1  |
+|SST        |8.0.0  |
+|SystemC    |2.3.3  |
+
+### Systems
+
+Due to limitations with SST, this toolkit currently only works on UNIX systems. A list of supported
+Ubuntu Linux distributions can be found in `.travis.yml`.
