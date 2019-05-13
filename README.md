@@ -6,6 +6,46 @@ A toolkit to provide interoperability between [Structural Simulation Toolkit (SS
 
 For further details on the implementation, see the [system design document](/docs/sstscit.pdf).
 
+## Installation
+
+The toolkit itself is a collection of static header files that does not require any installation. The requirements for the project are listed below.
+
+### CMake
+```shell
+CMAKE_URL="https://cmake.org/files/v${CMAKE_VER}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
+curl -L ${CMAKE_URL} | tar xz -C deps
+export PATH=deps/cmake-${CMAKE_VER}-Linux-x86_64/bin:${PATH}
+cmake --version
+```
+
+### SystemC
+```shell
+sysc_url="https://www.accellera.org/images/downloads/standards/systemc/"
+curl -L ${sysc_url}${SYSC_VER}.tar.gz | tar xz -C deps
+mkdir -p deps/${SYSC_VER}/build
+cd deps/${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
+```
+
+### SST Core and Elements
+```shell
+sst_core_url="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+mkdir -p ~/.sst
+touch ~/.sst/sstsimulator.conf
+curl -L ${sst_core_url}sstcore-${SST_VER}.tar.gz | tar xz -C deps
+cd deps/sstcore-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
+cd -
+
+sst_elem_url="https://github.com/sstsimulator/sst-elements/releases/download/v${SST_VER}_Final/"
+curl -L ${sst_elem_url}sstelements-${SST_VER}.tar.gz | tar xz -C deps
+mv deps/sst-elements* deps/sstelements-${SST_VER}
+cd deps/sstelements-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
+```
+
+### msgpack
+```
+./install
+```
+
 ## Requirements
 
 The following tables summarize the minimum versions of the languages and libraries used in the project.
@@ -33,7 +73,7 @@ The following tables summarize the minimum versions of the languages and librari
 
 ### Systems
 
-Due to limitations with SST, this library currently only works on Linux systems. A list of supported distributions can be found in `.travis.yml`.
+Due to limitations with SST, this toolkit currently only works on UNIX systems. A list of supported Ubuntu Linux distributions can be found in `.travis.yml`.
 
 ## Usage
 
