@@ -10,7 +10,7 @@ install:
 	sst-register intersection intersection_LIBDIR=$(CURDIR)/build
 
 run:
-	cd build && sst ../demo/${TEST}
+	cd build && sst ../demo/socks.py
 
 clean:
 	# remove all compiled objects and cached cmake files

@@ -28,6 +28,8 @@ To establish interoperability between an SST model and a SystemC module, a black
 The following snippet demonstrates an example usage of the class to generate black box components for `demo`.
 
 ```python
+# bbox.py
+
 DEMO_ARGS = {
     "module" : "demo",
     "lib" : "demo_lib",
@@ -43,6 +45,9 @@ DEMO_ARGS = {
 
 generate.BoilerPlate(**DEMO_ARGS).generate_bbox()
 ```
+
+Running the script `python3 bbox.py` will generate the boilerplate code necessary to establish
+interoperability between the black box components of `demo`.
 
 The following snippets demonstrate an SST link transmitting a unidirectional signal from the SST
 environment to the black box interface.
@@ -96,7 +101,12 @@ void demo::handle_event(SST::Event *ev) {
 }
 ```
 
+Once the SST Links are established between the black box interface and the parent component, the
+project should be ready to interface the SystemC process.
+
 ### Tests
+
+Simple unit tests can be ran by the Makefile in the `examples` directory.
 
 To test the Python boilerplate code generator and the synchronization of SST and
 SystemC processes via UNIX domain sockets, run `make test_min`.
@@ -104,7 +114,7 @@ SystemC processes via UNIX domain sockets, run `make test_min`.
 To run all the unit tests, run `make test`. The unit tests essentially run the minimum unit tests
 with all the supported IPC.
 
-To run the intersection simulation, run `make install run TEST=socks.py`.
+To run the intersection simulation, run `cd intersection && make install run`.
 
 ## Installation
 
@@ -123,9 +133,10 @@ The following snippet details instructions on installing SystemC with CMake in t
 directory.
 
 ```shell
-SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
 mkdir -p deps
 mkdir -p deps/${SYSC_VER}/build
+
+SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
 curl -L ${SYSC_URL}${SYSC_VER}.tar.gz | tar xz -C deps
 cd deps/${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
 ```
