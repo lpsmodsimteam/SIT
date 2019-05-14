@@ -1,7 +1,7 @@
 /**
 Main logic for the intersection
 
-Connects to 2 traffic lights (PyRTL wrapped in SST) and 2 car generators
+Connects to 2 traffic lights and 2 car generators
 Keeps track of some statistics for number of cars and largest backups at the lights
 */
 
@@ -37,7 +37,7 @@ public:
         "intersection",
         "intersection",
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Main Intersection for traffic simulation",
+        "Main intersection for traffic simulation",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 

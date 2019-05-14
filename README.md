@@ -14,7 +14,7 @@ For further details on the implementation, see the [system design document](/doc
   - [CMake](#cmake)
   - [SystemC](#systemc)
   - [SST Core and Elements](#sst-core-and-elements)
-  - [msgpack](#msgpack)
+  - [MessagePack](#messagepack)
 - [Requirements](#requirements)
   - [Languages and Compilers](#languages-and-compilers)
   - [Libraries](#libraries)
@@ -23,9 +23,13 @@ For further details on the implementation, see the [system design document](/doc
 
 ## Usage
 
-To establish interoperability between an SST model and a SystemC module, a black box SST model and SystemC driver must be generated. The black boxes establish the configurations required for the interprocess communication (IPC) between the SST and SystemC processes. The Python class `generate.BoilerPlate` can be used to generate the black boxes.
+To establish interoperability between an SST model and a SystemC module, a black box SST model and
+SystemC driver must be generated. The black boxes establish the configurations required for the
+interprocess communication (IPC) between the SST and SystemC processes. The Python class
+`generate.BoilerPlate` can be used to generate the black boxes.
 
-The following snippet demonstrates an example usage of the class to generate black box components for `demo`.
+The following snippet demonstrates an example usage of the class to generate black box components
+for `demo`.
 
 ```python
 # bbox.py
@@ -124,7 +128,8 @@ The requirements for the project are listed below.
 ### CMake
 
 CMake is used to build the requirements as well as the toolkit. It is possible to build the project
-with other build tools, but CMake makes project management extremely convenient. Instructions on installing CMake can be found [here](https://cmake.org/install/).
+with other build tools, but CMake makes project management extremely convenient. Instructions on
+installing CMake can be found [here](https://cmake.org/install/).
 
 ### SystemC
 
@@ -162,19 +167,25 @@ mv deps/sst-elements* deps/sstelements-${SST_VER}
 cd deps/sstelements-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
 ```
 
-### msgpack
+### MessagePack
 
-msgpack is required to maintain the complex data structures being passed via IPC. Installation of
-this third party library is not necessary since inclusion of its header files are sufficient.
-Running the script attached to the project will set up msgpack for the toolkit.
+MessagePack is required to maintain the complex data structures being passed via IPC. Installation
+of this third party library is not necessary since inclusion of its header files are sufficient.
+Running the script attached to the project will set up MessagePack for the toolkit.
 
 ```shell
-./install
+# install
+
+msgpack_url="https://github.com/msgpack/msgpack-c"
+git clone --depth 1 -q ${msgpack_url} msgpack
+mkdir -p sstscit/msgpack
+mv msgpack/include/* sstscit/msgpack && rm -rf msgpack
 ```
 
 ## Requirements
 
-The following tables summarize the minimum versions of the languages and libraries used in the project.
+The following tables summarize the minimum versions of the languages and libraries used in the
+project.
 
 ### Languages and Compilers
 

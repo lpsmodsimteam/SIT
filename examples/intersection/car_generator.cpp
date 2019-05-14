@@ -65,6 +65,7 @@ car_generator::car_generator(SST::ComponentId_t id, SST::Params &params) :
     if (!is_car) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port 'is_car'\n");
     }
+
 }
 
 void car_generator::finish() {
