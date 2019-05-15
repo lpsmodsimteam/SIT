@@ -1,4 +1,5 @@
 #include "{module}.hpp"
+#include "{module}_ports.hpp"
 
 #include "sstscit.hpp"
 
@@ -17,7 +18,7 @@ int sc_main(int, char *argv[]) {{
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    {sender}.set("__pid__", getpid());
+    {sender}.set({module}_ports::__pid__, getpid());
     {sender}.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 

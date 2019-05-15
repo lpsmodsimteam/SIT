@@ -114,7 +114,7 @@ void fib_lfsr::handle_event(SST::Event *ev) {
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         m_signal_io.set(fib_ports::reset, std::stoi(_data_in.substr(2, 1)));
-        m_signal_io.set(fib_ports::__clock__, std::stoi(_data_in.substr(3)));
+        m_signal_io.set(fib_ports::_clock, std::stoi(_data_in.substr(3)));
 
         if (keep_send) {
             m_signal_io.set_state(keep_recv);

@@ -1,5 +1,5 @@
 #include "../modules/galois_lfsr.hpp"
-#include "galois_ports.hpp"
+#include "galois_lfsr_ports.hpp"
 #include "../../../sstscit/sstscit.hpp"
 
 int sc_main(int, char *argv[]) {
@@ -18,12 +18,12 @@ int sc_main(int, char *argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    SocketSignal m_signal_io(GALOIS_NUM_PORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
+    SocketSignal m_signal_io(GALOIS_LFSR_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_io.set(galois_ports::__pid__, getpid());
+    m_signal_io.set(galois_lfsr_ports::__pid__, getpid());
     m_signal_io.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -37,11 +37,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_io.alive()) {
             break;
         }
-        clock = m_signal_io.get_clock_pulse(galois_ports::__clock__);
-        reset = m_signal_io.get<bool>(galois_ports::reset);
+        clock = m_signal_io.get_clock_pulse(galois_lfsr_ports::_clock);
+        reset = m_signal_io.get<bool>(galois_lfsr_ports::reset);
 
         // SENDING
-        m_signal_io.set(galois_ports::data_out, data_out);
+        m_signal_io.set(galois_lfsr_ports::data_out, data_out);
         m_signal_io.send();
 
     }

@@ -1,4 +1,5 @@
 #include "sstscit.hpp"
+#include "{module}_ports.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
@@ -88,7 +89,7 @@ void {module}::setup() {{
 
         {var_bind};
         {receiver}.recv();
-        if (child_pid == {receiver}.get<int>("__pid__")) {{
+        if (child_pid == {receiver}.get<int>({module}_ports::__pid__)) {{
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }}

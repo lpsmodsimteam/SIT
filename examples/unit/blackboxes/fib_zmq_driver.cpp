@@ -42,7 +42,7 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_i.alive()) {
             break;
         }
-        clock = m_signal_i.get_clock_pulse(fib_ports::__clock__);
+        clock = m_signal_i.get_clock_pulse(fib_ports::_clock);
         reset = m_signal_i.get<bool>(fib_ports::reset);
 
         // SENDING

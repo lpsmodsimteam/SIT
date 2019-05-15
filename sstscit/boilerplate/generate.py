@@ -43,6 +43,7 @@ class BoilerPlate(object):
         self.link_desc = link_desc if link_desc else {
             "link_desc0": "", "link_desc1": ""
         }
+        self.ports_enum = self.module + "_ports"
 
         self.clocks = []
         self.inputs = []
@@ -52,13 +53,17 @@ class BoilerPlate(object):
 
         if self.ipc in ("sock", "socks", "socket", "sockets"):
             self.drvr_decl = """// Initialize signal handlers
-    SocketSignal m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
-    m_signal_io.set_addr(argv[1]);"""
+    SocketSignal m_signal_io({0}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
+    m_signal_io.set_addr(argv[1]);""".format(
+                self.module.upper()
+            )
             self.drvr_dest = ""
             self.sender = self.receiver = "m_signal_io"
 
             self.sst_model_decl = """SocketSignal m_signal_io;"""
-            self.sst_model_init = """m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"""
+            self.sst_model_init = """m_signal_io({0}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),""".format(
+                self.module.upper()
+            )
             self.sst_model_bind = "m_signal_io.set_addr(m_ipc_port)"
             self.sst_model_dest = ""
 
@@ -69,15 +74,19 @@ class BoilerPlate(object):
     socket.connect(argv[1]);
 
     // Initialize signal handlers
-    ZMQReceiver m_signal_i(socket);
-    ZMQTransmitter m_signal_o(socket);"""
+    ZMQReceiver m_signal_i({n_ports}_NPORTS, socket);
+    ZMQTransmitter m_signal_o({n_ports}_NPORTS, socket);""".format(
+                n_ports=self.module.upper()
+            )
             self.drvr_dest = "socket.close();"
             self.sst_model_decl = """zmq::context_t m_context;
     zmq::socket_t m_socket;
     ZMQReceiver m_signal_i;
     ZMQTransmitter m_signal_o;"""
             self.sst_model_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i(m_socket), m_signal_o(m_socket),"""
+      m_signal_i({n_ports}_NPORTS, m_socket), m_signal_o({n_ports}_NPORTS, m_socket),""".format(
+                n_ports=self.module.upper()
+            )
             self.sst_model_bind = "m_socket.bind(m_ipc_port.c_str())"
             self.sst_model_dest = "m_socket.close();"
             self.sender = "m_signal_o"
@@ -178,8 +187,11 @@ class BoilerPlate(object):
             {str} -- snippet of code representing clock binding
         """
         return self.__format(
-            "{sig} = {recv}.get_clock_pulse(\"{sig}\")",
-            lambda x: {"sig": x[-1], "recv": self.receiver}, self.clocks
+            "{sig} = {recv}.get_clock_pulse({ports}::_{sig})",
+            lambda x: {
+                "sig": x[-1], "recv": self.receiver,
+                "ports": self.ports_enum
+            }, self.clocks
         ) if driver else [["<__clock__>", i[-1]] for i in self.clocks]
 
     def get_inputs(self, driver=True):
@@ -193,17 +205,17 @@ class BoilerPlate(object):
             {str} -- snippet of code representing input bindings
         """
         return self.__format(
-            "{sig} = {recv}.get{type}(\"{sig}\")",
+            "{sig} = {recv}.get{type}({ports}::{sig})",
             lambda x: {
                 "sig": x[-1], "type": self.__parse_signal_type(x[0])[0],
-                "recv": self.receiver
+                "recv": self.receiver, "ports": self.ports_enum
             }, self.inputs, ";\n" + " " * 8
         ) if driver else self.__format(
-            "std::to_string({recv}.get{type}(\"{sig}\"))",
+            "std::to_string({recv}.get{type}({ports}::{sig}))",
             lambda x: {
                 "sig": x.split(" ")[-1],
                 "type": self.__parse_signal_type(x.split(" ")[0])[0],
-                "recv": self.receiver
+                "recv": self.receiver, "ports": self.ports_enum
             }, self.outputs, " +\n" + " " * 16
         )
 
@@ -220,9 +232,10 @@ class BoilerPlate(object):
         if driver:
 
             return self.__format(
-                "{send}.set(\"{sig}\", {sig})",
+                "{send}.set({ports}::{sig}, {sig})",
                 lambda x: {"sig": x.split(" ")[-1],
-                           "send": self.sender},
+                           "send": self.sender,
+                           "ports": self.ports_enum},
                 self.outputs, ";\n" + " " * 8
             )
 
@@ -235,13 +248,14 @@ class BoilerPlate(object):
             ix += sig_len
 
         return self.__format(
-            "{send}.set(\"{sig}\", std::stoi(_data_in.substr({p}{l})))",
+            "{send}.set({ports}::{sig}, std::stoi(_data_in.substr({p}{l})))",
             lambda x: {
-                "sig": x[-1],
+                "sig": "_" *
+                (not bool(sig_lens[sst_model_inputs.index(x)][-1])) + x[-1],
                 "p": sig_lens[sst_model_inputs.index(x)][0],
                 "l": (", " + str(sig_lens[sst_model_inputs.index(x)][-1])) *
                 bool(sig_lens[sst_model_inputs.index(x)][-1]),
-                "send": self.sender
+                "send": self.sender, "ports": self.ports_enum
             }, sst_model_inputs, ";\n" + " " * 8
         )
 
