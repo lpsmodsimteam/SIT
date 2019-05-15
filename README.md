@@ -28,11 +28,31 @@ SystemC driver must be generated. The black boxes establish the configurations r
 interprocess communication (IPC) between the SST and SystemC processes. The Python class
 `generate.BoilerPlate` can be used to generate the black boxes.
 
+The following is the directory structure of an example component `demo` using CMake.
+
+```bash
+demo/                     # project directory
+├── bbox.py               # boilerplate code generating script
+├── blackboxes/           # black box interface
+│   ├── demo_comp.cpp     # SystemC black box driver file
+│   └── demo_driver.cpp   # SST black box component
+├── demo.cpp              # SST parent component
+├── demo_sysc.hpp         # SystemC module
+├── build/                # CMake executables
+├── CMakeLists.txt        # local CMakeLists for demo
+├── tests/                # SST Python scripts
+│   └── test.py           # sample SST Python scripts
+├── Makefile              # local Makefile
+├── .                     # other files
+│   .
+│   .
+```
+
 The following snippet demonstrates an example usage of the class to generate black box components
 for `demo`.
 
 ```python
-# bbox.py
+# demo/bbox.py
 
 DEMO_ARGS = {
     "module" : "demo",
@@ -57,7 +77,7 @@ The following snippets demonstrate an SST link transmitting a unidirectional sig
 environment to the black box interface.
 
 ```c++
-// demo.cpp
+// demo/demo.cpp
 
 // register a string event in the class declaration
 SST_ELI_DOCUMENT_PORTS(
@@ -77,7 +97,7 @@ demo_din->send(new SST::Interfaces::StringEvent(...));
 
 
 ```c++
-// blackboxes/demo_comp.cpp
+// demo/blackboxes/demo_comp.cpp
 
 // register the same string event in the class declaration
 SST_ELI_DOCUMENT_PORTS(
@@ -137,13 +157,12 @@ SystemC can be built with CMake to allow more convenient inclusion in the projec
 The following snippet details instructions on installing SystemC with CMake in the project's home
 directory.
 
-```shell
-mkdir -p deps
-mkdir -p deps/${SYSC_VER}/build
-
+```bash
+# make directory to manage all dependencies
+mkdir -p deps/systemc-${SYSC_VER}/build  # SYSC_VER is the version of SystemC
 SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
 curl -L ${SYSC_URL}${SYSC_VER}.tar.gz | tar xz -C deps
-cd deps/${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
+cd deps/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
 ```
 
 ### SST Core and Elements
@@ -151,20 +170,24 @@ cd deps/${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} 
 The following snippet details instructions on installing SST Core and Elements in the project's home
 directory. The installation process may be time consuming.
 
-```shell
-mkdir -p ~/.sst
-touch ~/.sst/sstsimulator.conf
+```bash
+# make directory to manage all dependencies
 mkdir -p deps
+# initialize empty file for SST configurations
+mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
+
+# install OpenMPI and its dependencies
+sudo apt install libhwloc-dev libopenmpi-dev libtool-bin
 
 SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
-curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C deps
-cd deps/sstcore-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
+curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C deps  # SST_VER is the version of SST
+cd deps/sstcore-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install
 cd -
 
 SST_ELEM_URL="https://github.com/sstsimulator/sst-elements/releases/download/v${SST_VER}_Final/"
-curl -L ${SST_ELEM_URL}sstelements-${SST_VER}.tar.gz | tar xz -C deps
-mv deps/sst-elements* deps/sstelements-${SST_VER}
-cd deps/sstelements-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
+curl -L ${SST_ELEM_URL}sstelements-${SST_VER}.tar.gz | tar xz -C deps  # SST_VER is the version of SST
+mv deps/sst-elements* deps/sstelements-${SST_VER}  # the directory is custom named for some reason
+cd deps/sstelements-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install
 ```
 
 ### MessagePack
@@ -173,8 +196,8 @@ MessagePack is required to maintain the complex data structures being passed via
 of this third party library is not necessary since inclusion of its header files are sufficient.
 Running the script attached to the project will set up MessagePack for the toolkit.
 
-```shell
-# install
+```bash
+# ${PROJ_HOME}/install
 
 msgpack_url="https://github.com/msgpack/msgpack-c"
 git clone --depth 1 -q ${msgpack_url} msgpack
