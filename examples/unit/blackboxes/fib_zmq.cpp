@@ -1,4 +1,5 @@
 #include "../../../sstscit/sstscit.hpp"
+#include "fib_ports.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
@@ -53,7 +54,7 @@ private:
 fib_lfsr::fib_lfsr(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i(m_socket), m_signal_o(m_socket),
+      m_signal_i(FIB_NUM_PORTS, m_socket), m_signal_o(FIB_NUM_PORTS, m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -92,7 +93,7 @@ void fib_lfsr::setup() {
 
         m_socket.bind(m_ipc_port.c_str());
         m_signal_i.recv();
-        if (child_pid == m_signal_i.get<int>("__pid__")) {
+        if (child_pid == m_signal_i.get<int>(fib_ports::__pid__)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -118,8 +119,8 @@ void fib_lfsr::handle_event(SST::Event *ev) {
         bool keep_send = _data_in.substr(0, 1) != "0";
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
-        m_signal_o.set("reset", std::stoi(_data_in.substr(2, 1)));
-        m_signal_o.set("clock", std::stoi(_data_in.substr(3)));
+        m_signal_o.set(fib_ports::reset, std::stoi(_data_in.substr(2, 1)));
+        m_signal_o.set(fib_ports::__clock__, std::stoi(_data_in.substr(3)));
 
         if (keep_send) {
             m_signal_o.set_state(keep_recv);
@@ -129,7 +130,7 @@ void fib_lfsr::handle_event(SST::Event *ev) {
             m_signal_i.recv();
         }
 
-        std::string _data_out = std::to_string(m_signal_i.get<int>("data_out"));
+        std::string _data_out = std::to_string(m_signal_i.get<int>(fib_ports::data_out));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }

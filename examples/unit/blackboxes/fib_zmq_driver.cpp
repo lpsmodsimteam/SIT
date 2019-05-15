@@ -1,5 +1,5 @@
 #include "../modules/fib_lfsr.hpp"
-
+#include "fib_ports.hpp"
 #include "../../../sstscit/sstscit.hpp"
 
 int sc_main(int, char *argv[]) {
@@ -23,12 +23,12 @@ int sc_main(int, char *argv[]) {
     zmq::socket_t socket(context, ZMQ_REQ);
     socket.connect(argv[1]);
 
-    ZMQReceiver m_signal_i(socket);
-    ZMQTransmitter m_signal_o(socket);
+    ZMQReceiver m_signal_i(FIB_NUM_PORTS, socket);
+    ZMQTransmitter m_signal_o(FIB_NUM_PORTS, socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_o.set("__pid__", getpid());
+    m_signal_o.set(fib_ports::__pid__, getpid());
     m_signal_o.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -42,11 +42,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_i.alive()) {
             break;
         }
-        clock = m_signal_i.get_clock_pulse("clock");
-        reset = m_signal_i.get<bool>("reset");
+        clock = m_signal_i.get_clock_pulse(fib_ports::__clock__);
+        reset = m_signal_i.get<bool>(fib_ports::reset);
 
         // SENDING
-        m_signal_o.set("data_out", data_out);
+        m_signal_o.set(fib_ports::data_out, data_out);
         m_signal_o.send();
 
     }

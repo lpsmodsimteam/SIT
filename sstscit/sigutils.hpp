@@ -9,7 +9,8 @@
 
 #include <sstream>
 #include <unistd.h>
-#include <unordered_map>
+#include <iostream>
+#include <vector>
 
 /*
  * Implements common methods for setting and getting data being transferred
@@ -23,7 +24,9 @@ class SignalIO {
 
 protected:
 
-    /* 
+    explicit SignalIO(int);
+
+    /*
      * Destructor - clears the member variable containing the transported
      * data.
      */
@@ -33,7 +36,8 @@ protected:
      * Unordered map containing the transported data. The keys and values are
      * both std::string.
      */
-    std::unordered_map<std::string, std::string> m_data;
+//    std::unordered_map<std::string, std::string> m_data;
+    std::vector<std::string> m_data;
 
 public:
 
@@ -44,7 +48,7 @@ public:
      * as a std::string.
      */
     template<typename T>
-    void set(const std::string &, const T &);
+    void set(int, const T &);
 
     /*
      * Returns the value specified by `key`. The values are casted statically
@@ -52,7 +56,7 @@ public:
      * if `key` does not exist in `m_data`.
      */
     template<typename T>
-    T get(const std::string &);
+    T get(int);
 
     /*
      * Sets the reserved key `__on__` in `m_data` to the specified boolean
@@ -89,12 +93,18 @@ public:
     /*
      * Converts SST clock cycles to pulses for SystemC modules.
      */
-    bool get_clock_pulse(const std::string &);
+    bool get_clock_pulse(int);
 
 };
 
 
 /* -------------------- SIGNALIO IMPLEMENTATIONS -------------------- */
+
+inline SignalIO::SignalIO(const int num_ports) {
+
+    m_data.resize(num_ports);
+
+}
 
 inline SignalIO::~SignalIO() {
 
@@ -103,7 +113,7 @@ inline SignalIO::~SignalIO() {
 }
 
 template<typename T>
-void SignalIO::set(const std::string &key, const T &value) {
+void SignalIO::set(const int key, const T &value) {
 
     std::ostringstream ss;
     ss << value;
@@ -112,30 +122,25 @@ void SignalIO::set(const std::string &key, const T &value) {
 }
 
 template<typename T>
-T SignalIO::get(const std::string &key) {
+T SignalIO::get(const int key) {
 
-    // if the key exists in the unordered map
-    if (m_data.find(key) != m_data.end()) {
-        return static_cast<T>(std::stoi(m_data[key]));
-    }
-
-    throw std::invalid_argument("Key '"+ key +"' does not exist");
+    return static_cast<T>(std::stoi(m_data[key]));
 
 }
 
 inline bool SignalIO::alive() {
 
-    return (this->get<bool>("__on__"));
+    return (this->get<bool>(0));
 
 }
 
 inline void SignalIO::set_state(bool state) {
 
-    this->set("__on__", state);
+    this->set(0, state);
 
 }
 
-inline bool SignalIO::get_clock_pulse(const std::string &key) {
+inline bool SignalIO::get_clock_pulse(const int key) {
 
     return (this->get<int>(key)) % 2;
 

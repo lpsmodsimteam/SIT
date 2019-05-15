@@ -7,7 +7,7 @@
 
 // default buffer size
 #ifndef BUFSIZE
-#define BUFSIZE 100
+#define BUFSIZE 15
 #endif
 
 #include "sigutils.hpp"
@@ -45,7 +45,7 @@ public:
      * processes need to set the parameter to false to set up the connection
      * properly.
      */
-    explicit SocketSignal(int, bool = true);
+    explicit SocketSignal(int, int, bool = true);
 
     /*
      * Destructor - unlinks and closes the sockets after use
@@ -69,8 +69,8 @@ public:
 
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
-inline SocketSignal::SocketSignal(int socket, bool server_side) :
-    m_server_side(server_side), m_socket(socket), m_rd_socket(0),
+inline SocketSignal::SocketSignal(const int num_ports, int socket, bool server_side) :
+    SignalIO(num_ports), m_server_side(server_side), m_socket(socket), m_rd_socket(0),
     m_rd_bytes(0), m_buf(""), m_addr({}), m_packer(&m_sbuf) {
     // do nothing
 }

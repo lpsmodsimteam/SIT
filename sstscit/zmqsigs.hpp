@@ -32,7 +32,7 @@ public:
     /*
      * Default constructor - initializes the `zmq` sockets
      */
-    explicit ZMQReceiver(zmq::socket_t &);
+    explicit ZMQReceiver(int, zmq::socket_t &);
 
     /*
      * Receives data and unpacks the buffer to MessagePack
@@ -72,7 +72,7 @@ public:
     /*
      * Default constructor - initializes the `zmq` sockets
      */
-    explicit ZMQTransmitter(zmq::socket_t &);
+    explicit ZMQTransmitter(int, zmq::socket_t &);
 
     /*
      * Destructor - clears any remaining MessagePack buffers
@@ -100,8 +100,8 @@ public:
 /* -------------------- ZMQRECEIVER IMPLEMENTATIONS -------------------- */
 
 
-inline ZMQReceiver::ZMQReceiver(zmq::socket_t &socket) :
-    m_socket(socket) {
+inline ZMQReceiver::ZMQReceiver(const int num_ports, zmq::socket_t &socket) :
+    SignalIO(num_ports), m_socket(socket) {
     // do nothing
 }
 
@@ -118,8 +118,8 @@ inline void ZMQReceiver::recv() {
 /* -------------------- ZMQTRANSMITTER IMPLEMENTATIONS -------------------- */
 
 
-inline ZMQTransmitter::ZMQTransmitter(zmq::socket_t &socket) :
-    m_socket(socket), m_packer(&m_sbuf) {
+inline ZMQTransmitter::ZMQTransmitter(const int num_ports, zmq::socket_t &socket) :
+    SignalIO(num_ports), m_socket(socket), m_packer(&m_sbuf) {
     // do nothing
 }
 

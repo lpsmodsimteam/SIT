@@ -1,5 +1,5 @@
 #include "../modules/galois_lfsr.hpp"
-
+#include "galois_ports.hpp"
 #include "../../../sstscit/sstscit.hpp"
 
 int sc_main(int, char *argv[]) {
@@ -23,12 +23,12 @@ int sc_main(int, char *argv[]) {
     socket.connect(argv[1]);
 
     // Initialize signal handlers
-    ZMQReceiver m_signal_i(socket);
-    ZMQTransmitter m_signal_o(socket);
+    ZMQReceiver m_signal_i(GALOIS_NUM_PORTS, socket);
+    ZMQTransmitter m_signal_o(GALOIS_NUM_PORTS, socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_o.set("__pid__", getpid());
+    m_signal_o.set(galois_ports::__pid__, getpid());
     m_signal_o.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -42,11 +42,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_i.alive()) {
             break;
         }
-        clock = m_signal_i.get_clock_pulse("clock");
-        reset = m_signal_i.get<bool>("reset");
+        clock = m_signal_i.get_clock_pulse(galois_ports::__clock__);
+        reset = m_signal_i.get<bool>(galois_ports::reset);
 
         // SENDING
-        m_signal_o.set("data_out", data_out);
+        m_signal_o.set(galois_ports::data_out, data_out);
         m_signal_o.send();
 
     }

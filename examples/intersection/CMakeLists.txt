@@ -5,8 +5,8 @@ include(../CMakeLists.txt)
 # add compiler warnings
 add_compile_options(-Wall -Wextra -Wpedantic)
 
-# increase default buffer size
-add_definitions(-DBUFSIZE=250)
+# increase buffer size (minimum is 22)
+add_definitions(-DBUFSIZE=25)
 
 add_executable(traffic_light_fsm.o blackboxes/traffic_light_fsm_driver.cpp)
 target_link_libraries(traffic_light_fsm.o SystemC::systemc)

@@ -1,4 +1,5 @@
 #include "../../../sstscit/sstscit.hpp"
+#include "galois_ports.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
@@ -53,7 +54,7 @@ private:
 galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i(m_socket), m_signal_o(m_socket),
+      m_signal_i(GALOIS_NUM_PORTS, m_socket), m_signal_o(GALOIS_NUM_PORTS, m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -92,7 +93,7 @@ void galois_lfsr::setup() {
 
         m_socket.bind(m_ipc_port.c_str());
         m_signal_i.recv();
-        if (child_pid == m_signal_i.get<int>("__pid__")) {
+        if (child_pid == m_signal_i.get<int>(galois_ports::__pid__)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -119,8 +120,8 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         // inputs from parent SST model, outputs to SystemC child process
-        m_signal_o.set("reset", std::stoi(_data_in.substr(2, 1)));
-        m_signal_o.set("clock", std::stoi(_data_in.substr(3)));
+        m_signal_o.set(galois_ports::reset, std::stoi(_data_in.substr(2, 1)));
+        m_signal_o.set(galois_ports::__clock__, std::stoi(_data_in.substr(3)));
 
         if (keep_send) {
             m_signal_o.set_state(keep_recv);
@@ -131,7 +132,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         }
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_signal_i.get<int>("data_out"));
+        std::string _data_out = std::to_string(m_signal_i.get<int>(galois_ports::data_out));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }
