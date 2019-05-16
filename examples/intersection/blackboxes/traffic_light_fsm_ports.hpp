@@ -1,5 +1,5 @@
-int NUM_PORTS = 8;
+int TRAFFIC_LIGHT_FSM_NPORTS = 8;
 
-enum ports {
-    __pid__, __clock__, load, start_green, green_time, yellow_time, red_time, state
+enum traffic_light_fsm_ports {
+    __pid__, _clock, load, start_green, green_time, yellow_time, red_time, state
 };

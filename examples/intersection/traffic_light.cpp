@@ -63,7 +63,7 @@ private:
 
 traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
-    m_signal_io(NUM_PORTS, socket(AF_UNIX, SOCK_STREAM, 0)),
+    m_signal_io(TRAFFIC_LIGHT_FSM_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),
     // Collect all the parameters from the project driver
     m_clock(params.find<std::string>("CLOCK", "1Hz")),
     STARTGREEN(params.find<int>("STARTGREEN", false)),
@@ -111,7 +111,7 @@ void traffic_light::setup() {
 
         m_signal_io.set_addr(m_ipc_port);
         m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>(ports::__pid__)) {
+        if (child_pid == m_signal_io.get<int>(traffic_light_fsm_ports::__pid__)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -150,12 +150,12 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     }
 
     // outputs to SystemC child process
-    m_signal_io.set(ports::load, load);
-    m_signal_io.set(ports::start_green, start_green);
-    m_signal_io.set(ports::green_time, green_time);
-    m_signal_io.set(ports::yellow_time, yellow_time);
-    m_signal_io.set(ports::red_time, red_time);
-    m_signal_io.set(ports::__clock__, current_cycle);
+    m_signal_io.set(traffic_light_fsm_ports::load, load);
+    m_signal_io.set(traffic_light_fsm_ports::start_green, start_green);
+    m_signal_io.set(traffic_light_fsm_ports::green_time, green_time);
+    m_signal_io.set(traffic_light_fsm_ports::yellow_time, yellow_time);
+    m_signal_io.set(traffic_light_fsm_ports::red_time, red_time);
+    m_signal_io.set(traffic_light_fsm_ports::_clock, current_cycle);
 
     if (keep_send) {
         m_signal_io.set_state(keep_recv);
@@ -165,7 +165,7 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
         m_signal_io.recv();
     }
 
-    switch (m_signal_io.get<int>(ports::state)) {
+    switch (m_signal_io.get<int>(traffic_light_fsm_ports::state)) {
         case 0:
             light_state->send(new SST::Interfaces::StringEvent("green"));
             break;
