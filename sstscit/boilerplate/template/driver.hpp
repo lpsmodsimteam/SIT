@@ -1,6 +1,5 @@
 #include "{module}.hpp"
 #include "{module}_ports.hpp"
-
 #include "sstscit.hpp"
 
 int sc_main(int, char *argv[]) {{

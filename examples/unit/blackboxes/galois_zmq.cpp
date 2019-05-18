@@ -1,5 +1,5 @@
-#include "../../../sstscit/sstscit.hpp"
 #include "galois_lfsr_ports.hpp"
+#include "../../../sstscit/sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>
@@ -54,7 +54,7 @@ private:
 galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i(GALOIS_LFSR_NPORTS, m_socket), m_signal_o(GALOIS_LFSR_NPORTS, m_socket),
+      m_signal_i(GLSLFSR_NPORTS, m_socket), m_signal_o(GLSLFSR_NPORTS, m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -120,8 +120,8 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         // inputs from parent SST model, outputs to SystemC child process
-        m_signal_o.set(galois_lfsr_ports::reset, std::stoi(_data_in.substr(2, 1)));
-        m_signal_o.set(galois_lfsr_ports::_clock, std::stoi(_data_in.substr(3)));
+        m_signal_o.set(galois_lfsr_ports::glslfsr_reset, std::stoi(_data_in.substr(2, 1)));
+        m_signal_o.set(galois_lfsr_ports::glslfsr_clock, std::stoi(_data_in.substr(3)));
 
         if (keep_send) {
             m_signal_o.set_state(keep_recv);
@@ -132,7 +132,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         }
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_signal_i.get<int>(galois_lfsr_ports::data_out));
+        std::string _data_out = std::to_string(m_signal_i.get<int>(galois_lfsr_ports::glslfsr_data_out));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }

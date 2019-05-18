@@ -1,5 +1,5 @@
-#include "sstscit.hpp"
 #include "{module}_ports.hpp"
+#include "sstscit.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/elementinfo.h>

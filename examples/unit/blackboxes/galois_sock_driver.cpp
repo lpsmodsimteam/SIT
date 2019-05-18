@@ -18,7 +18,7 @@ int sc_main(int, char *argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    SocketSignal m_signal_io(GALOIS_LFSR_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
+    SocketSignal m_signal_io(GLSLFSR_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
@@ -37,11 +37,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_io.alive()) {
             break;
         }
-        clock = m_signal_io.get_clock_pulse(galois_lfsr_ports::_clock);
-        reset = m_signal_io.get<bool>(galois_lfsr_ports::reset);
+        clock = m_signal_io.get_clock_pulse(galois_lfsr_ports::glslfsr_clock);
+        reset = m_signal_io.get<bool>(galois_lfsr_ports::glslfsr_reset);
 
         // SENDING
-        m_signal_io.set(galois_lfsr_ports::data_out, data_out);
+        m_signal_io.set(galois_lfsr_ports::glslfsr_data_out, data_out);
         m_signal_io.send();
 
     }

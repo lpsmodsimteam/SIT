@@ -52,6 +52,8 @@ class TestBoilerplate(object):
             file2.splitlines(keepends=True), n=0)
         filtered_diff = []
         for line in diff:
+            if "::" in line:
+                print(line)
             if not ("***" in line or "---" in line):
                 filtered_diff.append(line)
 
@@ -111,4 +113,5 @@ class ZMQSignals(unittest.TestCase, TestBoilerplate):
 
 if __name__ == "__main__":
 
+    unittest.TestCase.maxDiff = None
     unittest.main()

@@ -23,8 +23,8 @@ int sc_main(int, char *argv[]) {
     socket.connect(argv[1]);
 
     // Initialize signal handlers
-    ZMQReceiver m_signal_i(GALOIS_LFSR_NPORTS, socket);
-    ZMQTransmitter m_signal_o(GALOIS_LFSR_NPORTS, socket);
+    ZMQReceiver m_signal_i(GLSLFSR_NPORTS, socket);
+    ZMQTransmitter m_signal_o(GLSLFSR_NPORTS, socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
@@ -42,11 +42,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_i.alive()) {
             break;
         }
-        clock = m_signal_i.get_clock_pulse(galois_lfsr_ports::_clock);
-        reset = m_signal_i.get<bool>(galois_lfsr_ports::reset);
+        clock = m_signal_i.get_clock_pulse(galois_lfsr_ports::glslfsr_clock);
+        reset = m_signal_i.get<bool>(galois_lfsr_ports::glslfsr_reset);
 
         // SENDING
-        m_signal_o.set(galois_lfsr_ports::data_out, data_out);
+        m_signal_o.set(galois_lfsr_ports::glslfsr_data_out, data_out);
         m_signal_o.send();
 
     }

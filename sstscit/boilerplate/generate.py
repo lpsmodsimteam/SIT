@@ -7,8 +7,15 @@ This class generates the boilerplate code required to build the blackbox
 interface in SSTSCIT.
 """
 
+from operator import itemgetter
 import math
 import os
+from random import SystemRandom
+from string import punctuation
+
+
+def get_rand_key(key):
+    return "".join(i for i in key if i not in punctuation + "aeiou")
 
 
 class BoilerPlate(object):
@@ -43,40 +50,41 @@ class BoilerPlate(object):
         self.link_desc = link_desc if link_desc else {
             "link_desc0": "", "link_desc1": ""
         }
-        self.ports_enum = self.module + "_ports"
 
         self.clocks = []
         self.inputs = []
         self.outputs = []
         self.inouts = []
         self.ports = []
+        self.enums = "".join(
+            i for i in self.module if i not in punctuation + "aeiou")
 
         if self.ipc in ("sock", "socks", "socket", "sockets"):
-            self.drvr_decl = """// Initialize signal handlers
-    SocketSignal m_signal_io({0}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
+            self.driver_decl = """// Initialize signal handlers
+    SocketSignal m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);""".format(
-                self.module.upper()
+                self.enums.upper()
             )
             self.drvr_dest = ""
             self.sender = self.receiver = "m_signal_io"
 
             self.sst_model_decl = """SocketSignal m_signal_io;"""
-            self.sst_model_init = """m_signal_io({0}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),""".format(
-                self.module.upper()
+            self.sst_model_init = """m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),""".format(
+                self.enums.upper()
             )
             self.sst_model_bind = "m_signal_io.set_addr(m_ipc_port)"
             self.sst_model_dest = ""
 
         elif self.ipc == "zmq":
-            self.drvr_decl = """// Socket to talk to server
+            self.driver_decl = """// Socket to talk to server
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_REQ);
     socket.connect(argv[1]);
 
     // Initialize signal handlers
-    ZMQReceiver m_signal_i({n_ports}_NPORTS, socket);
-    ZMQTransmitter m_signal_o({n_ports}_NPORTS, socket);""".format(
-                n_ports=self.module.upper()
+    ZMQReceiver m_signal_i({n}_NPORTS, socket);
+    ZMQTransmitter m_signal_o({n}_NPORTS, socket);""".format(
+                n=self.enums.upper()
             )
             self.drvr_dest = "socket.close();"
             self.sst_model_decl = """zmq::context_t m_context;
@@ -84,8 +92,8 @@ class BoilerPlate(object):
     ZMQReceiver m_signal_i;
     ZMQTransmitter m_signal_o;"""
             self.sst_model_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i({n_ports}_NPORTS, m_socket), m_signal_o({n_ports}_NPORTS, m_socket),""".format(
-                n_ports=self.module.upper()
+      m_signal_i({n}_NPORTS, m_socket), m_signal_o({n}_NPORTS, m_socket),""".format(
+                n=self.enums.upper()
             )
             self.sst_model_bind = "m_socket.bind(m_ipc_port.c_str())"
             self.sst_model_dest = "m_socket.close();"
@@ -95,6 +103,7 @@ class BoilerPlate(object):
         self.bbox_dir = "blackboxes"
         self.sc_driver_path = self.bbox_dir + "/" + self.module + "_driver.cpp"
         self.sst_model_path = self.bbox_dir + "/" + self.module + "_comp.cpp"
+        self.sst_ports_path = self.bbox_dir + "/" + self.module + "_ports.hpp"
 
     @staticmethod
     def __parse_signal_type(signal):
@@ -154,18 +163,18 @@ class BoilerPlate(object):
             elif port_type == "input":
                 self.inputs.append(port.split(" "))
             elif port_type == "output":
-                self.outputs.append(port)
+                self.outputs.append(port.split(" "))
             elif port_type == "inout":
                 self.inouts.append(port)
             else:
                 raise ValueError("Each ports must be designated a type")
-            self.ports.append("sc_signal" + port)
+            self.ports.append(port)
 
-    def get_drvr_port_defs(self):
+    def get_driver_port_defs(self):
         """Generates port definitions for the blackbox-driver"""
-        return ";\n    ".join(self.ports)
+        return "sc_signal" + ";\n    sc_signal".join(self.ports)
 
-    def get_drvr_bindings(self):
+    def get_driver_bindings(self):
         """Generates port bindings for the blackbox-driver
 
         Returns:
@@ -173,7 +182,7 @@ class BoilerPlate(object):
         """
         return self.__format(
             "DUT.{sig}({sig})",
-            lambda x: {"sig": x.split(" ")[-1]}, self.ports
+            lambda x: {"sig": x.split()[-1]}, self.ports
         )
 
     def get_clock(self, driver=True):
@@ -187,10 +196,11 @@ class BoilerPlate(object):
             {str} -- snippet of code representing clock binding
         """
         return self.__format(
-            "{sig} = {recv}.get_clock_pulse({ports}::_{sig})",
+            "{sig} = {recv}.get_clock_pulse({module}_ports::{enum}_{sig})",
             lambda x: {
-                "sig": x[-1], "recv": self.receiver,
-                "ports": self.ports_enum
+                "sig": x[-1],
+                "enum": self.enums, "recv": self.receiver,
+                "module": self.module
             }, self.clocks
         ) if driver else [["<__clock__>", i[-1]] for i in self.clocks]
 
@@ -205,17 +215,18 @@ class BoilerPlate(object):
             {str} -- snippet of code representing input bindings
         """
         return self.__format(
-            "{sig} = {recv}.get{type}({ports}::{sig})",
+            "{sig} = {recv}.get{type}({module}_ports::{enum}_{sig})",
             lambda x: {
-                "sig": x[-1], "type": self.__parse_signal_type(x[0])[0],
-                "recv": self.receiver, "ports": self.ports_enum
+                "sig": x[-1], "enum": self.enums,
+                "type": self.__parse_signal_type(x[0])[0],
+                "recv": self.receiver, "module": self.module
             }, self.inputs, ";\n" + " " * 8
         ) if driver else self.__format(
-            "std::to_string({recv}.get{type}({ports}::{sig}))",
+            "std::to_string({recv}.get{type}({module}_ports::{enum}_{sig}))",
             lambda x: {
-                "sig": x.split(" ")[-1],
-                "type": self.__parse_signal_type(x.split(" ")[0])[0],
-                "recv": self.receiver, "ports": self.ports_enum
+                "sig": x[-1], "enum": self.enums,
+                "type": self.__parse_signal_type(x[0])[0],
+                "recv": self.receiver, "module": self.module
             }, self.outputs, " +\n" + " " * 16
         )
 
@@ -232,10 +243,11 @@ class BoilerPlate(object):
         if driver:
 
             return self.__format(
-                "{send}.set({ports}::{sig}, {sig})",
-                lambda x: {"sig": x.split(" ")[-1],
+                "{send}.set({module}_ports::{enum}_{sig}, {sig})",
+                lambda x: {"sig": x[-1],
+                           "enum": self.enums,
                            "send": self.sender,
-                           "ports": self.ports_enum},
+                           "module": self.module},
                 self.outputs, ";\n" + " " * 8
             )
 
@@ -248,18 +260,17 @@ class BoilerPlate(object):
             ix += sig_len
 
         return self.__format(
-            "{send}.set({ports}::{sig}, std::stoi(_data_in.substr({p}{l})))",
+            "{send}.set({module}_ports::{enum}_{sig}, std::stoi(_data_in.substr({p}{l})))",
             lambda x: {
-                "sig": "_" *
-                (not bool(sig_lens[sst_model_inputs.index(x)][-1])) + x[-1],
+                "sig": x[-1],
                 "p": sig_lens[sst_model_inputs.index(x)][0],
                 "l": (", " + str(sig_lens[sst_model_inputs.index(x)][-1])) *
                 bool(sig_lens[sst_model_inputs.index(x)][-1]),
-                "send": self.sender, "ports": self.ports_enum
+                "send": self.sender, "module": self.module, "enum": self.enums,
             }, sst_model_inputs, ";\n" + " " * 8
         )
 
-    def generate_sc_drvr(self):
+    def generate_sc_driver(self):
         """Generates the blackbox-driver code based on methods used to format
         the template file
 
@@ -270,9 +281,9 @@ class BoilerPlate(object):
             with open(self.drvr_templ_path) as template:
                 return template.read().format(
                     module=self.module,
-                    port_defs=self.get_drvr_port_defs(),
-                    bindings=self.get_drvr_bindings(),
-                    var_decl=self.drvr_decl,
+                    port_defs=self.get_driver_port_defs(),
+                    bindings=self.get_driver_bindings(),
+                    var_decl=self.driver_decl,
                     dest=self.drvr_dest,
                     clock=self.get_clock(),
                     sender=self.sender,
@@ -310,6 +321,21 @@ class BoilerPlate(object):
 
         raise FileNotFoundError("Model boilerplate file not found")
 
+    def generate_ports_enum(self):
+
+        ports = [self.enums + "_" + x.split(" ")[-1] for x in self.ports]
+        return """int {enum}_NPORTS = {nports};
+
+enum {module}_ports {{
+    __pid__, {ports}
+}};
+""".format(
+            enum=self.enums.upper(),
+            nports=len(ports) + 1,
+            module=self.module,
+            ports=", ".join(ports)
+        )
+
     def generate_bbox(self):
         """Provides a high-level interface to the user to generate both the
         components of the blackbox and dump them to their corresponding files
@@ -321,7 +347,10 @@ class BoilerPlate(object):
             os.makedirs(self.bbox_dir)
 
         with open(self.sc_driver_path, "w") as sc_driver_file:
-            sc_driver_file.write(self.generate_sc_drvr())
+            sc_driver_file.write(self.generate_sc_driver())
 
         with open(self.sst_model_path, "w") as sst_model_file:
             sst_model_file.write(self.generate_sst_model())
+
+        with open(self.sst_ports_path, "w") as sst_ports_file:
+            sst_ports_file.write(self.generate_ports_enum())
