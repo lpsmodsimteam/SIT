@@ -251,26 +251,25 @@ class BoilerPlate(object):
                 }, self.outputs, ";\n" + " " * 8
             )
 
-        ix = 2
-        sig_lens = []
-        sst_model_inputs = self.inputs + self.get_clock(False)
-        for i in sst_model_inputs:
-            sig_len = self.__parse_signal_type(i[0])[-1]
-            sig_lens.append((ix, sig_len))
-            ix += sig_len
+        start_pos = 2
+        sst_model_inputs = self.inputs + self.get_clock(driver=False)
+        sst_model_output = []
+        for ix, model_input in enumerate(sst_model_inputs):
+            sig_len = self.__parse_signal_type(model_input[0])[-1]
+            sst_model_output.append(
+                "{send}.set({module}_ports::{abbr}_{sig}, std::stoi(_data_in.substr({p}{l})))".format(
+                    abbr=self.abbr,
+                    l=(", " + str(sig_len)) * bool(sig_len),
+                    module=self.module,
+                    p=start_pos,
+                    send=self.sender,
+                    sig=model_input[-1],
+                )
+            )
+            start_pos += sig_len
 
-        return self.__format(
-            "{send}.set({module}_ports::{abbr}_{sig}, std::stoi(_data_in.substr({p}{l})))",
-            lambda x: {
-                "abbr": self.abbr,
-                "l": (", " + str(sig_lens[sst_model_inputs.index(x)][-1])) *
-                bool(sig_lens[sst_model_inputs.index(x)][-1]),
-                "module": self.module,
-                "p": sig_lens[sst_model_inputs.index(x)][0],
-                "send": self.sender,
-                "sig": x[-1],
-            }, sst_model_inputs, ";\n" + " " * 8
-        )
+        delim = ";\n" + " " * 8
+        return delim.join(sst_model_output)
 
     def generate_sc_driver(self):
         """Generates the blackbox-driver code based on methods used to format

@@ -113,5 +113,5 @@ class ZMQSignals(unittest.TestCase, TestBoilerplate):
 
 if __name__ == "__main__":
 
-    unittest.TestCase.maxDiff = None
+    # unittest.TestCase.maxDiff = None
     unittest.main()
