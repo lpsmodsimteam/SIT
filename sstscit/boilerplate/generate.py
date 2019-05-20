@@ -156,8 +156,9 @@ enum {module}_ports {{
         """Assigns ports to their corresponding member lists
 
         Arguments:
-            ports {dict(str:str)} -- dictionary of C++-style type-declared
-                signals mapped to the type of signal. The current types of
+            ports {tuple(tuple(str,str,str),)} -- tuple of C++-style
+                type-declared signals in the form
+                ("<DTYPE>", "<PORT NAME>", "<PORT TYPE>"). The current types of
                 signals supported are ("clock", "input", "output", "inout")
         """
         for port_dtype, port_name, port_type in ports:
