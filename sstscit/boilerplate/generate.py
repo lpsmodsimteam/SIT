@@ -3,7 +3,7 @@
 
 """Implementation of the BoilerPlate class
 
-This class generates the boilerplate code required to build the blackbox
+This class generates the boilerplate code required to build the black box
 interface in SSTSCIT.
 """
 
@@ -22,8 +22,8 @@ class BoilerPlate(object):
             module {str} -- module name
             lib {str} -- SST library name
             ipc {str} -- type of IPC. Supported options are ("sock", "zmq")
-            drvr_templ_path {str} -- path to the blackbox-driver boilerplate
-            sst_model_templ_path {str} -- path to the blackbox-model boilerplate
+            drvr_templ_path {str} -- path to the black box-driver boilerplate
+            sst_model_templ_path {str} -- path to the black box-model boilerplate
             desc {str} -- description of the SST model (default: {""})
             link_desc {dict(str:str)} -- description of the SST links
                 The argument defaults to:
@@ -109,7 +109,11 @@ class BoilerPlate(object):
         Returns:
             {tuple(str,int)} -- C++ datatype and its size
         """
-        if "sc" in signal:
+        # NoneTypes are explicitly assigned to SST component clock signals
+        if not signal:
+            return signal, 0
+
+        elif "sc" in signal:
 
             def __get_ints(sig):
                 return int("".join(s for s in sig if s.isdigit()))
@@ -123,10 +127,8 @@ class BoilerPlate(object):
             if "bit" in signal or "logic" in signal:
                 return "<bool>", __get_ints(signal)
 
-        if "__clock__" in signal:
-            return None, 0
-
-        return signal, 1
+        else:
+            return signal, 1
 
     @staticmethod
     def __format(fmt, split_func, array, delim=";\n    "):
@@ -165,11 +167,11 @@ class BoilerPlate(object):
             self.ports.append(port)
 
     def get_driver_port_defs(self):
-        """Generates port definitions for the blackbox-driver"""
+        """Generates port definitions for the black box-driver"""
         return "sc_signal" + ";\n    sc_signal".join(self.ports)
 
     def get_driver_bindings(self):
-        """Generates port bindings for the blackbox-driver
+        """Generates port bindings for the black box-driver
 
         Returns:
             {str} -- snippet of code representing port bindings
@@ -180,10 +182,10 @@ class BoilerPlate(object):
         )
 
     def get_clock(self, driver=True):
-        """Generates clock binding for both the components in the blackbox
+        """Generates clock binding for both the components in the black box
 
         Arguments:
-            driver {bool} -- option to generate code for the blackbox-driver
+            driver {bool} -- option to generate code for the black box-driver
                 (default: {True})
 
         Returns:
@@ -197,13 +199,13 @@ class BoilerPlate(object):
                 "recv": self.receiver,
                 "sig": x[-1]
             }, self.clocks
-        ) if driver else [["<__clock__>", i[-1]] for i in self.clocks]
+        ) if driver else [[None, i[-1]] for i in self.clocks]
 
     def get_inputs(self, driver=True):
-        """Generates input bindings for both the components in the blackbox
+        """Generates input bindings for both the components in the black box
 
         Arguments:
-            driver {bool} -- option to generate code for the blackbox-driver
+            driver {bool} -- option to generate code for the black box-driver
                 (default: {True})
 
         Returns:
@@ -230,10 +232,10 @@ class BoilerPlate(object):
         )
 
     def get_outputs(self, driver=True):
-        """Generates output bindings for both the components in the blackbox
+        """Generates output bindings for both the components in the black box
 
         Arguments:
-            driver {bool} -- option to generate code for the blackbox-driver
+            driver {bool} -- option to generate code for the black box-driver
                 (default: {True})
 
         Returns:
@@ -251,32 +253,34 @@ class BoilerPlate(object):
                 }, self.outputs, ";\n" + " " * 8
             )
 
+        # else, the SST component requires evaluation of signal type lengths
+        # positions 0 and 1 are reserved for stopping sending and receiving of
+        # signals
         start_pos = 2
         sst_model_inputs = self.inputs + self.get_clock(driver=False)
         sst_model_output = []
-        for ix, model_input in enumerate(sst_model_inputs):
+        for model_input in sst_model_inputs:
             sig_len = self.__parse_signal_type(model_input[0])[-1]
             sst_model_output.append(
-                "{send}.set({module}_ports::{abbr}_{sig}, std::stoi(_data_in.substr({p}{l})))".format(
+                "{send}.set({module}_ports::{abbr}_{sig}, std::stoi(_data_in.substr({sp}{sl})))".format(
                     abbr=self.abbr,
-                    l=(", " + str(sig_len)) * bool(sig_len),
+                    sl=(", " + str(sig_len)) * bool(sig_len),
                     module=self.module,
-                    p=start_pos,
+                    sp=start_pos,
                     send=self.sender,
                     sig=model_input[-1],
                 )
             )
             start_pos += sig_len
 
-        delim = ";\n" + " " * 8
-        return delim.join(sst_model_output)
+        return (";\n" + " " * 8).join(sst_model_output)
 
     def generate_sc_driver(self):
-        """Generates the blackbox-driver code based on methods used to format
+        """Generates the black box-driver code based on methods used to format
         the template file
 
         Returns:
-            {str} -- boilerplate code representing the blackbox-driver file
+            {str} -- boilerplate code representing the black box-driver file
         """
         if os.path.isfile(self.drvr_templ_path):
             with open(self.drvr_templ_path) as template:
@@ -296,11 +300,11 @@ class BoilerPlate(object):
         raise FileNotFoundError("Driver boilerplate file not found")
 
     def generate_sst_model(self):
-        """Generates the blackbox-model code based on methods used to format
+        """Generates the black box-model code based on methods used to format
         the template file
 
         Returns:
-            {str} -- boilerplate code representing the blackbox-model file
+            {str} -- boilerplate code representing the black box-model file
         """
         if os.path.isfile(self.sst_model_templ_path):
             with open(self.sst_model_templ_path) as template:
@@ -323,7 +327,12 @@ class BoilerPlate(object):
         raise FileNotFoundError("Model boilerplate file not found")
 
     def generate_ports_enum(self):
+        """Generates the number of ports and the port enumeration for the black
+        box components
 
+        Returns:
+            {str} -- boilerplate code representing the black box port details
+        """
         ports = [self.abbr + "_" + x.split(" ")[-1] for x in self.ports]
         return """int {abbr}_NPORTS = {nports};
 
@@ -339,7 +348,7 @@ enum {module}_ports {{
 
     def generate_bbox(self):
         """Provides a high-level interface to the user to generate both the
-        components of the blackbox and dump them to their corresponding files
+        components of the black box and dump them to their corresponding files
         """
         if not len(self.ports):
             raise IndexError("Ports were not set properly")
