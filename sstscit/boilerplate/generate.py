@@ -53,6 +53,13 @@ class BoilerPlate(object):
         self.abbr = "".join(
             i for i in self.module if i not in punctuation + "aeiou")
 
+        self.enums = """int {abbr}_NPORTS = {nports};
+
+enum {module}_ports {{
+    __pid__, {ports}
+}};
+"""
+
         if self.ipc in ("sock", "socks", "socket", "sockets"):
             self.driver_decl = """// Initialize signal handlers
     SocketSignal m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
@@ -153,22 +160,23 @@ class BoilerPlate(object):
                 signals mapped to the type of signal. The current types of
                 signals supported are ("clock", "input", "output", "inout")
         """
-        for port, port_type in ports.items():
+        for port_dtype, port_name, port_type in ports:
             if port_type == "clock":
-                self.clocks.append(port.split(" "))
+                self.clocks.append((port_dtype, port_name))
             elif port_type == "input":
-                self.inputs.append(port.split(" "))
+                self.inputs.append((port_dtype, port_name))
             elif port_type == "output":
-                self.outputs.append(port.split(" "))
+                self.outputs.append((port_dtype, port_name))
             elif port_type == "inout":
-                self.inouts.append(port.split(" "))
+                self.inouts.append((port_dtype, port_name))
             else:
                 raise ValueError("Each ports must be designated a type")
-            self.ports.append(port)
+            self.ports.append((port_dtype, port_name))
 
     def get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""
-        return "sc_signal" + ";\n    sc_signal".join(self.ports)
+        return "sc_signal" + ";\n    sc_signal".join(
+            " ".join(i) for i in self.ports)
 
     def get_driver_bindings(self):
         """Generates port bindings for the black box-driver
@@ -178,7 +186,7 @@ class BoilerPlate(object):
         """
         return self.__format(
             "DUT.{sig}({sig})",
-            lambda x: {"sig": x.split()[-1]}, self.ports
+            lambda x: {"sig": x[-1]}, self.ports
         )
 
     def get_clock(self, driver=True):
@@ -259,10 +267,11 @@ class BoilerPlate(object):
         start_pos = 2
         sst_model_inputs = self.inputs + self.get_clock(driver=False)
         sst_model_output = []
+        fmt = "{send}.set({module}_ports::{abbr}_{sig}, std::stoi(_data_in.substr({sp}{sl})))"
         for model_input in sst_model_inputs:
             sig_len = self.__parse_signal_type(model_input[0])[-1]
             sst_model_output.append(
-                "{send}.set({module}_ports::{abbr}_{sig}, std::stoi(_data_in.substr({sp}{sl})))".format(
+                fmt.format(
                     abbr=self.abbr,
                     sl=(", " + str(sig_len)) * bool(sig_len),
                     module=self.module,
@@ -333,13 +342,8 @@ class BoilerPlate(object):
         Returns:
             {str} -- boilerplate code representing the black box port details
         """
-        ports = [self.abbr + "_" + x.split(" ")[-1] for x in self.ports]
-        return """int {abbr}_NPORTS = {nports};
-
-enum {module}_ports {{
-    __pid__, {ports}
-}};
-""".format(
+        ports = [self.abbr + "_" + x[-1] for x in self.ports]
+        return self.enums.format(
             abbr=self.abbr.upper(),
             nports=len(ports) + 1,
             module=self.module,

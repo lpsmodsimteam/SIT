@@ -67,7 +67,13 @@ DEMO_ARGS = {
     }
 }
 
-generate.BoilerPlate(**DEMO_ARGS).generate_bbox()
+demo_obj = generate.BoilerPlate(**DEMO_ARGS)
+demo_obj.set_ports((
+    ("<bool>", "clock", "clock"),
+    ("<bool>", "input1", "input"),
+    ("<int>", "input2", "input"),
+    ("<sc_uint<4> >", "data_out", "output"),
+)).generate_bbox()
 ```
 
 Running the script `python3 bbox.py` will generate the boilerplate code necessary to establish

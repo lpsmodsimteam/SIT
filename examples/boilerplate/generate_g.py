@@ -29,11 +29,11 @@ class TestBoilerplate(object):
 ! #include "../../../sstscit/sstscit.hpp"
 """
         self.boilerplate_obj = boilerplate_obj
-        self.boilerplate_obj.set_ports({
-            "<bool> clock": "clock",
-            "<bool> reset": "input",
-            "<sc_uint<4> > data_out": "output",
-        })
+        self.boilerplate_obj.set_ports((
+            ("<bool>", "clock", "clock"),
+            ("<bool>", "reset", "input"),
+            ("<sc_uint<4> >", "data_out", "output"),
+        ))
         self.boilerplate_obj.generate_bbox()
         self.driver_path = driver_path
         self.model_path = model_path
