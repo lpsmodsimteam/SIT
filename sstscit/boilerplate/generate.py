@@ -172,7 +172,8 @@ enum {module}_ports {{
                 self.inouts.append((port_dtype, port_name))
             else:
                 raise ValueError("Each ports must be designated a type")
-            self.ports.append((port_dtype, port_name))
+
+        self.ports = self.clocks + self.inputs + self.outputs + self.inouts
 
     def get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""

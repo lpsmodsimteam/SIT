@@ -84,27 +84,24 @@
   computer-aided design (CAD) tools and test benches. These duplicative strategies require a method
   that simulates the entire system in one heterogeneous model.
 
-  Successful attempts have made to establish interoperability between Structural Simulation Toolkit
-  (SST) and the Python-based RTL language, PyRTL \cite{pyrtl-sst}. This project establishes
-  interoperability between SST and SystemC and demonstrates the possibility of extending to further
-  systems due to its modular design. SST is an event-based framework that has the capabilities to
-  simulate not only functionality but timing, power or any other information required. Each SST
-  components can be assigned a clock to synchronize tasks. They communicate events with each other
-  via SST links by triggering their corresponding event handlers. The SST models are constructed in
-  C++ and consist of the functionality of the element, the definition of each links' ports and the
-  event handlers. The models are connected and initialized through the SST Python module. SystemC is
-  a set of C++ classes and macros that deliberately mimics hardware description languages like VHDL
-  and Verilog. The system-level modeling language provides an event-driven simulation kernel along
-  with signals, events and synchronization primitives. Implementing a heterogeneous system to
-  synchronize signals and events between the two kernels would allow the developers to work
-  cooperatively and efficiently.
+  Successful attempts have been made to establish interoperability between Structural Simulation
+  Toolkit (SST) and the Python-based RTL language, PyRTL \cite{pyrtl-sst}. This project establishes
+  interoperability between SST and SystemC and demonstrates its extensibility to further systems due
+  to the modular design.
 
-  \begin{figure}[!h]
-    \centering
-    \includegraphics[width=6.5in]{diagrams/comm.png}
-    \caption{Components of SSTSCIT}
-    \label{fig:comm}
-  \end{figure}
+  SST is an event-based framework that has the capabilities to simulate not only functionality but
+  timing, power or any other information required. Each SST components can be assigned a clock to
+  synchronize tasks. They communicate events with each other via SST links by triggering their
+  corresponding event handlers. The SST models are constructed in C++ and consist of the
+  functionality of the element, the definition of each links' ports and the event handlers. The
+  models are connected and initialized through the SST Python module. SystemC is a set of C++
+  classes and macros that deliberately mimics hardware description languages like VHDL and Verilog.
+  The system-level modeling language provides an event-driven simulation kernel along with signals,
+  events and synchronization primitives.
+
+  Implementing a heterogeneous system to synchronize signals and events between the two kernels
+  would allow the developers to work cooperatively and efficiently. This paper provides a
+  demonstration of the capabilities using an example of a traffic intersection simulation.
 
   \section{Black Box Interface}
   SSTSCIT conceals the communication implementation in black box driver files. This strategy allows
@@ -113,9 +110,9 @@
 
   \begin{figure}[!h]
     \centering
-    \includegraphics[width=5in]{diagrams/data_flow.png}
-    \caption{Black Box Interface Data Flow Diagram. Arrows Highlighted in Red Indicate Communication Signals.}
-    \label{fig:data_flow}
+    \includegraphics[width=6.5in]{diagrams/comm.png}
+    \caption{Components of SSTSCIT}
+    \label{fig:comm}
   \end{figure}
 
   The interface consists of:
@@ -132,6 +129,13 @@
   The toolkit includes a Python class that generates the boilerplate code required for the black
   box interface.
 
+  \begin{figure}[!h]
+    \centering
+    \includegraphics[width=5in]{diagrams/data_flow.png}
+    \caption{Black Box Interface Data Flow Diagram; Arrows Highlighted in Red Indicate Communication Signals}
+    \label{fig:data_flow}
+  \end{figure}
+
   \section{Communication}
 
     \subsection{Inter-Black Box Communication}
@@ -147,7 +151,10 @@
     \lstinline{sigutils::SignalIO} with customized sending and receiving methods.
 
     \subsection{SST-Black Box Communication}
-    An SST component can interface the black box via standard SST links.
+    An SST component can interface the black box via standard SST links. The data is received as a
+    \lstinline{SST::Interfaces::StringEvent} object which is casted to a standard string. SSTSCIT
+    allows a custom event handler as part of its black box interface to allocate the substring
+    positions and lengths for the ports.
 
     \subsection{SystemC-Black Box Communication}
     A SystemC module can be interfaced by a standard source file inclusion.
@@ -166,7 +173,7 @@
   \end{figure}
 
   The concept of this simulation is derived from the original project that established
-  interoperability between SST and PyRTL.\cite{pyrtl-sst}
+  interoperability between SST and PyRTL. \cite{pyrtl-sst}
 
     \subsection{SystemC Drivers}
     The simulation project includes a SystemC module and its driver, \lstinline{traffic_light_fsm},
