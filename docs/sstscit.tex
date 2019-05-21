@@ -101,7 +101,8 @@
 
   Implementing a heterogeneous system to synchronize signals and events between the two kernels
   would allow the developers to work cooperatively and efficiently. This paper provides a
-  demonstration of the capabilities using an example of a traffic intersection simulation.
+  demonstration of the interoperability by simulating a vehicular traffic intersection with traffic
+  lights driven by SystemC processes.
 
   \section{Black Box Interface}
   SSTSCIT conceals the communication implementation in black box driver files. This strategy allows
@@ -132,7 +133,8 @@
   \begin{figure}[!h]
     \centering
     \includegraphics[width=5in]{diagrams/data_flow.png}
-    \caption{Black Box Interface Data Flow Diagram; Arrows Highlighted in Red Indicate Communication Signals}
+    \caption{Black Box Interface Data Flow Diagram; Arrows Highlighted in Red Indicate
+    Communication Signals}
     \label{fig:data_flow}
   \end{figure}
 
@@ -148,7 +150,8 @@
     \end{enumerate}
 
     It is possible to add custom IPC protocols to the interface by implementing a derived class of
-    \lstinline{sigutils::SignalIO} with customized sending and receiving methods.
+    \lstinline{sigutils::SignalIO} with customized sending and receiving methods. Named pipes and
+    shared memories are possible IPC methods that can be implemented into the black box interface.
 
     \subsection{SST-Black Box Communication}
     An SST component can interface the black box via standard SST links. The data is received as a
@@ -213,7 +216,7 @@
       The \lstinline{traffic_light} component generates the light colors of the traffic lights using
       a simple finite state machine (FSM). The component delegates the FSM portion of its algorithm
       to the SystemC module \lstinline{traffic_light_fsm} and inter-procedurally communicates with
-      it via UNIX domain sockets. The component initializes the FSM with the SST parameters and
+      it via Unix domain sockets. The component initializes the FSM with the SST parameters and
       sends its output to \lstinline{intersection} via SST links every clock cycle.
 
       \subsubsection{intersection}

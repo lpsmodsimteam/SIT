@@ -12,9 +12,8 @@
 /*
  * Implements methods to receive signals via ZeroMQ.
  *
- * This class inherits the abstract sigutils::SignalIO base class and
- * implicitly overrides some non-virtual base methods to implement only the
- * receiving functionality.
+ * This class inherits the abstract sigutils::SignalIO base class and implicitly overrides some
+ * non-virtual base methods to implement only the receiving functionality.
  */
 class ZMQReceiver : public SignalIO {
 
@@ -45,9 +44,8 @@ public:
 /*
  * Implements methods to transmit signals via ZeroMQ.
  *
- * This class inherits the abstract sigutils::SignalIO base class and
- * implicitly overrides some non-virtual base methods to implement only the
- * transmitting functionality.
+ * This class inherits the abstract sigutils::SignalIO base class and implicitly overrides some
+ * non-virtual base methods to implement only the transmitting functionality.
  */
 class ZMQTransmitter : public SignalIO {
 
