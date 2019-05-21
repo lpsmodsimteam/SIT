@@ -29,14 +29,8 @@ public:
     // register the data container with MessagePack
     MSGPACK_DEFINE (m_data)
 
-    /*
-     * Default constructor - initializes the `zmq` sockets
-     */
     explicit ZMQReceiver(int, zmq::socket_t &);
 
-    /*
-     * Receives data and unpacks the buffer to MessagePack
-     */
     void recv();
 
     // hide non-virtual base method
@@ -69,19 +63,10 @@ public:
     // register the data container with MessagePack
     MSGPACK_DEFINE (m_data)
 
-    /*
-     * Default constructor - initializes the `zmq` sockets
-     */
     explicit ZMQTransmitter(int, zmq::socket_t &);
 
-    /*
-     * Destructor - clears any remaining MessagePack buffers
-     */
     ~ZMQTransmitter();
 
-    /*
-     * Packs the buffer to MessagePack and sends the data
-     */
     void send();
 
     // hide non-virtual base method
@@ -99,13 +84,22 @@ public:
 
 /* -------------------- ZMQRECEIVER IMPLEMENTATIONS -------------------- */
 
-
+/*
+ * Initializes the ZeroMQ sockets
+ *
+ * Arguments:
+ *     num_ports -- Number of ports used in the black box interface. This number is usually 1
+ *                  greater than the total number of the SystemC module ports
+ *     socket -- ZeroMQ socket
+ */
 inline ZMQReceiver::ZMQReceiver(const int num_ports, zmq::socket_t &socket) :
     SignalIO(num_ports), m_socket(socket) {
     // do nothing
 }
 
-
+/*
+ * Receives data and unpacks the buffer to MessagePack
+ */
 inline void ZMQReceiver::recv() {
 
     m_socket.recv(&m_buf);
@@ -118,17 +112,31 @@ inline void ZMQReceiver::recv() {
 /* -------------------- ZMQTRANSMITTER IMPLEMENTATIONS -------------------- */
 
 
+/*
+ * Initializes the ZeroMQ sockets
+ *
+ * Arguments:
+ *     num_ports -- Number of ports used in the black box interface. This number is usually 1
+ *                  greater than the total number of the SystemC module ports
+ *     socket -- ZeroMQ socket
+ */
 inline ZMQTransmitter::ZMQTransmitter(const int num_ports, zmq::socket_t &socket) :
     SignalIO(num_ports), m_socket(socket), m_packer(&m_sbuf) {
     // do nothing
 }
 
+/*
+ * Clears any remaining MessagePack buffers
+ */
 inline ZMQTransmitter::~ZMQTransmitter() {
 
     m_sbuf.clear();
 
 }
 
+/*
+ * Packs the buffer to MessagePack and sends the data
+ */
 inline void ZMQTransmitter::send() {
 
     m_packer.pack(*this);

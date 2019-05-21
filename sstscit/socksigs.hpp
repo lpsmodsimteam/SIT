@@ -39,29 +39,14 @@ public:
     // register the data container with MessagePack
     MSGPACK_DEFINE (m_data)
 
-    /*
-     * Default constructor - initializes the sockets and buffers. The default
-     * parameter `server_side` is set to true for parent processes. The child
-     * processes need to set the parameter to false to set up the connection
-     * properly.
-     */
     explicit SocketSignal(int, int, bool = true);
 
-    /*
-     * Destructor - unlinks and closes the sockets after use
-     */
     ~SocketSignal();
 
-    void set_addr(const std::string &addr);
+    void set_addr(const std::string &);
 
-    /*
-     * Packs the buffer to MessagePack and sends the data
-     */
     void send();
 
-    /*
-     * Receives data and unpacks the buffer to MessagePack
-     */
     void recv();
 
 };
@@ -69,12 +54,26 @@ public:
 
 /* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
 
+/*
+ * Initializes the sockets, buffers and MessagePack variables
+ *
+ * Arguments:
+ *     num_ports -- Number of ports used in the black box interface. This number is usually 1
+ *                  greater than the total number of the SystemC module ports
+ *     socket -- Unix domain socket
+ *     server_side (default: true) -- Flag is set to true for parent processes. The child processes
+ *                                    need to set the parameter to false to set up the connection
+ *                                    properly.
+ */
 inline SocketSignal::SocketSignal(const int num_ports, int socket, bool server_side) :
     SignalIO(num_ports), m_server_side(server_side), m_socket(socket), m_rd_socket(0),
     m_rd_bytes(0), m_buf(""), m_addr({}), m_packer(&m_sbuf) {
     // do nothing
 }
 
+/*
+ * Unlinks and closes the sockets after use
+ */
 inline SocketSignal::~SocketSignal() {
 
     unlink(m_addr.sun_path);
@@ -83,6 +82,12 @@ inline SocketSignal::~SocketSignal() {
 
 }
 
+/*
+ * Sets configuration options for sockets
+ *
+ * Arguments:
+ *     addr -- Unix domain socket address
+ */
 inline void SocketSignal::set_addr(const std::string &addr) {
 
     if (m_socket < 0) {
@@ -119,6 +124,9 @@ inline void SocketSignal::set_addr(const std::string &addr) {
 
 }
 
+/*
+ * Packs the buffer to MessagePack and sends the data
+ */
 inline void SocketSignal::send() {
 
     m_packer.pack(*this);
@@ -130,8 +138,13 @@ inline void SocketSignal::send() {
 
 }
 
+/*
+ * Receives data and unpacks the buffer to MessagePack.
+ *
+ * Throws a msgpack::insufficient_bytes exception during runtime if the buffer size is
+ * insufficient.
+ */
 inline void SocketSignal::recv() {
-
 
     try {
 
@@ -144,8 +157,7 @@ inline void SocketSignal::recv() {
         msgpack::unpack(m_unpacker, m_buf, m_rd_bytes);
         m_unpacker.get().convert(*this);
 
-
-    } catch (msgpack::v1::insufficient_bytes &e) {
+    } catch (msgpack::v1::insufficient_bytes &) {
 
         perror("\033[31mInsufficient size for transfer buffers. Try increasing BUFSIZE\033[0m\n");
         throw;
