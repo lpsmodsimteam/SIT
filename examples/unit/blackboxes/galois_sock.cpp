@@ -89,7 +89,7 @@ void galois_lfsr::setup() {
 
         m_signal_io.set_addr(m_ipc_port);
         m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>(galois_lfsr_ports::__pid__)) {
+        if (child_pid == m_signal_io.get<int>(glslfsr_ports.pid)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -101,6 +101,7 @@ void galois_lfsr::setup() {
 void galois_lfsr::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
+
 
 }
 
@@ -115,8 +116,8 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         // inputs from parent SST model, outputs to SystemC child process
-        m_signal_io.set(galois_lfsr_ports::glslfsr_reset, std::stoi(_data_in.substr(2, 1)));
-        m_signal_io.set(galois_lfsr_ports::glslfsr_clock, std::stoi(_data_in.substr(3)));
+        m_signal_io.set(glslfsr_ports.reset, std::stoi(_data_in.substr(2, 1)));
+        m_signal_io.set(glslfsr_ports.clock, std::stoi(_data_in.substr(3)));
 
         if (keep_send) {
             m_signal_io.set_state(keep_recv);
@@ -127,7 +128,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         }
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_signal_io.get<int>(galois_lfsr_ports::glslfsr_data_out));
+        std::string _data_out = std::to_string(m_signal_io.get<int>(glslfsr_ports.data_out));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }

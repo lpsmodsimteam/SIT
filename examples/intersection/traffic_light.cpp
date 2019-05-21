@@ -111,7 +111,7 @@ void traffic_light::setup() {
 
         m_signal_io.set_addr(m_ipc_port);
         m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>(traffic_light_fsm_ports::__pid__)) {
+        if (child_pid == m_signal_io.get<int>(trffclghtfsm_ports.pid)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -150,12 +150,12 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     }
 
     // outputs to SystemC child process
-    m_signal_io.set(traffic_light_fsm_ports::trffclghtfsm_load, load);
-    m_signal_io.set(traffic_light_fsm_ports::trffclghtfsm_start_green, start_green);
-    m_signal_io.set(traffic_light_fsm_ports::trffclghtfsm_green_time, green_time);
-    m_signal_io.set(traffic_light_fsm_ports::trffclghtfsm_yellow_time, yellow_time);
-    m_signal_io.set(traffic_light_fsm_ports::trffclghtfsm_red_time, red_time);
-    m_signal_io.set(traffic_light_fsm_ports::trffclghtfsm_clock, current_cycle);
+    m_signal_io.set(trffclghtfsm_ports.load, load);
+    m_signal_io.set(trffclghtfsm_ports.start_green, start_green);
+    m_signal_io.set(trffclghtfsm_ports.green_time, green_time);
+    m_signal_io.set(trffclghtfsm_ports.yellow_time, yellow_time);
+    m_signal_io.set(trffclghtfsm_ports.red_time, red_time);
+    m_signal_io.set(trffclghtfsm_ports.clock, current_cycle);
 
     if (keep_send) {
         m_signal_io.set_state(keep_recv);
@@ -165,7 +165,7 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
         m_signal_io.recv();
     }
 
-    switch (m_signal_io.get<int>(traffic_light_fsm_ports::trffclghtfsm_state)) {
+    switch (m_signal_io.get<int>(trffclghtfsm_ports.state)) {
         case 0:
             light_state->send(new SST::Interfaces::StringEvent("green"));
             break;

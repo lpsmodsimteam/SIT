@@ -1,5 +1,5 @@
 #include "../modules/fib_lfsr.hpp"
-#include "fib_ports.hpp"
+#include "fib_lfsr_ports.hpp"
 #include "../../../sstscit/sstscit.hpp"
 
 int sc_main(int, char *argv[]) {
@@ -22,7 +22,7 @@ int sc_main(int, char *argv[]) {
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_io.set(fib_ports::__pid__, getpid());
+    m_signal_io.set(fblfsr_ports.pid, getpid());
     m_signal_io.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -36,11 +36,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_io.alive()) {
             break;
         }
-        clock = m_signal_io.get_clock_pulse(fib_ports::_clock);
-        reset = m_signal_io.get<bool>(fib_ports::reset);
+        clock = m_signal_io.get_clock_pulse(fblfsr_ports.clock);
+        reset = m_signal_io.get<bool>(fblfsr_ports.reset);
 
         // SENDING
-        m_signal_io.set(fib_ports::data_out, data_out);
+        m_signal_io.set(fblfsr_ports.data_out, data_out);
         m_signal_io.send();
 
     }

@@ -1,6 +1,6 @@
 #include "../traffic_light_fsm.hpp"
 #include "traffic_light_fsm_ports.hpp"
-#include "../../../sstscit/sstscit.hpp"
+#include "../../sstscit/sstscit.hpp"
 
 int sc_main(int, char *argv[]) {
 
@@ -31,7 +31,7 @@ int sc_main(int, char *argv[]) {
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_io.set(traffic_light_fsm_ports::__pid__, getpid());
+    m_signal_io.set(trffclghtfsm_ports.pid, getpid());
     m_signal_io.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
@@ -45,15 +45,15 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_io.alive()) {
             break;
         }
-        clock = m_signal_io.get_clock_pulse(traffic_light_fsm_ports::trffclghtfsm_clock);
-        load = m_signal_io.get<bool>(traffic_light_fsm_ports::trffclghtfsm_load);
-        start_green = m_signal_io.get<bool>(traffic_light_fsm_ports::trffclghtfsm_start_green);
-        green_time = m_signal_io.get<int>(traffic_light_fsm_ports::trffclghtfsm_green_time);
-        yellow_time = m_signal_io.get<int>(traffic_light_fsm_ports::trffclghtfsm_yellow_time);
-        red_time = m_signal_io.get<int>(traffic_light_fsm_ports::trffclghtfsm_red_time);
+        clock = m_signal_io.get_clock_pulse(trffclghtfsm_ports.clock);
+        load = m_signal_io.get<bool>(trffclghtfsm_ports.load);
+        start_green = m_signal_io.get<bool>(trffclghtfsm_ports.start_green);
+        green_time = m_signal_io.get<int>(trffclghtfsm_ports.green_time);
+        yellow_time = m_signal_io.get<int>(trffclghtfsm_ports.yellow_time);
+        red_time = m_signal_io.get<int>(trffclghtfsm_ports.red_time);
 
         // SENDING
-        m_signal_io.set(traffic_light_fsm_ports::trffclghtfsm_state, state);
+        m_signal_io.set(trffclghtfsm_ports.state, state);
         m_signal_io.send();
 
     }

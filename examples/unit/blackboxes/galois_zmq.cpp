@@ -93,7 +93,7 @@ void galois_lfsr::setup() {
 
         m_socket.bind(m_ipc_port.c_str());
         m_signal_i.recv();
-        if (child_pid == m_signal_i.get<int>(galois_lfsr_ports::__pid__)) {
+        if (child_pid == m_signal_i.get<int>(glslfsr_ports.pid)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -120,8 +120,8 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         // inputs from parent SST model, outputs to SystemC child process
-        m_signal_o.set(galois_lfsr_ports::glslfsr_reset, std::stoi(_data_in.substr(2, 1)));
-        m_signal_o.set(galois_lfsr_ports::glslfsr_clock, std::stoi(_data_in.substr(3)));
+        m_signal_o.set(glslfsr_ports.reset, std::stoi(_data_in.substr(2, 1)));
+        m_signal_o.set(glslfsr_ports.clock, std::stoi(_data_in.substr(3)));
 
         if (keep_send) {
             m_signal_o.set_state(keep_recv);
@@ -132,7 +132,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         }
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_signal_i.get<int>(galois_lfsr_ports::glslfsr_data_out));
+        std::string _data_out = std::to_string(m_signal_i.get<int>(glslfsr_ports.data_out));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }

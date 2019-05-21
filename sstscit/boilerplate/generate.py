@@ -53,11 +53,12 @@ class BoilerPlate(object):
         self.abbr = "".join(
             i for i in self.module if i not in punctuation + "aeiou")
 
-        self.enums = """int {abbr}_NPORTS = {nports};
+        self.enums = """int {abbrU}_NPORTS = {nports};
 
-enum {module}_ports {{
-    __pid__, {ports}
-}};
+struct {abbr}_ports_t {{
+    unsigned short int pid = 0;
+    {ports};
+}} {abbr}_ports;
 """
 
         if self.ipc in ("sock", "socks", "socket", "sockets"):
@@ -143,7 +144,7 @@ enum {module}_ports {{
 
         Arguments:
             fmt {str} -- string format
-            split_func {func} -- lambda function to split on the signals
+            split_func {lambda/dict} -- map to split on the signals
             array {list(str)} -- list of signals
             delim {str} -- delimiter (default: {";n    "})
 
@@ -202,10 +203,9 @@ enum {module}_ports {{
             {str} -- snippet of code representing clock binding
         """
         return self.__format(
-            "{sig} = {recv}.get_clock_pulse({module}_ports::{abbr}_{sig})",
+            "{sig} = {recv}.get_clock_pulse({abbr}_ports.{sig})",
             lambda x: {
                 "abbr": self.abbr,
-                "module": self.module,
                 "recv": self.receiver,
                 "sig": x[-1]
             }, self.clocks
@@ -222,19 +222,17 @@ enum {module}_ports {{
             {str} -- snippet of code representing input bindings
         """
         return self.__format(
-            "{sig} = {recv}.get{type}({module}_ports::{abbr}_{sig})",
+            "{sig} = {recv}.get{type}({abbr}_ports.{sig})",
             lambda x: {
                 "abbr": self.abbr,
-                "module": self.module,
                 "recv": self.receiver,
                 "sig": x[-1],
                 "type": self.__parse_signal_type(x[0])[0],
             }, self.inputs, ";\n" + " " * 8
         ) if driver else self.__format(
-            "std::to_string({recv}.get{type}({module}_ports::{abbr}_{sig}))",
+            "std::to_string({recv}.get{type}({abbr}_ports.{sig}))",
             lambda x: {
                 "abbr": self.abbr,
-                "module": self.module,
                 "recv": self.receiver,
                 "sig": x[-1],
                 "type": self.__parse_signal_type(x[0])[0],
@@ -254,10 +252,9 @@ enum {module}_ports {{
         if driver:
 
             return self.__format(
-                "{send}.set({module}_ports::{abbr}_{sig}, {sig})",
+                "{send}.set({abbr}_ports.{sig}, {sig})",
                 lambda x: {
                     "abbr": self.abbr,
-                    "module": self.module,
                     "send": self.sender,
                     "sig": x[-1],
                 }, self.outputs, ";\n" + " " * 8
@@ -269,14 +266,13 @@ enum {module}_ports {{
         start_pos = 2
         sst_model_inputs = self.inputs + self.get_clock(driver=False)
         sst_model_output = []
-        fmt = "{send}.set({module}_ports::{abbr}_{sig}, std::stoi(_data_in.substr({sp}{sl})))"
+        fmt = "{send}.set({abbr}_ports.{sig}, std::stoi(_data_in.substr({sp}{sl})))"
         for model_input in sst_model_inputs:
             sig_len = self.__parse_signal_type(model_input[0])[-1]
             sst_model_output.append(
                 fmt.format(
                     abbr=self.abbr,
                     sl=(", " + str(sig_len)) * bool(sig_len),
-                    module=self.module,
                     sp=start_pos,
                     send=self.sender,
                     sig=model_input[-1],
@@ -296,6 +292,7 @@ enum {module}_ports {{
         if os.path.isfile(self.drvr_templ_path):
             with open(self.drvr_templ_path) as template:
                 return template.read().format(
+                    abbr=self.abbr,
                     module=self.module,
                     port_defs=self.get_driver_port_defs(),
                     bindings=self.get_driver_bindings(),
@@ -320,6 +317,7 @@ enum {module}_ports {{
         if os.path.isfile(self.sst_model_templ_path):
             with open(self.sst_model_templ_path) as template:
                 return template.read().format(
+                    abbr=self.abbr,
                     module=self.module,
                     lib=self.lib,
                     comp=self.module,
@@ -344,12 +342,17 @@ enum {module}_ports {{
         Returns:
             {str} -- boilerplate code representing the black box port details
         """
-        ports = [self.abbr + "_" + x[-1] for x in self.ports]
         return self.enums.format(
-            abbr=self.abbr.upper(),
-            nports=len(ports) + 1,
-            module=self.module,
-            ports=", ".join(ports)
+            abbr=self.abbr,
+            abbrU=self.abbr.upper(),
+            nports=len(self.ports) + 1,
+            ports=self.__format(
+                "unsigned short int {port} = {n}",
+                lambda x: {
+                    "port": x[-1][-1],
+                    "n": x[0] + 1
+                }, enumerate(self.ports)
+            )
         )
 
     def generate_bbox(self):

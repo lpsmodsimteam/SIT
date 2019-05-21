@@ -89,7 +89,7 @@ void {module}::setup() {{
 
         {var_bind};
         {receiver}.recv();
-        if (child_pid == {receiver}.get<int>({module}_ports::__pid__)) {{
+        if (child_pid == {receiver}.get<int>({abbr}_ports.pid)) {{
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }}
