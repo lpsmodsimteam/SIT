@@ -69,6 +69,16 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
+    # GCC 9
+    - name: "GCC 9"
+      env: _CXX=g++-9
+      addons:
+        apt:
+          packages:
+            - g++-9
+          sources:
+            - ubuntu-toolchain-r-test
+
 install:
   # install necessary packages
   - sudo apt install libhwloc-dev libopenmpi-dev libtool-bin
