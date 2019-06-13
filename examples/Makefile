@@ -17,7 +17,7 @@ unit:
 .PHONY: unit-extra-ipc
 unit-extra-ipc:
 	cd ${test_dir} && cmake -DZMQ=ON -DDEMO_ZMQ=ON -DUNIT_TEST=ON .. && $(MAKE)
-	cd ${test_dir} && sst ../demo/zmq.py
+	cd ${test_dir} && sst-register proto proto_LIBDIR=${test_dir} && sst ../demo/zmq.py
 
 clean:
 	# remove all compiled objects and cached files

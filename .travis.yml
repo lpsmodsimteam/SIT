@@ -123,24 +123,17 @@ install:
   - cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install
   - cd ${TRAVIS_BUILD_DIR}
 
-  # # install SST Elements
-  # - SST_ELEM_URL="https://github.com/sstsimulator/sst-elements/releases/download/v${SST_VER}_Final/"
-  # - curl -L ${SST_ELEM_URL}sstelements-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
-  # - mv ${DEPS_DIR}/sst-elements* ${DEPS_DIR}/sstelements-${SST_VER}
-  # - cd ${DEPS_DIR}/sstelements-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
-  # - cd ${TRAVIS_BUILD_DIR}
-
-  # # install zmq
-  # - libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
-  # - cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
-  # - curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
-  # - curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
-  # - mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
-  # - cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
-  # - cd ${TRAVIS_BUILD_DIR}
-  # - mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
-  # - cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
-  # - cd ${TRAVIS_BUILD_DIR}
+  # install zmq
+  - libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
+  - cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
+  - curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
+  - curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
+  - mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
+  - cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
+  - cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
+  - cd ${TRAVIS_BUILD_DIR}
 
   # install msgpack
   - ./install
@@ -150,8 +143,6 @@ before_script:
   - cd examples
   - export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
   - pyenv local ${ENVPY}
-  - sudo apt install tree
-  - tree .
 
 script:
-  - make test_min
+  - make test
