@@ -13,7 +13,7 @@ For further details on the implementation, see the [system design document](/doc
 - [Installation](#installation)
   - [CMake](#cmake)
   - [SystemC](#systemc)
-  - [SST Core and Elements](#sst-core-and-elements)
+  - [SST Core](#sst-core)
   - [MessagePack](#messagepack)
 - [Requirements](#requirements)
   - [Languages and Compilers](#languages-and-compilers)
@@ -171,10 +171,9 @@ curl -L ${SYSC_URL}${SYSC_VER}.tar.gz | tar xz -C deps
 cd deps/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
 ```
 
-### SST Core and Elements
+### SST Core
 
-The following snippet details instructions on installing SST Core and Elements in the project's home
-directory. The installation process may be time consuming.
+The following snippet details instructions on installing SST Core in the project's home directory.
 
 ```bash
 # make directory to manage all dependencies
@@ -188,12 +187,6 @@ sudo apt install libhwloc-dev libopenmpi-dev libtool-bin
 SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
 curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C deps  # SST_VER is the version of SST
 cd deps/sstcore-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install
-cd -
-
-SST_ELEM_URL="https://github.com/sstsimulator/sst-elements/releases/download/v${SST_VER}_Final/"
-curl -L ${SST_ELEM_URL}sstelements-${SST_VER}.tar.gz | tar xz -C deps  # SST_VER is the version of SST
-mv deps/sst-elements* deps/sstelements-${SST_VER}  # the directory is custom named for some reason
-cd deps/sstelements-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install
 ```
 
 ### MessagePack
