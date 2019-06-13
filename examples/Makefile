@@ -12,7 +12,7 @@ boilerplate:
 .PHONY: unit
 unit:
 	cd ${test_dir} && cmake -DUNIT_TEST=ON .. && $(MAKE)
-	cd ${test_dir} && sst ../demo/socks.py
+	cd ${test_dir} && sst-register proto proto_LIBDIR=${test_dir} && sst ../demo/socks.py
 
 .PHONY: unit-extra-ipc
 unit-extra-ipc:
