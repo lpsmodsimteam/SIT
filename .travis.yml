@@ -150,6 +150,8 @@ before_script:
   - cd examples
   - export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
   - pyenv local ${ENVPY}
+  - sudo apt install tree
+  - tree .
 
 script:
   - make test_min
