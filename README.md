@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/sabbirahm3d/sstscit.svg?branch=master)](https://travis-ci.org/sabbirahm3d/sstscit)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/88c38abb1f2a4a369b4a6f9c49e8d237)](https://www.codacy.com/app/sabbirahm3d/sstscit?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sabbirahm3d/sstscit&amp;utm_campaign=Badge_Grade)
 
-A toolkit to provide interoperability between [Structural Simulation Toolkit (SST)](https://github.com/sstsimulator/sst-core) (with [SST Elements](https://github.com/sstsimulator/sst-elements)) and [SystemC](http://www.accellera.org/downloads/standards/systemc).
+A toolkit to provide interoperability between [Structural Simulation Toolkit (SST)](https://github.com/sstsimulator/sst-core) and [SystemC](http://www.accellera.org/downloads/standards/systemc).
 
 For further details on the implementation, see the [system design document](/docs/sstscit.pdf).
 
