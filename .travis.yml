@@ -123,6 +123,7 @@ install:
   - curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
   - cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure --disable-dependency-tracking && make -j${JOBS} all && sudo make install
   - cd ${TRAVIS_BUILD_DIR}
+  - sst --version
 
   # install zmq
   - libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
