@@ -151,7 +151,8 @@
       \item ZeroMQ
     \end{enumerate}
 
-    It is possible to add custom IPC protocols to the interface such as named pipes and shared memories.
+    It is possible to integrate additional IPC protocols to the interface such as named pipes and
+    shared memories.
 
     \subsection{SST-Black Box Communication}
     An SST component can interface the black box via standard SST links. The data is received as a
@@ -305,17 +306,21 @@ Simulation is complete, simulated time: 86.4 Ks
     derived sending and receiving methods would have to simply implement their specific approaches
     of reading and flushing buffers.
 
-    \subsection{Interfaces}
-    This entire paper focuses on the interoperability established between SST and SystemC processes.
-    However, the concept was derived off the efforts already established by the SST-PyRTL project
-    \cite{pyrtl-sst}. In fact, a hybrid version of the Traffic Intersection Simulation has been
-    implemented where one traffic light is controlled by a SystemC process while the other is
-    controlled by a PyRTL process using the same IPC method.
+    \subsection{Interface}
 
-    This extensibility was possible due to the generic structure of the black box interface. The SST
-    component in the black box had to be provided distinct instructions to spawn and communicate
-    with a non-SystemC process. Meanwhile, the other component in the black box required setup in
-    its native configurations to establish communication with its parent process.
+    This entire paper focuses on the interoperability established between SST and SystemC processes.
+    However, the concept was derived off of the efforts already established by the SST-PyRTL project
+    \cite{pyrtl-sst}. In fact, a hybrid version of the Traffic Intersection Simulation has been
+    implemented where both SystemC and PyRTL take control over one traffic light using the same IPC
+    method. The black box SST component had to be provided distinct instructions to spawn and
+    communicate with a SystemC and a non-SystemC process. Meanwhile, the other side of the black box
+    interface consisted of a SystemC driver and a PyRTL driver with their respective native
+    configurations for establishing communication with the parent process.
+
+    This extensibility was possible due to the generic structure of the black box interface. In
+    theory, the interface is able to establish interoperability between SST and almost any other
+    synthesizable HDL.
+
 
   \begin{thebibliography}{5}
 
@@ -334,4 +339,6 @@ Simulation is complete, simulated time: 86.4 Ks
 
 \end{document}
 
-% I took a look at your white paper, and overall it looks good. I have one suggestion, could you describe the interface in more detail? The diagrams are very useful, but maybe add some more detail about using message pack to compress the data, how you could use the generic structure for various languages besides systemc, etc. Possibly also some details of what the boilerplate black box provides. I also have one tiny change, my email doesn’t have a ‘y’ in it. Section 4 to me looks very good, I like all the diagrams and it seems well documented.
+% could you describe the interface in more detail? 
+% The diagrams are very useful, but maybe add some more detail about using message pack to compress the data, how you could use the generic structure for various languages besides systemc, etc.
+% Possibly also some details of what the boilerplate black box provides.
