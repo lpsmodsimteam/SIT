@@ -128,8 +128,14 @@
   file. However, the additional communication lines must be accounted for in the corresponding
   black box SST component.
 
+  The interface also includes a header file with configurations for the communication between the
+  components. These configurations include the number of elements being shared and their
+  corresponding data structure indices.
+
   The toolkit includes a Python class that generates the boilerplate code required for the black
   box interface.
+
+  Both the SST component and the SystemC driver has to be compiled separately.
 
   \begin{figure}[!h]
     \centering
@@ -161,7 +167,10 @@
     positions and lengths for the ports.
 
     \subsection{SystemC-Black Box Communication}
-    A SystemC module can be interfaced by a standard source file inclusion.
+
+    A SystemC module can be interfaced by a standard source file inclusion. The driver does require
+    the overridden entry point, \lstinline{sc_main}, to instantiate the module and set up the
+    communication configurations.
 
   \section{Proof of Concept: Traffic Intersection Simulation}
   A simulation model has been developed to demonstrate the project. The model simulates a traffic
