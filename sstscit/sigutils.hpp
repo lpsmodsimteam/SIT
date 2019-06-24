@@ -7,7 +7,6 @@
 
 #include "msgpack/msgpack.hpp"  // to pack/unpack signals
 
-#include <iostream>
 #include <sstream>
 #include <unistd.h>
 #include <vector>

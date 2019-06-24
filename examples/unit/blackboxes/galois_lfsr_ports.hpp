@@ -1,6 +1,6 @@
-int GLSLFSR_NPORTS = 4;
+const int GLSLFSR_NPORTS = 4;
 
-struct glslfsr_ports_t {
+const struct glslfsr_ports_t {
     unsigned short int pid = 0;
     unsigned short int clock = 1;
     unsigned short int reset = 2;

@@ -1,6 +1,6 @@
-int TRFFCLGHTFSM_NPORTS = 8;
+const int TRFFCLGHTFSM_NPORTS = 8;
 
-struct trffclghtfsm_ports_t {
+const struct trffclghtfsm_ports_t {
     unsigned short int pid = 0;
     unsigned short int clock = 1;
     unsigned short int load = 2;

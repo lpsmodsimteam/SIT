@@ -53,9 +53,9 @@ class BoilerPlate(object):
         self.abbr = "".join(
             i for i in self.module if i not in punctuation + "aeiou")
 
-        self.enums = """int {abbrU}_NPORTS = {nports};
+        self.enums = """const int {abbrU}_NPORTS = {nports};
 
-struct {abbr}_ports_t {{
+const struct {abbr}_ports_t {{
     unsigned short int pid = 0;
     {ports};
 }} {abbr}_ports;

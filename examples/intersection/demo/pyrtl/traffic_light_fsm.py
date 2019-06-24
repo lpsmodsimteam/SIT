@@ -1,9 +1,10 @@
+import array
+import os
 import socket
 import sys
 
 import msgpack
 import pyrtl
-
 # Create and connect to named pipes
 # os.mkfifo(str(sys.argv[1]))
 # os.mkfifo(str(sys.argv[2]))
@@ -11,10 +12,16 @@ import pyrtl
 # outFifo = os.open(str(sys.argv[2]), os.O_WRONLY)
 # inFifo = os.open(str(sys.argv[1]), os.O_RDONLY)
 
-
 socketAddress = sys.argv[1]
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 sock.connect(socketAddress)
+
+arr = array.array('u', str(os.getpid()))
+print(arr)
+msg = msgpack.packb(arr.tobytes(), use_bin_type=True)
+print("packed", msg)
+sock.sendall(msg)
+print("sent")
 
 
 # Inputs and outputs of the module
