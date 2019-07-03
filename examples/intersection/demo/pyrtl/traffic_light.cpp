@@ -21,6 +21,10 @@ public:
 
     bool tick(SST::Cycle_t);
 
+    void send();
+
+    void recv();
+
     SST_ELI_REGISTER_COMPONENT(
         traffic_light_pyrtl,
         "intersection",
@@ -47,8 +51,15 @@ public:
 
 private:
 
-    // Prepare the signal handler
-    SocketSignal m_signal_io;
+    // // Prepare the signal handler
+    // SocketSignal m_signal_io;
+
+    int m_socket;
+    size_t m_rd_bytes;
+    char m_buf[BUFSIZE];
+    struct sockaddr_un m_addr;
+
+    std::string m_data;
 
     // SST parameters
     std::string m_clock;
@@ -63,7 +74,8 @@ private:
 
 traffic_light_pyrtl::traffic_light_pyrtl(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
-    m_signal_io(TRFFCLGHTFSM_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),
+    m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
+    m_rd_bytes(0), m_buf(""), m_addr({}),
     // Collect all the parameters from the project driver
     m_clock(params.find<std::string>("CLOCK", "1Hz")),
     STARTGREEN(params.find<int>("STARTGREEN", false)),
@@ -95,6 +107,22 @@ traffic_light_pyrtl::traffic_light_pyrtl(SST::ComponentId_t id, SST::Params &par
 
 }
 
+void traffic_light_pyrtl::recv() {
+
+    m_rd_bytes = static_cast<size_t>(read(m_socket, m_buf, BUFSIZE));
+
+    m_buf[m_rd_bytes] = '\0';
+    m_data = std::string(m_buf);
+
+}
+
+void traffic_light_pyrtl::send() {
+
+    write(m_socket, m_data.c_str(), m_data.size());
+
+}
+
+
 void traffic_light_pyrtl::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
@@ -103,15 +131,37 @@ void traffic_light_pyrtl::setup() {
 
     if (!child_pid) {
 
-        char *args[] = {"python3", &m_proc[0u], &m_ipc_port[0u], nullptr};
+        char *args[] = {(char *) "python3", &m_proc[0u], &m_ipc_port[0u], nullptr};
         m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str());
         execvp(args[0], args);
 
     } else {
 
-        m_signal_io.set_addr(m_ipc_port);
-        m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>(trffclghtfsm_ports.pid)) {
+        if (m_socket < 0) {
+            perror("Socket creation\n");
+        }
+
+        memset(&m_addr, 0, sizeof(m_addr));
+        m_addr.sun_family = AF_UNIX;
+        strcpy(m_addr.sun_path, m_ipc_port.c_str());
+
+
+        if (bind(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
+            perror("Bind failed\n");
+        }
+
+        if (listen(m_socket, 5) < 0) {
+            perror("Socket listen\n");
+        }
+
+        socklen_t addr_len = sizeof(m_addr);
+        if ((m_socket = accept(m_socket, (struct sockaddr *) &m_addr, &addr_len)) < 0) {
+            perror("Accept failed\n");
+        }
+
+        this->recv();
+
+        if (child_pid == std::stoi(m_data)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -123,6 +173,8 @@ void traffic_light_pyrtl::setup() {
 void traffic_light_pyrtl::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
+    unlink(m_addr.sun_path);
+    close(m_socket);
 
 }
 
@@ -132,40 +184,24 @@ bool traffic_light_pyrtl::tick(SST::Cycle_t current_cycle) {
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
 
-    bool load;
-    int start_green, green_time, yellow_time, red_time;
+    char s[9];
 
     if (current_cycle == 1) {
-        load = true;
-        start_green = STARTGREEN;
-        green_time = GREENTIME;
-        yellow_time = YELLOWTIME;
-        red_time = REDTIME;
+    	sprintf(s, "1%d%02d%02d%02d", STARTGREEN, GREENTIME, YELLOWTIME, REDTIME);
     } else {
-        load = false;
-        start_green = 0;
-        green_time = 0;
-        yellow_time = 0;
-        red_time = 0;
+    	strncpy(s, "00000000", 8);
     }
 
-    // outputs to SystemC child process
-    m_signal_io.set(trffclghtfsm_ports.load, load);
-    m_signal_io.set(trffclghtfsm_ports.start_green, start_green);
-    m_signal_io.set(trffclghtfsm_ports.green_time, green_time);
-    m_signal_io.set(trffclghtfsm_ports.yellow_time, yellow_time);
-    m_signal_io.set(trffclghtfsm_ports.red_time, red_time);
-    m_signal_io.set(trffclghtfsm_ports.clock, current_cycle);
+    m_data = s;
 
     if (keep_send) {
-        m_signal_io.set_state(keep_recv);
-        m_signal_io.send();
+        this->send();
     }
     if (keep_recv) {
-        m_signal_io.recv();
+        this->recv();
     }
 
-    switch (m_signal_io.get<int>(trffclghtfsm_ports.state)) {
+    switch (std::stoi(m_data)) {
         case 0:
             light_state->send(new SST::Interfaces::StringEvent("green"));
             break;
@@ -180,39 +216,3 @@ bool traffic_light_pyrtl::tick(SST::Cycle_t current_cycle) {
     return false;
 
 }
-
-
-// // Send a command to the PyRTL stopLight every clock
-// bool trafficLight::clockTick( SST::Cycle_t currentCycle ) {
-// 	write(outFifo, s, 8);
-// 	// Clear the command so we don't send the same command over and over
-// 	// need to receive a command from the port
-// 	strncpy(s, "00000000", 8);
-	
-// 	// Read from the PyRTL stopLight to see what state the light is in
-// 	char r[2] = "\0";
-// 	read(inFifo, r, 1);
-// 	std::string c;
-// 	switch(r[0]){
-// 		case '0':
-// 			c = "green";
-// 			break;
-// 		case '1':
-// 			c = "yellow";
-// 			break;
-// 		case '2':
-// 			c = "red";
-// 			break;
-// 	}
-// 	port->send(new StringEvent(c));
-// 	return false;
-// }
-
-// // Send commands that are received to the PyRTL stopLight
-// void trafficLight::handleEvent(SST::Event *ev) {
-// 	StringEvent *se = dynamic_cast<StringEvent*>(ev);
-// 	if ( se != NULL ) {
-// 		strncpy(s, se->getString().c_str(), 8);
-// 	}
-// 	delete ev;
-// }

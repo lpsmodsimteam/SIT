@@ -33,6 +33,7 @@ light_comp_sc.addParams({
     "PROC": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
     "IPC_PORT": get_rand_tmp(),
 })
+
 light_comp_py = sst.Component("Traffic Light PyRTL",
                               "intersection.traffic_light_pyrtl")
 light_comp_py.addParams({

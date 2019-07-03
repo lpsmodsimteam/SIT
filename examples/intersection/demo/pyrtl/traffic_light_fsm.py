@@ -1,28 +1,13 @@
-import array
 import os
 import socket
 import sys
 
-import msgpack
 import pyrtl
-# Create and connect to named pipes
-# os.mkfifo(str(sys.argv[1]))
-# os.mkfifo(str(sys.argv[2]))
-
-# outFifo = os.open(str(sys.argv[2]), os.O_WRONLY)
-# inFifo = os.open(str(sys.argv[1]), os.O_RDONLY)
 
 socketAddress = sys.argv[1]
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 sock.connect(socketAddress)
-
-arr = array.array('u', str(os.getpid()))
-print(arr)
-msg = msgpack.packb(arr.tobytes(), use_bin_type=True)
-print("packed", msg)
-sock.sendall(msg)
-print("sent")
-
+sock.sendall(str(os.getpid()).encode())
 
 # Inputs and outputs of the module
 load = pyrtl.Input(1, "load")  # using load as reset
@@ -84,7 +69,6 @@ with pyrtl.conditional_assignment:
 # Output the state
 out <<= state
 
-
 # Setup the simulation
 sim_trace = pyrtl.SimulationTrace([load, startGreen, counter, out])
 sim = pyrtl.FastSimulation(tracer=sim_trace)
@@ -95,23 +79,16 @@ sim = pyrtl.FastSimulation(tracer=sim_trace)
 # Run until receive a "q" from the named pipe
 while True:
     # cmd = os.read(inFifo, 8).decode("utf-8")
-    cmd = sock.recv(8).decode("utf-8")
+    cmd = str(sock.recv(8).decode("utf-8"))
+
     if cmd:
         if cmd == "q":
             break
-        l = int(cmd[0], 2)
-        s = int(cmd[1], 2)
-        g = int(cmd[2:4], 16)
-        y = int(cmd[4:6], 16)
-        r = int(cmd[6:8], 16)
-        sim.step({"load": l, "startGreen": s, "greenTime": g,
-                  "yellowTime": y, "redTime": r})
-        # os.write(outFifo, str(sim.inspect(out)).encode())
+        sim.step({
+            "load": int(cmd[0]),
+            "STARTGREEN": int(cmd[1]),
+            "GREENTIME": int(cmd[2:4]),
+            "YELLOWTIME": int(cmd[4:6]),
+            "REDTIME": int(cmd[6:8])
+        })
         sock.sendall(str(sim.inspect(out)).encode())
-
-# Clean up fifos and print out waveform
-# os.close(inFifo)
-# os.close(outFifo)
-# os.system("rm " + str(sys.argv[1]) + " " + str(sys.argv[2]))
-
-exit(0)
