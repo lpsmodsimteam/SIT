@@ -42,7 +42,7 @@ light_comp_py.addParams({
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN0TIME + YELLOWTIME,
     "STARTGREEN": 1,
-    "PROC": os.path.join(BASE_PATH, "../demo/pyrtl/traffic_light_fsm.py"),
+    "PROC": os.path.join(BASE_PATH, "../demo/pyrtl/traffic_light_driver.py"),
     "IPC_PORT": get_rand_tmp(),
 })
 

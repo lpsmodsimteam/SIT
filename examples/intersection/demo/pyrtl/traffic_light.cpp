@@ -25,6 +25,8 @@ public:
 
     void recv();
 
+    void set_state(bool);
+
     SST_ELI_REGISTER_COMPONENT(
         traffic_light_pyrtl,
         "intersection",
@@ -50,9 +52,6 @@ public:
     )
 
 private:
-
-    // // Prepare the signal handler
-    // SocketSignal m_signal_io;
 
     int m_socket;
     size_t m_rd_bytes;
@@ -122,6 +121,12 @@ void traffic_light_pyrtl::send() {
 
 }
 
+void traffic_light_pyrtl::set_state(bool state) {
+
+    m_data[0] = state ? '1' : '0';
+
+}
+
 
 void traffic_light_pyrtl::setup() {
 
@@ -184,19 +189,20 @@ bool traffic_light_pyrtl::tick(SST::Cycle_t current_cycle) {
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
 
-    char s[9];
-
-    if (current_cycle == 1) {
-    	sprintf(s, "1%d%02d%02d%02d", STARTGREEN, GREENTIME, YELLOWTIME, REDTIME);
-    } else {
-    	strncpy(s, "00000000", 8);
-    }
-
-    m_data = s;
-
     if (keep_send) {
+
+        char s[10];
+        if (current_cycle == 1) {
+        	sprintf(s, "X1%d%02d%02d%02d", STARTGREEN, GREENTIME, YELLOWTIME, REDTIME);
+        } else {
+        	strncpy(s, "X00000000", 9);
+        }
+        m_data = s;
+
+        this->set_state(keep_recv);
         this->send();
     }
+
     if (keep_recv) {
         this->recv();
     }
