@@ -191,13 +191,13 @@ bool traffic_light_pyrtl::tick(SST::Cycle_t current_cycle) {
 
     if (keep_send) {
 
-        char s[10];
+        char buff[10];
         if (current_cycle == 1) {
-        	sprintf(s, "X1%d%02d%02d%02d", STARTGREEN, GREENTIME, YELLOWTIME, REDTIME);
+        	snprintf(buff, sizeof(buff), "X1%d%02d%02d%02d", STARTGREEN, GREENTIME, YELLOWTIME, REDTIME);
         } else {
-        	strncpy(s, "X00000000", 9);
+        	strncpy(buff, "X00000000", sizeof(buff) - 1);
         }
-        m_data = s;
+        m_data = buff;
 
         this->set_state(keep_recv);
         this->send();

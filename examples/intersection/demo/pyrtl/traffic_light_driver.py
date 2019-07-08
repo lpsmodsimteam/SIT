@@ -14,17 +14,17 @@ sock.connect(sys.argv[1])
 sock.sendall(str(os.getpid()).encode())
 
 while True:
-    cmd = str(sock.recv(9).decode("utf-8"))
-    alive = int(cmd[0])
-    cmd = cmd[1:]
+    signal = str(sock.recv(9).decode("utf-8"))
+    alive = int(signal[0])
+    signal = signal[1:]
 
     if not alive:
         break
     sim.step({
-        "LOAD": int(cmd[0]),
-        "STARTGREEN": int(cmd[1]),
-        "GREENTIME": int(cmd[2:4]),
-        "YELLOWTIME": int(cmd[4:6]),
-        "REDTIME": int(cmd[6:8])
+        "LOAD": int(signal[0]),
+        "STARTGREEN": int(signal[1]),
+        "GREENTIME": int(signal[2:4]),
+        "YELLOWTIME": int(signal[4:6]),
+        "REDTIME": int(signal[6:8])
     })
     sock.sendall(str(sim.inspect(out)).encode())

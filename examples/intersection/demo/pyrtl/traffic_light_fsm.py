@@ -9,7 +9,7 @@ start_green = pyrtl.Input(1, "STARTGREEN")
 green_time = pyrtl.Input(8, "GREENTIME")
 yellow_time = pyrtl.Input(8, "YELLOWTIME")
 red_time = pyrtl.Input(8, "REDTIME")
-out = pyrtl.Output(2, "out")
+out = pyrtl.Output(2, "OUT")
 
 # Register the times for each color when load signal is 1
 gt = pyrtl.Register(8, "gt")
