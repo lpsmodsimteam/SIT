@@ -93,7 +93,7 @@ install:
   # set versions for requirements
   - CMAKE_VER="3.14.0"
   - SYSC_VER="2.3.3"
-  - SST_VER="8.0.0"
+  - SST_VER="9.0.0"
   - LIBZMQ_VER="4.3.1"
   - CPPZMQ_VER="4.3.0"
   - ENVPY="3.6.7"
