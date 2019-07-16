@@ -3,7 +3,6 @@
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
-#include <sst/core/elementinfo.h>
 #include <sst/core/rng/marsaglia.h>
 
 class car_generator : public SST::Component {

@@ -2,7 +2,6 @@
 #include "../../../sstscit/sstscit.hpp"
 
 #include <sst/core/component.h>
-#include <sst/core/elementinfo.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 

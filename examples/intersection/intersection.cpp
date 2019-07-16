@@ -10,7 +10,6 @@ Keeps track of some statistics for number of cars and largest backups at the lig
 
 #include <sst/core/component.h>
 #include <sst/core/link.h>
-#include <sst/core/elementinfo.h>
 
 class intersection : public SST::Component {
 

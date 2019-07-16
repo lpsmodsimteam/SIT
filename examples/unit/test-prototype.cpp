@@ -7,7 +7,6 @@
 #define SIMTIME 39
 
 #include <sst/core/component.h>
-#include <sst/core/elementinfo.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 #include <sst/core/sst_config.h>
