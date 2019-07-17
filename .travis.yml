@@ -1,5 +1,5 @@
 os: linux
-dist: xenial
+dist: bionic
 language: cpp
 
 matrix:
@@ -9,82 +9,49 @@ matrix:
 
     # Clang 6
     - name: "Clang 6"
-      env: _CXX=clang++-6.0
-      addons:
-        apt:
-          packages:
-            - clang-6.0
-          sources:
-            - llvm-toolchain-xenial-6.0
+      env:
+        - _CXX=clang++-6.0
+        - _PKG="deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic main"
 
     # Clang 7
     - name: "Clang 7"
-      env: _CXX=clang++-7
-      addons:
-        apt:
-          packages:
-            - clang-7
-          sources:
-            - llvm-toolchain-xenial-7
+      env:
+        - _CXX=clang++-7
+        - _PKG="deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-7 main"
 
     # Clang 8
     - name: "Clang 8"
-      env: _CXX=clang++-8
-      addons:
-        apt:
-          packages:
-            - clang-8
-          sources:
-            - llvm-toolchain-xenial-8
+      env:
+        - _CXX=clang++-8
+        - _PKG="deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main"
 
     # --------------- GCC on Linux --------------- #
 
     # GCC 6
     - name: "GCC 6"
-      env: _CXX=g++-6
-      addons:
-        apt:
-          packages:
-            - g++-6
-          sources:
-            - ubuntu-toolchain-r-test
+      env:
+        - _CXX=g++-6
+        - _PKG=ppa:ubuntu-toolchain-r/test
 
     # GCC 7
     - name: "GCC 7"
-      env: _CXX=g++-7
-      addons:
-        apt:
-          packages:
-            - g++-7
-          sources:
-            - ubuntu-toolchain-r-test
+      env:
+        - _CXX=g++-7
+        - _PKG=ppa:ubuntu-toolchain-r/test
 
     # GCC 8
     - name: "GCC 8"
-      env: _CXX=g++-8
-      addons:
-        apt:
-          packages:
-            - g++-8
-          sources:
-            - ubuntu-toolchain-r-test
+      env:
+        - _CXX=g++-8
+        - _PKG=ppa:ubuntu-toolchain-r/test
 
     # GCC 9
     - name: "GCC 9"
-      env: _CXX=g++-9
-      addons:
-        apt:
-          packages:
-            - g++-9
-          sources:
-            - ubuntu-toolchain-r-test
+      env:
+        - _CXX=g++-9
+        - _PKG=ppa:ubuntu-toolchain-r/test
 
 install:
-  # install necessary packages
-  - sudo apt install libhwloc-dev libopenmpi-dev libtool-bin
-
-  # set the proper C++ compiler
-  - export CXX=${_CXX}
 
   # set the maximum number of cores supported on Travis
   - JOBS=$(nproc --all)
@@ -101,6 +68,15 @@ install:
   # dependencies required by the CI are installed in ${TRAVIS_BUILD_DIR}/deps/
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir -p "${DEPS_DIR}"
+
+  # set the proper C++ compiler
+  - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+  - sudo add-apt-repository "${_PKG}" -y
+  - sudo apt install ${_CXX} -y
+  - export CXX=${_CXX}
+
+  # install necessary packages
+  - sudo apt install libhwloc-dev libopenmpi-dev libtool openmpi-bin
 
   # upgrade CMake to a more recent version
   - CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
