@@ -69,14 +69,16 @@ install:
   - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
   - mkdir -p "${DEPS_DIR}"
 
-  # set the proper C++ compiler
+  # add LLVM public keys for Clang compilers
   - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+
+  # set the proper C++ compiler
   - sudo add-apt-repository "${_PKG}" -y
   - sudo apt install ${_CXX} -y
   - export CXX=${_CXX}
 
   # install necessary packages
-  - sudo apt install libhwloc-dev libopenmpi-dev libtool openmpi-bin
+  - sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
 
   # upgrade CMake to a more recent version
   - CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
