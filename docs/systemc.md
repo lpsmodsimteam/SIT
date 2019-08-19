@@ -1,4 +1,4 @@
-# SST Interoperable - with SystemC
+# SST Interoperable: SystemC
 
 ## Table of Contents
 
