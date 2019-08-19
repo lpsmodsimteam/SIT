@@ -7,7 +7,7 @@ import sys
 import unittest
 
 BASE_DIR = os.path.dirname(os.getcwd())
-SCRIPT_PATH = os.path.join(BASE_DIR, "sstscit", "boilerplate")
+SCRIPT_PATH = os.path.join(BASE_DIR, "ssti", "boilerplate")
 BBOX_DIR_PATH = os.path.join(BASE_DIR, "examples", "unit", "blackboxes")
 DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "driver.hpp")
 MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "model.hpp")
@@ -21,12 +21,12 @@ class TestBoilerplate(object):
 
         self.driver_diffs = """! #include "galois_lfsr.hpp"
 ! #include "../modules/galois_lfsr.hpp"
-! #include "sstscit.hpp"
-! #include "../../../sstscit/sstscit.hpp"
+! #include "ssti.hpp"
+! #include "../../../ssti/ssti.hpp"
 """
 
-        self.model_diffs = """! #include "sstscit.hpp"
-! #include "../../../sstscit/sstscit.hpp"
+        self.model_diffs = """! #include "ssti.hpp"
+! #include "../../../ssti/ssti.hpp"
 """
         self.boilerplate_obj = boilerplate_obj
         self.boilerplate_obj.set_ports((

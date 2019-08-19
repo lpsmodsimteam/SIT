@@ -4,7 +4,7 @@
 """Implementation of the BoilerPlate class
 
 This class generates the boilerplate code required to build the black box
-interface in SSTSCIT.
+interface in SSTI.
 """
 
 import math

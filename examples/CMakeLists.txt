@@ -58,7 +58,7 @@ if (${ZMQ})
 
 endif ()
 
-get_filename_component(SRC_DIR ../../sstscit ABSOLUTE)
+get_filename_component(SRC_DIR ../../ssti ABSOLUTE)
 include_directories(${SRC_DIR}/msgpack)
 
 # -------------------- EXTERNAL LIBRARIES --------------------

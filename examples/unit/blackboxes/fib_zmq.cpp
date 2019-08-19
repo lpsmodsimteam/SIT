@@ -1,4 +1,4 @@
-#include "../../../sstscit/sstscit.hpp"
+#include "../../../ssti/ssti.hpp"
 #include "fib_lfsr_ports.hpp"
 
 #include <sst/core/component.h>

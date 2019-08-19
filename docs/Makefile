@@ -1,4 +1,4 @@
-DOC ?= sstscit.tex
+DOC ?= ssti.tex
 
 .PHONY: convert convert1 convert2
 convert: convert1 convert2

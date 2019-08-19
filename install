@@ -3,5 +3,5 @@ set -o errexit
 
 msgpack_url="https://github.com/msgpack/msgpack-c"
 git clone --depth 1 -q ${msgpack_url} msgpack
-mkdir -p sstscit/msgpack
-mv msgpack/include/* sstscit/msgpack && rm -rf msgpack
+mkdir -p ssti/msgpack
+mv msgpack/include/* ssti/msgpack && rm -rf msgpack

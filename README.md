@@ -1,10 +1,10 @@
 # SST-SystemC Interoperability Toolkit
-[![Build Status](https://travis-ci.org/sabbirahm3d/sstscit.svg?branch=master)](https://travis-ci.org/sabbirahm3d/sstscit)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/88c38abb1f2a4a369b4a6f9c49e8d237)](https://www.codacy.com/app/sabbirahm3d/sstscit?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sabbirahm3d/sstscit&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/sabbirahm3d/ssti.svg?branch=master)](https://travis-ci.org/sabbirahm3d/ssti)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/88c38abb1f2a4a369b4a6f9c49e8d237)](https://www.codacy.com/app/sabbirahm3d/ssti?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sabbirahm3d/ssti&amp;utm_campaign=Badge_Grade)
 
 A toolkit to provide interoperability between [Structural Simulation Toolkit (SST)](https://github.com/sstsimulator/sst-core) and [SystemC](http://www.accellera.org/downloads/standards/systemc).
 
-For further details on the implementation, see the [system design document](/docs/sstscit.pdf).
+For further details on the implementation, see the [system design document](/docs/ssti.pdf).
 
 ## Table of Contents
 
@@ -200,8 +200,8 @@ Running the script attached to the project will set up MessagePack for the toolk
 
 msgpack_url="https://github.com/msgpack/msgpack-c"
 git clone --depth 1 -q ${msgpack_url} msgpack
-mkdir -p sstscit/msgpack
-mv msgpack/include/* sstscit/msgpack && rm -rf msgpack
+mkdir -p ssti/msgpack
+mv msgpack/include/* ssti/msgpack && rm -rf msgpack
 ```
 
 ## Requirements

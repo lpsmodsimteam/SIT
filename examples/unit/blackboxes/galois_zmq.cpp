@@ -1,5 +1,5 @@
 #include "galois_lfsr_ports.hpp"
-#include "../../../sstscit/sstscit.hpp"
+#include "../../../ssti/ssti.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>

@@ -64,8 +64,8 @@
     such toolkit. However, SST must be able to support models implemented in various frameworks and
     languages. SystemC is a popular hardware-level modeling language composed of C++ classes and
     macros \cite{sysc}. Establishing communication with SystemC modules would allow SST to interface
-    numerous existing synthesizable hardware models. SST-SystemC Interoperability Toolkit (SSTSCIT)
-    is a library developed to provide interoperability between SST and SystemC. SSTSCIT aims to
+    numerous existing synthesizable hardware models. SST-SystemC Interoperability Toolkit (SSTI)
+    is a library developed to provide interoperability between SST and SystemC. SSTI aims to
     achieve this capability in a modular design without interfering with the kernels by concealing
     the communication protocols in black box interfaces. This project includes a demonstration of
     the interoperability by simulating a vehicular traffic intersection with traffic lights driven
@@ -105,14 +105,14 @@
   lights driven by SystemC processes.
 
   \section{Black Box Interface}
-  SSTSCIT conceals the communication implementation in black box driver files. This strategy allows
+  SSTI conceals the communication implementation in black box driver files. This strategy allows
   the SST component to connect with the SystemC process via SST links as if it were a component
   itself.
 
   \begin{figure}[!h]
     \centering
     \includegraphics[width=6.5in]{diagrams/comm.png}
-    \caption{Components of SSTSCIT}
+    \caption{Components of SSTI}
     \label{fig:comm}
   \end{figure}
 
@@ -162,7 +162,7 @@
 
     \subsection{SST-Black Box Communication}
     An SST component can interface the black box via standard SST links. The data is received as a
-    \lstinline{SST::Interfaces::StringEvent} object which is casted to a standard string. SSTSCIT
+    \lstinline{SST::Interfaces::StringEvent} object which is casted to a standard string. SSTI
     provides a custom event handler as part of its black box interface to allocate the substring
     positions and lengths for the ports.
 

@@ -1,5 +1,5 @@
 #include "blackboxes/traffic_light_fsm_ports.hpp"
-#include "../../sstscit/sstscit.hpp"
+#include "../../ssti/ssti.hpp"
 
 #include <sst/core/sst_config.h>
 #include <sst/core/component.h>

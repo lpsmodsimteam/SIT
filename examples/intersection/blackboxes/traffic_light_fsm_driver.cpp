@@ -1,6 +1,6 @@
 #include "../traffic_light_fsm.hpp"
 #include "traffic_light_fsm_ports.hpp"
-#include "../../sstscit/sstscit.hpp"
+#include "../../ssti/ssti.hpp"
 
 int sc_main(int, char *argv[]) {
 
