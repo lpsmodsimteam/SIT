@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(examples CXX)
+project(tests CXX)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -77,10 +77,6 @@ execute_process(COMMAND ${CMAKE_COMMAND} --build .
 if(result)
   message(FATAL_ERROR "Build step for googletest failed: ${result}")
 endif()
-
-# Prevent overriding the parent project's compiler/linker
-# settings on Windows
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 # Add googletest directly to our build. This defines
 # the gtest and gtest_main targets.
