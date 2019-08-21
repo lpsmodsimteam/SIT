@@ -12,6 +12,7 @@ boilerplate:
 .PHONY: systemc
 systemc:
 	cd ${test_dir} && cmake .. && $(MAKE)
+#	cd ${test_dir} && sst-register proto proto_LIBDIR=${test_dir} && sst ../run.py
 
 #
 #.PHONY: systemc
