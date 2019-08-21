@@ -22,17 +22,17 @@ if __name__ == "__main__":
         sst_model_templ_path=MODEL_TEMPL_PATH,
         desc="Demonstration of a SystemC hardware simulation in SST",
         link_desc={
-            "link_desc0": "Traffic Light FSM data_in",
-            "link_desc1": "Traffic Light FSM data_out",
+            "link_desc0": "RAM data_in",
+            "link_desc1": "RAM data_out",
         }
     )
     boilerplate_obj.set_ports((
-        ("<sc_uint<ADDR_WIDTH> >", "address", "input"),
+        ("<sc_bv<8> >", "address", "input"),
         ("<bool>", "cs", "input"),
         ("<bool>", "we", "input"),
         ("<bool>", "oe", "input"),
-        ("<sc_uint<DATA_WIDTH> >", "data_in", "input"),
-        ("<sc_uint<DATA_WIDTH> >", "data_out", "output"),
+        ("<sc_bv<8> >", "data_in", "input"),
+        ("<sc_bv<8> >", "data_out", "output"),
 
     ))
     boilerplate_obj.generate_bbox()

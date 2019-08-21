@@ -25,43 +25,26 @@ def unit_test(ipc, component):
     elif ipc == "zmq":
         port_prefix = "ipc:///tmp/"
 
-    sst.setProgramOption("stopAtCycle", "50us")
+    sst.setProgramOption("stopAtCycle", "21us")
 
-    proto_comp = sst.Component(component, "proto." + component)
-    proto_comp.addParams({
+    systemc_comp = sst.Component(component, "systemc." + component)
+    systemc_comp.addParams({
         "clock": CLOCK,
     })
 
-    galois_lfsr_comp = sst.Component("galois_lfsr", "proto.galois_lfsr")
+    ram_comp = sst.Component("ram", "systemc.ram")
     # override default parameters
-    galois_lfsr_comp.addParams({
-        "proc": os.path.join(BASE_PATH, "galois_lfsr.o"),
+    ram_comp.addParams({
+        "proc": os.path.join(BASE_PATH, "ram.o"),
         "ipc_port": port_prefix + get_rand_tmp(),
         "clock": CLOCK,
     })
 
-    fib_lfsr_comp = sst.Component("fib_lfsr", "proto.fib_lfsr")
-    # override default parameters
-    fib_lfsr_comp.addParams({
-        "proc": os.path.join(BASE_PATH, "fib_lfsr.o"),
-        "ipc_port": port_prefix + get_rand_tmp(),
-        "clock": CLOCK,
-    })
-
-    sst.Link("galois_lfsr_din").connect(
-        (galois_lfsr_comp, "galois_lfsr_din", LINK_SPEED),
-        (proto_comp, "galois_lfsr_din", LINK_SPEED),
+    sst.Link("ram_din").connect(
+        (ram_comp, "ram_din", LINK_SPEED),
+        (systemc_comp, "ram_din", LINK_SPEED),
     )
-    sst.Link("galois_lfsr_dout").connect(
-        (galois_lfsr_comp, "galois_lfsr_dout", LINK_SPEED),
-        (proto_comp, "galois_lfsr_dout", LINK_SPEED),
-    )
-
-    sst.Link("fib_lfsr_din").connect(
-        (fib_lfsr_comp, "fib_lfsr_din", LINK_SPEED),
-        (proto_comp, "fib_lfsr_din", LINK_SPEED),
-    )
-    sst.Link("fib_lfsr_dout").connect(
-        (fib_lfsr_comp, "fib_lfsr_dout", LINK_SPEED),
-        (proto_comp, "fib_lfsr_dout", LINK_SPEED),
+    sst.Link("ram_dout").connect(
+        (ram_comp, "ram_dout", LINK_SPEED),
+        (systemc_comp, "ram_dout", LINK_SPEED),
     )

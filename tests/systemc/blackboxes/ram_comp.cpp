@@ -1,15 +1,15 @@
-#include "galois_lfsr_ports.hpp"
-#include "../../../ssti/ssti.hpp"
+#include "ram_ports.hpp"
+#include "../../ssti/ssti.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
-class galois_lfsr : public SST::Component {
+class ram : public SST::Component {
 
 public:
 
-    galois_lfsr(SST::ComponentId_t, SST::Params &);
+    ram(SST::ComponentId_t, SST::Params &);
 
     void setup() override;
 
@@ -21,18 +21,18 @@ public:
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        galois_lfsr, // class
-        "proto", // element library
-        "galois_lfsr", // component
+        ram, // class
+        "systemc", // element library
+        "ram", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Simple 4-bit Galois Linear Feedback Shift Register",
+        "Demonstration of a SystemC hardware simulation in SST",
         COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "galois_lfsr_din", "Galois LFSR data_in", { "sst.Interfaces.StringEvent" }},
-        { "galois_lfsr_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "ram_din", "RAM data_in", { "sst.Interfaces.StringEvent" }},
+        { "ram_dout", "RAM data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
@@ -47,20 +47,20 @@ private:
 
 };
 
-galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
+ram::ram(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
-      m_signal_io(GLSLFSR_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),
+      m_signal_io(RM_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
       m_din_link(configureLink(
-          "galois_lfsr_din", new SST::Event::Handler<galois_lfsr>(this, &galois_lfsr::handle_event)
+          "ram_din", new SST::Event::Handler<ram>(this, &ram::handle_event)
       )),
-      m_dout_link(configureLink("galois_lfsr_dout")) {
+      m_dout_link(configureLink("ram_dout")) {
 
     m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    registerClock(m_clock, new SST::Clock::Handler<galois_lfsr>(this, &galois_lfsr::tick));
+    registerClock(m_clock, new SST::Clock::Handler<ram>(this, &ram::tick));
 
     if (!(m_din_link && m_dout_link)) {
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
@@ -72,7 +72,7 @@ galois_lfsr::galois_lfsr(SST::ComponentId_t id, SST::Params &params)
 
 }
 
-void galois_lfsr::setup() {
+void ram::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
@@ -88,7 +88,7 @@ void galois_lfsr::setup() {
 
         m_signal_io.set_addr(m_ipc_port);
         m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>(glslfsr_ports.pid)) {
+        if (child_pid == m_signal_io.get<int>(rm_ports.pid)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -97,14 +97,14 @@ void galois_lfsr::setup() {
 
 }
 
-void galois_lfsr::finish() {
+void ram::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
-
+    
 
 }
 
-void galois_lfsr::handle_event(SST::Event *ev) {
+void ram::handle_event(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
@@ -115,8 +115,11 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         // inputs from parent SST model, outputs to SystemC child process
-        m_signal_io.set(glslfsr_ports.reset, std::stoi(_data_in.substr(2, 1)));
-        m_signal_io.set(glslfsr_ports.clock, std::stoi(_data_in.substr(3)));
+        m_signal_io.set(rm_ports.address, std::stoi(_data_in.substr(2, 8)));
+        m_signal_io.set(rm_ports.cs, std::stoi(_data_in.substr(10, 1)));
+        m_signal_io.set(rm_ports.we, std::stoi(_data_in.substr(11, 1)));
+        m_signal_io.set(rm_ports.oe, std::stoi(_data_in.substr(12, 1)));
+        m_signal_io.set(rm_ports.data_in, std::stoi(_data_in.substr(13, 8)));
 
         if (keep_send) {
             m_signal_io.set_state(keep_recv);
@@ -127,7 +130,7 @@ void galois_lfsr::handle_event(SST::Event *ev) {
         }
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_signal_io.get<int>(glslfsr_ports.data_out));
+        std::string _data_out = std::to_string(m_signal_io.get<int>(rm_ports.data_out));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }

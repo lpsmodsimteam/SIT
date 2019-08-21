@@ -36,6 +36,8 @@ public:
     template<typename T>
     T get(int);
 
+    std::string get(int);
+
     void set_state(bool);
 
     bool alive();
@@ -97,6 +99,13 @@ T SignalIO::get(const int index) {
     return static_cast<T>(std::stoi(m_data[index]));
 
 }
+
+std::string SignalIO::get(const int index) {
+
+    return m_data[index];
+
+}
+
 
 /*
  * Returns the reserved index 0 in `m_data`. The reserved index itself has no special usage besides
