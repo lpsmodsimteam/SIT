@@ -12,8 +12,9 @@ socks:
 	sst-register proto proto_LIBDIR=$(CURDIR)/build/socks
 	cd build/socks && sst ../../socks/run.py
 
-.PHONE: zmq
+.PHONY: zmq
 zmq:
 	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DZMQ=ON \
 	-DSOCKS=OFF .. && $(MAKE)
 	sst-register proto proto_LIBDIR=$(CURDIR)/build/zmq
+	cd build/zmq && sst ../../zmq/run.py

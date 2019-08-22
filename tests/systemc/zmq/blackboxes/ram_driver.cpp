@@ -2,6 +2,8 @@
 #include "../../blackboxes/ram_ports.hpp"
 #include "../../../../ssti/ssti.hpp"
 
+#include <bitset>
+
 int sc_main(int, char *argv[]) {
 
     // ---------- SYSTEMC UUT INIT ---------- //
@@ -48,11 +50,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_i.alive()) {
             break;
         }
-        address = std::bitset<ADDR_WIDTH>(m_signal_io.get(rm_ports.address)).to_ulong();
-        cs = m_signal_io.get<bool>(rm_ports.cs);
-        we = m_signal_io.get<bool>(rm_ports.we);
-        oe = m_signal_io.get<bool>(rm_ports.oe);
-        data_in = std::bitset<DATA_WIDTH>(m_signal_io.get(rm_ports.data_in)).to_ulong();
+        address = std::bitset<ADDR_WIDTH>(m_signal_i.get(rm_ports.address)).to_ulong();
+        cs = m_signal_i.get<bool>(rm_ports.cs);
+        we = m_signal_i.get<bool>(rm_ports.we);
+        oe = m_signal_i.get<bool>(rm_ports.oe);
+        data_in = std::bitset<DATA_WIDTH>(m_signal_i.get(rm_ports.data_in)).to_ulong();
 
         // SENDING
         m_signal_o.set(rm_ports.data_out, data_out);

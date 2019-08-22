@@ -31,4 +31,6 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 
 if (${SOCKS})
     add_subdirectory(socks)
+elseif (${ZMQ})
+    add_subdirectory(zmq)
 endif ()
