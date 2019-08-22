@@ -17,7 +17,7 @@ if __name__ == "__main__":
     boilerplate_obj = BoilerPlate(
         module="ram",
         lib="systemc",
-        ipc="sock",
+        ipc="zmq",
         drvr_templ_path=DRVR_TEMPL_PATH,
         sst_model_templ_path=MODEL_TEMPL_PATH,
         desc="Demonstration of a SystemC hardware simulation in SST",

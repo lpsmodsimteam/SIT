@@ -12,7 +12,6 @@
 #include <sst/core/sst_config.h>
 
 #include <bitset>
-//#include <fstream>
 
 class unit : public SST::Component {
 
@@ -32,7 +31,7 @@ public:
     SST_ELI_REGISTER_COMPONENT(
         unit, // class
         "systemc", // element library
-        "unit", // component
+        "main", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "SST parent model",
         COMPONENT_CATEGORY_UNCATEGORIZED
@@ -53,9 +52,8 @@ private:
     SST::Output m_output;
 
     unsigned int m_cycle{};
-
-    char MESSAGE[WRITEMEM + 1] = "HELLO WORLD";
     FILE *m_fp{};
+    char m_message[WRITEMEM + 1] = "HELLO WORLD";
 
 };
 
@@ -119,7 +117,7 @@ bool unit::tick(SST::Cycle_t current_cycle) {
 
     bool cs = true, we, oe = true;
     std::string address = std::bitset<8>((current_cycle - 1) % WRITEMEM).to_string();
-    std::string data_in = std::bitset<8>(int(MESSAGE[current_cycle - 1])).to_string();
+    std::string data_in = std::bitset<8>(int(m_message[current_cycle - 1])).to_string();
 
     we = current_cycle <= WRITEMEM;
     m_cycle = current_cycle;

@@ -2,8 +2,6 @@
 #include "../../blackboxes/ram_ports.hpp"
 #include "../../../../ssti/ssti.hpp"
 
-#include <bitset>
-
 int sc_main(int, char *argv[]) {
 
     // ---------- SYSTEMC UUT INIT ---------- //
@@ -25,14 +23,19 @@ int sc_main(int, char *argv[]) {
     // ---------- SYSTEMC UUT INIT ---------- //
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
+    // Socket to talk to server
+    zmq::context_t context(1);
+    zmq::socket_t socket(context, ZMQ_REQ);
+    socket.connect(argv[1]);
+
     // Initialize signal handlers
-    SocketSignal m_signal_io(RM_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
-    m_signal_io.set_addr(argv[1]);
+    ZMQReceiver m_signal_i(RM_NPORTS, socket);
+    ZMQTransmitter m_signal_o(RM_NPORTS, socket);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    m_signal_io.set(rm_ports.pid, getpid());
-    m_signal_io.send();
+    m_signal_o.set(rm_ports.pid, getpid());
+    m_signal_o.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
     while (true) {
@@ -40,12 +43,11 @@ int sc_main(int, char *argv[]) {
         sc_start();
 
         // RECEIVING
-        m_signal_io.recv();
+        m_signal_i.recv();
 
-        if (!m_signal_io.alive()) {
+        if (!m_signal_i.alive()) {
             break;
         }
-        ;
         address = std::bitset<ADDR_WIDTH>(m_signal_io.get(rm_ports.address)).to_ulong();
         cs = m_signal_io.get<bool>(rm_ports.cs);
         we = m_signal_io.get<bool>(rm_ports.we);
@@ -53,12 +55,12 @@ int sc_main(int, char *argv[]) {
         data_in = std::bitset<DATA_WIDTH>(m_signal_io.get(rm_ports.data_in)).to_ulong();
 
         // SENDING
-        m_signal_io.set(rm_ports.data_out, data_out);
-        m_signal_io.send();
+        m_signal_o.set(rm_ports.data_out, data_out);
+        m_signal_o.send();
 
     }
 
-    
+    socket.close();
 
     return 0;
 

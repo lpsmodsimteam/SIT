@@ -38,7 +38,10 @@ public:
 private:
 
     // Prepare the signal handler
-    SocketSignal m_signal_io;
+    zmq::context_t m_context;
+    zmq::socket_t m_socket;
+    ZMQReceiver m_signal_i;
+    ZMQTransmitter m_signal_o;
 
     // SST parameters
     SST::Output m_output;
@@ -49,7 +52,8 @@ private:
 
 ram::ram(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
-      m_signal_io(RM_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),
+      m_context(1), m_socket(m_context, ZMQ_REP),
+      m_signal_i(RM_NPORTS, m_socket), m_signal_o(RM_NPORTS, m_socket),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -86,9 +90,9 @@ void ram::setup() {
 
     } else {
 
-        m_signal_io.set_addr(m_ipc_port);
-        m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>(rm_ports.pid)) {
+        m_socket.bind(m_ipc_port.c_str());
+        m_signal_i.recv();
+        if (child_pid == m_signal_i.get<int>(rm_ports.pid)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -100,7 +104,7 @@ void ram::setup() {
 void ram::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
-    
+    m_socket.close();
 
 }
 
@@ -115,22 +119,22 @@ void ram::handle_event(SST::Event *ev) {
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
         // inputs from parent SST model, outputs to SystemC child process
-        m_signal_io.set(rm_ports.address, std::stoi(_data_in.substr(2, 8)));
-        m_signal_io.set(rm_ports.cs, std::stoi(_data_in.substr(10, 1)));
-        m_signal_io.set(rm_ports.we, std::stoi(_data_in.substr(11, 1)));
-        m_signal_io.set(rm_ports.oe, std::stoi(_data_in.substr(12, 1)));
-        m_signal_io.set(rm_ports.data_in, std::stoi(_data_in.substr(13, 8)));
+        m_signal_o.set(rm_ports.address, std::stoi(_data_in.substr(2, 8)));
+        m_signal_o.set(rm_ports.cs, std::stoi(_data_in.substr(10, 1)));
+        m_signal_o.set(rm_ports.we, std::stoi(_data_in.substr(11, 1)));
+        m_signal_o.set(rm_ports.oe, std::stoi(_data_in.substr(12, 1)));
+        m_signal_o.set(rm_ports.data_in, std::stoi(_data_in.substr(13, 8)));
 
         if (keep_send) {
-            m_signal_io.set_state(keep_recv);
-            m_signal_io.send();
+            m_signal_o.set_state(keep_recv);
+            m_signal_o.send();
         }
         if (keep_recv) {
-            m_signal_io.recv();
+            m_signal_i.recv();
         }
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_signal_io.get<int>(rm_ports.data_out));
+        std::string _data_out = std::to_string(m_signal_i.get<int>(rm_ports.data_out));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }
