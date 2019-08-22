@@ -1,8 +1,3 @@
-//===========================================
-// Function : Asynchronous read write RAM 
-// Coder    : Deepak Kumar Tala
-// Date     : 18-April-2002
-//===========================================
 #include <systemc.h>
 
 #define DATA_WIDTH 8
@@ -24,7 +19,7 @@ SC_MODULE (ram) {
     // Write Operation : When we = 1, cs = 1
     void write_mem() {
         if (cs.read() && we.read()) {
-            mem[(sc_uint<8>) address.read()] = data_in.read();
+            mem[(sc_uint<ADDR_WIDTH>) address.read()] = data_in.read();
         }
     }
 
@@ -32,7 +27,7 @@ SC_MODULE (ram) {
     // Read Operation : When we = 0, oe = 1, cs = 1
     void read_mem() {
         if (cs.read() && !we.read() && oe.read()) {
-            data_out.write(mem[(sc_uint<8>) address.read()]);
+            data_out.write(mem[(sc_uint<ADDR_WIDTH>) address.read()]);
         }
     }
 

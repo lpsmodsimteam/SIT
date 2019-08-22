@@ -3,8 +3,8 @@
  *
  * */
 
-#define WRITEMEM 10
-#define SIMTIME 21
+#define WRITEMEM 11
+#define SIMTIME 25
 
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
@@ -12,6 +12,7 @@
 #include <sst/core/sst_config.h>
 
 #include <bitset>
+//#include <fstream>
 
 class unit : public SST::Component {
 
@@ -51,8 +52,10 @@ private:
     // SST parameters
     SST::Output m_output;
 
-    int m_cycle;
+    unsigned int m_cycle{};
 
+    char MESSAGE[WRITEMEM + 1] = "HELLO WORLD";
+    FILE *m_fp{};
 
 };
 
@@ -81,12 +84,14 @@ unit::unit(SST::ComponentId_t id, SST::Params &params)
 void unit::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
+    m_fp = std::fopen("memory_dump.txt", "w");
 
 }
 
 void unit::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
+    std::fclose(m_fp);
 
 }
 
@@ -95,7 +100,12 @@ void unit::handle_ram_data_out(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
 
-        std::cout << "data_out: " << std::bitset<8>(se->getString()).to_string() << std::endl;
+        if ((m_cycle > WRITEMEM + 1) && (m_cycle < SIMTIME - 1)) {
+
+            fprintf(m_fp, "%2d %s\n", (m_cycle - 2) % WRITEMEM,
+                    std::bitset<8>(se->getString()).to_string().c_str());
+
+        }
 
     }
     delete ev;
@@ -108,16 +118,11 @@ bool unit::tick(SST::Cycle_t current_cycle) {
     bool keep_recv = current_cycle < SIMTIME - 1;
 
     bool cs = true, we, oe = true;
-    std::string address = std::bitset<8>(current_cycle % 10).to_string();
-    std::string data_in = std::bitset<8>(current_cycle % 10).to_string();
+    std::string address = std::bitset<8>((current_cycle - 1) % WRITEMEM).to_string();
+    std::string data_in = std::bitset<8>(int(MESSAGE[current_cycle - 1])).to_string();
 
     we = current_cycle <= WRITEMEM;
-
-    std::cout << "sending " << address << " " << data_in << std::endl;
-
-    if (current_cycle == SIMTIME - 1) {
-        m_output.verbose(CALL_INFO, 1, 0, "MODULE OFF\n");
-    }
+    m_cycle = current_cycle;
 
     ram_din->send(new SST::Interfaces::StringEvent(
         std::to_string(keep_send) +

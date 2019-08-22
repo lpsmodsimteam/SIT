@@ -11,9 +11,13 @@ CMakeCache.txt
 *.so
 *.out
 *.o
+build/
+!build/.gitkeep
+
 
 # Python environment and cache
 *.pyc
+__pycache__/
 .venv/
 
 msgpack/

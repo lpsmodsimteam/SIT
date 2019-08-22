@@ -25,7 +25,7 @@ def unit_test(ipc, component):
     elif ipc == "zmq":
         port_prefix = "ipc:///tmp/"
 
-    sst.setProgramOption("stopAtCycle", "21us")
+    sst.setProgramOption("stopAtCycle", "25us")
 
     systemc_comp = sst.Component(component, "systemc." + component)
     systemc_comp.addParams({
