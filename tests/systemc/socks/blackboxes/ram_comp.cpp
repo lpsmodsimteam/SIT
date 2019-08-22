@@ -1,5 +1,5 @@
 #include "ram_ports.hpp"
-#include "../../ssti/ssti.hpp"
+#include "../../../../ssti/ssti.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>

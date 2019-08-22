@@ -1,5 +1,6 @@
 MAKEFLAGS += --no-print-directory
 test_dir ?= systemc/build
+IPC ?= def
 
 .PHONY: test_min test
 test_min: boilerplate systemc clean
@@ -11,19 +12,7 @@ boilerplate:
 
 .PHONY: systemc
 systemc:
-	cd ${test_dir} && cmake .. && $(MAKE)
-	cd ${test_dir} && sst-register proto proto_LIBDIR=${test_dir} && sst ../run.py
-
-#
-#.PHONY: systemc
-#systemc:
-#	cd ${test_dir} && cmake -DUNIT_TEST=ON .. && $(MAKE)
-#	cd ${test_dir} && sst-register proto proto_LIBDIR=${test_dir} && sst ../demo/run.py
-#
-#.PHONY: systemc-extra-ipc
-#systemc-extra-ipc:
-#	cd ${test_dir} && cmake -DZMQ=ON -DDEMO_ZMQ=ON -DUNIT_TEST=ON .. && $(MAKE)
-#	cd ${test_dir} && sst-register proto proto_LIBDIR=${test_dir} && sst ../demo/zmq.py
+	cd systemc && $(MAKE) ${IPC}
 
 clean:
 	# remove all compiled objects and cached files

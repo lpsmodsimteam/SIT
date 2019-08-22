@@ -2,17 +2,33 @@ cmake_minimum_required(VERSION 3.12)
 project(unit CXX)
 include(../CMakeLists.txt)
 
-# increase buffer size (minimum is 22)
-add_definitions(-DBUFSIZE=50)
+# -------------------- SYSTEMC CONFIGS --------------------
+set(CMAKE_PREFIX_PATH /opt/systemc)
+find_package(SystemCLanguage CONFIG REQUIRED)
+set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
+# -------------------- SYSTEMC CONFIGS --------------------
 
-add_executable(ram.o blackboxes/ram_driver.cpp)
+# Download and unpack googletest at configure time
+configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
+if (result)
+    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+endif ()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+    RESULT_VARIABLE result
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
+if (result)
+    message(FATAL_ERROR "Build step for googletest failed: ${result}")
+endif ()
 
-# Now simply link against gtest or gtest_main as needed. Eg
-add_executable(libsystemc.so unit.cpp blackboxes/ram_comp.cpp)
+# Add googletest directly to our build. This defines
+# the gtest and gtest_main targets.
+add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+    ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+    EXCLUDE_FROM_ALL)
 
-_sst_compile_link(libsystemc.so)
-target_link_libraries(ram.o SystemC::systemc)
-
-#add_executable(example test.cpp)
-#target_link_libraries(example gtest_main)
-#add_test(NAME example_test COMMAND example)
+if (${SOCKS})
+    add_subdirectory(socks)
+endif ()

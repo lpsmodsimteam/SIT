@@ -18,7 +18,7 @@ def get_rand_tmp():
     )
 
 
-def unit_test(ipc, component):
+def test_setup(ipc, component):
 
     if ipc == "sock":
         port_prefix = "/tmp/"

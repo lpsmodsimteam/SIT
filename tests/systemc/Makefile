@@ -2,14 +2,18 @@ _CXX ?= /usr/bin/clang++
 USE_ZMQ ?= OFF
 UNIT_TEST ?= OFF
 
-install:
-	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DZMQ=${USE_ZMQ} \
-	-DDEMO_ZMQ=${USE_ZMQ} -DUNIT_TEST=${UNIT_TEST} .. && $(MAKE)
-	sst-register proto proto_LIBDIR=$(CURDIR)/build
+.PHONE: def
+def: socks zmq
 
-run:
-	cd build && sst ../demo/${TEST}
+.PHONY: socks
+socks:
+	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DZMQ=OFF \
+	-DSOCKS=ON .. && $(MAKE)
+	sst-register proto proto_LIBDIR=$(CURDIR)/build/socks
+	cd build/socks && sst ../../socks/run.py
 
-clean:
-	# remove all compiled objects and cached cmake files
-	rm -rf build/* cmake-build-debug
+.PHONE: zmq
+zmq:
+	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DZMQ=ON \
+	-DSOCKS=OFF .. && $(MAKE)
+	sst-register proto proto_LIBDIR=$(CURDIR)/build/zmq

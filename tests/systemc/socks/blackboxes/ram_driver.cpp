@@ -1,6 +1,6 @@
-#include "../ram.hpp"
+#include "../../ram.hpp"
 #include "ram_ports.hpp"
-#include "../../ssti/ssti.hpp"
+#include "../../../../ssti/ssti.hpp"
 
 #include <bitset>
 
