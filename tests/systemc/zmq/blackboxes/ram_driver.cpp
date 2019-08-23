@@ -50,11 +50,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_i.alive()) {
             break;
         }
-        address = std::bitset<ADDR_WIDTH>(m_signal_i.get(rm_ports.address)).to_ulong();
+        address = m_signal_i.get<sc_bv<ADDR_WIDTH>>(rm_ports.address);
         cs = m_signal_i.get<bool>(rm_ports.cs);
         we = m_signal_i.get<bool>(rm_ports.we);
         oe = m_signal_i.get<bool>(rm_ports.oe);
-        data_in = std::bitset<DATA_WIDTH>(m_signal_i.get(rm_ports.data_in)).to_ulong();
+        data_in = m_signal_i.get<sc_bv<DATA_WIDTH>>(rm_ports.data_in);
 
         // SENDING
         m_signal_o.set(rm_ports.data_out, data_out);

@@ -7,12 +7,12 @@
 int sc_main(int, char *argv[]) {
 
     // ---------- SYSTEMC UUT INIT ---------- //
-    sc_signal<sc_bv<ADDR_WIDTH> > address;
+    sc_signal <sc_bv<ADDR_WIDTH>> address;
     sc_signal<bool> cs;
     sc_signal<bool> we;
     sc_signal<bool> oe;
-    sc_signal<sc_bv<DATA_WIDTH> > data_in;
-    sc_signal<sc_bv<DATA_WIDTH> > data_out;
+    sc_signal <sc_bv<DATA_WIDTH>> data_in;
+    sc_signal <sc_bv<DATA_WIDTH>> data_out;
 
     // Connect the DUT
     ram DUT("ram");
@@ -45,12 +45,11 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_io.alive()) {
             break;
         }
-        ;
-        address = std::bitset<ADDR_WIDTH>(m_signal_io.get(rm_ports.address)).to_ulong();
+        address = m_signal_io.get<sc_bv<ADDR_WIDTH>>(rm_ports.address);
         cs = m_signal_io.get<bool>(rm_ports.cs);
         we = m_signal_io.get<bool>(rm_ports.we);
         oe = m_signal_io.get<bool>(rm_ports.oe);
-        data_in = std::bitset<DATA_WIDTH>(m_signal_io.get(rm_ports.data_in)).to_ulong();
+        data_in = m_signal_io.get<sc_bv<DATA_WIDTH>>(rm_ports.data_in);
 
         // SENDING
         m_signal_io.set(rm_ports.data_out, data_out);
@@ -58,7 +57,6 @@ int sc_main(int, char *argv[]) {
 
     }
 
-    
 
     return 0;
 

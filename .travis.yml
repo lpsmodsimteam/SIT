@@ -118,7 +118,7 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
 
 before_script:
-  - cd examples
+  - cd tests
   - export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
   - pyenv local ${ENVPY}
 

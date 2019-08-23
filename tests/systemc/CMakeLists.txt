@@ -29,8 +29,8 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
     ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
     EXCLUDE_FROM_ALL)
 
-if (${SOCKS})
+if (${IPC} STREQUAL "SOCKS")
     add_subdirectory(socks)
-elseif (${ZMQ})
+elseif (${IPC} STREQUAL "ZMQ")
     add_subdirectory(zmq)
 endif ()
