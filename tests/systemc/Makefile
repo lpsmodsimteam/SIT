@@ -1,8 +1,7 @@
 MAKEFLAGS += --no-print-directory
 _CXX ?= /usr/bin/clang++
 
-.PHONE: def
-def: socks zmq
+all: socks zmq
 
 .PHONY: socks
 socks:

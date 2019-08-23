@@ -1,10 +1,8 @@
 MAKEFLAGS += --no-print-directory
-test_dir ?= systemc/build
-IPC ?= def
+IPC ?= all
 
-.PHONY: test_min test
-test_min: boilerplate systemc clean
-test: boilerplate systemc unit-extra-ipc clean
+.PHONY: test
+test: boilerplate systemc clean
 
 .PHONY: boilerplate
 boilerplate:
@@ -17,6 +15,6 @@ systemc:
 clean:
 	# remove all compiled objects and cached files
 	rm -rf blackboxes
-	rm -rf ${test_dir}/*
+	rm -rf systemc/build/*
 	find . -name "*.pyc" -type f -delete
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +

@@ -39,8 +39,8 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "ram_din", "Galois LFSR clock", { "sst.Interfaces.StringEvent" }},
-        { "ram_dout", "Galois LFSR data_out", { "sst.Interfaces.StringEvent" }},
+        { "ram_din", "RAM data_in", { "sst.Interfaces.StringEvent" }},
+        { "ram_dout", "RAM data_out", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
