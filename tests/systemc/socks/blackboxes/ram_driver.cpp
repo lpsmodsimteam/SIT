@@ -2,8 +2,6 @@
 #include "../../blackboxes/ram_ports.hpp"
 #include "../../../../ssti/ssti.hpp"
 
-#include <bitset>
-
 int sc_main(int, char *argv[]) {
 
     // ---------- SYSTEMC UUT INIT ---------- //

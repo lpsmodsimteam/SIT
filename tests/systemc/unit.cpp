@@ -31,7 +31,7 @@ public:
     SST_ELI_REGISTER_COMPONENT(
         unit, // class
         "systemc", // element library
-        "main", // component
+        "unit", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "SST parent model",
         COMPONENT_CATEGORY_UNCATEGORIZED
