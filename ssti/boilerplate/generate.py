@@ -108,7 +108,7 @@ const struct {abbr}_ports_t {{
         self.sst_ports_path = self.bbox_dir + "/" + self.module + "_ports.hpp"
 
     @staticmethod
-    def __parse_signal_type(signal):
+    def __parse_signal_type(signal, raw=True):
         """Parses the type and computes its size from the signal
 
         Arguments:
@@ -124,13 +124,13 @@ const struct {abbr}_ports_t {{
         elif "sc" in signal:
 
             def __get_ints(sig):
-                return int("".join(s for s in sig if s.isdigit()))
+                return int("".join(s for s in sig if s.isdigit()) if "//" not in sig else sig.split("//")[-1])
 
             if "int" in signal:
                 return "<int>", math.floor(math.log2(__get_ints(signal)))
 
             if "bv" in signal or "lv" in signal:
-                return "<int>", __get_ints(signal)
+                return (signal.split("//")[0] if raw else "<int>"), __get_ints(signal)
 
             if "bit" in signal or "logic" in signal:
                 return "<bool>", __get_ints(signal)
@@ -175,6 +175,7 @@ const struct {abbr}_ports_t {{
                 raise ValueError("Each ports must be designated a type")
 
         self.ports = self.clocks + self.inputs + self.outputs + self.inouts
+        self.ports = [(i[0].split("//")[0], i[-1]) for i in self.ports]
 
     def get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""
@@ -235,7 +236,7 @@ const struct {abbr}_ports_t {{
                 "abbr": self.abbr,
                 "recv": self.receiver,
                 "sig": x[-1],
-                "type": self.__parse_signal_type(x[0])[0],
+                "type": self.__parse_signal_type(x[0], raw=False)[0],
             }, self.outputs, " +\n" + " " * 16
         )
 

@@ -123,4 +123,4 @@ before_script:
   - pyenv local ${ENVPY}
 
 script:
-  - make systemc
+  - make test

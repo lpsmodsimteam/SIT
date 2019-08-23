@@ -26,7 +26,3 @@ add_executable(libsystemc.so ../unit.cpp blackboxes/ram_comp.cpp)
 
 _sst_compile_link(libsystemc.so)
 target_link_libraries(ram.o SystemC::systemc)
-
-##add_executable(example test.cpp)
-##target_link_libraries(example gtest_main)
-##add_test(NAME example_test COMMAND example)

@@ -5,12 +5,12 @@
 int sc_main(int, char *argv[]) {
 
     // ---------- SYSTEMC UUT INIT ---------- //
-    sc_signal <sc_bv<ADDR_WIDTH>> address;
+    sc_signal<sc_bv<ADDR_WIDTH>> address;
     sc_signal<bool> cs;
     sc_signal<bool> we;
     sc_signal<bool> oe;
-    sc_signal <sc_bv<DATA_WIDTH>> data_in;
-    sc_signal <sc_bv<DATA_WIDTH>> data_out;
+    sc_signal<sc_bv<DATA_WIDTH>> data_in;
+    sc_signal<sc_bv<DATA_WIDTH>> data_out;
 
     // Connect the DUT
     ram DUT("ram");
@@ -43,6 +43,7 @@ int sc_main(int, char *argv[]) {
         if (!m_signal_io.alive()) {
             break;
         }
+        ;
         address = m_signal_io.get<sc_bv<ADDR_WIDTH>>(rm_ports.address);
         cs = m_signal_io.get<bool>(rm_ports.cs);
         we = m_signal_io.get<bool>(rm_ports.we);
@@ -54,6 +55,7 @@ int sc_main(int, char *argv[]) {
         m_signal_io.send();
 
     }
+
 
 
     return 0;

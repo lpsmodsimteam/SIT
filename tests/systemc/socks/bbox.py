@@ -33,6 +33,5 @@ if __name__ == "__main__":
         ("<bool>", "oe", "input"),
         ("<sc_bv<8> >", "data_in", "input"),
         ("<sc_bv<8> >", "data_out", "output"),
-
     ))
     boilerplate_obj.generate_bbox()

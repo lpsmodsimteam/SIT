@@ -8,7 +8,10 @@ import unittest
 
 BASE_DIR = os.path.dirname(os.getcwd())
 SCRIPT_PATH = os.path.join(BASE_DIR, "ssti", "boilerplate")
-BBOX_DIR_PATH = os.path.join(BASE_DIR, "examples", "unit", "blackboxes")
+SOCKS_BBOX_DIR = os.path.join(
+    BASE_DIR, "tests", "systemc", "socks", "blackboxes")
+ZMQ_BBOX_DIR = os.path.join(
+    BASE_DIR, "tests", "systemc", "zmq", "blackboxes")
 DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "driver.hpp")
 MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "model.hpp")
 sys.path.append(SCRIPT_PATH)
@@ -17,31 +20,38 @@ from generate import BoilerPlate
 
 class TestBoilerplate(object):
 
-    def __init__(self, boilerplate_obj, driver_path, model_path):
+    def __init__(self, boilerplate_obj, base_path, driver_path, model_path):
 
-        self.driver_diffs = """! #include "galois_lfsr.hpp"
-! #include "../modules/galois_lfsr.hpp"
+        self.driver_diffs = """! #include "ram.hpp"
+! #include "ram_ports.hpp"
 ! #include "ssti.hpp"
-! #include "../../../ssti/ssti.hpp"
+! #include "../../ram.hpp"
+! #include "../../blackboxes/ram_ports.hpp"
+! #include "../../../../ssti/ssti.hpp"
 """
 
-        self.model_diffs = """! #include "ssti.hpp"
-! #include "../../../ssti/ssti.hpp"
+        self.model_diffs = """! #include "ram_ports.hpp"
+! #include "ssti.hpp"
+! #include "../../blackboxes/ram_ports.hpp"
+! #include "../../../../ssti/ssti.hpp"
 """
         self.boilerplate_obj = boilerplate_obj
         self.boilerplate_obj.set_ports((
-            ("<bool>", "clock", "clock"),
-            ("<bool>", "reset", "input"),
-            ("<sc_uint<4> >", "data_out", "output"),
+            ("<sc_bv<ADDR_WIDTH>>//8", "address", "input"),
+            ("<bool>", "cs", "input"),
+            ("<bool>", "we", "input"),
+            ("<bool>", "oe", "input"),
+            ("<sc_bv<DATA_WIDTH>>//8", "data_in", "input"),
+            ("<sc_bv<DATA_WIDTH>>//8", "data_out", "output"),
         ))
         self.boilerplate_obj.generate_bbox()
-        self.driver_path = driver_path
-        self.model_path = model_path
+        self.driver_path = os.path.join(base_path, driver_path)
+        self.model_path = os.path.join(base_path, model_path)
 
     @staticmethod
     def read_file(path):
 
-        with open(os.path.join(BBOX_DIR_PATH, path)) as file:
+        with open(path) as file:
             return file.read()
 
     @staticmethod
@@ -83,14 +93,14 @@ class TestBoilerplate(object):
 
 
 ARGS = dict(
-    module="galois_lfsr",
-    lib="proto",
+    module="ram",
+    lib="systemc",
     drvr_templ_path=DRVR_TEMPL_PATH,
     sst_model_templ_path=MODEL_TEMPL_PATH,
-    desc="Simple 4-bit Galois Linear Feedback Shift Register",
+    desc="Demonstration of a SystemC hardware simulation in SST",
     link_desc={
-        "link_desc0": "Galois LFSR data_in",
-        "link_desc1": "Galois LFSR data_out",
+        "link_desc0": "RAM data_in",
+        "link_desc1": "RAM data_out",
     }
 )
 
@@ -100,7 +110,7 @@ class SocketSignals(unittest.TestCase, TestBoilerplate):
     def setUp(self):
 
         TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="sock"),
-                                 "galois_sock_driver.cpp", "galois_sock.cpp")
+                                 SOCKS_BBOX_DIR, "ram_driver.cpp", "ram_comp.cpp")
 
 
 class ZMQSignals(unittest.TestCase, TestBoilerplate):
@@ -108,7 +118,7 @@ class ZMQSignals(unittest.TestCase, TestBoilerplate):
     def setUp(self):
 
         TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="zmq"),
-                                 "galois_zmq_driver.cpp", "galois_zmq.cpp")
+                                 ZMQ_BBOX_DIR, "ram_driver.cpp", "ram_comp.cpp")
 
 
 if __name__ == "__main__":
