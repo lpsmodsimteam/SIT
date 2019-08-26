@@ -1,4 +1,3 @@
-#include "../../common/blackboxes/ram_ports.hpp"
 #include "../../../../ssti/ssti.hpp"
 
 #include <sst/core/component.h>
@@ -49,7 +48,7 @@ private:
 
 ram::ram(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
-      m_signal_io(RM_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),
+      m_signal_io(0, socket(AF_UNIX, SOCK_STREAM, 0)),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -88,7 +87,7 @@ void ram::setup() {
 
         m_signal_io.set_addr(m_ipc_port);
         m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>(rm_ports.pid)) {
+        if (child_pid == m_signal_io.get<int>(0)) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -114,12 +113,8 @@ void ram::handle_event(SST::Event *ev) {
         bool keep_send = _data_in.substr(0, 1) != "0";
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
-        // inputs from parent SST model, outputs to SystemC child process
-        m_signal_io.set(rm_ports.address, std::stoi(_data_in.substr(2, 8)));
-        m_signal_io.set(rm_ports.cs, std::stoi(_data_in.substr(10, 1)));
-        m_signal_io.set(rm_ports.we, std::stoi(_data_in.substr(11, 1)));
-        m_signal_io.set(rm_ports.oe, std::stoi(_data_in.substr(12, 1)));
-        m_signal_io.set(rm_ports.data_in, std::stoi(_data_in.substr(13, 8)));
+        // inputs from parent SST model, outputs to PyRTL child process
+        m_signal_io.set(_data_in);
 
         if (keep_send) {
             m_signal_io.set_state(keep_recv);
@@ -130,7 +125,7 @@ void ram::handle_event(SST::Event *ev) {
         }
 
         // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = std::to_string(m_signal_io.get<int>(rm_ports.data_out));
+        std::string _data_out = std::to_string(m_signal_io.get<int>(0));
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }

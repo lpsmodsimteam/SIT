@@ -13,10 +13,11 @@
 // default buffer size
 #ifndef MSGPACK
 #include "sigutilslite.hpp"
+#include <sys/socket.h>
 #else
 #include "sigutils.hpp"
-#endif
 
+#endif
 #include <sys/un.h>
 
 /*
@@ -35,14 +36,18 @@ private:
     char m_buf[BUFSIZE];
     struct sockaddr_un m_addr;
 
+#ifdef MSGPACK
     msgpack::unpacked m_unpacker;
     msgpack::packer<msgpack::sbuffer> m_packer;
     msgpack::sbuffer m_sbuf;
+#endif
 
 public:
 
+#ifdef MSGPACK
     // register the data container with MessagePack
     MSGPACK_DEFINE (m_data)
+#endif
 
     explicit SocketSignal(int, int, bool = true);
 
@@ -72,7 +77,11 @@ public:
  */
 inline SocketSignal::SocketSignal(const int num_ports, int socket, bool server_side) :
     SignalIO(num_ports), m_server_side(server_side), m_socket(socket), m_rd_socket(0),
-    m_rd_bytes(0), m_buf(""), m_addr({}), m_packer(&m_sbuf) {
+    m_rd_bytes(0), m_buf(""), m_addr({})
+#ifdef MSGPACK
+    , m_packer(&m_sbuf)
+#endif
+    {
     // do nothing
 }
 
@@ -103,8 +112,10 @@ inline void SocketSignal::set_addr(const std::string &addr) {
     m_addr.sun_family = AF_UNIX;
     strcpy(m_addr.sun_path, addr.c_str());
 
+#ifdef MSGPACK
     // parent process socket options
     if (m_server_side) {
+#endif
 
         if (bind(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
             perror("Bind failed\n");
@@ -119,6 +130,7 @@ inline void SocketSignal::set_addr(const std::string &addr) {
             perror("Accept failed\n");
         }
 
+#ifdef MSGPACK
     } else {  // child process socket options
 
         if (connect(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
@@ -126,6 +138,7 @@ inline void SocketSignal::set_addr(const std::string &addr) {
         }
 
     }
+#endif
 
 }
 
@@ -134,12 +147,16 @@ inline void SocketSignal::set_addr(const std::string &addr) {
  */
 inline void SocketSignal::send() {
 
+#ifdef MSGPACK
     m_packer.pack(*this);
 
     (m_server_side) ? write(m_rd_socket, m_sbuf.data(), m_sbuf.size())
                     : write(m_socket, m_sbuf.data(), m_sbuf.size());
 
     m_sbuf.clear();
+#else
+    write(m_rd_socket, m_data.c_str(), m_data.size());
+#endif
 
 }
 
@@ -151,6 +168,7 @@ inline void SocketSignal::send() {
  */
 inline void SocketSignal::recv() {
 
+#ifdef MSGPACK
     try {
 
         m_rd_bytes = static_cast<size_t>(
@@ -168,6 +186,11 @@ inline void SocketSignal::recv() {
         throw;
 
     }
+#else
+    m_rd_bytes = static_cast<size_t>(read(m_rd_socket, m_buf, BUFSIZE));
+    m_buf[m_rd_bytes] = '\0';
+    m_data = m_buf;
+#endif
 
 }
 

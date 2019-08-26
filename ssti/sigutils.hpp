@@ -12,7 +12,7 @@
 #include <vector>
 
 /*
- * Implements common methods for setting and getting data being transferred via the preferred IPC.
+ * Implements testcases methods for setting and getting data being transferred via the preferred IPC.
  * 
  * This class is implicitly-abstract and needs to be inherited by a class that implements a
  * supported interprocess communication (IPC) protocol.

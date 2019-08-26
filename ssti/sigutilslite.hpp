@@ -6,11 +6,11 @@
 #define SIGUTILSLITE_HPP
 
 #include <string>
-#include <sstream>
 #include <unistd.h>
+#include <sstream>
 
 /*
- * Implements common methods for setting and getting data being transferred via the preferred IPC.
+ * Implements testcases methods for setting and getting data being transferred via the preferred IPC.
  * 
  * This class is implicitly-abstract and needs to be inherited by a class that implements a
  * supported interprocess communication (IPC) protocol.
@@ -28,15 +28,12 @@ protected:
 
 public:
 
-    template<typename... T>
-    void set(char, const T &...);
+    void set(const std::string&);
 
     template<typename T>
     T get(int);
 
     void set_state(bool);
-
-    bool alive();
 
 };
 
@@ -50,7 +47,7 @@ public:
  *     num_ports -- Number of ports used in the black box interface. This number is usually 1
  *                  greater than the total number of the SystemC module ports
  */
-inline SignalIO::SignalIO(const int num_ports) {
+inline SignalIO::SignalIO(const int) {
 
     // m_data.resize(num_ports);
 
@@ -75,10 +72,10 @@ inline SignalIO::~SignalIO() {
  *              need to be restricted to a specific type. `value` is streamed into a string stream
  *              to be stored in `m_data` as a std::string.
  */
-template<typename... T>
-void SignalIO::set(const char fmt, const T &... values) {
+void SignalIO::set(const std::string& values) {
 
-    snprintf(m_data, m_data.size(), fmt, values...);
+//    snprintf(m_data, m_data.size(), fmt, values...);
+    m_data = values;
 
 }
 
@@ -89,23 +86,6 @@ template<typename T>
 T SignalIO::get(const int index) {
 
     return static_cast<T>(std::stoi(m_data));
-
-}
-
-/*
- * Returns the reserved index 0 in `m_data`. The reserved index itself has no special usage besides
- * providing a high-level access for the user to determine the state of the child SystemC driver
- * process.
- *
- * Example usage:
- *      `signal_io.alive()` (equivalent to `signal_io.get<bool>(0)`) returns true when the parent
- *      process would like the child driver to continue to stay alive and communicate their
- *      signals. If the method returns false, the parent is done communicating with the child
- *      process and allows it to exit gracefully.
- */
-inline bool SignalIO::alive() {
-
-    return m_data[0];
 
 }
 
