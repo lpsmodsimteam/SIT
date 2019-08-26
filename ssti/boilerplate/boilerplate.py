@@ -45,8 +45,11 @@ class BoilerPlate(object):
         self.inouts = []
         self.ports = []
 
+        self.WIDTH_DELIM = "//"
+        self.bbox_dir = "blackboxes"
+
     @staticmethod
-    def __format(fmt, split_func, array, delim=";\n    "):
+    def sig_fmt(fmt, split_func, array, delim=";\n    "):
         """Formats lists of signals based on fixed arguments
 
         Arguments:
@@ -82,4 +85,5 @@ class BoilerPlate(object):
                 raise ValueError("Each ports must be designated a type")
 
         self.ports = self.clocks + self.inputs + self.outputs + self.inouts
-        self.ports = [(i[0].split("//")[0], i[-1]) for i in self.ports]
+        self.ports = [(i[0].split(self.WIDTH_DELIM)[0], i[-1])
+                      for i in self.ports]

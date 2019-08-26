@@ -6,11 +6,11 @@ all: socks zmq
 .PHONY: socks
 socks:
 	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DIPC=SOCKS .. && $(MAKE)
-	sst-register systemc systemc_LIBDIR=$(CURDIR)/build/socks
+	sst-register pyrtl pyrtl_LIBDIR=$(CURDIR)/build/socks
 	cd build/socks && sst ../../socks/run.py
 
 .PHONY: zmq
 zmq:
 	cd build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DIPC=ZMQ .. && $(MAKE)
-	sst-register systemc systemc_LIBDIR=$(CURDIR)/build/zmq
+	sst-register pyrtl pyrtl_LIBDIR=$(CURDIR)/build/zmq
 	cd build/zmq && sst ../../zmq/run.py

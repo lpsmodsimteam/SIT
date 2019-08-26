@@ -11,8 +11,10 @@ import math
 import os
 from string import punctuation
 
+from boilerplate import BoilerPlate
 
-class BoilerPlate(object):
+
+class PyRTL(BoilerPlate):
 
     def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
                  desc="", link_desc=None):
@@ -31,81 +33,11 @@ class BoilerPlate(object):
                 where they're assigned as the receiving and transmitting SST
                 links respectively.
         """
-        if ipc in ("sock", "zmq"):
-            self.ipc = ipc
-        else:
-            raise ValueError("Incorrect IPC protocol selected")
+        super().__init__(module, lib, ipc, drvr_templ_path,
+                         sst_model_templ_path, desc, link_desc)
 
-        self.module = module
-        self.lib = lib
-        self.drvr_templ_path = drvr_templ_path
-        self.sst_model_templ_path = sst_model_templ_path
-        self.desc = desc
-        self.link_desc = link_desc if link_desc else {
-            "link_desc0": "", "link_desc1": ""
-        }
-
-        self.clocks = []
-        self.inputs = []
-        self.outputs = []
-        self.inouts = []
-        self.ports = []
-        self.abbr = "".join(
-            i for i in self.module if i not in punctuation + "aeiou")
-
-        self.enums = """const int {abbrU}_NPORTS = {nports};
-
-const struct {abbr}_ports_t {{
-    unsigned short int pid = 0;
-    {ports};
-}} {abbr}_ports;
-"""
-
-        if self.ipc in ("sock", "socks", "socket", "sockets"):
-            self.driver_decl = """// Initialize signal handlers
-    SocketSignal m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
-    m_signal_io.set_addr(argv[1]);""".format(
-                self.abbr.upper()
-            )
-            self.drvr_dest = ""
-            self.sender = self.receiver = "m_signal_io"
-
-            self.sst_model_decl = """SocketSignal m_signal_io;"""
-            self.sst_model_init = """m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),""".format(
-                self.abbr.upper()
-            )
-            self.sst_model_bind = "m_signal_io.set_addr(m_ipc_port)"
-            self.sst_model_dest = ""
-
-        elif self.ipc == "zmq":
-            self.driver_decl = """// Socket to talk to server
-    zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_REQ);
-    socket.connect(argv[1]);
-
-    // Initialize signal handlers
-    ZMQReceiver m_signal_i({n}_NPORTS, socket);
-    ZMQTransmitter m_signal_o({n}_NPORTS, socket);""".format(
-                n=self.abbr.upper()
-            )
-            self.drvr_dest = "socket.close();"
-            self.sst_model_decl = """zmq::context_t m_context;
-    zmq::socket_t m_socket;
-    ZMQReceiver m_signal_i;
-    ZMQTransmitter m_signal_o;"""
-            self.sst_model_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i({n}_NPORTS, m_socket), m_signal_o({n}_NPORTS, m_socket),""".format(
-                n=self.abbr.upper()
-            )
-            self.sst_model_bind = "m_socket.bind(m_ipc_port.c_str())"
-            self.sst_model_dest = "m_socket.close();"
-            self.sender = "m_signal_o"
-            self.receiver = "m_signal_i"
-
-        self.bbox_dir = "blackboxes"
-        self.sc_driver_path = self.bbox_dir + "/" + self.module + "_driver.cpp"
+        self.driver_path = self.bbox_dir + "/" + self.module + "_driver.py"
         self.sst_model_path = self.bbox_dir + "/" + self.module + "_comp.cpp"
-        self.sst_ports_path = self.bbox_dir + "/" + self.module + "_ports.hpp"
 
     @staticmethod
     def __parse_signal_type(signal, raw=True):
@@ -138,45 +70,6 @@ const struct {abbr}_ports_t {{
 
         else:
             return signal, 1
-
-    @staticmethod
-    def __format(fmt, split_func, array, delim=";\n    "):
-        """Formats lists of signals based on fixed arguments
-
-        Arguments:
-            fmt {str} -- string format
-            split_func {lambda/dict} -- map to split on the signals
-            array {list(str)} -- list of signals
-            delim {str} -- delimiter (default: {";n    "})
-
-        Returns:
-            {str} -- string formatted signals
-        """
-        return delim.join(fmt.format(**split_func(i)) for i in array)
-
-    def set_ports(self, ports):
-        """Assigns ports to their corresponding member lists
-
-        Arguments:
-            ports {tuple(tuple(str,str,str),)} -- tuple of C++-style
-                type-declared signals in the form
-                ("<DTYPE>", "<PORT NAME>", "<PORT TYPE>"). The current types of
-                signals supported are ("clock", "input", "output", "inout")
-        """
-        for port_dtype, port_name, port_type in ports:
-            if port_type == "clock":
-                self.clocks.append((port_dtype, port_name))
-            elif port_type == "input":
-                self.inputs.append((port_dtype, port_name))
-            elif port_type == "output":
-                self.outputs.append((port_dtype, port_name))
-            elif port_type == "inout":
-                self.inouts.append((port_dtype, port_name))
-            else:
-                raise ValueError("Each ports must be designated a type")
-
-        self.ports = self.clocks + self.inputs + self.outputs + self.inouts
-        self.ports = [(i[0].split("//")[0], i[-1]) for i in self.ports]
 
     def get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""
@@ -284,7 +177,7 @@ const struct {abbr}_ports_t {{
 
         return (";\n" + " " * 8).join(sst_model_output)
 
-    def generate_sc_driver(self):
+    def generate_driver(self):
         """Generates the black box-driver code based on methods used to format
         the template file
 
@@ -367,11 +260,8 @@ const struct {abbr}_ports_t {{
         if not os.path.exists(self.bbox_dir):
             os.makedirs(self.bbox_dir)
 
-        with open(self.sc_driver_path, "w") as sc_driver_file:
-            sc_driver_file.write(self.generate_sc_driver())
+        with open(self.driver_path, "w") as sc_driver_file:
+            sc_driver_file.write(self.generate_driver())
 
         with open(self.sst_model_path, "w") as sst_model_file:
             sst_model_file.write(self.generate_sst_model())
-
-        with open(self.sst_ports_path, "w") as sst_ports_file:
-            sst_ports_file.write(self.generate_ports_enum())

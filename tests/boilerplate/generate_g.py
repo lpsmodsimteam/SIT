@@ -15,7 +15,7 @@ ZMQ_BBOX_DIR = os.path.join(
 DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "driver.hpp")
 MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "model.hpp")
 sys.path.append(SCRIPT_PATH)
-from gen_systemc import BoilerPlate
+from gen_systemc import SystemC
 
 
 class TestBoilerplate(object):
@@ -109,7 +109,7 @@ class SocketSignals(unittest.TestCase, TestBoilerplate):
 
     def setUp(self):
 
-        TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="sock"),
+        TestBoilerplate.__init__(self, SystemC(**ARGS, ipc="sock"),
                                  SOCKS_BBOX_DIR, "ram_driver.cpp", "ram_comp.cpp")
 
 
@@ -117,7 +117,7 @@ class ZMQSignals(unittest.TestCase, TestBoilerplate):
 
     def setUp(self):
 
-        TestBoilerplate.__init__(self, BoilerPlate(**ARGS, ipc="zmq"),
+        TestBoilerplate.__init__(self, SystemC(**ARGS, ipc="zmq"),
                                  ZMQ_BBOX_DIR, "ram_driver.cpp", "ram_comp.cpp")
 
 

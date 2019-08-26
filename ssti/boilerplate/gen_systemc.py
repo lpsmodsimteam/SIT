@@ -11,12 +11,14 @@ import math
 import os
 from string import punctuation
 
+from boilerplate import BoilerPlate
 
-class BoilerPlate(object):
+
+class SystemC(BoilerPlate):
 
     def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
                  desc="", link_desc=None):
-        """Constructor for BoilerPlate.
+        """Constructor for SystemC BoilerPlate.
 
         Arguments:
             module {str} -- module name
@@ -31,25 +33,9 @@ class BoilerPlate(object):
                 where they're assigned as the receiving and transmitting SST
                 links respectively.
         """
-        if ipc in ("sock", "zmq"):
-            self.ipc = ipc
-        else:
-            raise ValueError("Incorrect IPC protocol selected")
+        super().__init__(module, lib, ipc, drvr_templ_path,
+                         sst_model_templ_path, desc, link_desc)
 
-        self.module = module
-        self.lib = lib
-        self.drvr_templ_path = drvr_templ_path
-        self.sst_model_templ_path = sst_model_templ_path
-        self.desc = desc
-        self.link_desc = link_desc if link_desc else {
-            "link_desc0": "", "link_desc1": ""
-        }
-
-        self.clocks = []
-        self.inputs = []
-        self.outputs = []
-        self.inouts = []
-        self.ports = []
         self.abbr = "".join(
             i for i in self.module if i not in punctuation + "aeiou")
 
@@ -102,13 +88,11 @@ const struct {abbr}_ports_t {{
             self.sender = "m_signal_o"
             self.receiver = "m_signal_i"
 
-        self.bbox_dir = "blackboxes"
         self.sc_driver_path = self.bbox_dir + "/" + self.module + "_driver.cpp"
         self.sst_model_path = self.bbox_dir + "/" + self.module + "_comp.cpp"
         self.sst_ports_path = self.bbox_dir + "/" + self.module + "_ports.hpp"
 
-    @staticmethod
-    def __parse_signal_type(signal, raw=True):
+    def __parse_signal_type(self, signal, raw=True):
         """Parses the type and computes its size from the signal
 
         Arguments:
@@ -124,58 +108,21 @@ const struct {abbr}_ports_t {{
         elif "sc" in signal:
 
             def __get_ints(sig):
-                return int("".join(s for s in sig if s.isdigit()) if "//" not in sig else sig.split("//")[-1])
+                return int("".join(s for s in sig if s.isdigit())
+                           if self.WIDTH_DELIM not in sig
+                           else sig.split(self.WIDTH_DELIM)[-1])
 
             if "int" in signal:
                 return "<int>", math.floor(math.log2(__get_ints(signal)))
 
             if "bv" in signal or "lv" in signal:
-                return (signal.split("//")[0] if raw else "<int>"), __get_ints(signal)
+                return signal.split(self.WIDTH_DELIM)[0] if raw else "<int>", __get_ints(signal)
 
             if "bit" in signal or "logic" in signal:
                 return "<bool>", __get_ints(signal)
 
         else:
             return signal, 1
-
-    @staticmethod
-    def __format(fmt, split_func, array, delim=";\n    "):
-        """Formats lists of signals based on fixed arguments
-
-        Arguments:
-            fmt {str} -- string format
-            split_func {lambda/dict} -- map to split on the signals
-            array {list(str)} -- list of signals
-            delim {str} -- delimiter (default: {";n    "})
-
-        Returns:
-            {str} -- string formatted signals
-        """
-        return delim.join(fmt.format(**split_func(i)) for i in array)
-
-    def set_ports(self, ports):
-        """Assigns ports to their corresponding member lists
-
-        Arguments:
-            ports {tuple(tuple(str,str,str),)} -- tuple of C++-style
-                type-declared signals in the form
-                ("<DTYPE>", "<PORT NAME>", "<PORT TYPE>"). The current types of
-                signals supported are ("clock", "input", "output", "inout")
-        """
-        for port_dtype, port_name, port_type in ports:
-            if port_type == "clock":
-                self.clocks.append((port_dtype, port_name))
-            elif port_type == "input":
-                self.inputs.append((port_dtype, port_name))
-            elif port_type == "output":
-                self.outputs.append((port_dtype, port_name))
-            elif port_type == "inout":
-                self.inouts.append((port_dtype, port_name))
-            else:
-                raise ValueError("Each ports must be designated a type")
-
-        self.ports = self.clocks + self.inputs + self.outputs + self.inouts
-        self.ports = [(i[0].split("//")[0], i[-1]) for i in self.ports]
 
     def get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""
@@ -188,7 +135,7 @@ const struct {abbr}_ports_t {{
         Returns:
             {str} -- snippet of code representing port bindings
         """
-        return self.__format(
+        return self.sig_fmt(
             "DUT.{sig}({sig})",
             lambda x: {"sig": x[-1]}, self.ports
         )
@@ -203,7 +150,7 @@ const struct {abbr}_ports_t {{
         Returns:
             {str} -- snippet of code representing clock binding
         """
-        return self.__format(
+        return self.sig_fmt(
             "{sig} = {recv}.get_clock_pulse({abbr}_ports.{sig})",
             lambda x: {
                 "abbr": self.abbr,
@@ -222,7 +169,7 @@ const struct {abbr}_ports_t {{
         Returns:
             {str} -- snippet of code representing input bindings
         """
-        return self.__format(
+        return self.sig_fmt(
             "{sig} = {recv}.get{type}({abbr}_ports.{sig})",
             lambda x: {
                 "abbr": self.abbr,
@@ -230,7 +177,7 @@ const struct {abbr}_ports_t {{
                 "sig": x[-1],
                 "type": self.__parse_signal_type(x[0])[0],
             }, self.inputs, ";\n" + " " * 8
-        ) if driver else self.__format(
+        ) if driver else self.sig_fmt(
             "std::to_string({recv}.get{type}({abbr}_ports.{sig}))",
             lambda x: {
                 "abbr": self.abbr,
@@ -252,7 +199,7 @@ const struct {abbr}_ports_t {{
         """
         if driver:
 
-            return self.__format(
+            return self.sig_fmt(
                 "{send}.set({abbr}_ports.{sig}, {sig})",
                 lambda x: {
                     "abbr": self.abbr,
@@ -283,7 +230,7 @@ const struct {abbr}_ports_t {{
 
         return (";\n" + " " * 8).join(sst_model_output)
 
-    def generate_sc_driver(self):
+    def generate_driver(self):
         """Generates the black box-driver code based on methods used to format
         the template file
 
@@ -347,7 +294,7 @@ const struct {abbr}_ports_t {{
             abbr=self.abbr,
             abbrU=self.abbr.upper(),
             nports=len(self.ports) + 1,
-            ports=self.__format(
+            ports=self.sig_fmt(
                 "unsigned short int {port} = {n}",
                 lambda x: {
                     "port": x[-1][-1],
@@ -367,7 +314,7 @@ const struct {abbr}_ports_t {{
             os.makedirs(self.bbox_dir)
 
         with open(self.sc_driver_path, "w") as sc_driver_file:
-            sc_driver_file.write(self.generate_sc_driver())
+            sc_driver_file.write(self.generate_driver())
 
         with open(self.sst_model_path, "w") as sst_model_file:
             sst_model_file.write(self.generate_sst_model())

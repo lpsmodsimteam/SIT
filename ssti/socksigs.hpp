@@ -10,7 +10,12 @@
 #define BUFSIZE 15
 #endif
 
+// default buffer size
+#ifndef MSGPACK
+#include "sigutilslite.hpp"
+#else
 #include "sigutils.hpp"
+#endif
 
 #include <sys/un.h>
 
