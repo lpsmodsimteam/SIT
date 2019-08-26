@@ -1,5 +1,5 @@
-#include "../../ram.hpp"
-#include "../../blackboxes/ram_ports.hpp"
+#include "../../common/ram.hpp"
+#include "../../common/blackboxes/ram_ports.hpp"
 #include "../../../../ssti/ssti.hpp"
 
 int sc_main(int, char *argv[]) {

@@ -1,4 +1,4 @@
-#include "../../blackboxes/ram_ports.hpp"
+#include "../../common/blackboxes/ram_ports.hpp"
 #include "../../../../ssti/ssti.hpp"
 
 #include <sst/core/component.h>

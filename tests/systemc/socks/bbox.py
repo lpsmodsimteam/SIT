@@ -27,11 +27,11 @@ if __name__ == "__main__":
         }
     )
     boilerplate_obj.set_ports((
-        ("<sc_bv<8> >", "address", "input"),
+        ("<sc_bv<ADDR_WIDTH>>//8", "address", "input"),
         ("<bool>", "cs", "input"),
         ("<bool>", "we", "input"),
         ("<bool>", "oe", "input"),
-        ("<sc_bv<8> >", "data_in", "input"),
-        ("<sc_bv<8> >", "data_out", "output"),
+        ("<sc_bv<DATA_WIDTH>>//8", "data_in", "input"),
+        ("<sc_bv<DATA_WIDTH>>//8", "data_out", "output"),
     ))
     boilerplate_obj.generate_bbox()
