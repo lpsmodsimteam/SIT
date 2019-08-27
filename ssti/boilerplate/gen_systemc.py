@@ -17,7 +17,8 @@ from boilerplate import BoilerPlate
 class SystemC(BoilerPlate):
 
     def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
-                 desc="", link_desc=None):
+                 desc="", link_desc=None,
+                 module_dir="", ports_dir="", lib_dir=""):
         """Constructor for SystemC BoilerPlate.
 
         Arguments:
@@ -34,7 +35,8 @@ class SystemC(BoilerPlate):
                 links respectively.
         """
         super().__init__(module, lib, ipc, drvr_templ_path,
-                         sst_model_templ_path, desc, link_desc)
+                         sst_model_templ_path, desc, link_desc,
+                         module_dir, ports_dir, lib_dir)
 
         self.abbr = "".join(
             i for i in self.module if i not in punctuation + "aeiou")
@@ -240,6 +242,9 @@ const struct {abbr}_ports_t {{
         if os.path.isfile(self.drvr_templ_path):
             with open(self.drvr_templ_path) as template:
                 return template.read().format(
+                    module_dir=self.module_dir,
+                    ports_dir=self.ports_dir,
+                    lib_dir=self.lib_dir,
                     abbr=self.abbr,
                     module=self.module,
                     port_defs=self.get_driver_port_defs(),
@@ -265,6 +270,8 @@ const struct {abbr}_ports_t {{
         if os.path.isfile(self.sst_model_templ_path):
             with open(self.sst_model_templ_path) as template:
                 return template.read().format(
+                    ports_dir=self.ports_dir,
+                    lib_dir=self.lib_dir,
                     abbr=self.abbr,
                     module=self.module,
                     lib=self.lib,

@@ -1,5 +1,5 @@
-#include "{module}_ports.hpp"
-#include "ssti.hpp"
+#include "{ports_dir}{module}_ports.hpp"
+#include "{lib_dir}ssti.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>

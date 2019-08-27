@@ -9,7 +9,8 @@ from string import punctuation
 class BoilerPlate(object):
 
     def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
-                 desc="", link_desc=None):
+                 desc="", link_desc=None,
+                 module_dir="", ports_dir="", lib_dir=""):
         """Constructor for BoilerPlate.
 
         Arguments:
@@ -30,6 +31,9 @@ class BoilerPlate(object):
         else:
             raise ValueError("Incorrect IPC protocol selected")
 
+        self.module_dir = module_dir
+        self.ports_dir = ports_dir
+        self.lib_dir = lib_dir
         self.module = module
         self.lib = lib
         self.drvr_templ_path = drvr_templ_path

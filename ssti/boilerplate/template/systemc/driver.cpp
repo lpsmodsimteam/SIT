@@ -1,6 +1,6 @@
-#include "{module}.hpp"
-#include "{module}_ports.hpp"
-#include "ssti.hpp"
+#include "{module_dir}{module}.hpp"
+#include "{ports_dir}{module}_ports.hpp"
+#include "{lib_dir}ssti.hpp"
 
 int sc_main(int, char *argv[]) {{
 

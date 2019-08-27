@@ -12,8 +12,8 @@ SOCKS_BBOX_DIR = os.path.join(
     BASE_DIR, "tests", "systemc", "socks", "blackboxes")
 ZMQ_BBOX_DIR = os.path.join(
     BASE_DIR, "tests", "systemc", "zmq", "blackboxes")
-DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "driver.hpp")
-MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "model.hpp")
+DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "driver.cpp")
+MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "model.cpp")
 sys.path.append(SCRIPT_PATH)
 from gen_systemc import SystemC
 
@@ -22,19 +22,9 @@ class TestBoilerplate(object):
 
     def __init__(self, boilerplate_obj, base_path, driver_path, model_path):
 
-        self.driver_diffs = """! #include "ram.hpp"
-! #include "ram_ports.hpp"
-! #include "ssti.hpp"
-! #include "../../common/ram.hpp"
-! #include "../../common/blackboxes/ram_ports.hpp"
-! #include "../../../../ssti/ssti.hpp"
-"""
+        self.driver_diffs = """"""
 
-        self.model_diffs = """! #include "ram_ports.hpp"
-! #include "ssti.hpp"
-! #include "../../common/blackboxes/ram_ports.hpp"
-! #include "../../../../ssti/ssti.hpp"
-"""
+        self.model_diffs = """"""
         self.boilerplate_obj = boilerplate_obj
         self.boilerplate_obj.set_ports((
             ("<sc_bv<ADDR_WIDTH>>//8", "address", "input"),
@@ -93,6 +83,9 @@ class TestBoilerplate(object):
 
 
 ARGS = dict(
+    module_dir="../../common/",
+    ports_dir="../../common/blackboxes/",
+    lib_dir="../../../../ssti/",
     module="ram",
     lib="systemc",
     drvr_templ_path=DRVR_TEMPL_PATH,
