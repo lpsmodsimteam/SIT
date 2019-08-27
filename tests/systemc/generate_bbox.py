@@ -4,20 +4,22 @@
 import os
 import sys
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.getcwd())))
+BASE_DIR = os.path.dirname(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))))
 SCRIPT_PATH = os.path.join(BASE_DIR, "ssti", "boilerplate")
-BBOX_DIR_PATH = os.path.join(BASE_DIR, "examples", "unit", "blackboxes")
-DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "driver.hpp")
-MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "model.hpp")
+DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "driver.cpp")
+MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "model.cpp")
 sys.path.append(SCRIPT_PATH)
-from generate import BoilerPlate
+from gen_systemc import SystemC
 
 if __name__ == "__main__":
 
-    boilerplate_obj = BoilerPlate(
+    ARGS = dict(
+        module_dir="../../common/",
+        ports_dir="../../common/blackboxes/",
+        lib_dir="../../../../ssti/",
         module="ram",
         lib="systemc",
-        ipc="zmq",
         drvr_templ_path=DRVR_TEMPL_PATH,
         sst_model_templ_path=MODEL_TEMPL_PATH,
         desc="Demonstration of a SystemC hardware simulation in SST",
@@ -26,6 +28,8 @@ if __name__ == "__main__":
             "link_desc1": "RAM data_out",
         }
     )
+
+    boilerplate_obj = SystemC(**ARGS, ipc=sys.argv[-1])
     boilerplate_obj.set_ports((
         ("<sc_bv<ADDR_WIDTH>>//8", "address", "input"),
         ("<bool>", "cs", "input"),

@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import math
-import os
-from string import punctuation
-
 
 class BoilerPlate(object):
 

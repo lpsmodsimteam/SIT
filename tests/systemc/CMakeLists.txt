@@ -10,8 +10,8 @@ set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 
 add_definitions(-DMSGPACK)
 
-if ("${IPC}" STREQUAL "SOCKS")
-    add_subdirectory(socks)
+if ("${IPC}" STREQUAL "SOCK")
+    add_subdirectory(sock)
 elseif ("${IPC}" STREQUAL "ZMQ")
     add_subdirectory(zmq)
 endif ()

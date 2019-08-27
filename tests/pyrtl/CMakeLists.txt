@@ -3,7 +3,7 @@ project(pyrtl CXX)
 include(../CMakeLists.txt)
 
 #if ("${IPC}" STREQUAL "SOCKS")
-    add_subdirectory(socks)
+    add_subdirectory(sock)
 #elseif ("${IPC}" STREQUAL "ZMQ")
 #    add_subdirectory(zmq)
 #endif ()

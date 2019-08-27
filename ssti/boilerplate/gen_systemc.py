@@ -49,7 +49,7 @@ const struct {abbr}_ports_t {{
 }} {abbr}_ports;
 """
 
-        if self.ipc in ("sock", "socks", "socket", "sockets"):
+        if self.ipc in ("sock", "sock", "socket", "sockets"):
             self.driver_decl = """// Initialize signal handlers
     SocketSignal m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);""".format(
