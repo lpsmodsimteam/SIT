@@ -11,6 +11,7 @@
 #include <sst/core/link.h>
 #include <sst/core/sst_config.h>
 
+
 class unit : public SST::Component {
 
 public:
@@ -100,12 +101,13 @@ void unit::handle_ram_data_out(SST::Event *ev) {
 
             std::string data_out = se->getString();
             data_out = std::string(8 - data_out.length(), '0').append(data_out);
+//            printf("%d %s\n", m_cycle, data_out.c_str());
             fprintf(m_fp, "%s\n", data_out.c_str());
 
         }
 
     }
-    delete ev;
+//    delete ev;
 
 }
 
@@ -118,12 +120,17 @@ bool unit::tick(SST::Cycle_t current_cycle) {
     std::string address = std::to_string((current_cycle - 1) % WRITEMEM);
     std::string data_in = std::to_string(int(m_message[current_cycle - 1]));
 
-    if (current_cycle % WRITEMEM) {
+    if (((current_cycle - 1) % WRITEMEM) < 10) {
         address = std::string(2, '0').append(address);
     } else {
         address = std::string(1, '0').append(address);
     }
-    data_in = std::string(1, '0').append(data_in);
+
+    if ((current_cycle - 1) < WRITEMEM) {
+        data_in = std::string(1, '0').append(data_in);
+    } else {
+        data_in = "000";
+    }
 
     we = current_cycle <= WRITEMEM;
     m_cycle = current_cycle;

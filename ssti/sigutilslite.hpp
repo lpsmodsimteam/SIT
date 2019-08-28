@@ -8,6 +8,7 @@
 #include <string>
 #include <unistd.h>
 #include <sstream>
+#include <iostream>
 
 /*
  * Implements testcases methods for setting and getting data being transferred via the preferred IPC.
@@ -75,6 +76,7 @@ inline SignalIO::~SignalIO() {
 void SignalIO::set(const std::string& values) {
 
 //    snprintf(m_data, m_data.size(), fmt, values...);
+//    std::cout << m_data << '\n';
     m_data = values;
 
 }

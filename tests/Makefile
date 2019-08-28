@@ -11,6 +11,12 @@ systemc:
 	mkdir -p systemc/build
 	cd systemc && $(MAKE) ${IPC}
 
+.PHONY: pyrtl
+pyrtl:
+	@echo "\e[1;32mRunning PyRTL tests...\e[0m"
+	mkdir -p pyrtl/build
+	cd pyrtl && $(MAKE) ${IPC}
+
 clean:
 	# remove all compiled objects and cached files
 	@echo "\e[1;32mRemoving cached files...\e[0m"
