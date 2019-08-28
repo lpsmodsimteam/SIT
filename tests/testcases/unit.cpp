@@ -11,8 +11,6 @@
 #include <sst/core/link.h>
 #include <sst/core/sst_config.h>
 
-#include <bitset>
-
 class unit : public SST::Component {
 
 public:
@@ -100,8 +98,9 @@ void unit::handle_ram_data_out(SST::Event *ev) {
 
         if ((m_cycle > WRITEMEM + 1) && (m_cycle < SIMTIME - 1)) {
 
-            fprintf(m_fp, "%2d %s\n", (m_cycle - 2) % WRITEMEM,
-                    std::bitset<8>(se->getString()).to_string().c_str());
+            std::string data_out = se->getString();
+            data_out = std::string(8 - data_out.length(), '0').append(data_out);
+            fprintf(m_fp, "%s\n", data_out.c_str());
 
         }
 
@@ -116,8 +115,15 @@ bool unit::tick(SST::Cycle_t current_cycle) {
     bool keep_recv = current_cycle < SIMTIME - 1;
 
     bool cs = true, we, oe = true;
-    std::string address = std::bitset<8>((current_cycle - 1) % WRITEMEM).to_string();
-    std::string data_in = std::bitset<8>(int(m_message[current_cycle - 1])).to_string();
+    std::string address = std::to_string((current_cycle - 1) % WRITEMEM);
+    std::string data_in = std::to_string(int(m_message[current_cycle - 1]));
+
+    if (current_cycle % WRITEMEM) {
+        address = std::string(2, '0').append(address);
+    } else {
+        address = std::string(1, '0').append(address);
+    }
+    data_in = std::string(1, '0').append(data_in);
 
     we = current_cycle <= WRITEMEM;
     m_cycle = current_cycle;

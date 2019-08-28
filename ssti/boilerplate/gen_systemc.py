@@ -94,7 +94,7 @@ const struct {abbr}_ports_t {{
         self.sst_model_path = self.bbox_dir + "/" + self.module + "_comp.cpp"
         self.sst_ports_path = self.bbox_dir + "/" + self.module + "_ports.hpp"
 
-    def __parse_signal_type(self, signal, raw=True):
+    def __parse_signal_type(self, signal):
         """Parses the type and computes its size from the signal
 
         Arguments:
@@ -114,11 +114,8 @@ const struct {abbr}_ports_t {{
                            if self.WIDTH_DELIM not in sig
                            else sig.split(self.WIDTH_DELIM)[-1])
 
-            if "int" in signal:
+            if "bv" in signal or "lv" in signal or "int" in signal:
                 return "<int>", math.floor(math.log2(__get_ints(signal)))
-
-            if "bv" in signal or "lv" in signal:
-                return signal.split(self.WIDTH_DELIM)[0] if raw else "<int>", __get_ints(signal)
 
             if "bit" in signal or "logic" in signal:
                 return "<bool>", __get_ints(signal)
@@ -185,7 +182,7 @@ const struct {abbr}_ports_t {{
                 "abbr": self.abbr,
                 "recv": self.receiver,
                 "sig": x[-1],
-                "type": self.__parse_signal_type(x[0], raw=False)[0],
+                "type": self.__parse_signal_type(x[0])[0],
             }, self.outputs, " +\n" + " " * 16
         )
 
