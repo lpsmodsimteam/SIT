@@ -22,7 +22,7 @@ public:
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
         ram, // class
-        "systemc", // element library
+        "tests", // element library
         "ram", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "Demonstration of a PyRTL hardware simulation in SST",
@@ -128,7 +128,7 @@ void ram::handle_event(SST::Event *ev) {
             m_signal_io.recv();
         }
 
-        // inputs to parent SST model, outputs from SystemC child process
+        // inputs to parent SST model, outputs from tests child process
         std::string _data_out = std::to_string(m_signal_io.get<int>());
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 

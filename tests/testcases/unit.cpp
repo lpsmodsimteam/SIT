@@ -27,7 +27,7 @@ public:
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
         unit, // class
-        "systemc", // element library
+        "tests", // element library
         "unit", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "SST parent model",

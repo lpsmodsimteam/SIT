@@ -19,7 +19,7 @@ if __name__ == "__main__":
         ports_dir="../../common/blackboxes/",
         lib_dir="../../../../ssti/",
         module="ram",
-        lib="systemc",
+        lib="tests",
         drvr_templ_path=DRVR_TEMPL_PATH,
         sst_model_templ_path=MODEL_TEMPL_PATH,
         desc="Demonstration of a SystemC hardware simulation in SST",

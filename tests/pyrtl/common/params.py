@@ -27,12 +27,12 @@ def test_setup(ipc, component):
 
     sst.setProgramOption("stopAtCycle", "25us")
 
-    systemc_comp = sst.Component(component, "systemc." + component)
-    systemc_comp.addParams({
+    main_comp = sst.Component(component, "tests." + component)
+    main_comp.addParams({
         "clock": CLOCK,
     })
 
-    ram_comp = sst.Component("ram", "systemc.ram")
+    ram_comp = sst.Component("ram", "tests.ram")
     # override default parameters
     ram_comp.addParams({
         "proc": os.path.join(os.path.dirname(os.path.dirname(BASE_PATH)), "sock", "ram_driver.py"),
@@ -42,9 +42,9 @@ def test_setup(ipc, component):
 
     sst.Link("ram_din").connect(
         (ram_comp, "ram_din", LINK_SPEED),
-        (systemc_comp, "ram_din", LINK_SPEED),
+        (main_comp, "ram_din", LINK_SPEED),
     )
     sst.Link("ram_dout").connect(
         (ram_comp, "ram_dout", LINK_SPEED),
-        (systemc_comp, "ram_dout", LINK_SPEED),
+        (main_comp, "ram_dout", LINK_SPEED),
     )
