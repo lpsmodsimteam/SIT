@@ -2,8 +2,7 @@ MAKEFLAGS += --no-print-directory
 IPC ?= all
 
 .PHONY: test
-test: systemc clean
-
+test: systemc pyrtl clean
 
 .PHONY: systemc
 systemc:
@@ -17,6 +16,7 @@ pyrtl:
 	mkdir -p pyrtl/build
 	cd pyrtl && $(MAKE) ${IPC}
 
+.PHONY: clean
 clean:
 	# remove all compiled objects and cached files
 	@echo "\e[1;32mRemoving cached files...\e[0m"

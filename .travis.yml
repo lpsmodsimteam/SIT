@@ -121,6 +121,10 @@ before_script:
   - cd tests
   - export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
   - pyenv local ${ENVPY}
+  - python3 -m venv .venv
+  - source .venv/bin/activate
 
 script:
-  - make test
+  - make pyrtl
+  - make clean
+  - make systemc

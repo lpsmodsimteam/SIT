@@ -23,7 +23,7 @@ SC_MODULE (ram) {
         }
     }
 
-    // Memory Read Block 
+    // Memory Read Block
     // Read Operation : When we = 0, oe = 1, cs = 1
     void read_mem() {
         if (cs.read() && !we.read() && oe.read()) {
