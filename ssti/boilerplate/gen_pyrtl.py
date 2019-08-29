@@ -17,8 +17,9 @@ from boilerplate import BoilerPlate
 class PyRTL(BoilerPlate):
 
     def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
-                 desc="", link_desc=None):
-        """Constructor for BoilerPlate.
+                 desc="", link_desc=None,
+                 module_dir="", ports_dir="", lib_dir=""):
+        """Constructor for PyRTL BoilerPlate.
 
         Arguments:
             module {str} -- module name
@@ -34,13 +35,58 @@ class PyRTL(BoilerPlate):
                 links respectively.
         """
         super().__init__(module, lib, ipc, drvr_templ_path,
-                         sst_model_templ_path, desc, link_desc)
+                         sst_model_templ_path, desc, link_desc,
+                         module_dir, ports_dir, lib_dir)
 
-        self.driver_path = self.bbox_dir + "/" + self.module + "_driver.py"
+        self.abbr = "".join(
+            i for i in self.module if i not in punctuation + "aeiou")
+
+        if self.ipc in ("sock", "sock", "socket", "sockets"):
+            self.driver_decl = """// Initialize signal handlers
+    SocketSignal m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
+    m_signal_io.set_addr(argv[1]);""".format(
+                self.abbr.upper()
+            )
+            self.drvr_dest = ""
+            self.sender = self.receiver = "m_signal_io"
+
+            self.sst_model_decl = """SocketSignal m_signal_io;"""
+            self.sst_model_init = """m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),""".format(
+                self.abbr.upper()
+            )
+            self.sst_model_bind = "m_signal_io.set_addr(m_ipc_port)"
+            self.sst_model_dest = ""
+
+        elif self.ipc == "zmq":
+            self.driver_decl = """// Socket to talk to server
+    zmq::context_t context(1);
+    zmq::socket_t socket(context, ZMQ_REQ);
+    socket.connect(argv[1]);
+
+    // Initialize signal handlers
+    ZMQReceiver m_signal_i({n}_NPORTS, socket);
+    ZMQTransmitter m_signal_o({n}_NPORTS, socket);""".format(
+                n=self.abbr.upper()
+            )
+            self.drvr_dest = "socket.close();"
+            self.sst_model_decl = """zmq::context_t m_context;
+    zmq::socket_t m_socket;
+    ZMQReceiver m_signal_i;
+    ZMQTransmitter m_signal_o;"""
+            self.sst_model_init = """m_context(1), m_socket(m_context, ZMQ_REP),
+      m_signal_i({n}_NPORTS, m_socket), m_signal_o({n}_NPORTS, m_socket),""".format(
+                n=self.abbr.upper()
+            )
+            self.sst_model_bind = "m_socket.bind(m_ipc_port.c_str())"
+            self.sst_model_dest = "m_socket.close();"
+            self.sender = "m_signal_o"
+            self.receiver = "m_signal_i"
+
+        self.sc_driver_path = self.bbox_dir + "/" + self.module + "_driver.cpp"
         self.sst_model_path = self.bbox_dir + "/" + self.module + "_comp.cpp"
+        self.sst_ports_path = self.bbox_dir + "/" + self.module + "_ports.hpp"
 
-    @staticmethod
-    def __parse_signal_type(signal, raw=True):
+    def __parse_signal_type(self, signal):
         """Parses the type and computes its size from the signal
 
         Arguments:
@@ -57,13 +103,11 @@ class PyRTL(BoilerPlate):
 
             def __get_ints(sig):
                 return int("".join(s for s in sig if s.isdigit())
-                           if "//" not in sig else sig.split("//")[-1])
+                           if self.WIDTH_DELIM not in sig
+                           else sig.split(self.WIDTH_DELIM)[-1])
 
-            if "int" in signal:
+            if "bv" in signal or "lv" in signal or "int" in signal:
                 return "<int>", math.floor(math.log2(__get_ints(signal)))
-
-            if "bv" in signal or "lv" in signal:
-                return signal.split("//")[0] if raw else "<int>", __get_ints(signal)
 
             if "bit" in signal or "logic" in signal:
                 return "<bool>", __get_ints(signal)
@@ -82,7 +126,7 @@ class PyRTL(BoilerPlate):
         Returns:
             {str} -- snippet of code representing port bindings
         """
-        return self.__format(
+        return self.sig_fmt(
             "DUT.{sig}({sig})",
             lambda x: {"sig": x[-1]}, self.ports
         )
@@ -97,7 +141,7 @@ class PyRTL(BoilerPlate):
         Returns:
             {str} -- snippet of code representing clock binding
         """
-        return self.__format(
+        return self.sig_fmt(
             "{sig} = {recv}.get_clock_pulse({abbr}_ports.{sig})",
             lambda x: {
                 "abbr": self.abbr,
@@ -116,7 +160,7 @@ class PyRTL(BoilerPlate):
         Returns:
             {str} -- snippet of code representing input bindings
         """
-        return self.__format(
+        return self.sig_fmt(
             "{sig} = {recv}.get{type}({abbr}_ports.{sig})",
             lambda x: {
                 "abbr": self.abbr,
@@ -124,13 +168,13 @@ class PyRTL(BoilerPlate):
                 "sig": x[-1],
                 "type": self.__parse_signal_type(x[0])[0],
             }, self.inputs, ";\n" + " " * 8
-        ) if driver else self.__format(
+        ) if driver else self.sig_fmt(
             "std::to_string({recv}.get{type}({abbr}_ports.{sig}))",
             lambda x: {
                 "abbr": self.abbr,
                 "recv": self.receiver,
                 "sig": x[-1],
-                "type": self.__parse_signal_type(x[0], raw=False)[0],
+                "type": self.__parse_signal_type(x[0])[0],
             }, self.outputs, " +\n" + " " * 16
         )
 
@@ -146,7 +190,7 @@ class PyRTL(BoilerPlate):
         """
         if driver:
 
-            return self.__format(
+            return self.sig_fmt(
                 "{send}.set({abbr}_ports.{sig}, {sig})",
                 lambda x: {
                     "abbr": self.abbr,
@@ -187,6 +231,9 @@ class PyRTL(BoilerPlate):
         if os.path.isfile(self.drvr_templ_path):
             with open(self.drvr_templ_path) as template:
                 return template.read().format(
+                    module_dir=self.module_dir,
+                    ports_dir=self.ports_dir,
+                    lib_dir=self.lib_dir,
                     abbr=self.abbr,
                     module=self.module,
                     port_defs=self.get_driver_port_defs(),
@@ -212,7 +259,7 @@ class PyRTL(BoilerPlate):
         if os.path.isfile(self.sst_model_templ_path):
             with open(self.sst_model_templ_path) as template:
                 return template.read().format(
-                    abbr=self.abbr,
+                    lib_dir=self.lib_dir,
                     module=self.module,
                     lib=self.lib,
                     comp=self.module,
@@ -224,31 +271,9 @@ class PyRTL(BoilerPlate):
                     var_dest=self.sst_model_dest,
                     sender=self.sender,
                     receiver=self.receiver,
-                    inputs=self.get_inputs(False),
-                    outputs=self.get_outputs(False),
                 )
 
         raise FileNotFoundError("Model boilerplate file not found")
-
-    def generate_ports_enum(self):
-        """Generates the number of ports and the port enumeration for the black
-        box components
-
-        Returns:
-            {str} -- boilerplate code representing the black box port details
-        """
-        return self.enums.format(
-            abbr=self.abbr,
-            abbrU=self.abbr.upper(),
-            nports=len(self.ports) + 1,
-            ports=self.__format(
-                "unsigned short int {port} = {n}",
-                lambda x: {
-                    "port": x[-1][-1],
-                    "n": x[0] + 1
-                }, enumerate(self.ports)
-            )
-        )
 
     def generate_bbox(self):
         """Provides a high-level interface to the user to generate both the
@@ -260,7 +285,7 @@ class PyRTL(BoilerPlate):
         if not os.path.exists(self.bbox_dir):
             os.makedirs(self.bbox_dir)
 
-        with open(self.driver_path, "w") as sc_driver_file:
+        with open(self.sc_driver_path, "w") as sc_driver_file:
             sc_driver_file.write(self.generate_driver())
 
         with open(self.sst_model_path, "w") as sst_model_file:

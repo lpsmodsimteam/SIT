@@ -50,8 +50,7 @@ public:
 #else
     void set(const std::string&);
 
-    template<typename T>
-    T get();
+    int get();
 #endif
 
     void set_state(bool);
@@ -124,10 +123,9 @@ T SignalIO::get(const int index) {
 
 }
 #else
-template<typename T>
-T SignalIO::get() {
+int SignalIO::get() {
 
-    return static_cast<T>(std::stoi(m_data));
+    return std::stoi(m_data);
 
 }
 #endif

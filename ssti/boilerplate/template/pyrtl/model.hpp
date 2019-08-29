@@ -1,4 +1,4 @@
-#include "ssti.hpp"
+#include "{lib_dir}ssti.hpp"
 
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
@@ -87,7 +87,7 @@ void {module}::setup() {{
 
         {var_bind};
         {receiver}.recv();
-        if (child_pid == {receiver}.get<int>()) {{
+        if (child_pid == {receiver}.get()) {{
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }}
@@ -113,8 +113,8 @@ void {module}::handle_event(SST::Event *ev) {{
         bool keep_send = _data_in.substr(0, 1) != "0";
         bool keep_recv = _data_in.substr(1, 1) != "0";
 
-        // inputs from parent SST model, outputs to SystemC child process
-        {outputs};
+        // inputs from parent SST model, outputs to PyRTL child process
+        _data_in = 'X' + _data_in.substr(2);
 
         if (keep_send) {{
             {sender}.set_state(keep_recv);
@@ -124,8 +124,8 @@ void {module}::handle_event(SST::Event *ev) {{
             {receiver}.recv();
         }}
 
-        // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = {inputs};
+        // inputs to parent SST model, outputs from PyRTL child process
+        std::string _data_out = std::to_string(m_signal_io.get());
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }}
