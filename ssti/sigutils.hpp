@@ -37,11 +37,6 @@ protected:
 
 public:
 
-    void set(const std::string&);
-
-    template<typename T>
-    T get();
-
 #ifdef MSGPACK
     template<typename T>
     void set(int, const T &);
@@ -52,6 +47,11 @@ public:
     bool alive();
 
     bool get_clock_pulse(int);
+#else
+    void set(const std::string&);
+
+    template<typename T>
+    T get();
 #endif
 
     void set_state(bool);
@@ -104,13 +104,13 @@ void SignalIO::set(const int index, const T &value) {
     m_data[index] = ss.str();
 
 }
-#endif
-
+#else
 void SignalIO::set(const std::string& values) {
 
     m_data = values;
 
 }
+#endif
 
 /*
  * Returns the value specified by `index`. The values are casted statically as a templated type.
@@ -123,14 +123,14 @@ T SignalIO::get(const int index) {
     return static_cast<T>(std::stoi(m_data[index]));
 
 }
-#endif
-
+#else
 template<typename T>
 T SignalIO::get() {
 
     return static_cast<T>(std::stoi(m_data));
 
 }
+#endif
 
 /*
  * Returns the reserved index 0 in `m_data`. The reserved index itself has no special usage besides
