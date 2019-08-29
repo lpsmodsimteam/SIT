@@ -123,6 +123,7 @@ before_script:
   - pyenv local ${ENVPY}
   - python3 -m venv .venv
   - source .venv/bin/activate
+  - pip install pyrtl
 
 script:
   - make pyrtl
