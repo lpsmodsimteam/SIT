@@ -23,7 +23,6 @@ int sc_main(int, char *argv[]) {{
 
     while (true) {{
 
-        sc_start();
 
         // RECEIVING
         {receiver}.recv();
@@ -35,6 +34,7 @@ int sc_main(int, char *argv[]) {{
         {inputs};
 
         // SENDING
+        sc_start();
         {outputs};
         {sender}.send();
 
