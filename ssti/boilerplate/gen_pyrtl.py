@@ -32,9 +32,17 @@ class PyRTL(BoilerPlate):
                 where they're assigned as the receiving and transmitting SST
                 links respectively.
         """
-        super().__init__(module, lib, ipc, drvr_templ_path,
-                         sst_model_templ_path, desc, link_desc,
-                         module_dir, lib_dir)
+        super().__init__(
+            module=module,
+            lib=lib,
+            ipc=ipc,
+            drvr_templ_path=drvr_templ_path,
+            sst_model_templ_path=sst_model_templ_path,
+            desc=desc,
+            link_desc=link_desc,
+            module_dir=module_dir,
+            lib_dir=lib_dir
+        )
 
         self.start_pos = 0
 
@@ -79,7 +87,7 @@ class PyRTL(BoilerPlate):
 
         return math.floor(math.log2(__get_ints(signal)))
 
-    def get_inputs(self, driver=True):
+    def get_inputs(self):
         """Generates input bindings for both the components in the black box
 
         Arguments:
@@ -89,9 +97,8 @@ class PyRTL(BoilerPlate):
         Returns:
             {str} -- snippet of code representing input bindings
         """
-        print(self.inputs)
         inputs = []
-        fmt = "\"{sig}\" : int(signal[{sp}:{sl}]),"
+        fmt = "\"{sig}\": int(signal[{sp}:{sl}]),"
         for driver_input in self.inputs:
             sig_len = self.__parse_signal_type(driver_input[0])
             inputs.append(
@@ -105,7 +112,7 @@ class PyRTL(BoilerPlate):
 
         return ("\n" + " " * 8).join(inputs)
 
-    def get_outputs(self, driver=True):
+    def get_outputs(self):
         """Generates output bindings for both the components in the black box
 
         Arguments:

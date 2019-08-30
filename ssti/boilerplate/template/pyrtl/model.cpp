@@ -1,5 +1,6 @@
 #include "{lib_dir}ssti.hpp"
 
+#include <sst/core/sst_config.h>
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
@@ -112,9 +113,10 @@ void {module}::handle_event(SST::Event *ev) {{
         std::string _data_in = se->getString();
         bool keep_send = _data_in.substr(0, 1) != "0";
         bool keep_recv = _data_in.substr(1, 1) != "0";
+        _data_in = 'X' + _data_in.substr(2);
 
         // inputs from parent SST model, outputs to PyRTL child process
-        _data_in = 'X' + _data_in.substr(2);
+        m_signal_io.set(_data_in);
 
         if (keep_send) {{
             {sender}.set_state(keep_recv);

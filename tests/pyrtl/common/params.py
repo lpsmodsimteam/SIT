@@ -35,7 +35,7 @@ def test_setup(ipc, component):
     ram_comp = sst.Component("ram", "tests.ram")
     # override default parameters
     ram_comp.addParams({
-        "proc": os.path.join(os.path.dirname(os.path.dirname(BASE_PATH)), "sock", "ram_driver.py"),
+        "proc": os.path.join(os.path.dirname(os.path.dirname(BASE_PATH)), "sock", "blackboxes", "ram_driver.py"),
         "ipc_port": port_prefix + get_rand_tmp(),
         "clock": CLOCK,
     })

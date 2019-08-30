@@ -29,6 +29,5 @@ while True:
         "oe": int(signal[5]),
         "data_in": int(signal[6:9])
     })
-    print(str(ram.sim.inspect(ram.data_out)).encode() +
-          str(ram.sim.inspect(ram.data_out)).encode())
-    sock.sendall(str(ram.sim.inspect(ram.data_out)).encode())
+    _data_out = str(ram.sim.inspect(ram.data_out)).encode()
+    sock.sendall(_data_out)
