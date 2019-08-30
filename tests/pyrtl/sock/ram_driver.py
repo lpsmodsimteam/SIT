@@ -5,9 +5,10 @@ import os
 import socket
 import sys
 
-BASE_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "common")
+BASE_DIR = os.path.join(os.path.dirname(
+    os.path.dirname(os.path.abspath(__file__))), "common")
 sys.path.append(BASE_DIR)
-from ram import sim, DATA_OUT
+import ram
 
 # Connect the PyRTL simulation to SST through Unix sockets
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -21,11 +22,13 @@ while True:
     signal = signal[1:]
     if not alive:
         break
-    sim.step({
-        "ADDRESS": int(signal[0:3]),
-        "CS": int(signal[3]),
-        "WE": int(signal[4]),
-        "OE": int(signal[5]),
-        "DATA_IN": int(signal[6:9])
+    ram.sim.step({
+        "address": int(signal[0:3]),
+        "cs": int(signal[3]),
+        "we": int(signal[4]),
+        "oe": int(signal[5]),
+        "data_in": int(signal[6:9])
     })
-    sock.sendall(str(sim.inspect(DATA_OUT)).encode())
+    print(str(ram.sim.inspect(ram.data_out)).encode() +
+          str(ram.sim.inspect(ram.data_out)).encode())
+    sock.sendall(str(ram.sim.inspect(ram.data_out)).encode())

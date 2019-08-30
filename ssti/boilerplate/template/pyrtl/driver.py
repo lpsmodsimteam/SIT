@@ -5,22 +5,23 @@ import os
 import socket
 import sys
 
-sys.path.append({base_dir})
-from {module} import sim, {outputs}
+sys.path.append("{module_dir}")
+import {module}
 
 # Connect the PyRTL simulation to SST through Unix sockets
-sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-sock.connect(sys.argv[1])
+_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+_sock.connect(sys.argv[1])
 
-sock.sendall(str(os.getpid()).encode())
+_sock.sendall(str(os.getpid()).encode())
 
 while True:
-    signal = str(sock.recv({sig_len}).decode("utf-8"))
+    signal = str(_sock.recv({sig_len}).decode("utf-8"))
     alive = int(signal[0])
     signal = signal[1:]
     if not alive:
         break
-    sim.step({{
+    {module}.sim.step({{
         {inputs}
     }})
-    sock.sendall(str(sim.inspect({outputs})).encode())
+    _outputs = {outputs}
+    _sock.sendall(_outputs)

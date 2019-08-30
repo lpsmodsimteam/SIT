@@ -90,9 +90,9 @@ const struct {abbr}_ports_t {{
             self.sender = "m_signal_o"
             self.receiver = "m_signal_i"
 
-        self.sc_driver_path = self.bbox_dir + "/" + self.module + "_driver.cpp"
-        self.sst_model_path = self.bbox_dir + "/" + self.module + "_comp.cpp"
-        self.sst_ports_path = self.bbox_dir + "/" + self.module + "_ports.hpp"
+        self.sc_driver_path = self.sc_driver_path + "_driver.cpp"
+        self.sst_model_path = self.sst_model_path + "_comp.cpp"
+        self.sst_ports_path = self.sst_ports_path + "_ports.hpp"
 
     def __parse_signal_type(self, signal):
         """Parses the type and computes its size from the signal

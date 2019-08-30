@@ -8,28 +8,28 @@ DATA_WIDTH = 8
 ADDR_WIDTH = 8
 RAM_DEPTH = 1 << 8
 
-ADDRESS = pyrtl.Input(ADDR_WIDTH, "ADDRESS")
-CS = pyrtl.Input(1, "CS")
-WE = pyrtl.Input(1, "WE")
-OE = pyrtl.Input(1, "OE")
-DATA_IN = pyrtl.Input(DATA_WIDTH, "DATA_IN")
-DATA_OUT = pyrtl.Output(DATA_WIDTH, "DATA_OUT")
+address = pyrtl.Input(ADDR_WIDTH, "address")
+cs = pyrtl.Input(1, "cs")
+we = pyrtl.Input(1, "we")
+oe = pyrtl.Input(1, "oe")
+data_in = pyrtl.Input(DATA_WIDTH, "data_in")
+data_out = pyrtl.Output(DATA_WIDTH, "data_out")
 
 mem = pyrtl.memory.MemBlock(RAM_DEPTH, ADDR_WIDTH,
                             name="mem", asynchronous=True)
-mem[ADDRESS] <<= pyrtl.MemBlock.EnabledWrite(DATA_IN, WE & CS)
+mem[address] <<= pyrtl.MemBlock.EnabledWrite(data_in, we & cs)
 
 data_out_wire = pyrtl.wire.WireVector(DATA_WIDTH, "DATA_WIDTH")
 
 with pyrtl.conditional_assignment:
-    with OE:
-        with WE:
+    with oe:
+        with we:
             pass
         with pyrtl.otherwise:
-            with CS:
-                data_out_wire |= mem[ADDRESS]
+            with cs:
+                data_out_wire |= mem[address]
 
-DATA_OUT <<= data_out_wire
+data_out <<= data_out_wire
 
 # Setup the simulation
 sim_trace = pyrtl.SimulationTrace()

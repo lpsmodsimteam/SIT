@@ -47,6 +47,9 @@ class BoilerPlate(object):
 
         self.WIDTH_DELIM = "//"
         self.bbox_dir = "blackboxes"
+        self.sc_driver_path = \
+            self.sst_model_path = \
+            self.sst_ports_path = self.bbox_dir + "/" + self.module
 
     @staticmethod
     def sig_fmt(fmt, split_func, array, delim=";\n    "):

@@ -79,7 +79,7 @@ void {module}::setup() {{
 
     if (!child_pid) {{
 
-        char *args[] = {(char *) "python3", &m_proc[0u], &m_ipc_port[0u], nullptr};
+        char *args[] = {{(char *) "python3", &m_proc[0u], &m_ipc_port[0u], nullptr}};
         m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str());
         execvp(args[0], args);
 
