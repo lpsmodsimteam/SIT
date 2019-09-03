@@ -128,6 +128,7 @@ inline void ZMQReceiver::recv() {
     m_buf[m_msg.size()] = '\0';
     m_data = m_buf;
 #endif
+
 }
 
 

@@ -77,7 +77,8 @@ _sock = context.socket(zmq.REQ)"""
         self.sc_driver_path = self.sc_driver_path + "_driver.py"
         self.sst_model_path = self.sst_model_path + "_comp.cpp"
 
-    def __parse_signal_type(self, signal):
+    @staticmethod
+    def __parse_signal_type(signal):
         """Parses the type and computes its size from the signal
 
         Arguments:
