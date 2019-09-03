@@ -20,7 +20,7 @@ jobs:
 
     - name: "GCC 9"
       env:
-        - _CXX=g++-9
-        - _PKG=ppa:ubuntu-toolchain-r/test
+        _CXX: g++-9
+        _PKG: ppa:ubuntu-toolchain-r/test
       uses: ./.github/actions/.script
 
