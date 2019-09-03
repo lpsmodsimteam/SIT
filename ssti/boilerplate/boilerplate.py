@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+
 
 class BoilerPlate(object):
 
@@ -90,3 +92,25 @@ class BoilerPlate(object):
         self.ports = self.clocks + self.inputs + self.outputs + self.inouts
         self.ports = [(i[0].split(self.WIDTH_DELIM)[0], i[-1])
                       for i in self.ports]
+
+    def generate_bbox(self):
+        """Provides a high-level interface to the user to generate both the
+        components of the black box and dump them to their corresponding files
+        """
+        if not len(self.ports):
+            raise IndexError("Ports were not set properly")
+
+        if not os.path.exists(self.bbox_dir):
+            os.makedirs(self.bbox_dir)
+
+        if self.sc_driver_path:
+            with open(self.sc_driver_path, "w") as sc_driver_file:
+                sc_driver_file.write(self.generate_driver())
+
+        if self.sst_model_path:
+            with open(self.sst_model_path, "w") as sst_model_file:
+                sst_model_file.write(self.generate_sst_model())
+
+        if self.sst_ports_path:
+            with open(self.sst_ports_path, "w") as sst_ports_file:
+                sst_ports_file.write(self.generate_ports_enum())

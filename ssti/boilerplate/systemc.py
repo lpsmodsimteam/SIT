@@ -11,7 +11,7 @@ import math
 import os
 from string import punctuation
 
-from boilerplate import BoilerPlate
+from .boilerplate import BoilerPlate
 
 
 class SystemC(BoilerPlate):
@@ -34,9 +34,18 @@ class SystemC(BoilerPlate):
                 where they're assigned as the receiving and transmitting SST
                 links respectively.
         """
-        super().__init__(module, lib, ipc, drvr_templ_path,
-                         sst_model_templ_path, desc, link_desc,
-                         module_dir, ports_dir, lib_dir)
+        super().__init__(
+            module=module,
+            lib=lib,
+            ipc=ipc,
+            drvr_templ_path=drvr_templ_path,
+            sst_model_templ_path=sst_model_templ_path,
+            desc=desc,
+            link_desc=link_desc,
+            module_dir=module_dir,
+            ports_dir=ports_dir,
+            lib_dir=lib_dir
+        )
 
         self.abbr = "".join(
             i for i in self.module if i not in punctuation + "aeiou")
@@ -49,7 +58,7 @@ const struct {abbr}_ports_t {{
 }} {abbr}_ports;
 """
 
-        if self.ipc in ("sock", "sock", "socket", "sockets"):
+        if self.ipc == "sock":
             self.driver_decl = """// Initialize signal handlers
     SocketSignal m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);""".format(
@@ -90,9 +99,9 @@ const struct {abbr}_ports_t {{
             self.sender = "m_signal_o"
             self.receiver = "m_signal_i"
 
-        self.sc_driver_path = self.sc_driver_path + "_driver.cpp"
-        self.sst_model_path = self.sst_model_path + "_comp.cpp"
-        self.sst_ports_path = self.sst_ports_path + "_ports.hpp"
+        self.sc_driver_path += "_driver.cpp"
+        self.sst_model_path += "_comp.cpp"
+        self.sst_ports_path += "_ports.hpp"
 
     def __parse_signal_type(self, signal):
         """Parses the type and computes its size from the signal
@@ -306,22 +315,3 @@ const struct {abbr}_ports_t {{
                 }, enumerate(self.ports)
             )
         )
-
-    def generate_bbox(self):
-        """Provides a high-level interface to the user to generate both the
-        components of the black box and dump them to their corresponding files
-        """
-        if not len(self.ports):
-            raise IndexError("Ports were not set properly")
-
-        if not os.path.exists(self.bbox_dir):
-            os.makedirs(self.bbox_dir)
-
-        with open(self.sc_driver_path, "w") as sc_driver_file:
-            sc_driver_file.write(self.generate_driver())
-
-        with open(self.sst_model_path, "w") as sst_model_file:
-            sst_model_file.write(self.generate_sst_model())
-
-        with open(self.sst_ports_path, "w") as sst_ports_file:
-            sst_ports_file.write(self.generate_ports_enum())

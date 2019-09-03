@@ -6,11 +6,12 @@ import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
-SCRIPT_PATH = os.path.join(BASE_DIR, "ssti", "boilerplate")
-DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "driver.cpp")
-MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "systemc", "model.cpp")
+SCRIPT_PATH = os.path.join(BASE_DIR, "ssti")
+BPLATE_DIR = os.path.join(SCRIPT_PATH, "boilerplate", "template", "systemc")
+DRVR_TEMPL_PATH = os.path.join(BPLATE_DIR, "driver.cpp")
+MODEL_TEMPL_PATH = os.path.join(BPLATE_DIR, "model.cpp")
 sys.path.append(SCRIPT_PATH)
-from gen_systemc import SystemC
+from boilerplate import SystemC
 
 if __name__ == "__main__":
 

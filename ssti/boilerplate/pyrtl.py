@@ -10,7 +10,7 @@ interface in SSTI.
 import math
 import os
 
-from boilerplate import BoilerPlate
+from .boilerplate import BoilerPlate
 
 
 class PyRTL(BoilerPlate):
@@ -46,7 +46,7 @@ class PyRTL(BoilerPlate):
 
         self.start_pos = 0
 
-        if self.ipc in ("sock", "sock", "socket", "sockets"):
+        if self.ipc == "sock":
             self.driver_ipc = "socket"
             self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""
             self.send = "sendall"
@@ -74,8 +74,9 @@ _sock = context.socket(zmq.REQ)"""
             self.sender = "m_signal_o"
             self.receiver = "m_signal_i"
 
-        self.sc_driver_path = self.sc_driver_path + "_driver.py"
-        self.sst_model_path = self.sst_model_path + "_comp.cpp"
+        self.sc_driver_path += "_driver.py"
+        self.sst_model_path += "_comp.cpp"
+        self.sst_ports_path = None
 
     @staticmethod
     def __parse_signal_type(signal):
@@ -187,19 +188,3 @@ _sock = context.socket(zmq.REQ)"""
                 )
 
         raise FileNotFoundError("Model boilerplate file not found")
-
-    def generate_bbox(self):
-        """Provides a high-level interface to the user to generate both the
-        components of the black box and dump them to their corresponding files
-        """
-        if not len(self.ports):
-            raise IndexError("Ports were not set properly")
-
-        if not os.path.exists(self.bbox_dir):
-            os.makedirs(self.bbox_dir)
-
-        with open(self.sc_driver_path, "w") as driver_file:
-            driver_file.write(self.generate_driver())
-
-        with open(self.sst_model_path, "w") as sst_model_file:
-            sst_model_file.write(self.generate_sst_model())

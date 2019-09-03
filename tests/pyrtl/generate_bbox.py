@@ -6,11 +6,12 @@ import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))))
-SCRIPT_PATH = os.path.join(BASE_DIR, "ssti", "boilerplate")
-DRVR_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "pyrtl", "driver.py")
-MODEL_TEMPL_PATH = os.path.join(SCRIPT_PATH, "template", "pyrtl", "model.cpp")
+SCRIPT_PATH = os.path.join(BASE_DIR, "ssti")
+BPLATE_DIR = os.path.join(SCRIPT_PATH, "boilerplate", "template", "pyrtl")
+DRVR_TEMPL_PATH = os.path.join(BPLATE_DIR, "driver.py")
+MODEL_TEMPL_PATH = os.path.join(BPLATE_DIR, "model.cpp")
 sys.path.append(SCRIPT_PATH)
-from gen_pyrtl import PyRTL
+from boilerplate import PyRTL
 
 if __name__ == "__main__":
 
