@@ -16,11 +16,11 @@ jobs:
       env:
         _CXX: clang++-8
         _PKG: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main"
-      uses: ./.github/actions/.script
+      uses: ./.github/actions/.script.yml
 
     - name: "GCC 9"
       env:
-        - _CXX=g++-9
-        - _PKG=ppa:ubuntu-toolchain-r/test
-      uses: ./.github/actions/.script
+        _CXX: g++-9
+        _PKG: ppa:ubuntu-toolchain-r/test
+      uses: ./.github/actions/.script.yml
 
