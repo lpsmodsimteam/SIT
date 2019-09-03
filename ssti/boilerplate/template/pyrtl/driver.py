@@ -2,17 +2,18 @@
 # -*- coding: utf-8 -*-
 
 import os
-import socket
+import {ipc}
 import sys
 
 sys.path.append("{module_dir}")
 import {module}
 
-# Connect the PyRTL simulation to SST through Unix sockets
-_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+# Connect the PyRTL simulation to SST through {ipc}
+# _sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+{driver_bind}
 _sock.connect(sys.argv[1])
 
-_sock.sendall(str(os.getpid()).encode())
+_sock.{send}(str(os.getpid()).encode())
 
 while True:
     signal = str(_sock.recv({sig_len}).decode("utf-8"))
@@ -24,4 +25,4 @@ while True:
         {inputs}
     }})
     _outputs = {outputs}
-    _sock.sendall(_outputs)
+    _sock.{send}(_outputs)

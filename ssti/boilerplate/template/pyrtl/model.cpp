@@ -116,7 +116,7 @@ void {module}::handle_event(SST::Event *ev) {{
         _data_in = 'X' + _data_in.substr(2);
 
         // inputs from parent SST model, outputs to PyRTL child process
-        m_signal_io.set(_data_in);
+        {sender}.set(_data_in);
 
         if (keep_send) {{
             {sender}.set_state(keep_recv);
@@ -127,7 +127,7 @@ void {module}::handle_event(SST::Event *ev) {{
         }}
 
         // inputs to parent SST model, outputs from PyRTL child process
-        std::string _data_out = std::to_string(m_signal_io.get());
+        std::string _data_out = std::to_string({receiver}.get());
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }}

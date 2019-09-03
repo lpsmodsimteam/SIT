@@ -6,4 +6,4 @@ import sys
 sys.path.append("../../../testcases")
 from test_params import setup
 
-setup("pyrtl", "sock", "unit")
+setup("pyrtl", "zmq", "unit")

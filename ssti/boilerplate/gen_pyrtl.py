@@ -47,6 +47,9 @@ class PyRTL(BoilerPlate):
         self.start_pos = 0
 
         if self.ipc in ("sock", "sock", "socket", "sockets"):
+            self.driver_ipc = "socket"
+            self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""
+            self.send = "sendall"
             self.sender = self.receiver = "m_signal_io"
 
             self.sst_model_decl = """SocketSignal m_signal_io;"""
@@ -55,12 +58,17 @@ class PyRTL(BoilerPlate):
             self.sst_model_dest = ""
 
         elif self.ipc == "zmq":
+            self.driver_ipc = "zmq"
+            self.driver_bind = """context = zmq.Context()
+_sock = context.socket(zmq.REQ)"""
+            self.send = "send"
+
             self.sst_model_decl = """zmq::context_t m_context;
     zmq::socket_t m_socket;
     ZMQReceiver m_signal_i;
     ZMQTransmitter m_signal_o;"""
             self.sst_model_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i(0, m_socket), m_signal_o({n}_NPORTS, m_socket),"""
+      m_signal_i(0, m_socket), m_signal_o(0, m_socket),"""
             self.sst_model_bind = "m_socket.bind(m_ipc_port.c_str())"
             self.sst_model_dest = "m_socket.close();"
             self.sender = "m_signal_o"
@@ -141,10 +149,13 @@ class PyRTL(BoilerPlate):
         if os.path.isfile(self.drvr_templ_path):
             with open(self.drvr_templ_path) as template:
                 return template.read().format(
+                    ipc=self.driver_ipc,
+                    driver_bind=self.driver_bind,
+                    send=self.send,
                     module_dir=self.module_dir,
                     module=self.module,
                     inputs=self.get_inputs(),
-                    sig_len=self.start_pos + 1,
+                    sig_len=self.start_pos + 1 if self.driver_ipc == "socket" else "",
                     outputs=self.get_outputs()
                 )
 
@@ -191,40 +202,3 @@ class PyRTL(BoilerPlate):
 
         with open(self.sst_model_path, "w") as sst_model_file:
             sst_model_file.write(self.generate_sst_model())
-
-
-if __name__ == '__main__':
-
-    import sys
-    BASE_DIR = os.path.dirname(os.path.dirname(
-        os.path.dirname(os.path.abspath(__file__))))
-    SCRIPT_PATH = os.path.join(BASE_DIR, "ssti", "boilerplate")
-    DRVR_TEMPL_PATH = os.path.join(
-        SCRIPT_PATH, "template", "pyrtl", "driver.py")
-    MODEL_TEMPL_PATH = os.path.join(
-        SCRIPT_PATH, "template", "pyrtl", "model.cpp")
-
-    ARGS = dict(
-        module_dir="../../common/",
-        lib_dir="../../../../ssti/",
-        module="ram",
-        lib="tests",
-        drvr_templ_path=DRVR_TEMPL_PATH,
-        sst_model_templ_path=MODEL_TEMPL_PATH,
-        desc="Demonstration of a PyRTL hardware simulation in SST",
-        link_desc={
-            "link_desc0": "RAM data_in",
-            "link_desc1": "RAM data_out",
-        }
-    )
-
-    boilerplate_obj = PyRTL(**ARGS, ipc=sys.argv[-1])
-    boilerplate_obj.set_ports((
-        ("8", "address", "input"),
-        ("1", "cs", "input"),
-        ("1", "we", "input"),
-        ("1", "oe", "input"),
-        ("8", "data_in", "input"),
-        ("8", "data_out", "output"),
-    ))
-    boilerplate_obj.generate_bbox()

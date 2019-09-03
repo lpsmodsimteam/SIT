@@ -18,24 +18,32 @@ def get_rand_tmp():
     )
 
 
-def test_setup(ipc, component):
-
+def setup(hdl, ipc, comp):
     if ipc == "sock":
         port_prefix = "/tmp/"
     elif ipc == "zmq":
         port_prefix = "ipc:///tmp/"
+    else:
+        raise NotImplementedError()
 
     sst.setProgramOption("stopAtCycle", "25us")
 
-    main_comp = sst.Component(component, "tests." + component)
+    main_comp = sst.Component(comp, "tests." + comp)
     main_comp.addParams({
         "clock": CLOCK,
     })
 
     ram_comp = sst.Component("ram", "tests.ram")
     # override default parameters
+    if hdl == "systemc":
+        proc = os.path.join(BASE_PATH, "ram.o")
+    elif hdl == "pyrtl":
+        proc = os.path.join(os.path.dirname(os.path.dirname(BASE_PATH)), ipc,
+                            "blackboxes", "ram_driver.py")
+    else:
+        raise NotImplementedError()
     ram_comp.addParams({
-        "proc": os.path.join(BASE_PATH, "ram.o"),
+        "proc": proc,
         "ipc_port": port_prefix + get_rand_tmp(),
         "clock": CLOCK,
     })

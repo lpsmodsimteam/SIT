@@ -126,6 +126,5 @@ before_script:
   - pip install pyrtl
 
 script:
-  - make pyrtl
-  - make clean
-  - make systemc
+  - make pyrtl clean
+  - make systemc clean
