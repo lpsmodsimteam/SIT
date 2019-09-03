@@ -6,7 +6,7 @@ import os
 
 class BoilerPlate(object):
 
-    def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
+    def __init__(self, module, lib, ipc, drvr_templ_path, comp_templ_path,
                  desc="", link_desc=None,
                  module_dir="", ports_dir="", lib_dir=""):
         """Constructor for BoilerPlate.
@@ -16,7 +16,7 @@ class BoilerPlate(object):
             lib {str} -- SST library name
             ipc {str} -- type of IPC. Supported options are ("sock", "zmq")
             drvr_templ_path {str} -- path to the black box-driver boilerplate
-            sst_model_templ_path {str} -- path to the black box-model boilerplate
+            comp_templ_path {str} -- path to the black box-model boilerplate
             desc {str} -- description of the SST model (default: {""})
             link_desc {dict(str:str)} -- description of the SST links
                 The argument defaults to:
@@ -35,7 +35,7 @@ class BoilerPlate(object):
         self.module = module
         self.lib = lib
         self.drvr_templ_path = drvr_templ_path
-        self.sst_model_templ_path = sst_model_templ_path
+        self.comp_templ_path = comp_templ_path
         self.desc = desc
         self.link_desc = link_desc if link_desc else {
             "link_desc0": "", "link_desc1": ""
@@ -49,9 +49,9 @@ class BoilerPlate(object):
 
         self.WIDTH_DELIM = "//"
         self.bbox_dir = "blackboxes"
-        self.sc_driver_path = \
-            self.sst_model_path = \
-            self.sst_ports_path = self.bbox_dir + "/" + self.module
+        self.driver_path = \
+            self.comp_path = \
+            self.ports_path = self.bbox_dir + "/" + self.module
 
     @staticmethod
     def sig_fmt(fmt, split_func, array, delim=";\n    "):
@@ -103,14 +103,14 @@ class BoilerPlate(object):
         if not os.path.exists(self.bbox_dir):
             os.makedirs(self.bbox_dir)
 
-        if self.sc_driver_path:
-            with open(self.sc_driver_path, "w") as sc_driver_file:
-                sc_driver_file.write(self.generate_driver())
+        if self.driver_path:
+            with open(self.driver_path, "w") as driver_file:
+                driver_file.write(self.generate_driver())
 
-        if self.sst_model_path:
-            with open(self.sst_model_path, "w") as sst_model_file:
-                sst_model_file.write(self.generate_sst_model())
+        if self.comp_path:
+            with open(self.comp_path, "w") as comp_file:
+                comp_file.write(self.generate_comp())
 
-        if self.sst_ports_path:
-            with open(self.sst_ports_path, "w") as sst_ports_file:
-                sst_ports_file.write(self.generate_ports_enum())
+        if self.ports_path:
+            with open(self.ports_path, "w") as ports_file:
+                ports_file.write(self.generate_ports_enum())

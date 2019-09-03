@@ -16,8 +16,8 @@ from .boilerplate import BoilerPlate
 
 class SystemC(BoilerPlate):
 
-    def __init__(self, module, lib, ipc, drvr_templ_path, sst_model_templ_path,
-                 desc="", link_desc=None,
+    def __init__(self, module, lib, ipc, drvr_templ_path="",
+                 comp_templ_path="", desc="", link_desc=None,
                  module_dir="", ports_dir="", lib_dir=""):
         """Constructor for SystemC BoilerPlate.
 
@@ -26,7 +26,7 @@ class SystemC(BoilerPlate):
             lib {str} -- SST library name
             ipc {str} -- type of IPC. Supported options are ("sock", "zmq")
             drvr_templ_path {str} -- path to the black box-driver boilerplate
-            sst_model_templ_path {str} -- path to the black box-model boilerplate
+            comp_templ_path {str} -- path to the black box-model boilerplate
             desc {str} -- description of the SST model (default: {""})
             link_desc {dict(str:str)} -- description of the SST links
                 The argument defaults to:
@@ -34,12 +34,18 @@ class SystemC(BoilerPlate):
                 where they're assigned as the receiving and transmitting SST
                 links respectively.
         """
+        templ_path = os.path.join(
+            os.path.dirname(__file__), "template", "systemc")
+        if not drvr_templ_path:
+            drvr_templ_path = os.path.join(templ_path, "driver.cpp")
+        if not comp_templ_path:
+            comp_templ_path = os.path.join(templ_path, "comp.cpp")
         super().__init__(
             module=module,
             lib=lib,
             ipc=ipc,
             drvr_templ_path=drvr_templ_path,
-            sst_model_templ_path=sst_model_templ_path,
+            comp_templ_path=comp_templ_path,
             desc=desc,
             link_desc=link_desc,
             module_dir=module_dir,
@@ -67,12 +73,12 @@ const struct {abbr}_ports_t {{
             self.drvr_dest = ""
             self.sender = self.receiver = "m_signal_io"
 
-            self.sst_model_decl = """SocketSignal m_signal_io;"""
-            self.sst_model_init = """m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),""".format(
+            self.comp_decl = """SocketSignal m_signal_io;"""
+            self.comp_init = """m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),""".format(
                 self.abbr.upper()
             )
-            self.sst_model_bind = "m_signal_io.set_addr(m_ipc_port)"
-            self.sst_model_dest = ""
+            self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
+            self.comp_dest = ""
 
         elif self.ipc == "zmq":
             self.driver_decl = """// Socket to talk to server
@@ -86,22 +92,22 @@ const struct {abbr}_ports_t {{
                 n=self.abbr.upper()
             )
             self.drvr_dest = "socket.close();"
-            self.sst_model_decl = """zmq::context_t m_context;
+            self.comp_decl = """zmq::context_t m_context;
     zmq::socket_t m_socket;
     ZMQReceiver m_signal_i;
     ZMQTransmitter m_signal_o;"""
-            self.sst_model_init = """m_context(1), m_socket(m_context, ZMQ_REP),
+            self.comp_init = """m_context(1), m_socket(m_context, ZMQ_REP),
       m_signal_i({n}_NPORTS, m_socket), m_signal_o({n}_NPORTS, m_socket),""".format(
                 n=self.abbr.upper()
             )
-            self.sst_model_bind = "m_socket.bind(m_ipc_port.c_str())"
-            self.sst_model_dest = "m_socket.close();"
+            self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
+            self.comp_dest = "m_socket.close();"
             self.sender = "m_signal_o"
             self.receiver = "m_signal_i"
 
-        self.sc_driver_path += "_driver.cpp"
-        self.sst_model_path += "_comp.cpp"
-        self.sst_ports_path += "_ports.hpp"
+        self.driver_path += "_driver.cpp"
+        self.comp_path += "_comp.cpp"
+        self.ports_path += "_ports.hpp"
 
     def __parse_signal_type(self, signal):
         """Parses the type and computes its size from the signal
@@ -220,12 +226,12 @@ const struct {abbr}_ports_t {{
         # positions 0 and 1 are reserved for stopping sending and receiving of
         # signals
         start_pos = 2
-        sst_model_inputs = self.inputs + self.get_clock(driver=False)
-        sst_model_output = []
+        comp_inputs = self.inputs + self.get_clock(driver=False)
+        comp_output = []
         fmt = "{send}.set({abbr}_ports.{sig}, std::stoi(_data_in.substr({sp}{sl})))"
-        for model_input in sst_model_inputs:
+        for model_input in comp_inputs:
             sig_len = self.__parse_signal_type(model_input[0])[-1]
-            sst_model_output.append(
+            comp_output.append(
                 fmt.format(
                     abbr=self.abbr,
                     sl=(", " + str(sig_len)) * bool(sig_len),
@@ -236,7 +242,7 @@ const struct {abbr}_ports_t {{
             )
             start_pos += sig_len
 
-        return (";\n" + " " * 8).join(sst_model_output)
+        return (";\n" + " " * 8).join(comp_output)
 
     def generate_driver(self):
         """Generates the black box-driver code based on methods used to format
@@ -266,15 +272,15 @@ const struct {abbr}_ports_t {{
 
         raise FileNotFoundError("Driver boilerplate file not found")
 
-    def generate_sst_model(self):
+    def generate_comp(self):
         """Generates the black box-model code based on methods used to format
         the template file
 
         Returns:
             {str} -- boilerplate code representing the black box-model file
         """
-        if os.path.isfile(self.sst_model_templ_path):
-            with open(self.sst_model_templ_path) as template:
+        if os.path.isfile(self.comp_templ_path):
+            with open(self.comp_templ_path) as template:
                 return template.read().format(
                     ports_dir=self.ports_dir,
                     lib_dir=self.lib_dir,
@@ -284,10 +290,10 @@ const struct {abbr}_ports_t {{
                     comp=self.module,
                     desc=self.desc,
                     **self.link_desc,
-                    var_decl=self.sst_model_decl,
-                    var_init=self.sst_model_init,
-                    var_bind=self.sst_model_bind,
-                    var_dest=self.sst_model_dest,
+                    var_decl=self.comp_decl,
+                    var_init=self.comp_init,
+                    var_bind=self.comp_bind,
+                    var_dest=self.comp_dest,
                     sender=self.sender,
                     receiver=self.receiver,
                     inputs=self.get_inputs(False),
