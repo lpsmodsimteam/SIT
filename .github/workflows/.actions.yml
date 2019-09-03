@@ -1,0 +1,26 @@
+name: SSTI CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    # strategy:
+    #   matrix:
+    #     _CXX: [clang++-8, g++-9]
+    
+    steps:
+    - name: "Clang 8"
+      env:
+        _CXX: clang++-8
+        _PKG: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main"
+      uses: ./.github/actions/.script
+
+    - name: "GCC 9"
+      env:
+        - _CXX=g++-9
+        - _PKG=ppa:ubuntu-toolchain-r/test
+      uses: ./.github/actions/.script
+
