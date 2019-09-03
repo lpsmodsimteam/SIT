@@ -1,0 +1,78 @@
+name: C/C++ CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: "Clang 8"
+      env:
+        - _CXX=clang++-8
+        - _PKG="deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main"
+      run:
+        # set the maximum number of cores supported on Travis
+        - JOBS=$(nproc --all)
+        - echo "Using ${JOBS} processors"
+
+        # set versions for requirements
+        - CMAKE_VER="3.14.0"
+        - SYSC_VER="2.3.3"
+        - SST_VER="9.0.0"
+        - LIBZMQ_VER="4.3.1"
+        - CPPZMQ_VER="4.3.0"
+        - ENVPY="3.6.7"
+
+        # dependencies required by the CI are installed in ${HOME}/deps/
+        - DEPS_DIR="${HOME}/deps"
+        - mkdir -p "${DEPS_DIR}"
+
+        # add LLVM public keys for Clang compilers
+        - wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+
+        # set the proper C++ compiler
+        - sudo add-apt-repository "${_PKG}" -y
+        - sudo apt install ${_CXX} -y
+        - export CXX=${_CXX}
+
+        # install necessary packages
+        - sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
+
+        # upgrade CMake to a more recent version
+        - CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
+        - curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
+        - export PATH=${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin:${PATH}
+        - cmake --version
+        - cd ${HOME}
+
+        # install SystemC
+        - SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
+        - curl -L ${SYSC_URL}systemc-${SYSC_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+        - mkdir -p ${DEPS_DIR}/systemc-${SYSC_VER}/build
+        - cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
+        - cd ${HOME}
+
+        # install SST Core
+        - SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+        - mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
+        - curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+        - cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install
+        - cd ${HOME}
+
+        # install zmq
+        - libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
+        - cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
+        - curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
+        - curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
+        - mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
+        - cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
+        - cd ${HOME}
+        - mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
+        - cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
+        - cd ${HOME}
+
+        # install msgpack
+        - ./install
+        - cd ${HOME}
