@@ -51,7 +51,7 @@ class BoilerPlate(object):
         self.bbox_dir = "blackboxes"
         self.driver_path = \
             self.comp_path = \
-            self.ports_path = self.bbox_dir + "/" + self.module
+            self.ports_path = os.path.join(self.bbox_dir, self.module)
 
     @staticmethod
     def sig_fmt(fmt, split_func, array, delim=";\n    "):

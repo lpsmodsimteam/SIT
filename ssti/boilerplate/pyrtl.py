@@ -50,7 +50,6 @@ class PyRTL(BoilerPlate):
             module_dir=module_dir,
             lib_dir=lib_dir
         )
-        print(self.drvr_templ_path)
 
         self.start_pos = 0
 

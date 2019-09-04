@@ -124,6 +124,8 @@ before_script:
   - python3 -m venv .venv
   - source .venv/bin/activate
   - pip install -r pyrtl/requirements.txt
+  - cd ../ssti && python3 setup.py install
+  - cd -
 
 script:
   - make pyrtl clean
