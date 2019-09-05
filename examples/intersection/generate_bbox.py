@@ -9,6 +9,8 @@ if __name__ == "__main__":
         module="traffic_light_fsm",
         lib="intersection",
         ipc="sock",
+        lib_dir="../../ssti/",
+        module_dir="../systemc/",
         desc="Demonstration of a SystemC hardware simulation in SST",
         link_desc={
             "link_desc0": "Traffic Light FSM data_in",
