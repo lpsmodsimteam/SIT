@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implementation of the BoilerPlate class
+"""Implementation of the PyRTL class
 
 This class generates the boilerplate code required to build the black box
 interface in SSTI.
@@ -16,9 +16,9 @@ from .boilerplate import BoilerPlate
 
 class SystemC(BoilerPlate):
 
-    def __init__(self, module, lib, ipc, drvr_templ_path="",
-                 comp_templ_path="", desc="", link_desc=None,
-                 module_dir="", ports_dir="", lib_dir=""):
+    def __init__(self, module, lib, ipc, drvr_templ_path="", comp_templ_path="",
+                 desc="", link_desc=None, module_dir="", ports_dir="",
+                 lib_dir=""):
         """Constructor for SystemC BoilerPlate.
 
         Arguments:
@@ -40,6 +40,7 @@ class SystemC(BoilerPlate):
             drvr_templ_path = os.path.join(templ_path, "driver.cpp")
         if not comp_templ_path:
             comp_templ_path = os.path.join(templ_path, "comp.cpp")
+
         super().__init__(
             module=module,
             lib=lib,

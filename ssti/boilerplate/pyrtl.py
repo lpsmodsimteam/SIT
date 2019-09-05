@@ -15,8 +15,7 @@ from .boilerplate import BoilerPlate
 
 class PyRTL(BoilerPlate):
 
-    def __init__(self, module, lib, ipc,
-                 drvr_templ_path="", comp_templ_path="",
+    def __init__(self, module, lib, ipc, drvr_templ_path="", comp_templ_path="",
                  desc="", link_desc=None, module_dir="", lib_dir=""):
         """Constructor for PyRTL BoilerPlate.
 
@@ -39,6 +38,7 @@ class PyRTL(BoilerPlate):
             drvr_templ_path = os.path.join(templ_path, "driver.py")
         if not comp_templ_path:
             comp_templ_path = os.path.join(templ_path, "comp.cpp")
+
         super().__init__(
             module=module,
             lib=lib,
@@ -52,7 +52,6 @@ class PyRTL(BoilerPlate):
         )
 
         self.start_pos = 0
-
         if self.ipc == "sock":
             self.driver_ipc = "socket"
             self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""
@@ -164,7 +163,7 @@ _sock = context.socket(zmq.REQ)"""
                     module_dir=self.module_dir,
                     module=self.module,
                     inputs=self.get_inputs(),
-                    sig_len=self.start_pos + 1 if self.driver_ipc == "socket" else "",
+                    sig_len=self.start_pos + 1 if self.ipc == "sock" else "",
                     outputs=self.get_outputs()
                 )
 

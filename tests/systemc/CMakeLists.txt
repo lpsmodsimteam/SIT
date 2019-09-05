@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.12)
 project(systemc CXX)
 include(../CMakeLists.txt)
 
+# add compiler warnings
+add_compile_options(-Wall -Wextra -Wpedantic)
+
 # -------------------- SYSTEMC CONFIGS --------------------
 set(CMAKE_PREFIX_PATH /opt/systemc)
 find_package(SystemCLanguage CONFIG REQUIRED)

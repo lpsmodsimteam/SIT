@@ -17,9 +17,8 @@ if __name__ == "__main__":
         link_desc={
             "link_desc0": "RAM data_in",
             "link_desc1": "RAM data_out",
-        },
+        }
     )
-    print("yo", boilerplate_obj.comp_path)
     boilerplate_obj.set_ports((
         ("8", "address", "input"),
         ("1", "cs", "input"),
