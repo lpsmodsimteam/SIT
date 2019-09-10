@@ -2,7 +2,9 @@ MAKEFLAGS += --no-print-directory
 IPC ?= all
 
 .PHONY: test
-test: systemc pyrtl clean
+test:
+	$(MAKE) systemc clean
+	$(MAKE) pyrtl clean
 
 .PHONY: systemc
 systemc:

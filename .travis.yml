@@ -113,10 +113,6 @@ install:
   - cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
   - cd ${TRAVIS_BUILD_DIR}
 
-  # install msgpack
-  - ./install
-  - cd ${TRAVIS_BUILD_DIR}
-
 before_script:
   - export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
   - pyenv local ${ENVPY}
@@ -128,5 +124,4 @@ before_script:
   - cd ../tests
 
 script:
-  - make pyrtl clean
-  - make systemc clean
+  - make test

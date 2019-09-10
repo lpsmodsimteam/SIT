@@ -77,7 +77,7 @@ _sock = context.socket(zmq.REQ)"""
     ZMQReceiver m_signal_i;
     ZMQTransmitter m_signal_o;"""
             self.comp_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i(0, m_socket), m_signal_o(0, m_socket),"""
+      m_signal_i(m_socket), m_signal_o(m_socket),"""
             self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
             self.comp_dest = "m_socket.close();"
             self.sender = "m_signal_o"
