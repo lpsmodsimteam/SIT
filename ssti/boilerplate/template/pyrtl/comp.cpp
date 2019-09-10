@@ -88,7 +88,7 @@ void {module}::setup() {{
 
         {var_bind};
         {receiver}.recv();
-        if (child_pid == {receiver}.get()) {{
+        if (child_pid == std::stoi({receiver}.get())) {{
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }}
@@ -111,8 +111,8 @@ void {module}::handle_event(SST::Event *ev) {{
     if (se) {{
 
         std::string _data_in = se->getString();
-        bool keep_send = _data_in.substr(0, 1) != "0";
-        bool keep_recv = _data_in.substr(1, 1) != "0";
+        bool keep_send = _data_in[0] != '0';
+        bool keep_recv = _data_in[1] != '0';
         _data_in = 'X' + _data_in.substr(2);
 
         // inputs from parent SST model, outputs to PyRTL child process
@@ -127,7 +127,7 @@ void {module}::handle_event(SST::Event *ev) {{
         }}
 
         // inputs to parent SST model, outputs from PyRTL child process
-        std::string _data_out = std::to_string({receiver}.get());
+        std::string _data_out = {receiver}.get();
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }}

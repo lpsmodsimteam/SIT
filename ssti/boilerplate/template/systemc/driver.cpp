@@ -1,5 +1,4 @@
 #include "{module_dir}{module}.hpp"
-#include "{ports_dir}{module}_ports.hpp"
 #include "{lib_dir}ssti.hpp"
 
 int sc_main(int, char *argv[]) {{
@@ -17,26 +16,35 @@ int sc_main(int, char *argv[]) {{
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
-    {sender}.set({abbr}_ports.pid, getpid());
+    {sender}.set(std::to_string(getpid()));
     {sender}.send();
     // ---------- INITIAL HANDSHAKE ---------- //
+
+    std::ostringstream ss;
 
     while (true) {{
 
         // RECEIVING
         {receiver}.recv();
+        std::string _data_in = {receiver}.get();
 
-        if (!{receiver}.alive()) {{
+        if (_data_in[0] == '0') {{
             break;
         }}
         {clock};
-        {inputs};
+        {inputs}
 
         // SENDING
         sc_start();
 
-        {outputs};
+        ss << data_out;
+        std::string _data_out = ss.str();
+
+        {sender}.set(_data_out);
         {sender}.send();
+
+        ss.str(std::string());
+
 
     }}
 

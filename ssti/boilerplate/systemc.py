@@ -17,8 +17,7 @@ from .boilerplate import BoilerPlate
 class SystemC(BoilerPlate):
 
     def __init__(self, module, lib, ipc, drvr_templ_path="", comp_templ_path="",
-                 desc="", link_desc=None, module_dir="", ports_dir="",
-                 lib_dir=""):
+                 desc="", link_desc=None, module_dir="", lib_dir=""):
         """Constructor for SystemC BoilerPlate.
 
         Arguments:
@@ -50,34 +49,22 @@ class SystemC(BoilerPlate):
             desc=desc,
             link_desc=link_desc,
             module_dir=module_dir,
-            ports_dir=ports_dir,
             lib_dir=lib_dir
         )
 
         self.abbr = "".join(
             i for i in self.module if i not in punctuation + "aeiou")
-
-        self.enums = """const int {abbrU}_NPORTS = {nports};
-
-const struct {abbr}_ports_t {{
-    unsigned short int pid = 0;
-    {ports};
-}} {abbr}_ports;
-"""
+        self.start_pos = 1
 
         if self.ipc == "sock":
             self.driver_decl = """// Initialize signal handlers
-    SocketSignal m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0), false);
-    m_signal_io.set_addr(argv[1]);""".format(
-                self.abbr.upper()
-            )
+    SocketSignal m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
+    m_signal_io.set_addr(argv[1]);"""
             self.drvr_dest = ""
             self.sender = self.receiver = "m_signal_io"
 
             self.comp_decl = """SocketSignal m_signal_io;"""
-            self.comp_init = """m_signal_io({}_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),""".format(
-                self.abbr.upper()
-            )
+            self.comp_init = """m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"""
             self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
             self.comp_dest = ""
 
@@ -88,19 +75,15 @@ const struct {abbr}_ports_t {{
     socket.connect(argv[1]);
 
     // Initialize signal handlers
-    ZMQReceiver m_signal_i({n}_NPORTS, socket);
-    ZMQTransmitter m_signal_o({n}_NPORTS, socket);""".format(
-                n=self.abbr.upper()
-            )
+    ZMQReceiver m_signal_i(socket);
+    ZMQTransmitter m_signal_o(socket);"""
             self.drvr_dest = "socket.close();"
             self.comp_decl = """zmq::context_t m_context;
     zmq::socket_t m_socket;
     ZMQReceiver m_signal_i;
     ZMQTransmitter m_signal_o;"""
             self.comp_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i({n}_NPORTS, m_socket), m_signal_o({n}_NPORTS, m_socket),""".format(
-                n=self.abbr.upper()
-            )
+      m_signal_i(m_socket), m_signal_o(m_socket),"""
             self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
             self.comp_dest = "m_socket.close();"
             self.sender = "m_signal_o"
@@ -108,7 +91,6 @@ const struct {abbr}_ports_t {{
 
         self.driver_path += "_driver.cpp"
         self.comp_path += "_comp.cpp"
-        self.ports_path += "_ports.hpp"
 
     def __parse_signal_type(self, signal):
         """Parses the type and computes its size from the signal
@@ -121,7 +103,7 @@ const struct {abbr}_ports_t {{
         """
         # NoneTypes are explicitly assigned to SST component clock signals
         if not signal:
-            return signal, 0
+            return 0
 
         elif "sc" in signal:
 
@@ -131,13 +113,13 @@ const struct {abbr}_ports_t {{
                            else sig.split(self.WIDTH_DELIM)[-1])
 
             if "bv" in signal or "lv" in signal or "int" in signal:
-                return "<int>", math.floor(math.log2(__get_ints(signal)))
+                return math.floor(math.log2(__get_ints(signal)))
 
             if "bit" in signal or "logic" in signal:
-                return "<bool>", __get_ints(signal)
+                return __get_ints(signal)
 
         else:
-            return signal, 1
+            return 1
 
     def get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""
@@ -174,7 +156,7 @@ const struct {abbr}_ports_t {{
             }, self.clocks
         ) if driver else [[None, i[-1]] for i in self.clocks]
 
-    def get_inputs(self, driver=True):
+    def get_inputs(self):
         """Generates input bindings for both the components in the black box
 
         Arguments:
@@ -184,66 +166,21 @@ const struct {abbr}_ports_t {{
         Returns:
             {str} -- snippet of code representing input bindings
         """
-        return self.sig_fmt(
-            "{sig} = {recv}.get{type}({abbr}_ports.{sig})",
-            lambda x: {
-                "abbr": self.abbr,
-                "recv": self.receiver,
-                "sig": x[-1],
-                "type": self.__parse_signal_type(x[0])[0],
-            }, self.inputs, ";\n" + " " * 8
-        ) if driver else self.sig_fmt(
-            "std::to_string({recv}.get{type}({abbr}_ports.{sig}))",
-            lambda x: {
-                "abbr": self.abbr,
-                "recv": self.receiver,
-                "sig": x[-1],
-                "type": self.__parse_signal_type(x[0])[0],
-            }, self.outputs, " +\n" + " " * 16
-        )
-
-    def get_outputs(self, driver=True):
-        """Generates output bindings for both the components in the black box
-
-        Arguments:
-            driver {bool} -- option to generate code for the black box-driver
-                (default: {True})
-
-        Returns:
-            {str} -- snippet of code representing output bindings
-        """
-        if driver:
-
-            return self.sig_fmt(
-                "{send}.set({abbr}_ports.{sig}, {sig})",
-                lambda x: {
-                    "abbr": self.abbr,
-                    "send": self.sender,
-                    "sig": x[-1],
-                }, self.outputs, ";\n" + " " * 8
-            )
-
-        # else, the SST component requires evaluation of signal type lengths
-        # positions 0 and 1 are reserved for stopping sending and receiving of
-        # signals
-        start_pos = 2
-        comp_inputs = self.inputs + self.get_clock(driver=False)
-        comp_output = []
-        fmt = "{send}.set({abbr}_ports.{sig}, std::stoi(_data_in.substr({sp}{sl})))"
-        for model_input in comp_inputs:
-            sig_len = self.__parse_signal_type(model_input[0])[-1]
-            comp_output.append(
+        inputs = []
+        fmt = "{sig} = std::stoi(_data_in.substr({sp}, {sl}));"
+        start_pos = 1
+        for driver_input in self.inputs:
+            sig_len = self.__parse_signal_type(driver_input[0])
+            inputs.append(
                 fmt.format(
-                    abbr=self.abbr,
-                    sl=(", " + str(sig_len)) * bool(sig_len),
                     sp=start_pos,
-                    send=self.sender,
-                    sig=model_input[-1],
+                    sl=str(sig_len),
+                    sig=driver_input[-1],
                 )
             )
             start_pos += sig_len
 
-        return (";\n" + " " * 8).join(comp_output)
+        return ("\n" + " " * 8).join(inputs)
 
     def generate_driver(self):
         """Generates the black box-driver code based on methods used to format
@@ -256,7 +193,6 @@ const struct {abbr}_ports_t {{
             with open(self.drvr_templ_path) as template:
                 return template.read().format(
                     module_dir=self.module_dir,
-                    ports_dir=self.ports_dir,
                     lib_dir=self.lib_dir,
                     abbr=self.abbr,
                     module=self.module,
@@ -268,7 +204,6 @@ const struct {abbr}_ports_t {{
                     sender=self.sender,
                     receiver=self.receiver,
                     inputs=self.get_inputs(),
-                    outputs=self.get_outputs()
                 )
 
         raise FileNotFoundError("Driver boilerplate file not found")
@@ -283,7 +218,6 @@ const struct {abbr}_ports_t {{
         if os.path.isfile(self.comp_templ_path):
             with open(self.comp_templ_path) as template:
                 return template.read().format(
-                    ports_dir=self.ports_dir,
                     lib_dir=self.lib_dir,
                     abbr=self.abbr,
                     module=self.module,
@@ -297,28 +231,6 @@ const struct {abbr}_ports_t {{
                     var_dest=self.comp_dest,
                     sender=self.sender,
                     receiver=self.receiver,
-                    inputs=self.get_inputs(False),
-                    outputs=self.get_outputs(False),
                 )
 
         raise FileNotFoundError("Model boilerplate file not found")
-
-    def generate_ports_enum(self):
-        """Generates the number of ports and the port enumeration for the black
-        box components
-
-        Returns:
-            {str} -- boilerplate code representing the black box port details
-        """
-        return self.enums.format(
-            abbr=self.abbr,
-            abbrU=self.abbr.upper(),
-            nports=len(self.ports) + 1,
-            ports=self.sig_fmt(
-                "unsigned short int {port} = {n}",
-                lambda x: {
-                    "port": x[-1][-1],
-                    "n": x[0] + 1
-                }, enumerate(self.ports)
-            )
-        )

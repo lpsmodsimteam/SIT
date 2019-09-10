@@ -11,7 +11,7 @@ find_package(SystemCLanguage CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
 
-add_definitions(-DMSGPACK)
+#add_definitions(-DMSGPACK)
 
 if ("${IPC}" STREQUAL "SOCK")
     add_subdirectory(sock)

@@ -13,7 +13,6 @@ if __name__ == "__main__":
         ipc=sys.argv[-1],
         lib_dir="../../../../ssti/",
         module_dir="../../common/",
-        ports_dir="../../common/blackboxes/",
         desc="Demonstration of a SystemC hardware simulation in SST",
         link_desc={
             "link_desc0": "RAM data_in",

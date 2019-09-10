@@ -8,7 +8,6 @@ all: sock zmq
 generate:
 	mkdir -p ${IPC}/blackboxes && mkdir -p common/blackboxes
 	python3 generate_bbox.py ${IPC}
-	mv blackboxes/ram_ports.hpp common/blackboxes
 	mv blackboxes/* ${IPC}/blackboxes
 
 .PHONY: sock

@@ -8,7 +8,7 @@ class BoilerPlate(object):
 
     def __init__(self, module, lib, ipc, drvr_templ_path, comp_templ_path,
                  desc="", link_desc=None,
-                 module_dir="", ports_dir="", lib_dir=""):
+                 module_dir="", lib_dir=""):
         """Constructor for BoilerPlate.
 
         Arguments:
@@ -30,7 +30,6 @@ class BoilerPlate(object):
             raise ValueError("Incorrect IPC protocol selected")
 
         self.module_dir = module_dir
-        self.ports_dir = ports_dir
         self.lib_dir = lib_dir
         self.module = module
         self.lib = lib
@@ -50,8 +49,7 @@ class BoilerPlate(object):
         self.WIDTH_DELIM = "//"
         self.bbox_dir = "blackboxes"
         self.driver_path = \
-            self.comp_path = \
-            self.ports_path = os.path.join(self.bbox_dir, self.module)
+            self.comp_path = os.path.join(self.bbox_dir, self.module)
 
     @staticmethod
     def sig_fmt(fmt, split_func, array, delim=";\n    "):
@@ -110,7 +108,3 @@ class BoilerPlate(object):
         if self.comp_path:
             with open(self.comp_path, "w") as comp_file:
                 comp_file.write(self.generate_comp())
-
-        if self.ports_path:
-            with open(self.ports_path, "w") as ports_file:
-                ports_file.write(self.generate_ports_enum())

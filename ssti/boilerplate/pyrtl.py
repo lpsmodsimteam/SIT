@@ -53,7 +53,6 @@ class PyRTL(BoilerPlate):
 
         self.start_pos = 0
         if self.module_dir:
-            print("YOOOOOOOOOO", self.module_dir)
             self.module_dir = "sys.path.append(\"{}\")".format(
                 self.module_dir)
         if self.ipc == "sock":
@@ -63,7 +62,7 @@ class PyRTL(BoilerPlate):
             self.sender = self.receiver = "m_signal_io"
 
             self.comp_decl = """SocketSignal m_signal_io;"""
-            self.comp_init = "m_signal_io(0, socket(AF_UNIX, SOCK_STREAM, 0)),"
+            self.comp_init = "m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"
             self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
             self.comp_dest = ""
 

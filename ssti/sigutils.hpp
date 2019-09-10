@@ -5,13 +5,8 @@
 #ifndef SIGUTILS_HPP
 #define SIGUTILS_HPP
 
-#include "msgpack/msgpack.hpp"  // to pack/unpack signals
-
 #include <sstream>
 #include <unistd.h>
-#ifdef MSGPACK
-#include <vector>
-#endif
 /*
  * Implements testcases methods for setting and getting data being transferred via the preferred IPC.
  * 
@@ -24,34 +19,15 @@ protected:
 
     SignalIO() = default;
 
-    explicit SignalIO(int);
-
     ~SignalIO();
 
-#ifdef MSGPACK
-    // vector of std::string containing the transported data
-    std::vector<std::string> m_data;
-#else
     std::string m_data;
-#endif
 
 public:
 
-#ifdef MSGPACK
-    template<typename T>
-    void set(int, const T &);
-
-    template<typename T>
-    T get(int);
-
-    bool alive();
-
-    bool get_clock_pulse(int);
-#else
     void set(const std::string&);
 
-    int get();
-#endif
+    std::string get();
 
     void set_state(bool);
 
@@ -59,21 +35,6 @@ public:
 
 
 /* -------------------- SIGNALIO IMPLEMENTATIONS -------------------- */
-
-/*
- * Sets the size of the member std::vector
- *
- * Arguments:
- *     num_ports -- Number of ports used in the black box interface. This number is usually 1
- *                  greater than the total number of the SystemC module ports
- */
-inline SignalIO::SignalIO(const int num_ports) {
-
-#ifdef MSGPACK
-    m_data.resize(num_ports);
-#endif
-
-}
 
 /*
  * Clears the member variable containing the transported data
@@ -94,60 +55,20 @@ inline SignalIO::~SignalIO() {
  *              need to be restricted to a specific type. `value` is streamed into a string stream
  *              to be stored in `m_data` as a std::string.
  */
-#ifdef MSGPACK
-template<typename T>
-void SignalIO::set(const int index, const T &value) {
-
-    std::ostringstream ss;
-    ss << value;
-    m_data[index] = ss.str();
-
-}
-#else
 void SignalIO::set(const std::string& values) {
 
     m_data = values;
 
 }
-#endif
 
 /*
  * Returns the value specified by `index`. The values are casted statically as a templated type.
  */
+std::string SignalIO::get() {
 
-#ifdef MSGPACK
-template<typename T>
-T SignalIO::get(const int index) {
-
-    return static_cast<T>(std::stoi(m_data[index]));
+    return m_data;
 
 }
-#else
-int SignalIO::get() {
-
-    return std::stoi(m_data);
-
-}
-#endif
-
-/*
- * Returns the reserved index 0 in `m_data`. The reserved index itself has no special usage besides
- * providing a high-level access for the user to determine the state of the child SystemC driver
- * process.
- *
- * Example usage:
- *      `signal_io.alive()` (equivalent to `signal_io.get<bool>(0)`) returns true when the parent
- *      process would like the child driver to continue to stay alive and communicate their
- *      signals. If the method returns false, the parent is done communicating with the child
- *      process and allows it to exit gracefully.
- */
-#ifdef MSGPACK
-inline bool SignalIO::alive() {
-
-    return (this->get<bool>(0));
-
-}
-#endif
 
 /*
  * Sets the reserved index 0 in `m_data` to the specified boolean state to work alongside
@@ -169,11 +90,7 @@ inline bool SignalIO::alive() {
  */
 inline void SignalIO::set_state(bool state) {
 
-#ifdef MSGPACK
-    this->set(0, state);
-#else
     m_data[0] = state ? '1' : '0';
-#endif
 
 }
 
@@ -184,12 +101,5 @@ inline void SignalIO::set_state(bool state) {
  * Arguments:
  *     index -- clock port index
  */
-#ifdef MSGPACK
-inline bool SignalIO::get_clock_pulse(const int index) {
-
-    return (this->get<int>(index)) % 2;
-
-}
-#endif
 
 #endif  // SIGUTILS_HPP
