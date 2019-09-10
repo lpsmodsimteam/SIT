@@ -91,6 +91,35 @@ class BoilerPlate(object):
         self.ports = [(i[0].split(self.WIDTH_DELIM)[0], i[-1])
                       for i in self.ports]
 
+    def get_inputs(self, fmt, start_pos, signal_type_parser, splice=False):
+        """Generates input bindings for both the components in the black box
+
+        Arguments:
+            driver {bool} -- option to generate code for the black box-driver
+                (default: {True})
+
+        Returns:
+            {str} -- snippet of code representing input bindings
+        """
+        driver_inputs = []
+        for driver_input in self.inputs:
+            sig_len = signal_type_parser(driver_input[0])
+            driver_inputs.append(
+                fmt.format(
+                    sp=start_pos,
+                    sl=str(sig_len + (splice * start_pos)),
+                    sig=driver_input[-1],
+                )
+            )
+            start_pos += sig_len
+
+        driver_inputs = ("\n" + " " * 8).join(driver_inputs)
+
+        return {
+            "inputs": driver_inputs,
+            "sig_len": start_pos + 1
+        } if splice else driver_inputs
+
     def generate_bbox(self):
         """Provides a high-level interface to the user to generate both the
         components of the black box and dump them to their corresponding files

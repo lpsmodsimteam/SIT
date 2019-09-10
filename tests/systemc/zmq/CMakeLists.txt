@@ -16,8 +16,8 @@ if (${cppzmq_FOUND})
     endmacro()
 endif ()
 
-# increase buffer size (minimum is 22)
-add_definitions(-DBUFSIZE=50)
+# increase buffer size (minimum is 5)
+add_definitions(-DBUFSIZE=10)
 
 add_executable(ram.o blackboxes/ram_driver.cpp)
 target_link_libraries(ram.o SystemC::systemc)

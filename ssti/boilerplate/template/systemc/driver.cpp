@@ -31,13 +31,12 @@ int sc_main(int, char *argv[]) {{
         if (_data_in[0] == '0') {{
             break;
         }}
-        {clock};
         {inputs}
 
         // SENDING
         sc_start();
 
-        ss << data_out;
+        {outputs};
         std::string _data_out = ss.str();
 
         {sender}.set(_data_out);

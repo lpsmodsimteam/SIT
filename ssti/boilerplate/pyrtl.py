@@ -51,27 +51,34 @@ class PyRTL(BoilerPlate):
             lib_dir=lib_dir
         )
 
-        self.start_pos = 0
         if self.module_dir:
             self.module_dir = "sys.path.append(\"{}\")".format(
                 self.module_dir)
+
         if self.ipc == "sock":
+            # driver attributes
             self.driver_ipc = "socket"
             self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""
             self.send = "sendall"
-            self.sender = self.receiver = "m_signal_io"
 
+            # component attributes
             self.comp_decl = """SocketSignal m_signal_io;"""
             self.comp_init = "m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"
             self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
             self.comp_dest = ""
 
+            # shared attributes
+            self.sender = self.receiver = "m_signal_io"
+
         elif self.ipc == "zmq":
+
+            # driver attributes
             self.driver_ipc = "zmq"
             self.driver_bind = """context = zmq.Context()
 _sock = context.socket(zmq.REQ)"""
             self.send = "send"
 
+            # component attributes
             self.comp_decl = """zmq::context_t m_context;
     zmq::socket_t m_socket;
     ZMQReceiver m_signal_i;
@@ -80,12 +87,13 @@ _sock = context.socket(zmq.REQ)"""
       m_signal_i(m_socket), m_signal_o(m_socket),"""
             self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
             self.comp_dest = "m_socket.close();"
+
+            # shared attributes
             self.sender = "m_signal_o"
             self.receiver = "m_signal_i"
 
         self.driver_path += "_driver.py"
         self.comp_path += "_comp.cpp"
-        self.ports_path = None
 
     @staticmethod
     def __parse_signal_type(signal):
@@ -106,37 +114,8 @@ _sock = context.socket(zmq.REQ)"""
 
         return math.floor(math.log2(__get_ints(signal)))
 
-    def get_inputs(self):
-        """Generates input bindings for both the components in the black box
-
-        Arguments:
-            driver {bool} -- option to generate code for the black box-driver
-                (default: {True})
-
-        Returns:
-            {str} -- snippet of code representing input bindings
-        """
-        inputs = []
-        fmt = "\"{sig}\": int(signal[{sp}:{sl}]),"
-        for driver_input in self.inputs:
-            sig_len = self.__parse_signal_type(driver_input[0])
-            inputs.append(
-                fmt.format(
-                    sp=self.start_pos,
-                    sl=str(sig_len + self.start_pos),
-                    sig=driver_input[-1],
-                )
-            )
-            self.start_pos += sig_len
-
-        return ("\n" + " " * 8).join(inputs)
-
     def get_outputs(self):
         """Generates output bindings for both the components in the black box
-
-        Arguments:
-            driver {bool} -- option to generate code for the black box-driver
-                (default: {True})
 
         Returns:
             {str} -- snippet of code representing output bindings
@@ -146,7 +125,8 @@ _sock = context.socket(zmq.REQ)"""
             lambda x: {
                 "module": self.module,
                 "sig": x[-1]
-            }, self.outputs,
+            },
+            self.outputs,
             " +\n" + " " * 8
         )
 
@@ -165,8 +145,12 @@ _sock = context.socket(zmq.REQ)"""
                     send=self.send,
                     module_dir=self.module_dir,
                     module=self.module,
-                    inputs=self.get_inputs(),
-                    sig_len=self.start_pos + 1 if self.ipc == "sock" else "",
+                    **self.get_inputs(
+                        fmt="\"{sig}\": int(signal[{sp}:{sl}]),",
+                        start_pos=0,
+                        signal_type_parser=self.__parse_signal_type,
+                        splice=True
+                    ),
                     outputs=self.get_outputs()
                 )
 

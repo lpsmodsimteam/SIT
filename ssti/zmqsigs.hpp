@@ -5,6 +5,11 @@
 #ifndef ZMQSIGS_HPP
 #define ZMQSIGS_HPP
 
+// default buffer size
+#ifndef BUFSIZE
+#define BUFSIZE 5
+#endif
+
 #include "sigutils.hpp"
 
 #include <zmq.hpp>

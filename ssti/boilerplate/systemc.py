@@ -9,7 +9,6 @@ interface in SSTI.
 
 import math
 import os
-from string import punctuation
 
 from .boilerplate import BoilerPlate
 
@@ -52,23 +51,26 @@ class SystemC(BoilerPlate):
             lib_dir=lib_dir
         )
 
-        self.abbr = "".join(
-            i for i in self.module if i not in punctuation + "aeiou")
-        self.start_pos = 1
-
         if self.ipc == "sock":
+
+            # driver attributes
             self.driver_decl = """// Initialize signal handlers
     SocketSignal m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);"""
             self.drvr_dest = ""
-            self.sender = self.receiver = "m_signal_io"
 
+            # component attributes
             self.comp_decl = """SocketSignal m_signal_io;"""
             self.comp_init = """m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"""
             self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
             self.comp_dest = ""
 
+            # shared attributes
+            self.sender = self.receiver = "m_signal_io"
+
         elif self.ipc == "zmq":
+
+            # driver attributes
             self.driver_decl = """// Socket to talk to server
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_REQ);
@@ -78,6 +80,8 @@ class SystemC(BoilerPlate):
     ZMQReceiver m_signal_i(socket);
     ZMQTransmitter m_signal_o(socket);"""
             self.drvr_dest = "socket.close();"
+
+            # component attributes
             self.comp_decl = """zmq::context_t m_context;
     zmq::socket_t m_socket;
     ZMQReceiver m_signal_i;
@@ -86,6 +90,8 @@ class SystemC(BoilerPlate):
       m_signal_i(m_socket), m_signal_o(m_socket),"""
             self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
             self.comp_dest = "m_socket.close();"
+
+            # shared attributes
             self.sender = "m_signal_o"
             self.receiver = "m_signal_i"
 
@@ -121,6 +127,21 @@ class SystemC(BoilerPlate):
         else:
             return 1
 
+    def get_outputs(self):
+        """Generates output bindings for both the components in the black box
+
+        Returns:
+            {str} -- snippet of code representing output bindings
+        """
+        return self.sig_fmt(
+            "ss << {sig}",
+            lambda x: {
+                "sig": x[-1],
+            },
+            self.outputs,
+            ";\n" + " " * 8
+        )
+
     def get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""
         return "sc_signal" + ";\n    sc_signal".join(
@@ -137,51 +158,6 @@ class SystemC(BoilerPlate):
             lambda x: {"sig": x[-1]}, self.ports
         )
 
-    def get_clock(self, driver=True):
-        """Generates clock binding for both the components in the black box
-
-        Arguments:
-            driver {bool} -- option to generate code for the black box-driver
-                (default: {True})
-
-        Returns:
-            {str} -- snippet of code representing clock binding
-        """
-        return self.sig_fmt(
-            "{sig} = {recv}.get_clock_pulse({abbr}_ports.{sig})",
-            lambda x: {
-                "abbr": self.abbr,
-                "recv": self.receiver,
-                "sig": x[-1]
-            }, self.clocks
-        ) if driver else [[None, i[-1]] for i in self.clocks]
-
-    def get_inputs(self):
-        """Generates input bindings for both the components in the black box
-
-        Arguments:
-            driver {bool} -- option to generate code for the black box-driver
-                (default: {True})
-
-        Returns:
-            {str} -- snippet of code representing input bindings
-        """
-        inputs = []
-        fmt = "{sig} = std::stoi(_data_in.substr({sp}, {sl}));"
-        start_pos = 1
-        for driver_input in self.inputs:
-            sig_len = self.__parse_signal_type(driver_input[0])
-            inputs.append(
-                fmt.format(
-                    sp=start_pos,
-                    sl=str(sig_len),
-                    sig=driver_input[-1],
-                )
-            )
-            start_pos += sig_len
-
-        return ("\n" + " " * 8).join(inputs)
-
     def generate_driver(self):
         """Generates the black box-driver code based on methods used to format
         the template file
@@ -194,16 +170,19 @@ class SystemC(BoilerPlate):
                 return template.read().format(
                     module_dir=self.module_dir,
                     lib_dir=self.lib_dir,
-                    abbr=self.abbr,
                     module=self.module,
                     port_defs=self.get_driver_port_defs(),
                     bindings=self.get_driver_bindings(),
                     var_decl=self.driver_decl,
                     dest=self.drvr_dest,
-                    clock=self.get_clock(),
                     sender=self.sender,
                     receiver=self.receiver,
-                    inputs=self.get_inputs(),
+                    inputs=self.get_inputs(
+                        fmt="{sig} = std::stoi(_data_in.substr({sp}, {sl}));",
+                        start_pos=1,
+                        signal_type_parser=self.__parse_signal_type
+                    ),
+                    outputs=self.get_outputs()
                 )
 
         raise FileNotFoundError("Driver boilerplate file not found")
@@ -219,7 +198,6 @@ class SystemC(BoilerPlate):
             with open(self.comp_templ_path) as template:
                 return template.read().format(
                     lib_dir=self.lib_dir,
-                    abbr=self.abbr,
                     module=self.module,
                     lib=self.lib,
                     comp=self.module,
