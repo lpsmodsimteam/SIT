@@ -1,23 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from boilerplate import SystemC
+from boilerplate import PyRTL, SystemC
 
 if __name__ == "__main__":
 
-    boilerplate_obj = SystemC(
-        module="traffic_light_fsm",
-        lib="intersection",
-        ipc="sock",
-        lib_dir="../../ssti/",
-        module_dir="../systemc/",
-        desc="Demonstration of a SystemC hardware simulation in SST",
-        link_desc={
+    args = {
+        "module": "traffic_light_fsm",
+        "lib": "intersection",
+        "ipc": "sock",
+        "lib_dir": "../../ssti/",
+        "link_desc": {
             "link_desc0": "Traffic Light FSM data_in",
             "link_desc1": "Traffic Light FSM data_out",
         }
+    }
+
+    systemc_obj = SystemC(
+        **args,
+        module_dir="../systemc/",
     )
-    boilerplate_obj.set_ports((
+    systemc_obj.set_ports((
         ("<bool>", "clock", "clock"),
         ("<bool>", "load", "input"),
         ("<bool>", "start_green", "input"),
@@ -26,4 +29,17 @@ if __name__ == "__main__":
         ("<sc_uint<6>>", "red_time", "input"),
         ("<sc_uint<2>>", "state", "output"),
     ))
-    boilerplate_obj.generate_bbox()
+    systemc_obj.generate_bbox()
+
+    pyrtl_obj = PyRTL(
+        **args
+    )
+    pyrtl_obj.set_ports((
+        ("1", "load", "input"),
+        ("1", "start_green", "input"),
+        ("6", "green_time", "input"),
+        ("2", "yellow_time", "input"),
+        ("6", "red_time", "input"),
+        ("2", "state", "output"),
+    ))
+    pyrtl_obj.generate_bbox()

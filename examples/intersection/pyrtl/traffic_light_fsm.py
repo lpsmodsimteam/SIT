@@ -4,12 +4,12 @@
 import pyrtl
 
 # Inputs and outputs of the module
-load = pyrtl.Input(1, "LOAD")  # using load as reset
-start_green = pyrtl.Input(1, "STARTGREEN")
-green_time = pyrtl.Input(8, "GREENTIME")
-yellow_time = pyrtl.Input(8, "YELLOWTIME")
-red_time = pyrtl.Input(8, "REDTIME")
-out = pyrtl.Output(2, "OUT")
+load = pyrtl.Input(1, "load")  # using load as reset
+start_green = pyrtl.Input(1, "start_green")
+green_time = pyrtl.Input(6, "green_time")
+yellow_time = pyrtl.Input(2, "yellow_time")
+red_time = pyrtl.Input(6, "red_time")
+state = pyrtl.Output(2, "state")
 
 # Register the times for each color when load signal is 1
 gt = pyrtl.Register(8, "gt")
@@ -23,7 +23,7 @@ with pyrtl.conditional_assignment:
 
 # Registers for state and a counter
 counter = pyrtl.Register(8, "counter")
-state = pyrtl.Register(2, "state")
+state_reg = pyrtl.Register(2, "state_reg")
 # enumerate a set of constant to serve as our states
 GREEN, YELLOW, RED = [pyrtl.Const(x, bitwidth=2) for x in range(3)]
 
@@ -34,35 +34,35 @@ with pyrtl.conditional_assignment:
         counter.next |= 0
         # 2 entry points into the state machine
         with start_green:
-            state.next |= GREEN
+            state_reg.next |= GREEN
         with pyrtl.otherwise:
-            state.next |= RED
+            state_reg.next |= RED
 
     # Main state machine, count until the appropriate time limit for each state
     with pyrtl.otherwise:
-        with state == RED:
+        with state_reg == RED:
             with counter == rt:
-                state.next |= GREEN
+                state_reg.next |= GREEN
                 counter.next |= 0
             with pyrtl.otherwise:
                 counter.next |= counter + 1
 
-        with state == GREEN:
+        with state_reg == GREEN:
             with counter == gt:
-                state.next |= YELLOW
+                state_reg.next |= YELLOW
                 counter.next |= 0
             with pyrtl.otherwise:
                 counter.next |= counter + 1
 
-        with state == YELLOW:
+        with state_reg == YELLOW:
             with counter == yt:
-                state.next |= RED
+                state_reg.next |= RED
                 counter.next |= 0
             with pyrtl.otherwise:
                 counter.next |= counter + 1
 # Output the state
-out <<= state
+state <<= state_reg
 
 # Setup the simulation
-sim_trace = pyrtl.SimulationTrace([load, start_green, counter, out])
+sim_trace = pyrtl.SimulationTrace([load, start_green, counter, state])
 sim = pyrtl.FastSimulation(tracer=sim_trace)

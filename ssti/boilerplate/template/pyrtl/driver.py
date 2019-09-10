@@ -5,7 +5,7 @@ import os
 import {ipc}
 import sys
 
-sys.path.append("{module_dir}")
+{module_dir}
 import {module}
 
 # Connect the PyRTL simulation to SST through {ipc}

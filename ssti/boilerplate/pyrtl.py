@@ -52,6 +52,10 @@ class PyRTL(BoilerPlate):
         )
 
         self.start_pos = 0
+        if self.module_dir:
+            print("YOOOOOOOOOO", self.module_dir)
+            self.module_dir = "sys.path.append(\"{}\")".format(
+                self.module_dir)
         if self.ipc == "sock":
             self.driver_ipc = "socket"
             self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""

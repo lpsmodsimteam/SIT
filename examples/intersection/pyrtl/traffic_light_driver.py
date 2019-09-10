@@ -5,7 +5,7 @@ import os
 import socket
 import sys
 
-from traffic_light_fsm import sim, out
+from traffic_light_fsm import sim, state
 
 # Connect the PyRTL simulation to SST through Unix sockets
 sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -21,10 +21,10 @@ while True:
     if not alive:
         break
     sim.step({
-        "LOAD": int(signal[0]),
-        "STARTGREEN": int(signal[1]),
-        "GREENTIME": int(signal[2:4]),
-        "YELLOWTIME": int(signal[4:6]),
-        "REDTIME": int(signal[6:8])
+        "load": int(signal[0]),
+        "start_green": int(signal[1]),
+        "green_time": int(signal[2:4]),
+        "yellow_time": int(signal[4:6]),
+        "red_time": int(signal[6:8])
     })
-    sock.sendall(str(sim.inspect(out)).encode())
+    sock.sendall(str(sim.inspect(state)).encode())
