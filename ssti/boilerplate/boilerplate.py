@@ -46,6 +46,33 @@ class BoilerPlate(object):
         self.inouts = []
         self.ports = []
 
+        if self.ipc == "sock":
+
+            # component attributes
+            self.comp_decl = """SocketSignal m_signal_io;"""
+            self.comp_init = "m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"
+            self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
+            self.comp_dest = ""
+
+            # shared attributes
+            self.sender = self.receiver = "m_signal_io"
+
+        elif self.ipc == "zmq":
+
+            # component attributes
+            self.comp_decl = """zmq::context_t m_context;
+    zmq::socket_t m_socket;
+    ZMQReceiver m_signal_i;
+    ZMQTransmitter m_signal_o;"""
+            self.comp_init = """m_context(1), m_socket(m_context, ZMQ_REP),
+      m_signal_i(m_socket), m_signal_o(m_socket),"""
+            self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
+            self.comp_dest = "m_socket.close();"
+
+            # shared attributes
+            self.sender = "m_signal_o"
+            self.receiver = "m_signal_i"
+
         self.WIDTH_DELIM = "//"
         self.bbox_dir = "blackboxes"
         self.driver_path = \
@@ -119,6 +146,32 @@ class BoilerPlate(object):
             "inputs": driver_inputs,
             "sig_len": start_pos + 1
         } if splice else driver_inputs
+
+    def generate_comp(self):
+        """Generates the black box-model code based on methods used to format
+        the template file
+
+        Returns:
+            {str} -- boilerplate code representing the black box-model file
+        """
+        if os.path.isfile(self.comp_templ_path):
+            with open(self.comp_templ_path) as template:
+                return template.read().format(
+                    lib_dir=self.lib_dir,
+                    module=self.module,
+                    lib=self.lib,
+                    comp=self.module,
+                    desc=self.desc,
+                    **self.link_desc,
+                    var_decl=self.comp_decl,
+                    var_init=self.comp_init,
+                    var_bind=self.comp_bind,
+                    var_dest=self.comp_dest,
+                    sender=self.sender,
+                    receiver=self.receiver,
+                )
+
+        raise FileNotFoundError("Component boilerplate file not found")
 
     def generate_bbox(self):
         """Provides a high-level interface to the user to generate both the
