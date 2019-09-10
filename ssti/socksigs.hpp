@@ -52,8 +52,6 @@ public:
  * Initializes the sockets, buffers and MessagePack variables
  *
  * Arguments:
- *     num_ports -- Number of ports used in the black box interface. This number is usually 1
- *                  greater than the total number of the SystemC module ports
  *     socket -- Unix domain socket
  *     server_side (default: true) -- Flag is set to true for parent processes. The child processes
  *                                    need to set the parameter to false to set up the connection

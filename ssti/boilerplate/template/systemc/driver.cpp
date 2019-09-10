@@ -44,10 +44,7 @@ int sc_main(int, char *argv[]) {{
 
         ss.str(std::string());
 
-
     }}
-
-    {dest}
 
     return 0;
 

@@ -11,10 +11,8 @@ find_package(SystemCLanguage CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
 
-#add_definitions(-DMSGPACK)
-
 if ("${IPC}" STREQUAL "SOCK")
-    add_subdirectory(sock)
+   add_subdirectory(sock)
 elseif ("${IPC}" STREQUAL "ZMQ")
     add_subdirectory(zmq)
 endif ()

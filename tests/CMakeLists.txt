@@ -34,4 +34,3 @@ endmacro()
 # -------------------- SST CONFIGS --------------------
 
 get_filename_component(SRC_DIR ../../ssti ABSOLUTE)
-include_directories(${SRC_DIR}/msgpack)

@@ -1,5 +1,5 @@
 /*
- * ZMQReceiver and ZMQTransmitter class definitions and implementations.
+ * ZMQSignal and ZMQTransmitter class definitions and implementations.
  */
 
 #ifndef ZMQSIGS_HPP
@@ -20,56 +20,30 @@
  * This class inherits the abstract sigutils::SignalIO base class and implicitly overrides some
  * non-virtual base methods to implement only the receiving functionality.
  */
-class ZMQReceiver : public SignalIO {
+class ZMQSignal : public SignalIO {
 
 private:
 
+    bool m_server_side;
     zmq::socket_t &m_socket;
     zmq::message_t m_msg;
-    char m_buf[BUFSIZE];
+    char m_buf[BUFSIZE]{};
 
 public:
 
-    explicit ZMQReceiver(zmq::socket_t &);
+    explicit ZMQSignal(zmq::socket_t &, bool = true);
+
+    ~ZMQSignal();
 
     void recv();
 
-    // hide non-virtual base method
-    void set(const std::string&) {}
-
-    // hide non-virtual base method
-    void set_state(bool) {};
-
-};
-
-/*
- * Implements methods to transmit signals via ZeroMQ.
- *
- * This class inherits the abstract sigutils::SignalIO base class and implicitly overrides some
- * non-virtual base methods to implement only the transmitting functionality.
- */
-class ZMQTransmitter : public SignalIO {
-
-private:
-
-    zmq::socket_t &m_socket;
-    zmq::message_t m_msg;
-
-public:
-
-    explicit ZMQTransmitter(zmq::socket_t &);
-
-    ~ZMQTransmitter();
-
     void send();
 
-    // hide non-virtual base method
-    std::string get() {};
-
+    void set_addr(const std::string &);
 };
 
 
-/* -------------------- ZMQRECEIVER IMPLEMENTATIONS -------------------- */
+/* -------------------- ZMQSIGNAL IMPLEMENTATIONS -------------------- */
 
 /*
  * Initializes the ZeroMQ sockets
@@ -79,15 +53,26 @@ public:
  *                  greater than the total number of the SystemC module ports
  *     socket -- ZeroMQ socket
  */
-inline ZMQReceiver::ZMQReceiver(zmq::socket_t &socket) :
-    SignalIO(), m_socket(socket) {
-    // do nothing
+inline ZMQSignal::ZMQSignal(zmq::socket_t &socket, bool server_side) :
+    SignalIO(), m_server_side(server_side), m_socket(socket) {
+}
+
+inline ZMQSignal::~ZMQSignal() {
+
+    m_socket.close();
+
+}
+
+
+inline void ZMQSignal::set_addr(const std::string &addr) {
+
+    (m_server_side) ? m_socket.connect(addr) : m_socket.bind(addr);
 }
 
 /*
  * Receives data and unpacks the buffer to MessagePack
  */
-inline void ZMQReceiver::recv() {
+inline void ZMQSignal::recv() {
 
     m_socket.recv(&m_msg);
     memcpy(m_buf, m_msg.data(), m_msg.size());
@@ -96,32 +81,10 @@ inline void ZMQReceiver::recv() {
 
 }
 
-
-/* -------------------- ZMQTRANSMITTER IMPLEMENTATIONS -------------------- */
-
-
-/*
- * Initializes the ZeroMQ sockets
- *
- * Arguments:
- *     num_ports -- Number of ports used in the black box interface. This number is usually 1
- *                  greater than the total number of the SystemC module ports
- *     socket -- ZeroMQ socket
- */
-inline ZMQTransmitter::ZMQTransmitter(zmq::socket_t &socket) :
-    SignalIO(), m_socket(socket) {
-    // do nothing
-}
-
-/*
- * Clears any remaining MessagePack buffers
- */
-inline ZMQTransmitter::~ZMQTransmitter() {}
-
 /*
  * Packs the buffer to MessagePack and sends the data
  */
-inline void ZMQTransmitter::send() {
+inline void ZMQSignal::send() {
 
     m_msg.rebuild(m_data.size());
     std::memcpy(m_msg.data(), m_data.c_str(), m_data.size());

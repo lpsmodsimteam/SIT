@@ -52,31 +52,23 @@ class BoilerPlate(object):
             self.comp_decl = """SocketSignal m_signal_io;"""
             self.comp_init = "m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"
             self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
-            self.comp_dest = ""
-
-            # shared attributes
-            self.sender = self.receiver = "m_signal_io"
 
         elif self.ipc == "zmq":
 
             # component attributes
             self.comp_decl = """zmq::context_t m_context;
     zmq::socket_t m_socket;
-    ZMQReceiver m_signal_i;
-    ZMQTransmitter m_signal_o;"""
+    ZMQSignal m_signal_io;"""
             self.comp_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_i(m_socket), m_signal_o(m_socket),"""
+      m_signal_io(m_socket),"""
             self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
-            self.comp_dest = "m_socket.close();"
 
-            # shared attributes
-            self.sender = "m_signal_o"
-            self.receiver = "m_signal_i"
-
-        self.WIDTH_DELIM = "//"
+        # shared attributes
+        self.sender = self.receiver = "m_signal_io"
         self.bbox_dir = "blackboxes"
-        self.driver_path = \
-            self.comp_path = os.path.join(self.bbox_dir, self.module)
+        self.driver_path = self.comp_path = os.path.join(
+            self.bbox_dir, self.module)
+        self.WIDTH_DELIM = "//"
 
     @staticmethod
     def sig_fmt(fmt, split_func, array, delim=";\n    "):
@@ -166,7 +158,6 @@ class BoilerPlate(object):
                     var_decl=self.comp_decl,
                     var_init=self.comp_init,
                     var_bind=self.comp_bind,
-                    var_dest=self.comp_dest,
                     sender=self.sender,
                     receiver=self.receiver,
                 )

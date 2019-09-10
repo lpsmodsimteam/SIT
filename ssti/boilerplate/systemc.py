@@ -57,7 +57,6 @@ class SystemC(BoilerPlate):
             self.driver_decl = """// Initialize signal handlers
     SocketSignal m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), false);
     m_signal_io.set_addr(argv[1]);"""
-            self.drvr_dest = ""
 
         elif self.ipc == "zmq":
 
@@ -68,9 +67,7 @@ class SystemC(BoilerPlate):
     socket.connect(argv[1]);
 
     // Initialize signal handlers
-    ZMQReceiver m_signal_i(socket);
-    ZMQTransmitter m_signal_o(socket);"""
-            self.drvr_dest = "socket.close();"
+    ZMQSignal m_signal_io(socket);"""
 
         self.driver_path += "_driver.cpp"
         self.comp_path += "_comp.cpp"
@@ -151,7 +148,6 @@ class SystemC(BoilerPlate):
                     port_defs=self.get_driver_port_defs(),
                     bindings=self.get_driver_bindings(),
                     var_decl=self.driver_decl,
-                    dest=self.drvr_dest,
                     sender=self.sender,
                     receiver=self.receiver,
                     inputs=self.get_inputs(
