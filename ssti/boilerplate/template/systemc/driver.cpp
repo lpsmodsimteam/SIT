@@ -27,13 +27,11 @@ int sc_main(int, char *argv[]) {{
         // RECEIVING
         {receiver}.recv();
         std::string _data_in = {receiver}.get();
-        // std::cout << _data_in << '\n';
 
         if (_data_in[0] == '0') {{
             break;
         }}
         {inputs}
-        clock = std::stoi(_data_in.substr(8)) % 2;
 
         // SENDING
         sc_start();

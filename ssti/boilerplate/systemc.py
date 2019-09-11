@@ -116,6 +116,21 @@ class SystemC(BoilerPlate):
             ";\n" + " " * 8
         )
 
+    def get_clock(self):
+        """Generates output bindings for both the components in the black box
+
+        Returns:
+            {str} -- snippet of code representing output bindings
+        """
+        return self.sig_fmt(
+            "_data_out << {sig}",
+            lambda x: {
+                "sig": x[-1],
+            },
+            self.outputs,
+            ";\n" + " " * 8
+        )
+
     def get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""
         return "sc_signal" + ";\n    sc_signal".join(
@@ -153,7 +168,8 @@ class SystemC(BoilerPlate):
                     inputs=self.get_inputs(
                         fmt="{sig} = std::stoi(_data_in.substr({sp}, {sl}));",
                         start_pos=1,
-                        signal_type_parser=self.__parse_signal_type
+                        signal_type_parser=self.__parse_signal_type,
+                        clock_fmt="{sig} = std::stoi(_data_in.substr({sp})) % 2;",
                     ),
                     outputs=self.get_outputs()
                 )

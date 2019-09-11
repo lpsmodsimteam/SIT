@@ -110,7 +110,7 @@ class BoilerPlate(object):
         self.ports = [(i[0].split(self.WIDTH_DELIM)[0], i[-1])
                       for i in self.ports]
 
-    def get_inputs(self, fmt, start_pos, signal_type_parser, splice=False):
+    def get_inputs(self, fmt, start_pos, signal_type_parser, splice=False, clock_fmt=""):
         """Generates input bindings for both the components in the black box
 
         Arguments:
@@ -131,6 +131,14 @@ class BoilerPlate(object):
                 )
             )
             start_pos += sig_len
+
+        if self.clocks:
+            driver_inputs.append(
+                clock_fmt.format(
+                    sp=start_pos,
+                    sig=self.clocks[-1][-1],
+                )
+            )
 
         driver_inputs = ("\n" + " " * 8).join(driver_inputs)
 
