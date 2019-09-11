@@ -8,7 +8,6 @@ from boilerplate import PyRTL, SystemC
 if __name__ == "__main__":
 
     args = {
-        "module": "traffic_light_fsm",
         "lib": "intersection",
         "module_dir": "../",
         "ipc": "sock",
@@ -21,7 +20,8 @@ if __name__ == "__main__":
 
     if sys.argv[-1] == "systemc":
         systemc_obj = SystemC(
-            **args
+            **args,
+            module="systemc_fsm",
         )
         systemc_obj.set_ports((
             ("<bool>", "clock", "clock"),
@@ -36,7 +36,8 @@ if __name__ == "__main__":
 
     elif sys.argv[-1] == "pyrtl":
         pyrtl_obj = PyRTL(
-            **args
+            **args,
+            module="pyrtl_fsm",
         )
         pyrtl_obj.set_ports((
             ("1", "load", "input"),

@@ -22,9 +22,10 @@ def get_rand_tmp():
     )
 
 
-traffic_light = sst.Component(
-    "Traffic Light SystemC", "intersection.traffic_light")
-traffic_light.addParams({
+# SystemC
+systemc_main = sst.Component(
+    "Traffic Light (SystemC)", "intersection.traffic_light")
+systemc_main.addParams({
     "CLOCK": CLOCK,
     "GREENTIME": GREEN0TIME,
     "YELLOWTIME": YELLOWTIME,
@@ -32,24 +33,30 @@ traffic_light.addParams({
     "STARTGREEN": 0
 })
 
-light_comp_sc = sst.Component(
-    "Traffic Light SystemC", "intersection.traffic_light")
-light_comp_sc.addParams({
+systemc_comp = sst.Component(
+    "SystemC Component", "intersection.systemc_fsm")
+systemc_comp.addParams({
     "clock": CLOCK,
-    "proc": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
+    "proc": os.path.join(BASE_PATH, "systemc_fsm.o"),
     "ipc_port": get_rand_tmp(),
 })
 
-light_comp_py = sst.Component("Traffic Light PyRTL",
-                              "intersection.traffic_light_pyrtl")
-light_comp_py.addParams({
+# PyRTL
+pyrtl_main = sst.Component(
+    "Traffic Light (PyRTL)", "intersection.traffic_light_py")
+pyrtl_main.addParams({
     "CLOCK": CLOCK,
     "GREENTIME": GREEN1TIME,
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN0TIME + YELLOWTIME,
-    "STARTGREEN": 1,
-    "PROC": os.path.join(BASE_PATH, "../pyrtl/blackboxes/traffic_light_fsm_driver.py"),
-    "IPC_PORT": get_rand_tmp(),
+    "STARTGREEN": 1
+})
+pyrtl_comp = sst.Component(
+    "PyRTL Component", "intersection.pyrtl_fsm")
+pyrtl_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "../pyrtl/blackboxes/pyrtl_fsm_driver.py"),
+    "ipc_port": get_rand_tmp(),
 })
 
 car_generator0 = sst.Component("Car Generator 0", "intersection.car_generator")
@@ -67,28 +74,36 @@ car_generator1.addParams({
 intersection = sst.Component("Intersection", "intersection.intersection")
 intersection.addParams({
     "CLOCK": CLOCK,
-    "SIM_DURATION": 86400
 })
 
 
 # connect the subcomponents
 sst.Link("sc_din").connect(
-    (light_comp_sc, "traffic_light_fsm_din", LINK_DELAY),
-    (traffic_light, "traffic_light_fsm_din", LINK_DELAY)
+    (systemc_comp, "systemc_fsm_din", LINK_DELAY),
+    (systemc_main, "sc_din", LINK_DELAY)
 )
 sst.Link("sc_dout").connect(
-    (light_comp_sc, "traffic_light_fsm_dout", LINK_DELAY),
-    (traffic_light, "traffic_light_fsm_dout", LINK_DELAY)
+    (systemc_comp, "systemc_fsm_dout", LINK_DELAY),
+    (systemc_main, "sc_dout", LINK_DELAY)
 )
-
 sst.Link("light0").connect(
     (intersection, "light0", LINK_DELAY),
-    (traffic_light, "light_state", LINK_DELAY)
+    (systemc_main, "light_state", LINK_DELAY)
+)
+
+sst.Link("py_din").connect(
+    (pyrtl_comp, "pyrtl_fsm_din", LINK_DELAY),
+    (pyrtl_main, "py_din", LINK_DELAY)
+)
+sst.Link("py_dout").connect(
+    (pyrtl_comp, "pyrtl_fsm_dout", LINK_DELAY),
+    (pyrtl_main, "py_dout", LINK_DELAY)
 )
 sst.Link("light1").connect(
     (intersection, "light1", LINK_DELAY),
-    (light_comp_py, "light_state", LINK_DELAY)
+    (pyrtl_main, "light_state", LINK_DELAY)
 )
+
 sst.Link("cars0").connect(
     (intersection, "cars0", LINK_DELAY),
     (car_generator0, "is_car", LINK_DELAY)
@@ -97,3 +112,5 @@ sst.Link("cars1").connect(
     (intersection, "cars1", LINK_DELAY),
     (car_generator1, "is_car", LINK_DELAY)
 )
+
+sst.setProgramOption("stopAtCycle", "86401s")

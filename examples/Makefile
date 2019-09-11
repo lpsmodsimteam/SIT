@@ -1,6 +1,5 @@
 MAKEFLAGS += --no-print-directory
 _CXX ?= /usr/bin/clang++
-HYBRID := OFF
 
 .PHONY: generate
 generate:
@@ -13,14 +12,9 @@ intersection:
 	$(MAKE) generate HDL=systemc
 	$(MAKE) generate HDL=pyrtl
 	mkdir -p intersection/build
-	cd intersection/build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DHYBRID=${HYBRID} .. && $(MAKE)
+	cd intersection/build && cmake -DCMAKE_CXX_COMPILER=${_CXX} .. && $(MAKE)
 	sst-register intersection intersection_LIBDIR=$(CURDIR)/build
-ifeq ($(HYBRID),ON)
-	@echo "\e[1;33mRunning hybrid version...\e[0m"
-	cd intersection/build && sst ../pyrtl/run.py
-else
-	cd intersection/build && sst ../systemc/run.py
-endif
+	cd intersection/build && sst ../run.py
 
 .PHONY: clean
 clean:

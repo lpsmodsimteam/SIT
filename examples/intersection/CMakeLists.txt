@@ -14,22 +14,16 @@ set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # increase buffer size (minimum is 22)
 add_definitions(-DBUFSIZE=15)
 
-if (${HYBRID})
-
-    add_executable(libintersection.so intersection.cpp car_generator.cpp traffic_light.cpp pyrtl/traffic_light.cpp)
-
-else ()
-
-    add_executable(
-        libintersection.so
-        intersection.cpp
-        car_generator.cpp
-        systemc/blackboxes/traffic_light_fsm_comp.cpp
-        traffic_light.cpp
-    )
-
-endif ()
+add_executable(
+    libintersection.so
+    intersection.cpp
+    car_generator.cpp
+    systemc/traffic_light.cpp
+    systemc/blackboxes/systemc_fsm_comp.cpp
+    pyrtl/traffic_light.cpp
+    pyrtl/blackboxes/pyrtl_fsm_comp.cpp
+)
 
 _sst_compile_link(libintersection.so)
-add_executable(traffic_light_fsm.o systemc/blackboxes/traffic_light_fsm_driver.cpp)
-target_link_libraries(traffic_light_fsm.o SystemC::systemc)
+add_executable(systemc_fsm.o systemc/blackboxes/systemc_fsm_driver.cpp)
+target_link_libraries(systemc_fsm.o SystemC::systemc)
