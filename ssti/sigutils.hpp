@@ -55,7 +55,7 @@ inline SignalIO::~SignalIO() {
  *              need to be restricted to a specific type. `value` is streamed into a string stream
  *              to be stored in `m_data` as a std::string.
  */
-void SignalIO::set(const std::string& values) {
+inline void SignalIO::set(const std::string& values) {
 
     m_data = values;
 
@@ -64,7 +64,7 @@ void SignalIO::set(const std::string& values) {
 /*
  * Returns the value specified by `index`. The values are casted statically as a templated type.
  */
-std::string SignalIO::get() {
+inline std::string SignalIO::get() {
 
     return m_data;
 
@@ -93,13 +93,5 @@ inline void SignalIO::set_state(bool state) {
     m_data[0] = state ? '1' : '0';
 
 }
-
-/*
- * Converts SST clock cycles to pulses for SystemC modules by taking the modulo of the value from
- * the clock port with respect to 2
- *
- * Arguments:
- *     index -- clock port index
- */
 
 #endif  // SIGUTILS_HPP

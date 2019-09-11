@@ -20,29 +20,30 @@ int sc_main(int, char *argv[]) {{
     {sender}.send();
     // ---------- INITIAL HANDSHAKE ---------- //
 
-    std::ostringstream ss;
+    std::ostringstream _data_out;
 
     while (true) {{
 
         // RECEIVING
         {receiver}.recv();
         std::string _data_in = {receiver}.get();
+        // std::cout << _data_in << '\n';
 
         if (_data_in[0] == '0') {{
             break;
         }}
         {inputs}
+        clock = std::stoi(_data_in.substr(8)) % 2;
 
         // SENDING
         sc_start();
 
         {outputs};
-        std::string _data_out = ss.str();
 
-        {sender}.set(_data_out);
+        {sender}.set(_data_out.str());
         {sender}.send();
 
-        ss.str(std::string());
+        _data_out.str(std::string());
 
     }}
 

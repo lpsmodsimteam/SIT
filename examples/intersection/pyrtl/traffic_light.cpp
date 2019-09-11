@@ -1,7 +1,5 @@
-#include "../blackboxes/traffic_light_fsm_ports.hpp"
-#include "../../ssti/ssti.hpp"
+#include "../../../ssti/ssti.hpp"
 
-#include <sst/core/sst_config.h>
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
@@ -19,12 +17,6 @@ public:
     void finish() override;
 
     bool tick(SST::Cycle_t);
-
-    void send();
-
-    void recv();
-
-    void set_state(bool);
 
     SST_ELI_REGISTER_COMPONENT(
         traffic_light_pyrtl,
@@ -52,12 +44,8 @@ public:
 
 private:
 
-    int m_socket;
-    size_t m_rd_bytes;
-    char m_buf[BUFSIZE];
-    struct sockaddr_un m_addr;
-
-    std::string m_data;
+    // Prepare the signal handler
+    SocketSignal m_signal_io;
 
     // SST parameters
     std::string m_clock;
@@ -72,8 +60,7 @@ private:
 
 traffic_light_pyrtl::traffic_light_pyrtl(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
-    m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
-    m_rd_bytes(0), m_buf(""), m_addr({}),
+    m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
     // Collect all the parameters from the project driver
     m_clock(params.find<std::string>("CLOCK", "1Hz")),
     STARTGREEN(params.find<int>("STARTGREEN", false)),
@@ -105,28 +92,6 @@ traffic_light_pyrtl::traffic_light_pyrtl(SST::ComponentId_t id, SST::Params &par
 
 }
 
-void traffic_light_pyrtl::recv() {
-
-    m_rd_bytes = static_cast<size_t>(read(m_socket, m_buf, BUFSIZE));
-
-    m_buf[m_rd_bytes] = '\0';
-    m_data = std::string(m_buf);
-
-}
-
-void traffic_light_pyrtl::send() {
-
-    write(m_socket, m_data.c_str(), m_data.size());
-
-}
-
-void traffic_light_pyrtl::set_state(bool state) {
-
-    m_data[0] = state ? '1' : '0';
-
-}
-
-
 void traffic_light_pyrtl::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
@@ -141,31 +106,9 @@ void traffic_light_pyrtl::setup() {
 
     } else {
 
-        if (m_socket < 0) {
-            perror("Socket creation\n");
-        }
-
-        memset(&m_addr, 0, sizeof(m_addr));
-        m_addr.sun_family = AF_UNIX;
-        strcpy(m_addr.sun_path, m_ipc_port.c_str());
-
-
-        if (bind(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
-            perror("Bind failed\n");
-        }
-
-        if (listen(m_socket, 5) < 0) {
-            perror("Socket listen\n");
-        }
-
-        socklen_t addr_len = sizeof(m_addr);
-        if ((m_socket = accept(m_socket, (struct sockaddr *) &m_addr, &addr_len)) < 0) {
-            perror("Accept failed\n");
-        }
-
-        this->recv();
-
-        if (child_pid == std::stoi(m_data)) {
+        m_signal_io.set_addr(m_ipc_port);
+        m_signal_io.recv();
+        if (child_pid == std::stoi(m_signal_io.get())) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -177,8 +120,6 @@ void traffic_light_pyrtl::setup() {
 void traffic_light_pyrtl::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
-    unlink(m_addr.sun_path);
-    close(m_socket);
 
 }
 
@@ -188,34 +129,37 @@ bool traffic_light_pyrtl::tick(SST::Cycle_t current_cycle) {
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
 
+    std::string m_data;
+
+    if (current_cycle == 1) {
+        m_data = "X1" + std::to_string(STARTGREEN) + std::to_string(GREENTIME) + 
+        std::to_string(YELLOWTIME) + std::to_string(REDTIME);
+    } else {
+        m_data = "X0000000";
+    }
+
+    // inputs from parent SST model, outputs to PyRTL child process
+    m_signal_io.set(m_data);
+
     if (keep_send) {
-
-        char buff[10];
-        if (current_cycle == 1) {
-        	snprintf(buff, sizeof(buff), "X1%d%02d%02d%02d", STARTGREEN, GREENTIME, YELLOWTIME, REDTIME);
-        } else {
-        	strncpy(buff, "X00000000", sizeof(buff) - 1);
-        }
-        m_data = buff;
-
-        this->set_state(keep_recv);
-        this->send();
+        m_signal_io.set_state(keep_recv);
+        m_signal_io.send();
     }
-
     if (keep_recv) {
-        this->recv();
-    }
+        m_signal_io.recv();
 
-    switch (std::stoi(m_data)) {
-        case 0:
-            light_state->send(new SST::Interfaces::StringEvent("green"));
-            break;
-        case 1:
-            light_state->send(new SST::Interfaces::StringEvent("yellow"));
-            break;
-        case 2:
-            light_state->send(new SST::Interfaces::StringEvent("red"));
-            break;
+        switch (std::stoi(m_signal_io.get())) {
+            case 0:
+                light_state->send(new SST::Interfaces::StringEvent("green"));
+                break;
+            case 1:
+                light_state->send(new SST::Interfaces::StringEvent("yellow"));
+                break;
+            case 2:
+                light_state->send(new SST::Interfaces::StringEvent("red"));
+                break;
+        }
+
     }
 
     return false;

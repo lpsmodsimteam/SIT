@@ -1,7 +1,5 @@
-#include "../blackboxes/traffic_light_fsm_ports.hpp"
-#include "../../ssti/ssti.hpp"
+#include "../../../ssti/ssti.hpp"
 
-#include <sst/core/sst_config.h>
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
@@ -62,7 +60,7 @@ private:
 
 traffic_light::traffic_light(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
-    m_signal_io(TRFFCLGHTFSM_NPORTS, socket(AF_UNIX, SOCK_STREAM, 0)),
+    m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),
     // Collect all the parameters from the project driver
     m_clock(params.find<std::string>("CLOCK", "1Hz")),
     STARTGREEN(params.find<int>("STARTGREEN", false)),
@@ -110,7 +108,7 @@ void traffic_light::setup() {
 
         m_signal_io.set_addr(m_ipc_port);
         m_signal_io.recv();
-        if (child_pid == m_signal_io.get<int>(trffclghtfsm_ports.pid)) {
+        if (child_pid == std::stoi(m_signal_io.get())) {
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
                              m_proc.c_str());
         }
@@ -131,30 +129,19 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
 
-    bool load;
-    int start_green, green_time, yellow_time, red_time;
+    std::string m_data;
 
     if (current_cycle == 1) {
-        load = true;
-        start_green = STARTGREEN;
-        green_time = GREENTIME;
-        yellow_time = YELLOWTIME;
-        red_time = REDTIME;
+        m_data = "X1" + std::to_string(STARTGREEN) + std::to_string(GREENTIME) + 
+        std::to_string(YELLOWTIME) + std::to_string(REDTIME);
     } else {
-        load = false;
-        start_green = 0;
-        green_time = 0;
-        yellow_time = 0;
-        red_time = 0;
+        m_data = "X0000000";
     }
 
-    // outputs to SystemC child process
-    m_signal_io.set(trffclghtfsm_ports.load, load);
-    m_signal_io.set(trffclghtfsm_ports.start_green, start_green);
-    m_signal_io.set(trffclghtfsm_ports.green_time, green_time);
-    m_signal_io.set(trffclghtfsm_ports.yellow_time, yellow_time);
-    m_signal_io.set(trffclghtfsm_ports.red_time, red_time);
-    m_signal_io.set(trffclghtfsm_ports.clock, current_cycle);
+    m_data += std::to_string(current_cycle);
+
+    // inputs from parent SST model, outputs to PyRTL child process
+    m_signal_io.set(m_data);
 
     if (keep_send) {
         m_signal_io.set_state(keep_recv);
@@ -162,18 +149,19 @@ bool traffic_light::tick(SST::Cycle_t current_cycle) {
     }
     if (keep_recv) {
         m_signal_io.recv();
-    }
 
-    switch (m_signal_io.get<int>(trffclghtfsm_ports.state)) {
-        case 0:
-            light_state->send(new SST::Interfaces::StringEvent("green"));
-            break;
-        case 1:
-            light_state->send(new SST::Interfaces::StringEvent("yellow"));
-            break;
-        case 2:
-            light_state->send(new SST::Interfaces::StringEvent("red"));
-            break;
+        switch (std::stoi(m_signal_io.get())) {
+            case 0:
+                light_state->send(new SST::Interfaces::StringEvent("green"));
+                break;
+            case 1:
+                light_state->send(new SST::Interfaces::StringEvent("yellow"));
+                break;
+            case 2:
+                light_state->send(new SST::Interfaces::StringEvent("red"));
+                break;
+        }
+
     }
 
     return false;

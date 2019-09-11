@@ -1,6 +1,5 @@
 #include "{lib_dir}ssti.hpp"
 
-#include <sst/core/sst_config.h>
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>

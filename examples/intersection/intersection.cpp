@@ -141,7 +141,7 @@ void intersection::handle_light0(SST::Event *ev) {
         }
     }
 
-    delete ev;
+    // delete ev;
 
 }
 
@@ -158,7 +158,7 @@ void intersection::handle_light1(SST::Event *ev) {
         }
     }
 
-    delete ev;
+    // delete ev;
 
 }
 

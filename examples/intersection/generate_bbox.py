@@ -9,7 +9,7 @@ if __name__ == "__main__":
         "module": "traffic_light_fsm",
         "lib": "intersection",
         "ipc": "sock",
-        "lib_dir": "../../ssti/",
+        "lib_dir": "../../../ssti/",
         "link_desc": {
             "link_desc0": "Traffic Light FSM data_in",
             "link_desc1": "Traffic Light FSM data_out",
@@ -32,7 +32,8 @@ if __name__ == "__main__":
     systemc_obj.generate_bbox()
 
     pyrtl_obj = PyRTL(
-        **args
+        **args,
+        module_dir="../pyrtl/",
     )
     pyrtl_obj.set_ports((
         ("1", "load", "input"),

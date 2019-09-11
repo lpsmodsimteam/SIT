@@ -108,7 +108,7 @@ class SystemC(BoilerPlate):
             {str} -- snippet of code representing output bindings
         """
         return self.sig_fmt(
-            "ss << {sig}",
+            "_data_out << {sig}",
             lambda x: {
                 "sig": x[-1],
             },
