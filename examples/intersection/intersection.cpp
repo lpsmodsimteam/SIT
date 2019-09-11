@@ -55,7 +55,6 @@ public:
 private:
     SST::Output m_output;
     std::string clock;
-    SST::Cycle_t sim_duration;
 
     SST::Link *light[2], *cars[2];
 
@@ -68,7 +67,6 @@ private:
 intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
     clock(params.find<std::string>("CLOCK", "1Hz")),
-    sim_duration(params.find<SST::Cycle_t>("SIM_DURATION", 200)),
     light{
         configureLink(
             "light0", new SST::Event::Handler<intersection>(this, &intersection::handle_light0)
@@ -88,12 +86,6 @@ intersection::intersection(SST::ComponentId_t id, SST::Params &params) :
     road{0, 0}, total_cars{0, 0}, backup{0, 0}, n_ticks(0) {
 
     m_output.init("\033[34mintersection-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
-
-    // Error check params
-    if (sim_duration <= 0) {
-        m_output.fatal(CALL_INFO, -1, "Error: sim_duration must be greater than zero.\n");
-    }
-    m_output.verbose(CALL_INFO, 1, 0, "sim_duration=%d Hours\n", ((int) sim_duration / 3600));
 
     // Just register a plain clock for this simple example
     registerClock(clock, new SST::Clock::Handler<intersection>(this, &intersection::tick));
@@ -221,15 +213,6 @@ bool intersection::tick(SST::Cycle_t current_cycle) {
         m_output.verbose(CALL_INFO, 1, 0, " %3d | %14d | %14d\n", n_ticks / 3600, total_cars[0], total_cars[1]);
     }
 
-    if (current_cycle >= sim_duration) {
-        primaryComponentOKToEndSim();
-
-        return true;
-
-    } else {
-
-        return false;
-
-    }
+    return false;
 
 }

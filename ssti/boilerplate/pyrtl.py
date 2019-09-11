@@ -52,7 +52,7 @@ class PyRTL(BoilerPlate):
         )
 
         if self.module_dir:
-            self.module_dir = "sys.path.append(\"{}\")".format(
+            self.module_dir = "sys.path.append(os.path.join(os.path.dirname(__file__), \"{}\"))".format(
                 self.module_dir)
 
         if self.ipc == "sock":

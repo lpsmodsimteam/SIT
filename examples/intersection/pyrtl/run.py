@@ -22,16 +22,22 @@ def get_rand_tmp():
     )
 
 
-light_comp_sc = sst.Component(
+traffic_light = sst.Component(
     "Traffic Light SystemC", "intersection.traffic_light")
-light_comp_sc.addParams({
+traffic_light.addParams({
     "CLOCK": CLOCK,
     "GREENTIME": GREEN0TIME,
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN1TIME + YELLOWTIME,
-    "STARTGREEN": 0,
-    "PROC": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
-    "IPC_PORT": get_rand_tmp(),
+    "STARTGREEN": 0
+})
+
+light_comp_sc = sst.Component(
+    "Traffic Light SystemC", "intersection.traffic_light")
+light_comp_sc.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "traffic_light_fsm.o"),
+    "ipc_port": get_rand_tmp(),
 })
 
 light_comp_py = sst.Component("Traffic Light PyRTL",
@@ -42,7 +48,7 @@ light_comp_py.addParams({
     "YELLOWTIME": YELLOWTIME,
     "REDTIME": GREEN0TIME + YELLOWTIME,
     "STARTGREEN": 1,
-    "PROC": os.path.join(BASE_PATH, "../blackboxes/traffic_light_fsm_driver.py"),
+    "PROC": os.path.join(BASE_PATH, "../pyrtl/blackboxes/traffic_light_fsm_driver.py"),
     "IPC_PORT": get_rand_tmp(),
 })
 
@@ -66,9 +72,18 @@ intersection.addParams({
 
 
 # connect the subcomponents
+sst.Link("sc_din").connect(
+    (light_comp_sc, "traffic_light_fsm_din", LINK_DELAY),
+    (traffic_light, "traffic_light_fsm_din", LINK_DELAY)
+)
+sst.Link("sc_dout").connect(
+    (light_comp_sc, "traffic_light_fsm_dout", LINK_DELAY),
+    (traffic_light, "traffic_light_fsm_dout", LINK_DELAY)
+)
+
 sst.Link("light0").connect(
     (intersection, "light0", LINK_DELAY),
-    (light_comp_sc, "light_state", LINK_DELAY)
+    (traffic_light, "light_state", LINK_DELAY)
 )
 sst.Link("light1").connect(
     (intersection, "light1", LINK_DELAY),

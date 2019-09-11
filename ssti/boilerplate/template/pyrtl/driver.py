@@ -9,7 +9,6 @@ import sys
 import {module}
 
 # Connect the PyRTL simulation to SST through {ipc}
-# _sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
 {driver_bind}
 _sock.connect(sys.argv[1])
 

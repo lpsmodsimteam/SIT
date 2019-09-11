@@ -65,10 +65,6 @@ private:
         m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
     }}
 
-    // Tell SST to wait until we authorize it to exit
-    registerAsPrimaryComponent();
-    primaryComponentDoNotEndSim();
-
 }}
 
 void {module}::setup() {{
@@ -129,7 +125,5 @@ void {module}::handle_event(SST::Event *ev) {{
         m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 
     }}
-
-    delete ev;
 
 }}

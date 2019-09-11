@@ -4,13 +4,14 @@ HYBRID := OFF
 
 .PHONY: generate
 generate:
-	python3 intersection/generate_bbox.py
-	mv blackboxes intersection/blackboxes
+	python3 intersection/generate_bbox.py ${HDL}
+	mv blackboxes intersection/${HDL}
 
 .PHONY: intersection
 intersection:
 	@echo "\e[1;32mRunning intersection...\e[0m"
-	$(MAKE) generate
+	$(MAKE) generate HDL=systemc
+	$(MAKE) generate HDL=pyrtl
 	mkdir -p intersection/build
 	cd intersection/build && cmake -DCMAKE_CXX_COMPILER=${_CXX} -DHYBRID=${HYBRID} .. && $(MAKE)
 	sst-register intersection intersection_LIBDIR=$(CURDIR)/build
