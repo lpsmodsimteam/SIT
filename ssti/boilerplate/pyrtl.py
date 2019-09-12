@@ -55,6 +55,7 @@ class PyRTL(BoilerPlate):
                 self.module_dir)
 
         if self.ipc == "sock":
+
             # driver attributes
             self.driver_ipc = "socket"
             self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""
@@ -106,6 +107,26 @@ _sock = context.socket(zmq.REQ)"""
             " +\n" + " " * 8
         )
 
+    def get_inputs(self):
+
+        return self._get_inputs(
+            fmt="\"{sig}\": int(signal[{sp}:{sl}]),",
+            start_pos=0,
+            signal_type_parser=self.__parse_signal_type,
+            splice=True
+        )
+
+    def __get_driver_defs(self):
+
+        return {
+            "ipc": self.driver_ipc,
+            "driver_bind": self.driver_bind,
+            "send": self.send,
+            "module_dir": self.module_dir,
+            "module": self.module,
+            "buf_size": self.buf_size
+        }
+
     def generate_driver(self):
         """Generates the black box-driver code based on methods used to format
         the template file
@@ -116,18 +137,9 @@ _sock = context.socket(zmq.REQ)"""
         if os.path.isfile(self.drvr_templ_path):
             with open(self.drvr_templ_path) as template:
                 return template.read().format(
-                    ipc=self.driver_ipc,
-                    driver_bind=self.driver_bind,
-                    send=self.send,
-                    module_dir=self.module_dir,
-                    module=self.module,
-                    **self.get_inputs(
-                        fmt="\"{sig}\": int(signal[{sp}:{sl}]),",
-                        start_pos=0,
-                        signal_type_parser=self.__parse_signal_type,
-                        splice=True
-                    ),
-                    outputs=self.get_outputs()
+                    inputs=self.get_inputs(),
+                    outputs=self.get_outputs(),
+                    **self.__get_driver_defs()
                 )
 
         raise FileNotFoundError("Driver boilerplate file not found")

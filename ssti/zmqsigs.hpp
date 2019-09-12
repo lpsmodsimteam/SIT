@@ -5,11 +5,6 @@
 #ifndef ZMQSIGS
 #define ZMQSIGS
 
-// default buffer size
-#ifndef BUFSIZE
-#define BUFSIZE 5
-#endif
-
 #include "sigutils.hpp"
 
 #include <zmq.hpp>
@@ -25,20 +20,22 @@ class ZMQSignal : public SignalIO {
 private:
 
     bool m_server_side;
+    int m_buf_size;
     zmq::socket_t &m_socket;
     zmq::message_t m_msg;
 
 public:
 
-    explicit ZMQSignal(zmq::socket_t &, bool = true);
+    explicit ZMQSignal(zmq::socket_t &, int, bool = true);
 
     ~ZMQSignal();
+
+    void set_addr(const std::string &);
 
     void recv();
 
     void send();
 
-    void set_addr(const std::string &);
 };
 
 
@@ -52,8 +49,8 @@ public:
  *                  greater than the total number of the SystemC module ports
  *     socket -- ZeroMQ socket
  */
-inline ZMQSignal::ZMQSignal(zmq::socket_t &socket, bool server_side) :
-    SignalIO(), m_server_side(server_side), m_socket(socket) {
+inline ZMQSignal::ZMQSignal(zmq::socket_t &socket, int buf_size, bool server_side) :
+    SignalIO(), m_server_side(server_side), m_buf_size(buf_size), m_socket(socket) {
 }
 
 inline ZMQSignal::~ZMQSignal() {
@@ -73,7 +70,7 @@ inline void ZMQSignal::set_addr(const std::string &addr) {
  */
 inline void ZMQSignal::recv() {
 
-    auto _buf = new char[BUFSIZE]{};
+    auto _buf = new char[m_buf_size]{};
     m_socket.recv(&m_msg);
     memcpy(_buf, m_msg.data(), m_msg.size());
     _buf[m_msg.size()] = '\0';

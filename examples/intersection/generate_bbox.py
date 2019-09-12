@@ -20,7 +20,7 @@ if __name__ == "__main__":
             module="systemc_fsm",
         )
         systemc_obj.set_ports((
-            ("<bool>", "clock", "clock"),
+            ("<bool>//5", "clock", "clock"),
             ("<bool>", "load", "input"),
             ("<bool>", "start_green", "input"),
             ("<sc_uint<6>>", "green_time", "input"),

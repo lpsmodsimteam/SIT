@@ -15,7 +15,7 @@ _sock.connect(sys.argv[1])
 _sock.{send}(str(os.getpid()).encode())
 
 while True:
-    signal = str(_sock.recv({sig_len}).decode("utf-8"))
+    signal = str(_sock.recv({buf_size}).decode("utf-8"))
     alive = int(signal[0])
     signal = signal[1:]
     if not alive:

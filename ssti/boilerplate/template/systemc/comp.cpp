@@ -22,7 +22,7 @@ public:
     SST_ELI_REGISTER_COMPONENT(
         {module}, // class
         "{lib}", // element library
-        "{comp}", // component
+        "{module}", // component
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "{desc}",
         COMPONENT_CATEGORY_UNCATEGORIZED

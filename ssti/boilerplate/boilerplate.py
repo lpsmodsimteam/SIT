@@ -17,11 +17,6 @@ class BoilerPlate(object):
             drvr_templ_path {str} -- path to the black box-driver boilerplate
             comp_templ_path {str} -- path to the black box-model boilerplate
             desc {str} -- description of the SST model (default: {""})
-            link_desc {dict(str:str)} -- description of the SST links
-                The argument defaults to:
-                `{"link_desc0": "", "link_desc1": ""}`
-                where they're assigned as the receiving and transmitting SST
-                links respectively.
         """
         if ipc in ("sock", "zmq"):
             self.ipc = ipc
@@ -41,12 +36,13 @@ class BoilerPlate(object):
         self.outputs = []
         self.inouts = []
         self.ports = []
+        self.buf_size = 0
 
         if self.ipc == "sock":
 
             # component attributes
             self.comp_decl = """SocketSignal m_signal_io;"""
-            self.comp_init = "m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0)),"
+            self.comp_init = "m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), {}),"
             self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
 
         elif self.ipc == "zmq":
@@ -56,7 +52,7 @@ class BoilerPlate(object):
     zmq::socket_t m_socket;
     ZMQSignal m_signal_io;"""
             self.comp_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_io(m_socket),"""
+      m_signal_io(m_socket, {}),"""
             self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
 
         # shared attributes
@@ -118,8 +114,8 @@ class BoilerPlate(object):
         self.ports = [(i[0].split(self.WIDTH_DELIM)[0], i[-1])
                       for i in self.ports]
 
-    def get_inputs(self, fmt, start_pos, signal_type_parser, splice=False,
-                   clock_fmt=""):
+    def _get_inputs(self, fmt, start_pos, signal_type_parser, splice=False,
+                    clock_fmt=""):
         """Generates input bindings for both the components in the black box
 
         Arguments:
@@ -142,19 +138,29 @@ class BoilerPlate(object):
             start_pos += sig_len
 
         if self.clocks:
-            driver_inputs.append(
-                clock_fmt.format(
-                    sp=start_pos,
-                    sig=self.clocks[-1][-1],
+            for clock in self.clocks:
+                driver_inputs.append(
+                    clock_fmt.format(sp=start_pos, sig=clock[-1])
                 )
-            )
+                start_pos += int(clock[0].split(self.WIDTH_DELIM)[-1])
 
-        driver_inputs = ("\n" + " " * 8).join(driver_inputs)
+        self.buf_size = start_pos + 1 if splice else start_pos
+        return ("\n" + " " * 8).join(driver_inputs)
+
+    def __get_comp_defs(self):
 
         return {
-            "inputs": driver_inputs,
-            "sig_len": start_pos + 1
-        } if splice else driver_inputs
+            "lib_dir": self.lib_dir,
+            "module": self.module,
+            "lib": self.lib,
+            "desc": self.desc,
+            "ports": self.get_link_desc(),
+            "var_decl": self.comp_decl,
+            "var_init": self.comp_init.format(self.buf_size),
+            "var_bind": self.comp_bind,
+            "sender": self.sender,
+            "receiver": self.receiver,
+        }
 
     def generate_comp(self):
         """Generates the black box-model code based on methods used to format
@@ -166,17 +172,7 @@ class BoilerPlate(object):
         if os.path.isfile(self.comp_templ_path):
             with open(self.comp_templ_path) as template:
                 return template.read().format(
-                    lib_dir=self.lib_dir,
-                    module=self.module,
-                    lib=self.lib,
-                    comp=self.module,
-                    desc=self.desc,
-                    ports=self.get_link_desc(),
-                    var_decl=self.comp_decl,
-                    var_init=self.comp_init,
-                    var_bind=self.comp_bind,
-                    sender=self.sender,
-                    receiver=self.receiver,
+                    **self.__get_comp_defs()
                 )
 
         raise FileNotFoundError("Component boilerplate file not found")

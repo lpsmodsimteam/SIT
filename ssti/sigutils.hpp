@@ -32,13 +32,19 @@ public:
 
     void set_state(bool);
 
+    virtual void set_addr(const std::string &) = 0;
+
+    virtual void recv() = 0;
+
+    virtual void send() = 0;
+
 };
 
 
 /* -------------------- SIGNALIO IMPLEMENTATIONS -------------------- */
 
 /*
- * Clears the member variable containing the transported data
+ * Allocate the transported data on heap
  */
 inline SignalIO::SignalIO() {
 
@@ -46,7 +52,9 @@ inline SignalIO::SignalIO() {
 
 }
 
-
+/*
+ * Clears the member variable containing the transported data
+ */
 inline SignalIO::~SignalIO() {
 
     delete m_data;
@@ -54,14 +62,10 @@ inline SignalIO::~SignalIO() {
 }
 
 /*
- * Assigns a new value to the member-variable std::vector `m_data`.
+ * Assigns a new value to the member-variable std::string `m_data`.
  *
  * Arguments:
- *     index -- index of `m_data` for the new value to be set. The value of this index is hardcoded
- *              in the ports struct data structure in the black box interface.
- *     value -- value of the port being stored. This argument is templated and therefore do not
- *              need to be restricted to a specific type. `value` is streamed into a string stream
- *              to be stored in `m_data` as a std::string.
+ *     values -- values of the transport data
  */
 inline void SignalIO::set(const std::string &values) {
 

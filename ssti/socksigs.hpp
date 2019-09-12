@@ -5,11 +5,6 @@
 #ifndef SOCKSIGS
 #define SOCKSIGS
 
-// default buffer size
-#ifndef BUFSIZE
-#define BUFSIZE 5
-#endif
-
 #include "sigutils.hpp"
 
 #include <sys/socket.h>
@@ -26,21 +21,22 @@ private:
 
     // flag to determine the options for setting up the sockets
     bool m_server_side;
+    int m_buf_size;
     int m_socket, m_rd_socket;
     size_t m_rd_bytes;
     struct sockaddr_un m_addr;
 
 public:
 
-    explicit SocketSignal(int, bool = true);
+    explicit SocketSignal(int, int, bool = true);
 
     ~SocketSignal();
 
-    void set_addr(const std::string &);
+    void set_addr(const std::string &) override;
 
-    void send();
+    void send() override;
 
-    void recv();
+    void recv() override;
 
 };
 
@@ -56,9 +52,9 @@ public:
  *                                    need to set the parameter to false to set up the connection
  *                                    properly.
  */
-inline SocketSignal::SocketSignal(int socket, bool server_side) :
-    SignalIO(), m_server_side(server_side), m_socket(socket), m_rd_socket(0),
-    m_rd_bytes(0), m_addr({}) {
+inline SocketSignal::SocketSignal(int socket, int buf_size, bool server_side) :
+    SignalIO(), m_server_side(server_side), m_buf_size(buf_size), m_socket(socket),
+    m_rd_socket(0), m_rd_bytes(0), m_addr({}) {
     // do nothing
 }
 
@@ -126,17 +122,17 @@ inline void SocketSignal::send() {
 }
 
 /*
- * Receives data and unpacks the buffer to MessagePack.
+ * Receives data and unpacks the buffer
  *
  * Throws a msgpack::insufficient_bytes exception during runtime if the buffer size is
  * insufficient.
  */
 inline void SocketSignal::recv() {
 
-    auto _buf = new char[BUFSIZE];
+    auto _buf = new char[m_buf_size];
     m_rd_bytes = static_cast<size_t>(
-        (m_server_side) ? read(m_rd_socket, _buf, BUFSIZE) :
-        read(m_socket, _buf, BUFSIZE));
+        (m_server_side) ? read(m_rd_socket, _buf, m_buf_size) :
+        read(m_socket, _buf, m_buf_size));
 
     _buf[m_rd_bytes] = '\0';
     *m_data = _buf;
