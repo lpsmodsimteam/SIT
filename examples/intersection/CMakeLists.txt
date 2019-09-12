@@ -11,16 +11,16 @@ find_package(SystemCLanguage CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
 
-# increase buffer size (minimum is 22)
+# increase buffer size (minimum is 5)
 add_definitions(-DBUFSIZE=15)
 
 add_executable(
     libintersection.so
     intersection.cpp
     car_generator.cpp
-    systemc/traffic_light.cpp
+    systemc/traffic_light_systemc.cpp
     systemc/blackboxes/systemc_fsm_comp.cpp
-    pyrtl/traffic_light.cpp
+    pyrtl/traffic_light_pyrtl.cpp
     pyrtl/blackboxes/pyrtl_fsm_comp.cpp
 )
 

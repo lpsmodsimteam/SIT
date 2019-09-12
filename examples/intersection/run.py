@@ -24,7 +24,7 @@ def get_rand_tmp():
 
 # SystemC
 systemc_main = sst.Component(
-    "Traffic Light (SystemC)", "intersection.traffic_light")
+    "Traffic Light (SystemC)", "intersection.traffic_light_systemc")
 systemc_main.addParams({
     "CLOCK": CLOCK,
     "GREENTIME": GREEN0TIME,
@@ -43,7 +43,7 @@ systemc_comp.addParams({
 
 # PyRTL
 pyrtl_main = sst.Component(
-    "Traffic Light (PyRTL)", "intersection.traffic_light_py")
+    "Traffic Light (PyRTL)", "intersection.traffic_light_pyrtl")
 pyrtl_main.addParams({
     "CLOCK": CLOCK,
     "GREENTIME": GREEN1TIME,

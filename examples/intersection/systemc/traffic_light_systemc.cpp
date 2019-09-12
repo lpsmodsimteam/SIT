@@ -4,11 +4,11 @@
 
 #define SIMTIME 86400
 
-class traffic_light_py : public SST::Component {
+class traffic_light_systemc : public SST::Component {
 
 public:
 
-    traffic_light_py(SST::ComponentId_t, SST::Params &);
+    traffic_light_systemc(SST::ComponentId_t, SST::Params &);
 
     void setup() override;
 
@@ -19,9 +19,9 @@ public:
     void handle_event(SST::Event *);
 
     SST_ELI_REGISTER_COMPONENT(
-        traffic_light_py,
+        traffic_light_systemc,
         "intersection",
-        "traffic_light_py",
+        "traffic_light_systemc",
         SST_ELI_ELEMENT_VERSION(1, 0, 0),
         "Traffic light simulator for the intersection",
         COMPONENT_CATEGORY_UNCATEGORIZED
@@ -36,8 +36,8 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "py_din", "Traffic Light FSM data_in", { "sst.Interfaces.StringEvent" }},
-        { "py_dout", "Traffic Light FSM data_out", { "sst.Interfaces.StringEvent" }},
+        { "sc_din", "Traffic Light FSM data_in", { "sst.Interfaces.StringEvent" }},
+        { "sc_dout", "Traffic Light FSM data_out", { "sst.Interfaces.StringEvent" }},
         { "light_state", "Port on which to send/recv messages", { "sst.Interfaces.StringEvent" }},
     )
 
@@ -49,13 +49,13 @@ private:
 
     // SST links and variables
     SST::Output m_output;
-    SST::Link *py_din_link, *py_dout_link, *light_state;
+    SST::Link *sc_din_link, *sc_dout_link, *light_state;
 
     unsigned int m_cycle{};
 
 };
 
-traffic_light_py::traffic_light_py(SST::ComponentId_t id, SST::Params &params) :
+traffic_light_systemc::traffic_light_systemc(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
     // Collect all the parameters from the project driver
     m_clock(params.find<std::string>("CLOCK", "1Hz")),
@@ -63,13 +63,13 @@ traffic_light_py::traffic_light_py(SST::ComponentId_t id, SST::Params &params) :
     GREENTIME(params.find<int>("GREENTIME", 30)),
     YELLOWTIME(params.find<int>("YELLOWTIME", 3)),
     REDTIME(params.find<int>("REDTIME", 33)),
-    py_din_link(configureLink("py_din")),
-    py_dout_link(configureLink(
-        "py_dout",
-        new SST::Event::Handler<traffic_light_py>(this, &traffic_light_py::handle_event))),
+    sc_din_link(configureLink("sc_din")),
+    sc_dout_link(configureLink(
+        "sc_dout",
+        new SST::Event::Handler<traffic_light_systemc>(this, &traffic_light_systemc::handle_event))),
     light_state(configureLink("light_state")) {
 
-    m_output.init("\033[93mtraffic_light_py-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[93mtraffic_light_systemc-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Check parameters
     if (!(GREENTIME && YELLOWTIME && REDTIME)) {
@@ -81,7 +81,7 @@ traffic_light_py::traffic_light_py(SST::ComponentId_t id, SST::Params &params) :
                      GREENTIME, YELLOWTIME, REDTIME, STARTGREEN);
 
     // Just register a plain clock for this simple example
-    registerClock(m_clock, new SST::Clock::Handler<traffic_light_py>(this, &traffic_light_py::tick));
+    registerClock(m_clock, new SST::Clock::Handler<traffic_light_systemc>(this, &traffic_light_systemc::tick));
 
     // Configure our ports
     if (!light_state) {
@@ -90,19 +90,19 @@ traffic_light_py::traffic_light_py(SST::ComponentId_t id, SST::Params &params) :
 
 }
 
-void traffic_light_py::setup() {
+void traffic_light_systemc::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
 }
 
-void traffic_light_py::finish() {
+void traffic_light_systemc::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
 
 }
 
-void traffic_light_py::handle_event(SST::Event *ev) {
+void traffic_light_systemc::handle_event(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
@@ -127,7 +127,7 @@ void traffic_light_py::handle_event(SST::Event *ev) {
 
 
 // Send a command to the PyRTL stopLight every clock
-bool traffic_light_py::tick(SST::Cycle_t current_cycle) {
+bool traffic_light_systemc::tick(SST::Cycle_t current_cycle) {
 
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;
@@ -142,10 +142,11 @@ bool traffic_light_py::tick(SST::Cycle_t current_cycle) {
         m_data = "0000000";
     }
 
-    py_din_link->send(new SST::Interfaces::StringEvent(
+    sc_din_link->send(new SST::Interfaces::StringEvent(
         std::to_string(keep_send) +
         std::to_string(keep_recv) +
-        m_data
+        m_data +
+        std::to_string(current_cycle)
     ));
 
     return false;
