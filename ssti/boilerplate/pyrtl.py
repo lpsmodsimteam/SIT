@@ -91,7 +91,7 @@ _sock = context.socket(zmq.REQ)"""
 
         return math.floor(math.log2(__get_ints(signal)))
 
-    def get_outputs(self):
+    def _get_driver_outputs(self):
         """Generates output bindings for both the components in the black box
 
         Returns:
@@ -107,7 +107,7 @@ _sock = context.socket(zmq.REQ)"""
             " +\n" + " " * 8
         )
 
-    def get_inputs(self):
+    def _get_driver_inputs(self):
 
         return self._get_inputs(
             fmt="\"{sig}\": int(signal[{sp}:{sl}]),",
@@ -116,7 +116,7 @@ _sock = context.socket(zmq.REQ)"""
             splice=True
         )
 
-    def __get_driver_defs(self):
+    def _get_driver_defs(self):
 
         return {
             "ipc": self.driver_ipc,
@@ -126,20 +126,3 @@ _sock = context.socket(zmq.REQ)"""
             "module": self.module,
             "buf_size": self.buf_size
         }
-
-    def generate_driver(self):
-        """Generates the black box-driver code based on methods used to format
-        the template file
-
-        Returns:
-            {str} -- boilerplate code representing the black box-driver file
-        """
-        if os.path.isfile(self.drvr_templ_path):
-            with open(self.drvr_templ_path) as template:
-                return template.read().format(
-                    inputs=self.get_inputs(),
-                    outputs=self.get_outputs(),
-                    **self.__get_driver_defs()
-                )
-
-        raise FileNotFoundError("Driver boilerplate file not found")

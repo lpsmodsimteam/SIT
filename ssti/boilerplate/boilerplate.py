@@ -177,6 +177,23 @@ class BoilerPlate(object):
 
         raise FileNotFoundError("Component boilerplate file not found")
 
+    def generate_driver(self):
+        """Generates the black box-driver code based on methods used to format
+        the template file
+
+        Returns:
+            {str} -- boilerplate code representing the black box-driver file
+        """
+        if os.path.isfile(self.drvr_templ_path):
+            with open(self.drvr_templ_path) as template:
+                return template.read().format(
+                    inputs=self._get_driver_inputs(),
+                    outputs=self._get_driver_outputs(),
+                    **self._get_driver_defs()
+                )
+
+        raise FileNotFoundError("Driver boilerplate file not found")
+
     def generate_bbox(self):
         """Provides a high-level interface to the user to generate both the
         components of the black box and dump them to their corresponding files

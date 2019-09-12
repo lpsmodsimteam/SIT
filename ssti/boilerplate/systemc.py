@@ -100,7 +100,7 @@ class SystemC(BoilerPlate):
         else:
             return 1
 
-    def get_outputs(self):
+    def _get_driver_outputs(self):
         """Generates output bindings for both the components in the black box
 
         Returns:
@@ -115,28 +115,13 @@ class SystemC(BoilerPlate):
             ";\n" + " " * 8
         )
 
-    def get_inputs(self):
+    def _get_driver_inputs(self):
 
         return self._get_inputs(
             fmt="{sig} = std::stoi(_data_in.substr({sp}, {sl}));",
             start_pos=1,
             signal_type_parser=self.__parse_signal_type,
             clock_fmt="{sig} = std::stoi(_data_in.substr({sp})) % 2;",
-        )
-
-    def get_clock(self):
-        """Generates output bindings for both the components in the black box
-
-        Returns:
-            {str} -- snippet of code representing output bindings
-        """
-        return self.sig_fmt(
-            "_data_out << {sig}",
-            lambda x: {
-                "sig": x[-1],
-            },
-            self.outputs,
-            ";\n" + " " * 8
         )
 
     def __get_driver_port_defs(self):
@@ -155,7 +140,7 @@ class SystemC(BoilerPlate):
             lambda x: {"sig": x[-1]}, self.ports
         )
 
-    def __get_driver_defs(self):
+    def _get_driver_defs(self):
 
         return {
             "module_dir": self.module_dir,
@@ -167,20 +152,3 @@ class SystemC(BoilerPlate):
             "receiver": self.receiver,
             "var_decl": self.driver_decl.format(self.buf_size),
         }
-
-    def generate_driver(self):
-        """Generates the black box-driver code based on methods used to format
-        the template file
-
-        Returns:
-            {str} -- boilerplate code representing the black box-driver file
-        """
-        if os.path.isfile(self.drvr_templ_path):
-            with open(self.drvr_templ_path) as template:
-                return template.read().format(
-                    inputs=self.get_inputs(),
-                    outputs=self.get_outputs(),
-                    **self.__get_driver_defs()
-                )
-
-        raise FileNotFoundError("Driver boilerplate file not found")
