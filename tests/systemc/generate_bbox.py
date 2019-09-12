@@ -14,10 +14,6 @@ if __name__ == "__main__":
         lib_dir="../../../../ssti/",
         module_dir="../../common/",
         desc="Demonstration of a SystemC hardware simulation in SST",
-        link_desc={
-            "link_desc0": "RAM data_in",
-            "link_desc1": "RAM data_out",
-        }
     )
     boilerplate_obj.set_ports((
         ("<sc_bv<ADDR_WIDTH>>//8", "address", "input"),

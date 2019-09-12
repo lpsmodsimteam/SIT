@@ -16,7 +16,7 @@ from .boilerplate import BoilerPlate
 class PyRTL(BoilerPlate):
 
     def __init__(self, module, lib, ipc, drvr_templ_path="", comp_templ_path="",
-                 desc="", link_desc=None, module_dir="", lib_dir=""):
+                 desc="", module_dir="", lib_dir=""):
         """Constructor for PyRTL BoilerPlate.
 
         Arguments:
@@ -46,7 +46,6 @@ class PyRTL(BoilerPlate):
             drvr_templ_path=drvr_templ_path,
             comp_templ_path=comp_templ_path,
             desc=desc,
-            link_desc=link_desc,
             module_dir=module_dir,
             lib_dir=lib_dir
         )

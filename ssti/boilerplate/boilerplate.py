@@ -7,8 +7,7 @@ import os
 class BoilerPlate(object):
 
     def __init__(self, module, lib, ipc, drvr_templ_path, comp_templ_path,
-                 desc="", link_desc=None,
-                 module_dir="", lib_dir=""):
+                 desc="", module_dir="", lib_dir=""):
         """Constructor for BoilerPlate.
 
         Arguments:
@@ -36,9 +35,6 @@ class BoilerPlate(object):
         self.drvr_templ_path = drvr_templ_path
         self.comp_templ_path = comp_templ_path
         self.desc = desc
-        self.link_desc = link_desc if link_desc else {
-            "link_desc0": "", "link_desc1": ""
-        }
 
         self.clocks = []
         self.inputs = []
@@ -69,6 +65,18 @@ class BoilerPlate(object):
         self.driver_path = self.comp_path = os.path.join(
             self.bbox_dir, self.module)
         self.WIDTH_DELIM = "//"
+
+    def get_link_desc(self):
+
+        return self.sig_fmt(
+            """{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
+            lambda x: {
+                "link": self.module + x[0],
+                "desc": self.module + x[-1]
+            },
+            (("_din", " data in"), ("_dout", " data out")),
+            ",\n" + " " * 8
+        )
 
     @staticmethod
     def sig_fmt(fmt, split_func, array, delim=";\n    "):
@@ -110,7 +118,8 @@ class BoilerPlate(object):
         self.ports = [(i[0].split(self.WIDTH_DELIM)[0], i[-1])
                       for i in self.ports]
 
-    def get_inputs(self, fmt, start_pos, signal_type_parser, splice=False, clock_fmt=""):
+    def get_inputs(self, fmt, start_pos, signal_type_parser, splice=False,
+                   clock_fmt=""):
         """Generates input bindings for both the components in the black box
 
         Arguments:
@@ -162,7 +171,7 @@ class BoilerPlate(object):
                     lib=self.lib,
                     comp=self.module,
                     desc=self.desc,
-                    **self.link_desc,
+                    ports=self.get_link_desc(),
                     var_decl=self.comp_decl,
                     var_init=self.comp_init,
                     var_bind=self.comp_bind,

@@ -5,6 +5,9 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# add compiler warnings
+add_compile_options(-Wall -Wextra -Wpedantic)
+
 # -------------------- SST CONFIGS --------------------
 execute_process(
     COMMAND which sst-config

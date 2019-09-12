@@ -2,13 +2,14 @@
  * SignalIO abstract class definitions and implementations.
  */
 
-#ifndef SIGUTILS_HPP
-#define SIGUTILS_HPP
+#ifndef SIGUTILS
+#define SIGUTILS
 
 #include <sstream>
 #include <unistd.h>
+
 /*
- * Implements testcases methods for setting and getting data being transferred via the preferred IPC.
+ * Implements methods for setting and getting data being transferred via the preferred IPC.
  * 
  * This class is implicitly-abstract and needs to be inherited by a class that implements a
  * supported interprocess communication (IPC) protocol.
@@ -17,15 +18,15 @@ class SignalIO {
 
 protected:
 
-    SignalIO() = default;
+    SignalIO();
 
     ~SignalIO();
 
-    std::string m_data;
+    std::string* m_data;
 
 public:
 
-    void set(const std::string&);
+    void set(const std::string &);
 
     std::string get();
 
@@ -39,9 +40,16 @@ public:
 /*
  * Clears the member variable containing the transported data
  */
+inline SignalIO::SignalIO() {
+
+    m_data = new std::string;
+
+}
+
+
 inline SignalIO::~SignalIO() {
 
-    m_data.clear();
+    delete m_data;
 
 }
 
@@ -55,9 +63,9 @@ inline SignalIO::~SignalIO() {
  *              need to be restricted to a specific type. `value` is streamed into a string stream
  *              to be stored in `m_data` as a std::string.
  */
-inline void SignalIO::set(const std::string& values) {
+inline void SignalIO::set(const std::string &values) {
 
-    m_data = values;
+    *m_data = values;
 
 }
 
@@ -66,7 +74,7 @@ inline void SignalIO::set(const std::string& values) {
  */
 inline std::string SignalIO::get() {
 
-    return m_data;
+    return *m_data;
 
 }
 
@@ -90,8 +98,8 @@ inline std::string SignalIO::get() {
  */
 inline void SignalIO::set_state(bool state) {
 
-    m_data[0] = state ? '1' : '0';
+    (*m_data)[0] = state ? '1' : '0';
 
 }
 
-#endif  // SIGUTILS_HPP
+#endif  // SIGUTILS

@@ -30,8 +30,7 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        {{ "{module}_din", "{link_desc0}", {{ "sst.Interfaces.StringEvent" }}}},
-        {{ "{module}_dout", "{link_desc1}", {{ "sst.Interfaces.StringEvent" }}}},
+        {ports}
     )
 
 private:

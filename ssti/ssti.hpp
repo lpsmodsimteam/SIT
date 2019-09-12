@@ -1,14 +1,16 @@
 /*
- * SST-SystemC Interoperability Toolkit
+ * SST Interoperable
  * */
 
-#ifndef SSTI_HPP
-#define SSTI_HPP
+#ifndef SSTI
+#define SSTI
 
 #ifndef USE_ZMQ
+
 #include "socksigs.hpp"
+
 #else
 #include "zmqsigs.hpp"
 #endif
 
-#endif  // SSTI_HPP
+#endif  // SSTI

@@ -2,8 +2,8 @@
  * SocketSignal class definitions and implementations.
  */
 
-#ifndef SOCKSIGS_HPP
-#define SOCKSIGS_HPP
+#ifndef SOCKSIGS
+#define SOCKSIGS
 
 // default buffer size
 #ifndef BUFSIZE
@@ -28,7 +28,6 @@ private:
     bool m_server_side;
     int m_socket, m_rd_socket;
     size_t m_rd_bytes;
-    char m_buf[BUFSIZE];
     struct sockaddr_un m_addr;
 
 public:
@@ -46,7 +45,7 @@ public:
 };
 
 
-/* -------------------- SIGNALRECEIVER IMPLEMENTATIONS -------------------- */
+/* -------------------- SOCKETSIGNAL IMPLEMENTATIONS -------------------- */
 
 /*
  * Initializes the sockets, buffers and MessagePack variables
@@ -59,7 +58,7 @@ public:
  */
 inline SocketSignal::SocketSignal(int socket, bool server_side) :
     SignalIO(), m_server_side(server_side), m_socket(socket), m_rd_socket(0),
-    m_rd_bytes(0), m_buf(""), m_addr({}) {
+    m_rd_bytes(0), m_addr({}) {
     // do nothing
 }
 
@@ -121,8 +120,8 @@ inline void SocketSignal::set_addr(const std::string &addr) {
  */
 inline void SocketSignal::send() {
 
-    (m_server_side) ? write(m_rd_socket, m_data.c_str(), m_data.size()):
-    write(m_socket, m_data.c_str(), m_data.size());
+    (m_server_side) ? write(m_rd_socket, m_data->c_str(), m_data->size()) :
+    write(m_socket, m_data->c_str(), m_data->size());
 
 }
 
@@ -134,13 +133,15 @@ inline void SocketSignal::send() {
  */
 inline void SocketSignal::recv() {
 
+    auto _buf = new char[BUFSIZE];
     m_rd_bytes = static_cast<size_t>(
-        (m_server_side) ? read(m_rd_socket, m_buf, BUFSIZE) :
-        read(m_socket, m_buf, BUFSIZE));
+        (m_server_side) ? read(m_rd_socket, _buf, BUFSIZE) :
+        read(m_socket, _buf, BUFSIZE));
 
-    m_buf[m_rd_bytes] = '\0';
-    m_data = m_buf;
+    _buf[m_rd_bytes] = '\0';
+    *m_data = _buf;
+    delete[] _buf;
 
 }
 
-#endif
+#endif  // SOCKSIGS

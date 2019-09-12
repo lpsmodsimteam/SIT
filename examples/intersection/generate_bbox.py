@@ -12,10 +12,6 @@ if __name__ == "__main__":
         "module_dir": "../",
         "ipc": "sock",
         "lib_dir": "../../../../ssti/",
-        "link_desc": {
-            "link_desc0": "Traffic Light FSM data_in",
-            "link_desc1": "Traffic Light FSM data_out",
-        }
     }
 
     if sys.argv[-1] == "systemc":

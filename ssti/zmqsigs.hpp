@@ -2,8 +2,8 @@
  * ZMQSignal and ZMQTransmitter class definitions and implementations.
  */
 
-#ifndef ZMQSIGS_HPP
-#define ZMQSIGS_HPP
+#ifndef ZMQSIGS
+#define ZMQSIGS
 
 // default buffer size
 #ifndef BUFSIZE
@@ -27,7 +27,6 @@ private:
     bool m_server_side;
     zmq::socket_t &m_socket;
     zmq::message_t m_msg;
-    char m_buf[BUFSIZE]{};
 
 public:
 
@@ -74,10 +73,12 @@ inline void ZMQSignal::set_addr(const std::string &addr) {
  */
 inline void ZMQSignal::recv() {
 
+    auto _buf = new char[BUFSIZE]{};
     m_socket.recv(&m_msg);
-    memcpy(m_buf, m_msg.data(), m_msg.size());
-    m_buf[m_msg.size()] = '\0';
-    m_data = m_buf;
+    memcpy(_buf, m_msg.data(), m_msg.size());
+    _buf[m_msg.size()] = '\0';
+    *m_data = _buf;
+    delete[] _buf;
 
 }
 
@@ -86,10 +87,10 @@ inline void ZMQSignal::recv() {
  */
 inline void ZMQSignal::send() {
 
-    m_msg.rebuild(m_data.size());
-    std::memcpy(m_msg.data(), m_data.c_str(), m_data.size());
+    m_msg.rebuild(m_data->size());
+    std::memcpy(m_msg.data(), m_data->c_str(), m_data->size());
     m_socket.send(m_msg);
 
 }
 
-#endif  // ZMQSIGS_HPP
+#endif  // ZMQSIGS
