@@ -41,19 +41,12 @@ class BoilerPlate(object):
         if self.ipc == "sock":
 
             # component attributes
-            self.comp_decl = """SocketSignal m_signal_io;"""
-            self.comp_init = "m_signal_io({}),"
-            self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
+            self.sig_type = """SocketSignal"""
 
         elif self.ipc == "zmq":
 
             # component attributes
-            self.comp_decl = """zmq::context_t m_context;
-    zmq::socket_t m_socket;
-    ZMQSignal m_signal_io;"""
-            self.comp_init = """m_context(1), m_socket(m_context, ZMQ_REP),
-      m_signal_io(m_socket, {}),"""
-            self.comp_bind = "m_socket.bind(m_ipc_port.c_str())"
+            self.sig_type = """ZMQSignal"""
 
         # shared attributes
         self.sender = self.receiver = "m_signal_io"
@@ -155,9 +148,8 @@ class BoilerPlate(object):
             "lib": self.lib,
             "desc": self.desc,
             "ports": self.get_link_desc(),
-            "var_decl": self.comp_decl,
-            "var_init": self.comp_init.format(self.buf_size),
-            "var_bind": self.comp_bind,
+            "sig_type": self.sig_type,
+            "buf_size": self.buf_size,
             "sender": self.sender,
             "receiver": self.receiver,
         }

@@ -60,6 +60,7 @@ class PyRTL(BoilerPlate):
             self.driver_ipc = "socket"
             self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""
             self.send = "sendall"
+            self.connect = "connect"
 
         elif self.ipc == "zmq":
 
@@ -68,6 +69,7 @@ class PyRTL(BoilerPlate):
             self.driver_bind = """context = zmq.Context()
 _sock = context.socket(zmq.REQ)"""
             self.send = "send"
+            self.connect = "bind"
 
         self.driver_path += "_driver.py"
         self.comp_path += "_comp.cpp"
@@ -121,6 +123,7 @@ _sock = context.socket(zmq.REQ)"""
         return {
             "ipc": self.driver_ipc,
             "driver_bind": self.driver_bind,
+            "connect": self.connect,
             "send": self.send,
             "module_dir": self.module_dir,
             "module": self.module,

@@ -53,20 +53,12 @@ class SystemC(BoilerPlate):
         if self.ipc == "sock":
 
             # driver attributes
-            self.driver_decl = """// Initialize signal handlers
-    SocketSignal m_signal_io({}, false);
-    m_signal_io.set_addr(argv[1]);"""
+            self.sig_type = "SocketSignal"
 
         elif self.ipc == "zmq":
 
             # driver attributes
-            self.driver_decl = """// Socket to talk to server
-    zmq::context_t context(1);
-    zmq::socket_t socket(context, ZMQ_REQ);
-    socket.connect(argv[1]);
-
-    // Initialize signal handlers
-    ZMQSignal m_signal_io(socket, {});"""
+            self.sig_type = "ZMQSignal"
 
         self.driver_path += "_driver.cpp"
         self.comp_path += "_comp.cpp"
@@ -150,5 +142,6 @@ class SystemC(BoilerPlate):
             "bindings": self.__get_driver_bindings(),
             "sender": self.sender,
             "receiver": self.receiver,
-            "var_decl": self.driver_decl.format(self.buf_size),
+            "buf_size": self.buf_size,
+            "sig_type": self.sig_type,
         }

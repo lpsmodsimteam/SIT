@@ -34,7 +34,7 @@ public:
 private:
 
     // Prepare the signal handler
-    {var_decl}
+    {sig_type} m_signal_io;
 
     // SST parameters
     SST::Output m_output;
@@ -45,7 +45,7 @@ private:
 
 {module}::{module}(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
-      {var_init}
+      m_signal_io({buf_size}),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -78,7 +78,7 @@ void {module}::setup() {{
 
     }} else {{
 
-        {var_bind};
+        m_signal_io.set_addr(m_ipc_port);
         {receiver}.recv();
         if (child_pid == std::stoi({receiver}.get())) {{
             m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",

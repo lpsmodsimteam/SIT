@@ -21,12 +21,13 @@ private:
 
     bool m_server_side;
     int m_buf_size;
-    zmq::socket_t &m_socket;
+    zmq::context_t m_context;
+    zmq::socket_t m_socket;
     zmq::message_t m_msg;
 
 public:
 
-    explicit ZMQSignal(zmq::socket_t &, int, bool = true);
+    explicit ZMQSignal(int, bool = true);
 
     ~ZMQSignal();
 
@@ -47,10 +48,10 @@ public:
  * Arguments:
  *     num_ports -- Number of ports used in the black box interface. This number is usually 1
  *                  greater than the total number of the SystemC module ports
- *     socket -- ZeroMQ socket
  */
-inline ZMQSignal::ZMQSignal(zmq::socket_t &socket, int buf_size, bool server_side) :
-    SignalIO(), m_server_side(server_side), m_buf_size(buf_size), m_socket(socket) {
+inline ZMQSignal::ZMQSignal(int buf_size, bool server_side) :
+    SignalIO(), m_server_side(server_side), m_buf_size(buf_size),
+    m_context(1), m_socket(m_context, (m_server_side ? ZMQ_REP: ZMQ_REQ)) {
 }
 
 inline ZMQSignal::~ZMQSignal() {

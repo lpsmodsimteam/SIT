@@ -10,7 +10,7 @@ import {module}
 
 # Connect the PyRTL simulation to SST through {ipc}
 {driver_bind}
-_sock.connect(sys.argv[1])
+_sock.{connect}(sys.argv[1])
 
 _sock.{send}(str(os.getpid()).encode())
 

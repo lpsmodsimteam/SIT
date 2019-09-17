@@ -12,7 +12,9 @@ int sc_main(int, char *argv[]) {{
     // ---------- SYSTEMC UUT INIT ---------- //
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
-    {var_decl}
+    // Initialize signal handlers
+    {sig_type} m_signal_io({buf_size}, false);
+    m_signal_io.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //
