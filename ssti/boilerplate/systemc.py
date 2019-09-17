@@ -54,7 +54,7 @@ class SystemC(BoilerPlate):
 
             # driver attributes
             self.driver_decl = """// Initialize signal handlers
-    SocketSignal m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), {}, false);
+    SocketSignal m_signal_io({}, false);
     m_signal_io.set_addr(argv[1]);"""
 
         elif self.ipc == "zmq":

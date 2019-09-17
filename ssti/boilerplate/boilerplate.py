@@ -42,7 +42,7 @@ class BoilerPlate(object):
 
             # component attributes
             self.comp_decl = """SocketSignal m_signal_io;"""
-            self.comp_init = "m_signal_io(socket(AF_UNIX, SOCK_STREAM, 0), {}),"
+            self.comp_init = "m_signal_io({}),"
             self.comp_bind = "m_signal_io.set_addr(m_ipc_port)"
 
         elif self.ipc == "zmq":

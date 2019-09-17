@@ -12,8 +12,6 @@ public:
 
     void setup() override;
 
-    void finish() override;
-
     bool tick(SST::Cycle_t) {{ return false; }};
 
     void handle_event(SST::Event *);
@@ -88,12 +86,6 @@ void {module}::setup() {{
         }}
 
     }}
-
-}}
-
-void {module}::finish() {{
-
-    m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
 
 }}
 

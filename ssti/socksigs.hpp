@@ -28,7 +28,7 @@ private:
 
 public:
 
-    explicit SocketSignal(int, int, bool = true);
+    explicit SocketSignal(int, bool = true);
 
     ~SocketSignal();
 
@@ -52,8 +52,9 @@ public:
  *                                    need to set the parameter to false to set up the connection
  *                                    properly.
  */
-inline SocketSignal::SocketSignal(int socket, int buf_size, bool server_side) :
-    SignalIO(), m_server_side(server_side), m_buf_size(buf_size), m_socket(socket),
+inline SocketSignal::SocketSignal(int buf_size, bool server_side) :
+    SignalIO(), m_server_side(server_side), m_buf_size(buf_size), 
+    m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
     m_rd_socket(0), m_rd_bytes(0), m_addr({}) {
     // do nothing
 }
