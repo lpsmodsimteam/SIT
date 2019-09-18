@@ -24,6 +24,7 @@ private:
     zmq::context_t m_context;
     zmq::socket_t m_socket;
     zmq::message_t m_msg;
+    char* _buf;
 
 public:
 
@@ -52,6 +53,9 @@ public:
 inline ZMQSignal::ZMQSignal(int buf_size, bool server_side) :
     SignalIO(), m_server_side(server_side), m_buf_size(buf_size),
     m_context(1), m_socket(m_context, (m_server_side ? ZMQ_REP: ZMQ_REQ)) {
+
+    _buf = new char[m_buf_size];
+
 }
 
 inline ZMQSignal::~ZMQSignal() {
@@ -71,12 +75,10 @@ inline void ZMQSignal::set_addr(const std::string &addr) {
  */
 inline void ZMQSignal::recv() {
 
-    auto _buf = new char[m_buf_size]{};
     m_socket.recv(&m_msg);
     memcpy(_buf, m_msg.data(), m_msg.size());
     _buf[m_msg.size()] = '\0';
-    *m_data = _buf;
-    delete[] _buf;
+    m_data = _buf;
 
 }
 
@@ -85,8 +87,8 @@ inline void ZMQSignal::recv() {
  */
 inline void ZMQSignal::send() {
 
-    m_msg.rebuild(m_data->size());
-    std::memcpy(m_msg.data(), m_data->c_str(), m_data->size());
+    m_msg.rebuild(m_data.size());
+    std::memcpy(m_msg.data(), m_data.c_str(), m_data.size());
     m_socket.send(m_msg);
 
 }

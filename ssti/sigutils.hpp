@@ -22,7 +22,7 @@ protected:
 
     ~SignalIO();
 
-    std::string* m_data;
+    std::string m_data;
 
 public:
 
@@ -46,20 +46,12 @@ public:
 /*
  * Allocate the transported data on heap
  */
-inline SignalIO::SignalIO() {
-
-    m_data = new std::string;
-
-}
+inline SignalIO::SignalIO() {}
 
 /*
  * Clears the member variable containing the transported data
  */
-inline SignalIO::~SignalIO() {
-
-    delete m_data;
-
-}
+inline SignalIO::~SignalIO() {}
 
 /*
  * Assigns a new value to the member-variable std::string `m_data`.
@@ -69,7 +61,7 @@ inline SignalIO::~SignalIO() {
  */
 inline void SignalIO::set(const std::string &values) {
 
-    *m_data = values;
+    m_data = values;
 
 }
 
@@ -78,7 +70,7 @@ inline void SignalIO::set(const std::string &values) {
  */
 inline std::string SignalIO::get() {
 
-    return *m_data;
+    return m_data;
 
 }
 
@@ -102,7 +94,7 @@ inline std::string SignalIO::get() {
  */
 inline void SignalIO::set_state(bool state) {
 
-    (*m_data)[0] = state ? '1' : '0';
+    m_data[0] = state ? '1' : '0';
 
 }
 

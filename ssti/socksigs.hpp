@@ -25,6 +25,7 @@ private:
     int m_socket, m_rd_socket;
     size_t m_rd_bytes;
     struct sockaddr_un m_addr;
+    char* _buf;
 
 public:
 
@@ -56,7 +57,7 @@ inline SocketSignal::SocketSignal(int buf_size, bool server_side) :
     SignalIO(), m_server_side(server_side), m_buf_size(buf_size), 
     m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
     m_rd_socket(0), m_rd_bytes(0), m_addr({}) {
-    // do nothing
+    _buf = new char[m_buf_size];
 }
 
 /*
@@ -117,8 +118,8 @@ inline void SocketSignal::set_addr(const std::string &addr) {
  */
 inline void SocketSignal::send() {
 
-    (m_server_side) ? write(m_rd_socket, m_data->c_str(), m_data->size()) :
-    write(m_socket, m_data->c_str(), m_data->size());
+    (m_server_side) ? write(m_rd_socket, m_data.c_str(), m_data.size()) :
+    write(m_socket, m_data.c_str(), m_data.size());
 
 }
 
@@ -130,14 +131,12 @@ inline void SocketSignal::send() {
  */
 inline void SocketSignal::recv() {
 
-    auto _buf = new char[m_buf_size];
     m_rd_bytes = static_cast<size_t>(
         (m_server_side) ? read(m_rd_socket, _buf, m_buf_size) :
         read(m_socket, _buf, m_buf_size));
 
     _buf[m_rd_bytes] = '\0';
-    *m_data = _buf;
-    delete[] _buf;
+    m_data = _buf;
 
 }
 
