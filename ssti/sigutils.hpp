@@ -18,11 +18,12 @@ class SignalIO {
 
 protected:
 
-    SignalIO();
+    SignalIO(int);
 
     ~SignalIO();
 
-    std::string m_data;
+    char* m_data;
+    int m_buf_size;
 
 public:
 
@@ -46,12 +47,16 @@ public:
 /*
  * Allocate the transported data on heap
  */
-inline SignalIO::SignalIO() {}
+inline SignalIO::SignalIO(int buf_size) : m_buf_size(buf_size) {
+    m_data = new char[m_buf_size];
+}
 
 /*
  * Clears the member variable containing the transported data
  */
-inline SignalIO::~SignalIO() {}
+inline SignalIO::~SignalIO() {
+    delete[] m_data;
+}
 
 /*
  * Assigns a new value to the member-variable std::string `m_data`.
@@ -61,7 +66,7 @@ inline SignalIO::~SignalIO() {}
  */
 inline void SignalIO::set(const std::string &values) {
 
-    m_data = values;
+    snprintf(m_data, values.size() + 1, "%s", values.c_str());
 
 }
 

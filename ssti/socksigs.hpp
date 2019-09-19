@@ -21,10 +21,8 @@ private:
 
     // flag to determine the options for setting up the sockets
     bool m_server_side;
-    int m_buf_size;
     int m_socket, m_rd_socket;
     struct sockaddr_un m_addr;
-    char* _buf;
 
 public:
 
@@ -53,18 +51,15 @@ public:
  *                                    properly.
  */
 inline SocketSignal::SocketSignal(int buf_size, bool server_side) :
-    SignalIO(), m_server_side(server_side), m_buf_size(buf_size), 
+    SignalIO(buf_size), m_server_side(server_side),
     m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
-    m_rd_socket(0), m_addr({}) {
-    _buf = new char[m_buf_size];
-}
+    m_rd_socket(0), m_addr({}) {}
 
 /*
  * Unlinks and closes the sockets after use
  */
 inline SocketSignal::~SocketSignal() {
 
-    delete[] _buf;
     unlink(m_addr.sun_path);
     close(m_socket);
     close(m_rd_socket);
@@ -118,7 +113,7 @@ inline void SocketSignal::set_addr(const std::string &addr) {
  */
 inline void SocketSignal::send() {
 
-    write((m_server_side) ? m_rd_socket : m_socket, m_data.c_str(), m_data.size());
+    write((m_server_side ? m_rd_socket : m_socket), m_data, strlen(m_data));
 
 }
 
@@ -130,8 +125,7 @@ inline void SocketSignal::send() {
  */
 inline void SocketSignal::recv() {
 
-    _buf[read((m_server_side) ? m_rd_socket : m_socket, _buf, m_buf_size)] = '\0';
-    m_data = _buf;
+    m_data[read((m_server_side ? m_rd_socket : m_socket), m_data, m_buf_size)] = '\0';
 
 }
 
