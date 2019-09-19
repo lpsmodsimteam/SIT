@@ -60,6 +60,7 @@ inline ZMQSignal::ZMQSignal(int buf_size, bool server_side) :
 
 inline ZMQSignal::~ZMQSignal() {
 
+    delete[] _buf;
     m_socket.close();
 
 }
