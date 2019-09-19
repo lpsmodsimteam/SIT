@@ -32,9 +32,9 @@ public:
 
     void set_addr(const std::string &);
 
-    void recv();
+    void recv() override;
 
-    void send();
+    void send() override;
 
 };
 

@@ -22,8 +22,8 @@ protected:
 
     ~SignalIO();
 
-    char* m_data;
     int m_buf_size;
+    char* m_data;
 
 public:
 
@@ -33,7 +33,8 @@ public:
 
     void set_state(bool);
 
-    virtual void set_addr(const std::string &) = 0;
+    void set_addr(const std::string &);
+    void set_addr(const std::string &, const std::string &);
 
     virtual void recv() = 0;
 
@@ -47,15 +48,17 @@ public:
 /*
  * Allocate the transported data on heap
  */
-inline SignalIO::SignalIO(int buf_size) : m_buf_size(buf_size) {
-    m_data = new char[m_buf_size];
+inline SignalIO::SignalIO(int buf_size) : m_buf_size(buf_size), m_data(new char[m_buf_size]) {
+    // do nothing
 }
 
 /*
  * Clears the member variable containing the transported data
  */
 inline SignalIO::~SignalIO() {
+
     delete[] m_data;
+
 }
 
 /*
@@ -80,8 +83,7 @@ inline std::string SignalIO::get() {
 }
 
 /*
- * Sets the reserved index 0 in `m_data` to the specified boolean state to work alongside
- * `alive()`.
+ * Sets the reserved index 0 in `m_data` to the specified boolean state
  *
  * The reserved index itself has no special usage besides providing a high-level access for the
  * user to determine the state of the child SystemC driver process. The reserved index 0 is
@@ -90,10 +92,10 @@ inline std::string SignalIO::get() {
  * handshaking phase will cause the parent process to evaluate its child process's PID incorrectly.
  *
  * Example usages (post-handshake phases):
- *      * `signal_io.set_state(true)` (equivalent to `signal_io.set(0, true)`) enables the child
- *      driver process to continue when it evaluates `alive()` on its thread.
+ *      * `signal_io.set_state(true)` (equivalent to `m_data[0] = '1'`) enables the child
+ *      driver process to continue when it evaluates `signal_io.get()[0]` on its thread.
  *
- *      * `signal_io.set_state(false)` (equivalent to `signal_io.set(0, false)`) alerts the child
+ *      * `signal_io.set_state(false)` (equivalent to `m_data[0] = '0'`) alerts the child
  *      driver process to call all its destructors to exit gracefully before the parent process
  *      kills it.
  */

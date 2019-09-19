@@ -30,7 +30,7 @@ public:
 
     ~SocketSignal();
 
-    void set_addr(const std::string &) override;
+    void set_addr(const std::string &);
 
     void send() override;
 
@@ -109,7 +109,7 @@ inline void SocketSignal::set_addr(const std::string &addr) {
 }
 
 /*
- * Packs the buffer to MessagePack and sends the data
+ * Packs the buffer and sends the data
  */
 inline void SocketSignal::send() {
 
@@ -120,8 +120,6 @@ inline void SocketSignal::send() {
 /*
  * Receives data and unpacks the buffer
  *
- * Throws a msgpack::insufficient_bytes exception during runtime if the buffer size is
- * insufficient.
  */
 inline void SocketSignal::recv() {
 
