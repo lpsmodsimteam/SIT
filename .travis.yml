@@ -87,13 +87,6 @@ install:
   - cmake --version
   - cd ${TRAVIS_BUILD_DIR}
 
-  # install SystemC
-  - SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
-  - curl -L ${SYSC_URL}systemc-${SYSC_VER}.tar.gz | tar xz -C ${DEPS_DIR}
-  - mkdir -p ${DEPS_DIR}/systemc-${SYSC_VER}/build
-  - cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
-  - cd ${TRAVIS_BUILD_DIR}
-
   # install SST Core
   - SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
   - mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
@@ -113,15 +106,25 @@ install:
   - cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install
   - cd ${TRAVIS_BUILD_DIR}
 
-before_script:
-  - export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
+  # install SystemC
+  - SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
+  - curl -L ${SYSC_URL}systemc-${SYSC_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+  - mkdir -p ${DEPS_DIR}/systemc-${SYSC_VER}/build
+  - cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install
+  - cd ${TRAVIS_BUILD_DIR}
+
+  # install PyRTL
   - pyenv local ${ENVPY}
   - python3 -m venv .venv
   - source .venv/bin/activate
   - cd ssti
   - pip install -r boilerplate/requirements.txt
   - python3 setup.py install
-  - cd ../tests
+  - cd ${TRAVIS_BUILD_DIR}
+
+before_script:
+  - export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
+  - cd tests
 
 script:
   - make test

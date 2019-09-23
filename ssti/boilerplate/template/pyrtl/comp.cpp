@@ -66,8 +66,6 @@ private:
 
 void {module}::setup() {{
 
-    m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
-
     int child_pid = fork();
 
     if (!child_pid) {{

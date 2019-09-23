@@ -55,18 +55,6 @@ class BoilerPlate(object):
             self.bbox_dir, self.module)
         self.WIDTH_DELIM = "//"
 
-    def get_link_desc(self):
-
-        return self.sig_fmt(
-            """{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
-            lambda x: {
-                "link": self.module + x[0],
-                "desc": self.module + x[-1]
-            },
-            (("_din", " data in"), ("_dout", " data out")),
-            ",\n" + " " * 8
-        )
-
     @staticmethod
     def sig_fmt(fmt, split_func, array, delim=";\n    "):
         """Formats lists of signals based on fixed arguments
@@ -81,6 +69,18 @@ class BoilerPlate(object):
             {str} -- string formatted signals
         """
         return delim.join(fmt.format(**split_func(i)) for i in array)
+
+    def __get_link_desc(self):
+
+        return self.sig_fmt(
+            """{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
+            lambda x: {
+                "link": self.module + x[0],
+                "desc": self.module + x[-1]
+            },
+            (("_din", " data in"), ("_dout", " data out")),
+            ",\n" + " " * 8
+        )
 
     def set_ports(self, ports):
         """Assigns ports to their corresponding member lists
@@ -147,14 +147,14 @@ class BoilerPlate(object):
             "module": self.module,
             "lib": self.lib,
             "desc": self.desc,
-            "ports": self.get_link_desc(),
+            "ports": self.__get_link_desc(),
             "sig_type": self.sig_type,
             "buf_size": self.buf_size,
             "sender": self.sender,
             "receiver": self.receiver,
         }
 
-    def generate_comp(self):
+    def __generate_comp_str(self):
         """Generates the black box-model code based on methods used to format
         the template file
 
@@ -169,7 +169,7 @@ class BoilerPlate(object):
 
         raise FileNotFoundError("Component boilerplate file not found")
 
-    def generate_driver(self):
+    def __generate_driver_str(self):
         """Generates the black box-driver code based on methods used to format
         the template file
 
@@ -186,6 +186,18 @@ class BoilerPlate(object):
 
         raise FileNotFoundError("Driver boilerplate file not found")
 
+    def _generate_driver(self):
+
+        if self.driver_path:
+            with open(self.driver_path, "w") as driver_file:
+                driver_file.write(self.__generate_driver_str())
+
+    def _generate_comp(self):
+
+        if self.comp_path:
+            with open(self.comp_path, "w") as comp_file:
+                comp_file.write(self.__generate_comp_str())
+
     def generate_bbox(self):
         """Provides a high-level interface to the user to generate both the
         components of the black box and dump them to their corresponding files
@@ -196,10 +208,5 @@ class BoilerPlate(object):
         if not os.path.exists(self.bbox_dir):
             os.makedirs(self.bbox_dir)
 
-        if self.driver_path:
-            with open(self.driver_path, "w") as driver_file:
-                driver_file.write(self.generate_driver())
-
-        if self.comp_path:
-            with open(self.comp_path, "w") as comp_file:
-                comp_file.write(self.generate_comp())
+        self._generate_driver()
+        self._generate_comp()
