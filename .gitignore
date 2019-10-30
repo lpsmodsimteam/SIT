@@ -17,7 +17,6 @@ CMakeCache.txt
 __pycache__/
 .venv/
 
-msgpack/
 build/
 dist/
 *.egg-info/

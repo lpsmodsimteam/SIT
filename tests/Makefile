@@ -27,3 +27,5 @@ clean:
 	@echo "\e[1;32mRemoving black boxes and build files...\e[0m"
 	find . -name "blackboxes" -type d -exec rm -rf {} +
 	find . -name "build" -type d -exec rm -rf {} +
+	sst-register -u systemc
+	sst-register -u pyrtl
