@@ -27,18 +27,22 @@ protected:
 
 public:
 
-    void set(const std::string &);
+    /* FINAL METHODS - CANNOT BE OVERRIDDEN BY CHILD CLASS */
+    virtual void set(const std::string &) final;
 
-    std::string get();
+    virtual const std::string get() final;
 
-    void set_state(bool);
+    virtual void set_state(bool) final;
 
-    void set_addr(const std::string &);
-    void set_addr(const std::string &, const std::string &);
-
+    /* PURE VIRTUAL METHODS - MUST BE IMPLEMENTED BY CHILD CLASS */
     virtual void recv() = 0;
 
     virtual void send() = 0;
+
+    /* OVERLOADED METHODS - EXACTLY ONE MUST BE IMPLEMENTED BY CHILD CLASS */
+    void set_addr(const std::string &);
+
+    void set_addr(const std::string &, const std::string &);
 
 };
 
@@ -76,7 +80,7 @@ inline void SignalIO::set(const std::string &values) {
 /*
  * Returns the value specified by `index`. The values are casted statically as a templated type.
  */
-inline std::string SignalIO::get() {
+inline const std::string SignalIO::get() {
 
     return m_data;
 

@@ -1,5 +1,5 @@
 /*
- * ZMQSignal and ZMQTransmitter class definitions and implementations.
+ * ZMQSignal class definitions and implementations.
  */
 
 #ifndef ZMQSIGS
@@ -32,6 +32,8 @@ public:
 
     void set_addr(const std::string &);
 
+    void set_addr(const std::string &, const std::string &) = delete;
+
     void recv() override;
 
     void send() override;
@@ -62,10 +64,11 @@ inline ZMQSignal::~ZMQSignal() {
 inline void ZMQSignal::set_addr(const std::string &addr) {
 
     (m_server_side) ? m_socket.connect(addr) : m_socket.bind(addr);
+
 }
 
 /*
- * Receives data and unpacks the buffer to MessagePack
+ * Receives data and unpacks the buffer
  */
 inline void ZMQSignal::recv() {
 
@@ -76,7 +79,7 @@ inline void ZMQSignal::recv() {
 }
 
 /*
- * Packs the buffer to MessagePack and sends the data
+ * Packs the buffer and sends the data
  */
 inline void ZMQSignal::send() {
 

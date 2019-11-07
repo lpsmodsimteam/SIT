@@ -32,6 +32,8 @@ public:
 
     void set_addr(const std::string &);
 
+    void set_addr(const std::string &, const std::string &) = delete;
+
     void send() override;
 
     void recv() override;
@@ -119,7 +121,6 @@ inline void SocketSignal::send() {
 
 /*
  * Receives data and unpacks the buffer
- *
  */
 inline void SocketSignal::recv() {
 
