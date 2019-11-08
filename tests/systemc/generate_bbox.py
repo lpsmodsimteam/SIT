@@ -6,7 +6,6 @@ import sys
 from boilerplate import SystemC
 
 if __name__ == "__main__":
-
     boilerplate_obj = SystemC(
         module="ram",
         lib="tests",

@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
 from random import SystemRandom
 from string import ascii_uppercase, digits
-import os
 
 import sst
 

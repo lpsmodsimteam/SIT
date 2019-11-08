@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import pyrtl
+
 pyrtl.set_debug_mode(debug=True)
 
 DATA_WIDTH = 8

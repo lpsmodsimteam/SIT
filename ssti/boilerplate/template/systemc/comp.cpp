@@ -1,118 +1,130 @@
-#include "{lib_dir}ssti.hpp"
-
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
-class {module} : public SST::Component {{
+#include "{lib_dir}ssti.hpp"
 
-public:
+class {
+    module
+} : public SST::Component{{
 
-    {module}(SST::ComponentId_t, SST::Params &);
+    public :
 
-    void setup() override;
+        {module}(SST::ComponentId_t, SST::Params &);
 
-    bool tick(SST::Cycle_t) {{ return false; }};
+void setup() override;
 
-    void handle_event(SST::Event *);
+bool tick(SST::Cycle_t){{return false;
+}
+}
+;
 
-    // Register the component
-    SST_ELI_REGISTER_COMPONENT(
-        {module}, // class
-        "{lib}", // element library
-        "{module}", // component
-        SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "{desc}",
-        COMPONENT_CATEGORY_UNCATEGORIZED
-    )
+void handle_event(SST::Event *);
 
-    // Port name, description, event type
-    SST_ELI_DOCUMENT_PORTS(
-        {ports}
-    )
+// Register the component
+SST_ELI_REGISTER_COMPONENT({module},    // class
+                           "{lib}",     // element library
+                           "{module}",  // component
+                           SST_ELI_ELEMENT_VERSION(1, 0, 0), "{desc}",
+                           COMPONENT_CATEGORY_UNCATEGORIZED)
+
+// Port name, description, event type
+SST_ELI_DOCUMENT_PORTS({ports})
 
 private:
+// Prepare the signal handler
+{sig_type} m_signal_io;
 
-    // Prepare the signal handler
-    {sig_type} m_signal_io;
+// SST parameters
+SST::Output m_output;
+std::string m_clock, m_proc, m_ipc_port;
+SST::Link *m_din_link, *m_dout_link;
+}
+}
+;
 
-    // SST parameters
-    SST::Output m_output;
-    std::string m_clock, m_proc, m_ipc_port;
-    SST::Link *m_din_link, *m_dout_link;
-
-}};
-
-{module}::{module}(SST::ComponentId_t id, SST::Params &params)
+{ module }
+::{module}(SST::ComponentId_t id, SST::Params &params)
     : SST::Component(id),
       m_signal_io({buf_size}),
       m_clock(params.find<std::string>("clock", "")),
       m_proc(params.find<std::string>("proc", "")),
       m_ipc_port(params.find<std::string>("ipc_port", "")),
-      m_din_link(configureLink(
-          "{module}_din", new SST::Event::Handler<{module}>(this, &{module}::handle_event)
-      )),
-      m_dout_link(configureLink("{module}_dout")) {{
+      m_din_link(configureLink("{module}_din", new SST::Event::Handler<{module}>(
+                                                   this, &{ module } ::handle_event))),
+      m_dout_link(configureLink("{module}_dout")) {
+    {
+        m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
+        registerClock(m_clock, new SST::Clock::Handler<{module}>(
+                                   this, &{ module } ::tick));
 
-    registerClock(m_clock, new SST::Clock::Handler<{module}>(this, &{module}::tick));
+        if (!(m_din_link && m_dout_link)) {
+            {
+                m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
+            }
+        }
+    }
+}
 
-    if (!(m_din_link && m_dout_link)) {{
-        m_output.fatal(CALL_INFO, -1, "Failed to configure port\n");
-    }}
+void { module }
+::setup() {
+    {
+        int child_pid = fork();
 
-}}
+        if (!child_pid) {
+            {
+                char *args[] = {{&m_proc[0u], &m_ipc_port[0u], nullptr}};
+                m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str());
+                execvp(args[0], args);
+            }
+        } else {
+            {
+                m_signal_io.set_addr(m_ipc_port);
+                {receiver}.recv();
+                if (child_pid == std::stoi({receiver}.get())) {
+                    {
+                        m_output.verbose(CALL_INFO, 1, 0,
+                                         "Process \"%s\" successfully synchronized\n",
+                                         m_proc.c_str());
+                    }
+                }
+            }
+        }
+    }
+}
 
-void {module}::setup() {{
+void { module }
+::handle_event(SST::Event *ev) {
+    {
+        auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
-    int child_pid = fork();
+        if (se) {
+            {
+                std::string _data_in = se->getString();
+                bool keep_send = _data_in[0] != '0';
+                bool keep_recv = _data_in[1] != '0';
+                _data_in = 'X' + _data_in.substr(2);
 
-    if (!child_pid) {{
+                // inputs from parent SST model, outputs to SystemC child process
+                {sender}.set(_data_in);
 
-        char *args[] = {{&m_proc[0u], &m_ipc_port[0u], nullptr}};
-        m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str());
-        execvp(args[0], args);
+                if (keep_send) {
+                    {
+                        {sender}.set_state(keep_recv);
+                        {sender}.send();
+                    }
+                }
+                if (keep_recv) {
+                    {
+                        {receiver}.recv();
+                    }
+                }
 
-    }} else {{
-
-        m_signal_io.set_addr(m_ipc_port);
-        {receiver}.recv();
-        if (child_pid == std::stoi({receiver}.get())) {{
-            m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
-                             m_proc.c_str());
-        }}
-
-    }}
-
-}}
-
-void {module}::handle_event(SST::Event *ev) {{
-
-    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-
-    if (se) {{
-
-        std::string _data_in = se->getString();
-        bool keep_send = _data_in[0] != '0';
-        bool keep_recv = _data_in[1] != '0';
-        _data_in = 'X' + _data_in.substr(2);
-
-        // inputs from parent SST model, outputs to SystemC child process
-        {sender}.set(_data_in);
-
-        if (keep_send) {{
-            {sender}.set_state(keep_recv);
-            {sender}.send();
-        }}
-        if (keep_recv) {{
-            {receiver}.recv();
-        }}
-
-        // inputs to parent SST model, outputs from SystemC child process
-        std::string _data_out = {receiver}.get();
-        m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
-
-    }}
-
-}}
+                // inputs to parent SST model, outputs from SystemC child process
+                std::string _data_out = {receiver}.get();
+                m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
+            }
+        }
+    }
+}

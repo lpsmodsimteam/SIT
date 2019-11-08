@@ -15,12 +15,12 @@ setup(
     },
     data_files=[
         ("boilerplate/template/pyrtl",
-            ["boilerplate/template/pyrtl/driver.py",
-             "boilerplate/template/pyrtl/comp.cpp"]
+         ["boilerplate/template/pyrtl/driver.py",
+          "boilerplate/template/pyrtl/comp.cpp"]
          ),
         ("boilerplate/template/systemc",
-            ["boilerplate/template/systemc/driver.cpp",
-             "boilerplate/template/systemc/comp.cpp"]
+         ["boilerplate/template/systemc/driver.cpp",
+          "boilerplate/template/systemc/comp.cpp"]
          )
     ],
 )

@@ -5,10 +5,10 @@
 #ifndef SOCKSIGS
 #define SOCKSIGS
 
-#include "sigutils.hpp"
-
 #include <sys/socket.h>
 #include <sys/un.h>
+
+#include "sigutils.hpp"
 
 /*
  * Implements methods to receive signals via UNIX domain sockets.
@@ -16,16 +16,13 @@
  * This class inherits the abstract sigutils::SignalIO base class.
  */
 class SocketSignal : public SignalIO {
-
-private:
-
+   private:
     // flag to determine the options for setting up the sockets
     bool m_server_side;
     int m_socket, m_rd_socket;
     struct sockaddr_un m_addr;
 
-public:
-
+   public:
     explicit SocketSignal(int, bool = true);
 
     ~SocketSignal();
@@ -37,9 +34,7 @@ public:
     void send() override;
 
     void recv() override;
-
 };
-
 
 /* -------------------- SOCKETSIGNAL IMPLEMENTATIONS -------------------- */
 
@@ -52,20 +47,20 @@ public:
  *                                    need to set the parameter to false to set up the connection
  *                                    properly.
  */
-inline SocketSignal::SocketSignal(int buf_size, bool server_side) :
-    SignalIO(buf_size), m_server_side(server_side),
-    m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
-    m_rd_socket(0), m_addr({}) {}
+inline SocketSignal::SocketSignal(int buf_size, bool server_side)
+    : SignalIO(buf_size),
+      m_server_side(server_side),
+      m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
+      m_rd_socket(0),
+      m_addr({}) {}
 
 /*
  * Unlinks and closes the sockets after use
  */
 inline SocketSignal::~SocketSignal() {
-
     unlink(m_addr.sun_path);
     close(m_socket);
     close(m_rd_socket);
-
 }
 
 /*
@@ -75,7 +70,6 @@ inline SocketSignal::~SocketSignal() {
  *     addr -- Unix domain socket address
  */
 inline void SocketSignal::set_addr(const std::string &addr) {
-
     if (m_socket < 0) {
         perror("Socket creation\n");
     }
@@ -86,8 +80,7 @@ inline void SocketSignal::set_addr(const std::string &addr) {
 
     // parent process socket options
     if (m_server_side) {
-
-        if (bind(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
+        if (bind(m_socket, (struct sockaddr *)&m_addr, sizeof(m_addr)) < 0) {
             perror("Bind failed\n");
         }
 
@@ -96,36 +89,30 @@ inline void SocketSignal::set_addr(const std::string &addr) {
         }
 
         socklen_t addr_len = sizeof(m_addr);
-        if ((m_rd_socket = accept(m_socket, (struct sockaddr *) &m_addr, &addr_len)) < 0) {
+        if ((m_rd_socket = accept(m_socket, (struct sockaddr *)&m_addr, &addr_len)) < 0) {
             perror("Accept failed\n");
         }
 
     } else {  // child process socket options
 
-        if (connect(m_socket, (struct sockaddr *) &m_addr, sizeof(m_addr)) < 0) {
+        if (connect(m_socket, (struct sockaddr *)&m_addr, sizeof(m_addr)) < 0) {
             perror("Connection failed\n");
         }
-
     }
-
 }
 
 /*
  * Packs the buffer and sends the data
  */
 inline void SocketSignal::send() {
-
     write((m_server_side ? m_rd_socket : m_socket), m_data, strlen(m_data));
-
 }
 
 /*
  * Receives data and unpacks the buffer
  */
 inline void SocketSignal::recv() {
-
     m_data[read((m_server_side ? m_rd_socket : m_socket), m_data, m_buf_size)] = '\0';
-
 }
 
 #endif  // SOCKSIGS

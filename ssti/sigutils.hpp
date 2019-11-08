@@ -5,28 +5,26 @@
 #ifndef SIGUTILS
 #define SIGUTILS
 
-#include <sstream>
 #include <unistd.h>
+
+#include <sstream>
 
 /*
  * Implements methods for setting and getting data being transferred via the preferred IPC.
- * 
+ *
  * This class is implicitly-abstract and needs to be inherited by a class that implements a
  * supported interprocess communication (IPC) protocol.
-*/
+ */
 class SignalIO {
-
-protected:
-
+   protected:
     SignalIO(int);
 
     ~SignalIO();
 
     int m_buf_size;
-    char* m_data;
+    char *m_data;
 
-public:
-
+   public:
     /* FINAL METHODS - CANNOT BE OVERRIDDEN BY CHILD CLASS */
     virtual void set(const std::string &) final;
 
@@ -43,9 +41,7 @@ public:
     void set_addr(const std::string &);
 
     void set_addr(const std::string &, const std::string &);
-
 };
-
 
 /* -------------------- SIGNALIO IMPLEMENTATIONS -------------------- */
 
@@ -59,11 +55,7 @@ inline SignalIO::SignalIO(int buf_size) : m_buf_size(buf_size), m_data(new char[
 /*
  * Clears the member variable containing the transported data
  */
-inline SignalIO::~SignalIO() {
-
-    delete[] m_data;
-
-}
+inline SignalIO::~SignalIO() { delete[] m_data; }
 
 /*
  * Assigns a new value to the member-variable std::string `m_data`.
@@ -72,19 +64,13 @@ inline SignalIO::~SignalIO() {
  *     values -- values of the transport data
  */
 inline void SignalIO::set(const std::string &values) {
-
     snprintf(m_data, values.size() + 1, "%s", values.c_str());
-
 }
 
 /*
  * Returns the value specified by `index`. The values are casted statically as a templated type.
  */
-inline const std::string SignalIO::get() {
-
-    return m_data;
-
-}
+inline const std::string SignalIO::get() { return m_data; }
 
 /*
  * Sets the reserved index 0 in `m_data` to the specified boolean state
@@ -103,10 +89,6 @@ inline const std::string SignalIO::get() {
  *      driver process to call all its destructors to exit gracefully before the parent process
  *      kills it.
  */
-inline void SignalIO::set_state(bool state) {
-
-    m_data[0] = state ? '1' : '0';
-
-}
+inline void SignalIO::set_state(bool state) { m_data[0] = state ? '1' : '0'; }
 
 #endif  // SIGUTILS
