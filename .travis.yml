@@ -25,6 +25,12 @@ matrix:
         - _CXX=clang++-8
         - _PKG="deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main"
 
+    # Clang 9
+    - name: "Clang 9"
+      env:
+        - _CXX=clang++-9
+        - _PKG="deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main"
+
     # --------------- GCC on Linux --------------- #
 
     # GCC 6
