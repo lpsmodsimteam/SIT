@@ -3,23 +3,18 @@
 
 import os
 
-import
-
-{ipc}
+import os
+import {ipc}
 import sys
 
 {module_dir}
-import
-
-{module}
+import {module}
 
 # Connect the PyRTL simulation to SST through {ipc}
 {driver_bind}
-_sock.
-{connect}(sys.argv[1])
+_sock.{connect}(sys.argv[1])
 
-_sock.
-{send}(str(os.getpid()).encode())
+_sock.{send}(str(os.getpid()).encode())
 
 while True:
     signal = str(_sock.recv({buf_size}).decode("utf-8"))
@@ -31,5 +26,4 @@ while True:
         {inputs}
     }})
     _outputs = {outputs}
-    _sock.
-    {send}(_outputs)
+    _sock.{send}(_outputs)
