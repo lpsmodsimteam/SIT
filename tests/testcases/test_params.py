@@ -38,8 +38,7 @@ def setup(hdl, ipc, comp):
     if hdl == "systemc":
         proc = os.path.join(BASE_PATH, "ram.o")
     elif hdl == "pyrtl":
-        proc = os.path.join(os.path.dirname(os.path.dirname(BASE_PATH)), ipc,
-                            "blackboxes", "ram_driver.py")
+        proc = os.path.join(os.path.dirname(BASE_PATH), ipc, "blackboxes", "ram_driver.py")
     else:
         raise NotImplementedError()
     ram_comp.addParams({

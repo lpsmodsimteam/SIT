@@ -11,6 +11,7 @@ find_package(SystemCLanguage CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
 
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 if ("${IPC}" STREQUAL "SOCK")
     add_subdirectory(sock)
 elseif ("${IPC}" STREQUAL "ZMQ")

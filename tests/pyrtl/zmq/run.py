@@ -3,7 +3,7 @@
 
 import sys
 
-sys.path.append("../../../testcases")
+sys.path.append("../../testcases")
 from test_params import setup
 
 setup("pyrtl", "zmq", "unit")

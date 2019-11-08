@@ -1,31 +1,40 @@
 MAKEFLAGS += --no-print-directory
-IPC ?= all
+BASE_DIR = $(CURDIR)
+
+HDL_LIST = systemc pyrtl
+IPC = sock zmq
 
 .PHONY: test
-test:
-	$(MAKE) systemc clean
-	$(MAKE) pyrtl clean
+test: $(HDL_LIST)
 
-.PHONY: systemc
-systemc:
-	@echo "\e[1;32mRunning SystemC tests...\e[0m"
-	mkdir -p systemc/build
-	cd systemc && $(MAKE) ${IPC}
 
-.PHONY: pyrtl
-pyrtl:
-	@echo "\e[1;32mRunning PyRTL tests...\e[0m"
-	mkdir -p pyrtl/build
-	cd pyrtl && $(MAKE) ${IPC}
+.PHONY: $(HDL_LIST)
+$(HDL_LIST):
+	${MAKE} $(IPC) HDL=$@
+
+
+.PHONY: $(IPC)
+.ONESHELL:
+$(IPC):
+	@echo "\e[1;34mRunning $(HDL) tests...\e[0m"
+	cd $(HDL)
+	mkdir -p build
+	@echo "\e[1;34mUsing IPC: $@...\e[0m"
+	mkdir -p $@/blackboxes && mkdir -p common/blackboxes
+	python generate_bbox.py $@
+	mv blackboxes/* $@/blackboxes
+	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=$(shell echo $@ | tr a-z A-Z) .. && $(MAKE)
+	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
+	sst ../$@/run.py
+	python ../../read_mem.py memory_dump.txt
+
 
 .PHONY: clean
+# unregister SST components and remove all compiled objects and cached files
 clean:
-	# remove all compiled objects and cached files
+	@$(foreach hdl, $(HDL_LIST), echo "\e[1;32mUnregistering $(hdl) components...\e[0m"; sst-register -u $(hdl);)
 	@echo "\e[1;32mRemoving cached files...\e[0m"
 	find . -name "*.pyc" -type f -delete
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +
 	@echo "\e[1;32mRemoving black boxes and build files...\e[0m"
-	find . -name "blackboxes" -type d -exec rm -rf {} +
-	find . -name "build" -type d -exec rm -rf {} +
-	sst-register -u systemc
-	sst-register -u pyrtl
+	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +
