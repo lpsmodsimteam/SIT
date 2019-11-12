@@ -6,4 +6,3 @@ target_link_libraries(ram.o SystemC::systemc)
 
 add_executable(libtests.so ../../testcases/unit.cpp blackboxes/ram_comp.cpp)
 _sst_compile_link(libtests.so)
-message(${CMAKE_BINARY_DIR})

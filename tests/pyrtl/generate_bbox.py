@@ -6,6 +6,7 @@ import sys
 from boilerplate import PyRTL
 
 if __name__ == "__main__":
+
     boilerplate_obj = PyRTL(
         module="ram",
         lib="tests",
