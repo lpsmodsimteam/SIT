@@ -37,7 +37,7 @@ $(IPC):
 	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=$(shell echo $@ | tr a-z A-Z) .. && $(MAKE)
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
 	sst ../$@/run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
-	python ../../read_mem.py memory_dump.txt && $(call secho,"TEST PASSED") || $(call eecho,"TEST FAILED")
+	python ../../read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $@") || $(call eecho,"FAILED: $(HDL) using $@")
 
 
 .PHONY: clean

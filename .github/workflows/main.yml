@@ -1,0 +1,140 @@
+name: SSTI CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        _name:
+          - Clang 7
+          - Clang 8
+          - Clang 9
+          - GCC 7
+          - GCC 8
+          - GCC 9
+
+        include:
+
+          # --------------- Clang on Linux --------------- #
+
+          # Clang 7
+          - _name: "Clang 7"
+            _cxx: clang++-7
+            _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-7 main"
+
+          # Clang 8
+          - _name: "Clang 8"
+            _cxx: clang++-8
+            _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main"
+
+          # Clang 9
+          - _name: "Clang 9"
+            _cxx: clang++-9
+            _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main"
+
+          # --------------- GCC on Linux --------------- #
+
+          # GCC 7
+          - _name: "GCC 7"
+            _cxx: g++-7
+            _pkg: ppa:ubuntu-toolchain-r/test
+
+          # GCC 8
+          - _name: "GCC 8"
+            _cxx: g++-8
+            _pkg: ppa:ubuntu-toolchain-r/test
+
+          # GCC 9
+          - _name: "GCC 9"
+            _cxx: g++-9
+            _pkg: ppa:ubuntu-toolchain-r/test
+
+    steps:
+
+      - uses: actions/checkout@v1
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.x
+          architecture: x64
+
+      - name: ${{ matrix._name }}
+        env:
+          _CXX: ${{ matrix._cxx }}
+          _PKG: ${{ matrix._pkg }}
+        run: |
+          # set the maximum number of cores supported on GitHub dockers
+          JOBS=$(nproc --all)
+          echo "Using ${JOBS} processors"
+
+          # set versions for requirements
+          CMAKE_VER="3.15.5"
+          SYSC_VER="2.3.3"
+          SST_VER="9.0.0"
+          LIBZMQ_VER="4.3.1"
+          CPPZMQ_VER="4.3.0"
+
+          # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
+          DEPS_DIR="deps"
+          mkdir -p "${DEPS_DIR}"
+
+          # add LLVM public keys for Clang compilers
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
+
+          # set the proper C++ compiler
+          sudo add-apt-repository "${_PKG}" -y
+          sudo apt install ${_CXX} -y
+          export CXX=${_CXX}
+          export OMPI_CXX=${_CXX}
+
+          # install necessary packages
+          sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
+
+          # curl sources
+          CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
+          curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
+
+          SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+          mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
+          curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+
+          SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
+          curl -L ${SYSC_URL}systemc-${SYSC_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+          mkdir -p ${DEPS_DIR}/systemc-${SYSC_VER}/build
+
+          libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
+          cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
+          curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
+          curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
+          mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
+          mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
+
+          # upgrade CMake to a more recent version
+          export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
+          cmake --version
+
+          # install SST Core
+          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install && cd -
+
+          # install zmq
+          cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install && cd -
+          cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install && cd -
+
+          # install SystemC
+          cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install && cd -
+
+          # install PyRTL
+          python -m venv .venv
+          source .venv/bin/activate
+          cd ssti
+          pip install -r boilerplate/requirements.txt
+          python setup.py install
+
+          # run tests
+          export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
+          cd ../tests
+          make test
