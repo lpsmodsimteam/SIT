@@ -1,4 +1,4 @@
-name: SSTI CI
+name: Continuous Integration
 
 on: [push]
 
