@@ -61,7 +61,7 @@ inline void ZMQSignal::set_addr(const std::string &addr) {
  * Receives data and unpacks the buffer
  */
 inline void ZMQSignal::recv() {
-    m_socket.recv(&m_msg);
+    m_socket.recv(m_msg, zmq::recv_flags::none);
     memcpy(m_data, m_msg.data(), m_msg.size());
     m_data[m_msg.size()] = '\0';
 }
@@ -72,7 +72,7 @@ inline void ZMQSignal::recv() {
 inline void ZMQSignal::send() {
     m_msg.rebuild(strlen(m_data));
     std::memcpy(m_msg.data(), m_data, strlen(m_data));
-    m_socket.send(m_msg);
+    m_socket.send(m_msg, zmq::send_flags::none);
 }
 
 #endif  // ZMQSIGS

@@ -17,7 +17,7 @@
  */
 class SignalIO {
    protected:
-    SignalIO(int);
+    explicit SignalIO(int);
 
     ~SignalIO();
 
@@ -28,7 +28,7 @@ class SignalIO {
     /* FINAL METHODS - CANNOT BE OVERRIDDEN BY CHILD CLASS */
     virtual void set(const std::string &) final;
 
-    virtual const std::string get() final;
+    virtual std::string get() final;
 
     virtual void set_state(bool) final;
 
@@ -70,7 +70,7 @@ inline void SignalIO::set(const std::string &values) {
 /*
  * Returns the value specified by `index`. The values are casted statically as a templated type.
  */
-inline const std::string SignalIO::get() { return m_data; }
+inline std::string SignalIO::get() { return m_data; }
 
 /*
  * Sets the reserved index 0 in `m_data` to the specified boolean state
