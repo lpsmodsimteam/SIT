@@ -71,13 +71,6 @@ jobs:
           JOBS=$(nproc --all)
           echo "Using ${JOBS} processors"
 
-          # set versions for requirements
-          CMAKE_VER="3.15.5"
-          SYSC_VER="2.3.3"
-          SST_VER="9.0.0"
-          LIBZMQ_VER="4.3.1"
-          CPPZMQ_VER="4.3.0"
-
           # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
           DEPS_DIR="deps"
           mkdir -p "${DEPS_DIR}"
@@ -85,7 +78,7 @@ jobs:
           # add LLVM public keys for Clang compilers
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
 
-          # set the proper C++ compiler
+          # set the proper C++ and MPI compilers
           sudo add-apt-repository "${_PKG}" -y
           sudo apt install ${_CXX} -y
           export CXX=${_CXX}
@@ -94,20 +87,34 @@ jobs:
           # install necessary packages
           sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
 
-          # curl sources
+          # set versions and URLs for requirements
+          CMAKE_VER="3.15.5"
           CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
+
+          SYSC_VER="2.3.3"
+          SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
+
+          SST_VER="9.1.0"
+          SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+
+          LIBZMQ_VER="4.3.2"
+          CPPZMQ_VER="4.5.0"
+          libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
+          cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
+
+          # download sources for requirements
+          # curl CMake
           curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
 
-          SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
-          mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
+          # curl SST Core
           curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+          mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
 
-          SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
+          # curl SystemC
           curl -L ${SYSC_URL}systemc-${SYSC_VER}.tar.gz | tar xz -C ${DEPS_DIR}
           mkdir -p ${DEPS_DIR}/systemc-${SYSC_VER}/build
 
-          libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
-          cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
+          # curl zmq
           curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
           curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
           mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
