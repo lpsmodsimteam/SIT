@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
+import os
 from setuptools import setup
 
 setup(
     name="bboxgen",
-    version="1.0",
+    version=os.environ["SSTIT_VERSION"],
     description="SST Interoperable Boilerplate Black Box Generator",
     author="Sabbir Ahmed",
     author_email="ahmed_sabbir@bah.com",
@@ -15,12 +16,12 @@ setup(
     },
     data_files=[
         ("boilerplate/template/pyrtl",
-         ["boilerplate/template/pyrtl/driver.py",
-          "boilerplate/template/pyrtl/comp.cpp"]
+         ["boilerplate/template/pyrtl/driver",
+          "boilerplate/template/pyrtl/comp"]
          ),
         ("boilerplate/template/systemc",
-         ["boilerplate/template/systemc/driver.cpp",
-          "boilerplate/template/systemc/comp.cpp"]
+         ["boilerplate/template/systemc/driver",
+          "boilerplate/template/systemc/comp"]
          )
     ],
 )

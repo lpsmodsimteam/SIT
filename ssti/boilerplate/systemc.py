@@ -35,9 +35,9 @@ class SystemC(BoilerPlate):
         templ_path = os.path.join(
             os.path.dirname(__file__), "template", "systemc")
         if not drvr_templ_path:
-            drvr_templ_path = os.path.join(templ_path, "driver.cpp")
+            drvr_templ_path = os.path.join(templ_path, "driver")
         if not comp_templ_path:
-            comp_templ_path = os.path.join(templ_path, "comp.cpp")
+            comp_templ_path = os.path.join(templ_path, "comp")
 
         super().__init__(
             module=module,
