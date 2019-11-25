@@ -26,7 +26,7 @@ demo_obj.set_ports((
 )).generate_bbox()
 ```
 
-Running the script `python3 generate_bbox.py` will generate the boilerplate code necessary to
+Running the script `python generate_bbox.py` will generate the boilerplate code necessary to
 establish interoperability between the black box components of `demo`.
 
 ## Installation

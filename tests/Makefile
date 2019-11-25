@@ -44,8 +44,8 @@ $(IPC):
 # unregister SST components and remove all compiled objects and cached files
 clean:
 	@$(foreach hdl, $(HDL_LIST), $(call iecho,"Unregistering $(hdl) components..."); sst-register -u $(hdl);)
-	@$(call secho,"Removing cached files...")
+	@$(call iecho,"Removing cached files...")
 	find . -name "*.pyc" -type f -delete
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +
-	@$(call secho,"Removing black boxes and build files...")
+	@$(call iecho,"Removing black boxes and build files...")
 	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +

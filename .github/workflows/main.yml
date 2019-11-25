@@ -139,6 +139,7 @@ jobs:
           source .venv/bin/activate
           cd ssti
           pip install -r boilerplate/requirements.txt
+          source version
           python setup.py install
 
           # run tests

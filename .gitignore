@@ -1,5 +1,7 @@
-# CLion cache
+# dev files
 .idea/
+.clang-format
+apply-format
 
 # CMake
 cmake-build-*/
@@ -17,6 +19,7 @@ CMakeCache.txt
 __pycache__/
 .venv/
 
+# generated files and executables
 build/
 dist/
 *.egg-info/

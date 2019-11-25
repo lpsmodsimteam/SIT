@@ -1,3 +1,3 @@
 #! /bin/sh
 
-export SSTIT_VERSION="0.9.0-rc0"
+export SSTI_VERSION="0.9.0rc0"

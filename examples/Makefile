@@ -1,27 +1,35 @@
 MAKEFLAGS += --no-print-directory
-_CXX ?= /usr/bin/clang++
 
-.PHONY: generate
-generate:
-	python3 intersection/generate_bbox.py ${HDL}
-	mv blackboxes intersection/${HDL}
+define iecho
+	echo "\e[1;34m$1\e[0m"
+endef
+
+define eecho
+	echo "\e[1;31m$1\e[0m"
+endef
 
 .PHONY: intersection
+.ONESHELL:
 intersection:
-	@echo "\e[1;32mRunning intersection...\e[0m"
-	$(MAKE) generate HDL=systemc
-	$(MAKE) generate HDL=pyrtl
-	mkdir -p intersection/build
-	cd intersection/build && cmake -DCMAKE_CXX_COMPILER=${_CXX} .. && $(MAKE)
-	sst-register intersection intersection_LIBDIR=$(CURDIR)/build
-	cd intersection/build && sst ../run.py
+	@$(call iecho,"Generating files for intersection...")
+	cd $@
+	mkdir -p build
+	python generate_bbox.py systemc
+	mv blackboxes systemc
+	python generate_bbox.py pyrtl
+	mv blackboxes pyrtl
+	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} .. && $(MAKE)
+	sst-register intersection intersection_LIBDIR=$(CURDIR)
+	@$(call iecho,"Running intersection simulation...")
+	sst ../run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
 
 .PHONY: clean
+# unregister SST components and remove all compiled objects and cached files
 clean:
-	# remove all compiled objects and cached files
-	@echo "\e[1;32mRemoving cached files...\e[0m"
+	@$(call iecho,"Unregistering components...")
+	sst-register -u intersection
+	@$(call iecho,"Removing cached files...")
 	find . -name "*.pyc" -type f -delete
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +
-	@echo "\e[1;32mRemoving black boxes and build files...\e[0m"
-	find . -name "blackboxes" -type d -exec rm -rf {} +
-	find . -name "build" -type d -exec rm -rf {} +
+	@$(call iecho,"Removing black boxes and build files...")
+	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +

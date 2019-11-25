@@ -5,7 +5,7 @@ from setuptools import setup
 
 setup(
     name="bboxgen",
-    version=os.environ["SSTIT_VERSION"],
+    version=os.environ["SSTI_VERSION"],
     description="SST Interoperable Boilerplate Black Box Generator",
     author="Sabbir Ahmed",
     author_email="ahmed_sabbir@bah.com",

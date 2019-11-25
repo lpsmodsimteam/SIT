@@ -1,9 +1,13 @@
-# SST Interoperable
+# SST Interoperability Toolkit
 ![](https://github.com/sabbirahm3d/ssti/workflows/continuous%20integration/badge.svg)
 
 A toolkit to provide interoperability between [Structural Simulation Toolkit (SST)](https://github.com/sstsimulator/sst-core) and external hardware description languages (HDL).
 
-For interoperability with specific hardware description/ hardware-level modeling languages, see their corresponding README:
+___Note__: For the sake of simplicity and consistency in the nomenclature, the languages, toolkits or libraries in the following categories will be simply labeled as HDLs:_
+- _hardware description languages (SystemVerilog, Verilog, VHDL, etc.)_
+- _hardware level modeling languages (Chisel, PyRTL, SystemC, etc.)_
+
+For interoperability with supported HDLs, see their corresponding README:
 - [PyRTL](/docs/pyrtl.md)
 - [SystemC](/docs/systemc.md)
 
@@ -11,13 +15,16 @@ For interoperability with specific hardware description/ hardware-level modeling
 
 - [Usage](#usage)
   - [Black Box Code Generation](#black-box-code-generation)
+  - [Architecture](#architecture)
   - [Tests](#tests)
 - [Installation](#installation)
+  - [boilerplate](#boilerplate)
   - [CMake](#cmake)
   - [SST Core](#sst-core)
 - [Requirements](#requirements)
   - [Languages, Compilers and Libraries](#languages,-compilers-and-libraries)
   - [Systems](#systems)
+
 
 ## Usage
 
@@ -28,6 +35,8 @@ HDL driver must be generated. The black box establishes the configurations requi
 interprocess communication (IPC) between the SST and the external HDL processes.
 
 The Python module `boilerplate` can be used to generate the black boxes.
+
+### Architecture
 
 The following is the directory structure of an example component `demo` using CMake.
 
@@ -43,7 +52,6 @@ demo/                     # project directory
 ├── CMakeLists.txt        # local CMakeLists for demo
 ├── tests/                # SST Python scripts
 │   └── run.py            # sample SST Python scripts
-├── Makefile              # local Makefile
 ├── .                     # other files
 │   .
 │   .
@@ -102,7 +110,7 @@ void demo::handle_event(SST::Event *ev) {
 ```
 
 Once the SST Links are established between the black box interface and the parent component, the
-project should be ready to interface the PyRTL process.
+project should be ready to interface the HDL process.
 
 ### Tests
 
@@ -112,6 +120,15 @@ Simple unit tests can be ran by the Makefile in the `tests` directory.
 
 The toolkit itself is a collection of static header files that does not require any installation.
 The requirements for the project are listed below.
+
+### boilerplate
+
+The `boilerplate` module can be installed locally by running the following command:
+```shell
+cd ssti && python setup.py install
+```
+
+See [Black Box Code Generation](#black-box-code-generation) for its purposes.
 
 ### CMake
 
@@ -162,4 +179,4 @@ project.
 ### Systems
 
 Due to limitations with SST, this toolkit currently only works on UNIX systems. A list of supported
-Ubuntu Linux distributions can be found in `.travis.yml`.
+Ubuntu Linux distributions can be found in `.github/workflows/main.yml`.
