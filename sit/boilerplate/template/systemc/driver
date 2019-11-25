@@ -1,5 +1,5 @@
 #include "{module_dir}{module}.hpp"
-#include "{lib_dir}ssti.hpp"
+#include "{lib_dir}sit.hpp"
 
 int sc_main(int, char *argv[]) {{
 

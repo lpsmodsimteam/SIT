@@ -1,5 +1,5 @@
 # SST Interoperability Toolkit
-![](https://github.com/sabbirahm3d/ssti/workflows/continuous%20integration/badge.svg)
+![](https://github.com/sabbirahm3d/sit/workflows/continuous%20integration/badge.svg)
 
 A toolkit to provide interoperability between [Structural Simulation Toolkit (SST)](https://github.com/sstsimulator/sst-core) and external hardware description languages (HDL).
 
@@ -125,7 +125,7 @@ The requirements for the project are listed below.
 
 The `boilerplate` module can be installed locally by running the following command:
 ```shell
-cd ssti && python setup.py install
+cd sit && python setup.py install
 ```
 
 See [Black Box Code Generation](#black-box-code-generation) for its purposes.

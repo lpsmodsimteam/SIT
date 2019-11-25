@@ -11,7 +11,7 @@ if __name__ == "__main__":
         "lib": "intersection",
         "module_dir": "../",
         "ipc": "sock",
-        "lib_dir": "../../../../ssti/",
+        "lib_dir": "../../../../sit/",
     }
 
     if sys.argv[-1] == "systemc":

@@ -11,7 +11,7 @@ if __name__ == "__main__":
         module="ram",
         lib="tests",
         ipc=sys.argv[-1],
-        lib_dir="../../../../ssti/",
+        lib_dir="../../../../sit/",
         module_dir="../../common/",
         desc="Demonstration of a SystemC hardware simulation in SST",
     )

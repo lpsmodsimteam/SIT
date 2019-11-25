@@ -1,3 +1,0 @@
-#! /bin/sh
-
-export SSTI_VERSION="0.9.0rc0"

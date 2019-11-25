@@ -36,4 +36,4 @@ macro(_sst_compile_link _name)
 endmacro()
 # -------------------- SST CONFIGS --------------------
 
-get_filename_component(SRC_DIR ../../ssti ABSOLUTE)
+get_filename_component(SRC_DIR ../../sit ABSOLUTE)

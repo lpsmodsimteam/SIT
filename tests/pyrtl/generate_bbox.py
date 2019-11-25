@@ -12,7 +12,7 @@ if __name__ == "__main__":
         lib="tests",
         ipc=sys.argv[-1],
         module_dir="../../common/",
-        lib_dir="../../../../ssti/",
+        lib_dir="../../../../sit/",
         desc="Demonstration of a PyRTL hardware simulation in SST",
     )
     boilerplate_obj.set_ports((

@@ -137,7 +137,7 @@ jobs:
           # install PyRTL
           python -m venv .venv
           source .venv/bin/activate
-          cd ssti
+          cd sit
           pip install -r boilerplate/requirements.txt
           source version
           python setup.py install
