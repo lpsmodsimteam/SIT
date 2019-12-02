@@ -8,12 +8,12 @@ from boilerplate import PyRTL
 if __name__ == "__main__":
 
     boilerplate_obj = PyRTL(
+        ipc=sys.argv[-1],
         module="ram",
         lib="tests",
-        ipc=sys.argv[-1],
+        desc="Demonstration of a PyRTL hardware simulation in SST",
         module_dir="../../common/",
         lib_dir="../../../../sit/",
-        desc="Demonstration of a PyRTL hardware simulation in SST",
     )
     boilerplate_obj.set_ports((
         ("8", "address", "input"),

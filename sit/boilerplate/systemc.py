@@ -1,53 +1,51 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implementation of the PyRTL class
+"""Implementation of the SystemC class
 
 This class generates the boilerplate code required to build the black box
 interface in SIT.
 """
 
 import math
-import os
 
 from .boilerplate import BoilerPlate
 
 
 class SystemC(BoilerPlate):
 
-    def __init__(self, module, lib, ipc, drvr_templ_path="", comp_templ_path="",
-                 desc="", module_dir="", lib_dir=""):
+    def __init__(self, ipc, module, lib, module_dir="", lib_dir="", desc="",
+                 driver_template_path="", component_template_path=""):
         """Constructor for SystemC BoilerPlate.
 
-        Arguments:
-            module {str} -- module name
-            lib {str} -- SST library name
-            ipc {str} -- type of IPC. Supported options are ("sock", "zmq")
-            drvr_templ_path {str} -- path to the black box-driver boilerplate
-            comp_templ_path {str} -- path to the black box-model boilerplate
-            desc {str} -- description of the SST model (default: {""})
-            link_desc {dict(str:str)} -- description of the SST links
-                The argument defaults to:
-                `{"link_desc0": "", "link_desc1": ""}`
-                where they're assigned as the receiving and transmitting SST
-                links respectively.
+        Parameters:
+        -----------
+        ipc : str (options: "sock", "zmq")
+            method of IPC
+        module : str
+            SST element component and HDL module name
+        lib : str
+            SST element library name
+        module_dir : str (default: "")
+            directory of HDL module
+        lib_dir : str (default: "")
+            directory of SIT library
+        desc : str (default: "")
+            description of the SST model
+        driver_template_path : str (default: "")
+            path to the black box-driver boilerplate
+        component_template_path : str (default: "")
+            path to the black box-model boilerplate
         """
-        templ_path = os.path.join(
-            os.path.dirname(__file__), "template", "systemc")
-        if not drvr_templ_path:
-            drvr_templ_path = os.path.join(templ_path, "driver")
-        if not comp_templ_path:
-            comp_templ_path = os.path.join(templ_path, "comp")
-
         super().__init__(
+            ipc=ipc,
             module=module,
             lib=lib,
-            ipc=ipc,
-            drvr_templ_path=drvr_templ_path,
-            comp_templ_path=comp_templ_path,
-            desc=desc,
             module_dir=module_dir,
-            lib_dir=lib_dir
+            lib_dir=lib_dir,
+            desc=desc,
+            driver_template_path=driver_template_path,
+            component_template_path=component_template_path
         )
 
         if self.ipc == "sock":
@@ -66,11 +64,15 @@ class SystemC(BoilerPlate):
     def __parse_signal_type(self, signal):
         """Parses the type and computes its size from the signal
 
-        Arguments:
-            signal {str} -- signal definition
+        Parameters:
+        -----------
+        signal : str
+            signal definition
 
         Returns:
-            {tuple(str,int)} -- C++ datatype and its size
+        --------
+        tuple2(str,int)
+            C++ datatype and its size
         """
         # NoneTypes are explicitly assigned to SST component clock signals
         if not signal:
@@ -80,8 +82,8 @@ class SystemC(BoilerPlate):
 
             def __get_ints(sig):
                 return int("".join(s for s in sig if s.isdigit())
-                           if self.WIDTH_DELIM not in sig
-                           else sig.split(self.WIDTH_DELIM)[-1])
+                           if self._wdelim not in sig
+                           else self._get_signal_width(sig))
 
             if "bv" in signal or "lv" in signal or "int" in signal:
                 return math.floor(math.log2(__get_ints(signal)))
@@ -96,9 +98,11 @@ class SystemC(BoilerPlate):
         """Generates output bindings for both the components in the black box
 
         Returns:
-            {str} -- snippet of code representing output bindings
+        --------
+        str
+            snippet of code representing output bindings
         """
-        return self.sig_fmt(
+        return self._sig_fmt(
             "_data_out << {sig}",
             lambda x: {
                 "sig": x[-1],
@@ -109,7 +113,7 @@ class SystemC(BoilerPlate):
 
     def _get_driver_inputs(self):
 
-        return self._get_inputs(
+        return self._generate_driver_inputs(
             fmt="{sig} = std::stoi(_data_in.substr({sp}, {sl}));",
             start_pos=1,
             signal_type_parser=self.__parse_signal_type,
@@ -125,15 +129,23 @@ class SystemC(BoilerPlate):
         """Generates port bindings for the black box-driver
 
         Returns:
-            {str} -- snippet of code representing port bindings
+        --------
+        str
+            snippet of code representing port bindings
         """
-        return self.sig_fmt(
+        return self._sig_fmt(
             "DUT.{sig}({sig})",
             lambda x: {"sig": x[-1]}, self.ports
         )
 
     def _get_driver_defs(self):
+        """Map definitions for the SystemC driver format string
 
+        Returns:
+        --------
+        dict(str:str)
+            format mapping of template SystemC driver string
+        """
         return {
             "module_dir": self.module_dir,
             "lib_dir": self.lib_dir,

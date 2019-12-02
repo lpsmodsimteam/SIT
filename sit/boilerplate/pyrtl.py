@@ -8,51 +8,48 @@ interface in SIT.
 """
 
 import math
-import os
 
 from .boilerplate import BoilerPlate
 
 
 class PyRTL(BoilerPlate):
 
-    def __init__(self, module, lib, ipc, drvr_templ_path="", comp_templ_path="",
-                 desc="", module_dir="", lib_dir=""):
+    def __init__(self, ipc, module, lib, module_dir="", lib_dir="", desc="",
+                 driver_template_path="", component_template_path=""):
         """Constructor for PyRTL BoilerPlate.
 
-        Arguments:
-            module {str} -- module name
-            lib {str} -- SST library name
-            ipc {str} -- type of IPC. Supported options are ("sock", "zmq")
-            drvr_templ_path {str} -- path to the black box-driver boilerplate
-            comp_templ_path {str} -- path to the black box-model boilerplate
-            desc {str} -- description of the SST model (default: {""})
-            link_desc {dict(str:str)} -- description of the SST links
-                The argument defaults to:
-                `{"link_desc0": "", "link_desc1": ""}`
-                where they're assigned as the receiving and transmitting SST
-                links respectively.
+        Parameters:
+        -----------
+        ipc : str (options: "sock", "zmq")
+            method of IPC
+        module : str
+            SST element component and HDL module name
+        lib : str
+            SST element library name
+        module_dir : str (default: "")
+            directory of HDL module
+        lib_dir : str (default: "")
+            directory of SIT library
+        desc : str (default: "")
+            description of the SST model
+        driver_template_path : str (default: "")
+            path to the black box-driver boilerplate
+        component_template_path : str (default: "")
+            path to the black box-model boilerplate
         """
-        templ_path = os.path.join(
-            os.path.dirname(__file__), "template", "pyrtl")
-        if not drvr_templ_path:
-            drvr_templ_path = os.path.join(templ_path, "driver")
-        if not comp_templ_path:
-            comp_templ_path = os.path.join(templ_path, "comp")
-
         super().__init__(
+            ipc=ipc,
             module=module,
             lib=lib,
-            ipc=ipc,
-            drvr_templ_path=drvr_templ_path,
-            comp_templ_path=comp_templ_path,
-            desc=desc,
             module_dir=module_dir,
-            lib_dir=lib_dir
+            lib_dir=lib_dir,
+            desc=desc,
+            driver_template_path=driver_template_path,
+            component_template_path=component_template_path
         )
 
         if self.module_dir:
-            self.module_dir = "sys.path.append(os.path.join(os.path.dirname(__file__), \"{}\"))".format(
-                self.module_dir)
+            self.module_dir = f"sys.path.append(os.path.join(os.path.dirname(__file__), \"{self.module_dir}\"))"
 
         if self.ipc == "sock":
 
@@ -78,13 +75,16 @@ _sock = context.socket(zmq.REQ)"""
     def __parse_signal_type(signal):
         """Parses the type and computes its size from the signal
 
-        Arguments:
-            signal {str} -- signal definition
+        Parameters:
+        -----------
+        signal : str
+            signal definition
 
         Returns:
-            {tuple(str,int)} -- C++ datatype and its size
+        --------
+        int
+            signal size
         """
-        # NoneTypes are explicitly assigned to SST component clock signals
         if signal == "1":
             return 1
 
@@ -97,9 +97,11 @@ _sock = context.socket(zmq.REQ)"""
         """Generates output bindings for both the components in the black box
 
         Returns:
-            {str} -- snippet of code representing output bindings
+        --------
+        str
+            snippet of code representing output bindings
         """
-        return self.sig_fmt(
+        return self._sig_fmt(
             "str({module}.sim.inspect({module}.{sig})).encode()",
             lambda x: {
                 "module": self.module,
@@ -111,7 +113,7 @@ _sock = context.socket(zmq.REQ)"""
 
     def _get_driver_inputs(self):
 
-        return self._get_inputs(
+        return self._generate_driver_inputs(
             fmt="\"{sig}\": int(signal[{sp}:{sl}]),",
             start_pos=0,
             signal_type_parser=self.__parse_signal_type,
@@ -119,7 +121,13 @@ _sock = context.socket(zmq.REQ)"""
         )
 
     def _get_driver_defs(self):
+        """Map definitions for the PyRTL driver format string
 
+        Returns:
+        --------
+        dict(str:str)
+            format mapping of template PyRTL driver string
+        """
         return {
             "ipc": self.driver_ipc,
             "driver_bind": self.driver_bind,

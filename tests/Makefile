@@ -32,10 +32,12 @@ $(IPC):
 	cd $(HDL)
 	mkdir -p build
 	mkdir -p $@/blackboxes && mkdir -p common/blackboxes
+	@$(call iecho,"Generating boilerplate files...")
 	python generate_bbox.py $@ || { $(call eecho,"Install the boilerplate generator"); exit 1; }
 	mv blackboxes/* $@/blackboxes
 	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=$(shell echo $@ | tr a-z A-Z) .. && $(MAKE)
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
+	@$(call iecho,"Running simulations...")
 	sst ../$@/run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
 	python ../../read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $@") || $(call eecho,"FAILED: $(HDL) using $@")
 
