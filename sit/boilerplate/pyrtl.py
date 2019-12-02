@@ -107,7 +107,7 @@ _sock = context.socket(zmq.REQ)"""
                 "module": self.module,
                 "sig": x[-1]
             },
-            self.outputs,
+            self.ports["output"],
             " +\n" + " " * 8
         )
 

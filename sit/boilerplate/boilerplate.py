@@ -6,7 +6,7 @@ import os
 
 class BoilerPlate(object):
 
-    def __init__(self, ipc, module, lib, module_dir="", lib_dir="", desc="",
+    def __init__(self, ipc, module, lib, macros=None, module_dir="", lib_dir="", desc="",
                  driver_template_path="", component_template_path=""):
         """Constructor for BoilerPlate
 
@@ -47,18 +47,20 @@ class BoilerPlate(object):
         self.lib_dir = lib_dir
         self.desc = desc
 
-        templ_path = os.path.join(
+        template_path = os.path.join(
             os.path.dirname(__file__), "template", self.__class__.__name__.lower())
         if not driver_template_path:
-            self.driver_template_path = os.path.join(templ_path, "driver")
+            self.driver_template_path = os.path.join(template_path, "driver")
         if not component_template_path:
-            self.component_template_path = os.path.join(templ_path, "comp")
+            self.component_template_path = os.path.join(template_path, "comp")
 
-        self.clocks = []
-        self.inputs = []
-        self.outputs = []
-        self.inouts = []
-        self.ports = []
+        self.macros = macros if macros else {}
+        self.ports = {
+            "clock": [],
+            "input": [],
+            "output": [],
+            "inout": []
+        }
         self.buf_size = 0
 
         if self.ipc == "sock":
@@ -75,7 +77,6 @@ class BoilerPlate(object):
         self.sender = self.receiver = "m_signal_io"
         self.bbox_dir = "blackboxes"
         self.driver_path = self.comp_path = os.path.join(self.bbox_dir, self.module)
-        self._wdelim = "//"
 
     @staticmethod
     def _sig_fmt(fmt, split_func, array, delim=";\n    "):
@@ -99,11 +100,15 @@ class BoilerPlate(object):
         """
         return delim.join(fmt.format(**split_func(i)) for i in array)
 
-    def _get_signal_type(self, signal):
-        return signal.split(self._wdelim)[0]
-
     def _get_signal_width(self, signal):
-        return signal.split(self._wdelim)[-1]
+        for macro, value in self.macros.items():
+            if macro in signal:
+                return value
+        raise AttributeError(f"Invalid macro in signal: {signal}")
+
+    def _get_all_ports(self):
+
+        return (i for sig in self.ports.values() for i in sig)
 
     def set_ports(self, ports):
         """Assigns ports to their corresponding member lists
@@ -127,18 +132,11 @@ class BoilerPlate(object):
 (<DATA TYPE>, <PORT NAME>, <PORT TYPE>)""")
 
         for port_data_type, port_name, port_type in ports:
-            if port_type == "clock":
-                self.clocks.append((port_data_type, port_name))
-            elif port_type == "input":
-                self.inputs.append((port_data_type, port_name))
-            elif port_type == "output":
-                self.outputs.append((port_data_type, port_name))
-            elif port_type == "inout":
-                self.inouts.append((port_data_type, port_name))
-            else:
+            try:
+                self.ports[port_type].append((port_data_type, port_name))
+            except KeyError:
                 raise TypeError(f"""{port_type} is an invalid port type. Valid port types are:
 ("clock", "input", "output", "inout")""")
-            self.ports.append((self._get_signal_type(port_data_type), port_name))
 
     def _generate_driver_inputs(self, fmt, start_pos, signal_type_parser, splice=False,
                                 clock_fmt=""):
@@ -164,7 +162,7 @@ class BoilerPlate(object):
             snippet of code representing input bindings
         """
         driver_inputs = []
-        for input_type, input_name in self.inputs:
+        for input_type, input_name in self.ports["input"]:
             sig_len = signal_type_parser(input_type)
             driver_inputs.append(
                 fmt.format(
@@ -175,8 +173,8 @@ class BoilerPlate(object):
             )
             start_pos += sig_len
 
-        if self.clocks:
-            for clock_type, clock_name in self.clocks:
+        if self.ports["clock"]:
+            for clock_type, clock_name in self.ports["clock"]:
                 driver_inputs.append(
                     clock_fmt.format(sp=start_pos, sig=clock_name)
                 )

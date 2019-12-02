@@ -14,7 +14,7 @@ from .boilerplate import BoilerPlate
 
 class SystemC(BoilerPlate):
 
-    def __init__(self, ipc, module, lib, module_dir="", lib_dir="", desc="",
+    def __init__(self, ipc, module, lib, macros=None, module_dir="", lib_dir="", desc="",
                  driver_template_path="", component_template_path=""):
         """Constructor for SystemC BoilerPlate.
 
@@ -41,6 +41,7 @@ class SystemC(BoilerPlate):
             ipc=ipc,
             module=module,
             lib=lib,
+            macros=macros,
             module_dir=module_dir,
             lib_dir=lib_dir,
             desc=desc,
@@ -75,21 +76,22 @@ class SystemC(BoilerPlate):
             C++ datatype and its size
         """
         # NoneTypes are explicitly assigned to SST component clock signals
+        def __get_ints():
+            try:
+                return int("".join(s for s in signal if s.isdigit()))
+            except ValueError:
+                return int(self._get_signal_width(signal))
+
         if not signal:
             return 0
 
         elif "sc" in signal:
 
-            def __get_ints(sig):
-                return int("".join(s for s in sig if s.isdigit())
-                           if self._wdelim not in sig
-                           else self._get_signal_width(sig))
+            if any(x in signal for x in ("bv", "lv", "int")):
+                return math.floor(math.log2(__get_ints()))
 
-            if "bv" in signal or "lv" in signal or "int" in signal:
-                return math.floor(math.log2(__get_ints(signal)))
-
-            if "bit" in signal or "logic" in signal:
-                return __get_ints(signal)
+            elif any(x in signal for x in ("bit", "logic")):
+                return __get_ints()
 
         else:
             return 1
@@ -107,7 +109,7 @@ class SystemC(BoilerPlate):
             lambda x: {
                 "sig": x[-1],
             },
-            self.outputs,
+            self.ports["output"],
             ";\n" + " " * 8
         )
 
@@ -122,8 +124,7 @@ class SystemC(BoilerPlate):
 
     def __get_driver_port_defs(self):
         """Generates port definitions for the black box-driver"""
-        return "sc_signal" + ";\n    sc_signal".join(
-            " ".join(i) for i in self.ports)
+        return "sc_signal" + ";\n    sc_signal".join(" ".join(i) for i in self._get_all_ports())
 
     def __get_driver_bindings(self):
         """Generates port bindings for the black box-driver
@@ -135,7 +136,7 @@ class SystemC(BoilerPlate):
         """
         return self._sig_fmt(
             "DUT.{sig}({sig})",
-            lambda x: {"sig": x[-1]}, self.ports
+            lambda x: {"sig": x[-1]}, self._get_all_ports()
         )
 
     def _get_driver_defs(self):
