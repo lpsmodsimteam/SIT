@@ -1,16 +1,35 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""Implementation of the base class of BoilerPlate. This class generates the boilerplate code
+required to build the black box interface in SIT.
+
+This class is purely virtual and therefore requires a child class to inherit and implement its
+protected methods. The child class must implement the following protected methods:
+- _get_driver_inputs()
+- _get_driver_outputs()
+- _get_driver_defs()
+
+The following public methods are inherited by the child classes and are not to be overridden:
+- set_ports(ports)
+- generate_bbox()
+"""
+
 import os
+
+from .exceptions import *
 
 
 class BoilerPlate(object):
 
-    def __init__(self, ipc, module, lib, macros=None, module_dir="", lib_dir="", desc="",
+    def __init__(self, ipc, module, lib, width_macros=None, module_dir="", lib_dir="", desc="",
                  driver_template_path="", component_template_path=""):
-        """Constructor for BoilerPlate
+        """Constructor for the virtual base class BoilerPlate
 
-        Initialize all member port variables and component variables
+        Initialize all member port variables and component variables. Only the following methods
+        are public:
+        `set_ports(ports)`
+        `generate_bbox()`
 
         Parameters:
         -----------
@@ -20,6 +39,15 @@ class BoilerPlate(object):
             SST element component and HDL module name
         lib : str
             SST element library name
+        width_macros : dict(str:[str|int]) (default: dict(None:None))
+            mapping of signal width macros to their integer values. An HDL module may declare
+            constants or user-inputted variables in their implementation to determine signal widths.
+            The module can only know the values of those macros by utilizing this parameter.
+            Example:
+            `width_macros = {
+                "ADDRESS_WIDTH": 16,
+                "DATA_WIDTH": 16,
+            }`
         module_dir : str (default: "")
             directory of HDL module
         lib_dir : str (default: "")
@@ -33,13 +61,13 @@ class BoilerPlate(object):
 
         Raises:
         -------
-        ValueError
+        IPCException
             unsupported IPC is provided
         """
         if ipc in ("sock", "zmq"):
             self.ipc = ipc
         else:
-            raise ValueError("Incorrect or unsupported IPC protocol provided")
+            raise IPCException(f"{ipc} is not a supported IPC protocol")
 
         self.module = module
         self.lib = lib
@@ -47,22 +75,24 @@ class BoilerPlate(object):
         self.lib_dir = lib_dir
         self.desc = desc
 
-        template_path = os.path.join(
-            os.path.dirname(__file__), "template", self.__class__.__name__.lower())
-        if not driver_template_path:
-            self.driver_template_path = os.path.join(template_path, "driver")
-        if not component_template_path:
-            self.component_template_path = os.path.join(template_path, "comp")
+        template_path = os.path.join(os.path.dirname(
+            __file__), "template", self.__class__.__name__.lower())
+        self.driver_template_path = driver_template_path if driver_template_path else os.path.join(
+            template_path, "driver")
+        self.component_template_path = component_template_path if component_template_path else os.path.join(
+            template_path, "comp")
 
-        self.macros = macros if macros else {}
+        self.width_macros = width_macros if width_macros else {}
         self.ports = {
             "clock": [],
             "input": [],
             "output": [],
             "inout": []
         }
-        self.buf_size = 0
+        self.bbox_dir = "blackboxes"
+        self.driver_path = self.comp_path = os.path.join(self.bbox_dir, self.module)
 
+        self.buf_size = 0
         if self.ipc == "sock":
 
             # component attributes
@@ -75,18 +105,16 @@ class BoilerPlate(object):
 
         # shared attributes
         self.sender = self.receiver = "m_signal_io"
-        self.bbox_dir = "blackboxes"
-        self.driver_path = self.comp_path = os.path.join(self.bbox_dir, self.module)
 
     @staticmethod
     def _sig_fmt(fmt, split_func, array, delim=";\n    "):
-        """Formats lists of signals based on fixed arguments
+        """Format lists of signals based on fixed arguments
 
         Parameters:
         -----------
         fmt : str
             string format
-        split_func : lambda or dict(str: str)
+        split_func : lambda or dict(str:str)
             map to split on the signals
         array : list(str)
             list of signals
@@ -100,18 +128,42 @@ class BoilerPlate(object):
         """
         return delim.join(fmt.format(**split_func(i)) for i in array)
 
-    def _get_signal_width(self, signal):
-        for macro, value in self.macros.items():
-            if macro in signal:
+    def _get_signal_width(self, signal_type):
+        """Get width of a signal type mapped in width_macros
+
+        Parameters:
+        -----------
+        signal_type : str
+            signal type of port
+
+        Raises:
+        -------
+        SignalFormatException
+            signal width macro not found
+
+        Returns:
+        --------
+        value : str|int
+            width of signal type
+        """
+        for macro, value in self.width_macros.items():
+            if macro in signal_type:
                 return value
-        raise AttributeError(f"Invalid macro in signal: {signal}")
+
+        raise SignalFormatException(f"Invalid macro in signal: {signal_type}") from None
 
     def _get_all_ports(self):
+        """Flatten all types of ports into a single array
 
+        Returns:
+        --------
+        generator
+            all ports in a single array
+        """
         return (i for sig in self.ports.values() for i in sig)
 
     def set_ports(self, ports):
-        """Assigns ports to their corresponding member lists
+        """Assign ports to their corresponding member lists
 
         Parameters:
         -----------
@@ -121,26 +173,23 @@ class BoilerPlate(object):
 
         Raises:
         -------
-        IndexError
+        SignalFormatException
             invalid signal format provided
-        TypeError
+        PortException
             invalid port type provided
         """
         if set(len(port) for port in ports) != {3}:
-            raise IndexError(
-                """Invalid signal format. Make sure signals are grouped in the format:
-(<DATA TYPE>, <PORT NAME>, <PORT TYPE>)""")
+            raise SignalFormatException("Invalid signal format") from None
 
         for port_data_type, port_name, port_type in ports:
             try:
                 self.ports[port_type].append((port_data_type, port_name))
             except KeyError:
-                raise TypeError(f"""{port_type} is an invalid port type. Valid port types are:
-("clock", "input", "output", "inout")""")
+                raise PortException(f"{port_type} is an invalid port type") from None
 
     def _generate_driver_inputs(self, fmt, start_pos, signal_type_parser, splice=False,
                                 clock_fmt=""):
-        """Generates input bindings for the driver.
+        """Generate input bindings for the driver.
 
         Parameters:
         -----------
@@ -212,12 +261,12 @@ class BoilerPlate(object):
         }
 
     def __generate_comp_str(self):
-        """Generates the black box-model code based on methods used to format
+        """Generate the black box-model code based on methods used to format
         the template file
 
         Raises:
         -------
-        FileNotFoundError
+        TemplateFileNotFound
             boilerplate template file not found
 
         Returns:
@@ -231,15 +280,16 @@ class BoilerPlate(object):
                     **self.__get_comp_defs()
                 )
 
-        raise FileNotFoundError("Component boilerplate template file not found")
+        raise TemplateFileNotFound(
+            f"Component boilerplate template file: {self.component_template_path} not found")
 
     def __generate_driver_str(self):
-        """Generates the black box-driver code based on methods used to format
+        """Generate the black box-driver code based on methods used to format
         the template file
 
         Raises:
         -------
-        FileNotFoundError
+        TemplateFileNotFound
             boilerplate template file not found
 
         Returns:
@@ -255,19 +305,20 @@ class BoilerPlate(object):
                     **self._get_driver_defs()
                 )
 
-        raise FileNotFoundError("Driver boilerplate template file not found")
+        raise TemplateFileNotFound(
+            f"Driver boilerplate template file: {self.driver_template_path} not found")
 
     def generate_bbox(self):
-        """Provides a high-level interface to the user to generate both the
-        components of the black box and dump them to their corresponding files
+        """Provide a high-level interface to the user to generate both the components of the
+        black box and dump them to their corresponding files
 
         Raises:
         -------
-        ValueError
+        PortException
             no ports were provided
         """
         if not len(self.ports):
-            raise ValueError("""Ports were not set properly.
+            raise PortException("""No ports were set.
 Make sure to call set_ports() before generating files.""")
 
         if not os.path.exists(self.bbox_dir):

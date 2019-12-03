@@ -3,8 +3,8 @@
 
 """Implementation of the SystemC class
 
-This class generates the boilerplate code required to build the black box
-interface in SIT.
+This class inherits from the BoilerPlate base class and implements its own methods of parsing,
+modifying and generating boilerplate code for its specific paradigms.
 """
 
 import math
@@ -14,9 +14,9 @@ from .boilerplate import BoilerPlate
 
 class SystemC(BoilerPlate):
 
-    def __init__(self, ipc, module, lib, macros=None, module_dir="", lib_dir="", desc="",
+    def __init__(self, ipc, module, lib, width_macros=None, module_dir="", lib_dir="", desc="",
                  driver_template_path="", component_template_path=""):
-        """Constructor for SystemC BoilerPlate.
+        """Constructor for SystemC BoilerPlate
 
         Parameters:
         -----------
@@ -41,7 +41,7 @@ class SystemC(BoilerPlate):
             ipc=ipc,
             module=module,
             lib=lib,
-            macros=macros,
+            width_macros=width_macros,
             module_dir=module_dir,
             lib_dir=lib_dir,
             desc=desc,
@@ -63,7 +63,7 @@ class SystemC(BoilerPlate):
         self.comp_path += "_comp.cpp"
 
     def __parse_signal_type(self, signal):
-        """Parses the type and computes its size from the signal
+        """Parse the type and computes its size from the signal
 
         Parameters:
         -----------
@@ -75,13 +75,21 @@ class SystemC(BoilerPlate):
         tuple2(str,int)
             C++ datatype and its size
         """
-        # NoneTypes are explicitly assigned to SST component clock signals
         def __get_ints():
+            """Extract integers from signal string
+            This is a closure method to keep scope local
+
+            Returns:
+            --------
+            int
+                integers found in signal string
+            """
             try:
                 return int("".join(s for s in signal if s.isdigit()))
             except ValueError:
                 return int(self._get_signal_width(signal))
 
+        # NoneTypes are explicitly assigned to SystemC model clock signals
         if not signal:
             return 0
 
@@ -97,7 +105,7 @@ class SystemC(BoilerPlate):
             return 1
 
     def _get_driver_outputs(self):
-        """Generates output bindings for both the components in the black box
+        """Generate output bindings for both the components in the black box
 
         Returns:
         --------
@@ -114,7 +122,13 @@ class SystemC(BoilerPlate):
         )
 
     def _get_driver_inputs(self):
+        """Wrap base _generate_driver_inputs() method with overridden parameters
 
+        Returns:
+        --------
+        func
+            _generate_driver_inputs(*args)
+        """
         return self._generate_driver_inputs(
             fmt="{sig} = std::stoi(_data_in.substr({sp}, {sl}));",
             start_pos=1,
@@ -123,11 +137,17 @@ class SystemC(BoilerPlate):
         )
 
     def __get_driver_port_defs(self):
-        """Generates port definitions for the black box-driver"""
+        """Generate port definitions for the black box-driver
+
+        Returns:
+        --------
+        str
+           string format of driver port definitions
+        """
         return "sc_signal" + ";\n    sc_signal".join(" ".join(i) for i in self._get_all_ports())
 
     def __get_driver_bindings(self):
-        """Generates port bindings for the black box-driver
+        """Generate port bindings for the black box-driver
 
         Returns:
         --------

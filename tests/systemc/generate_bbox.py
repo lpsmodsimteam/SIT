@@ -11,9 +11,9 @@ if __name__ == "__main__":
         ipc=sys.argv[-1],
         module="ram",
         lib="tests",
-        macros={
-            "ADDR_WIDTH": "8",
-            "DATA_WIDTH": "8"
+        width_macros={
+            "ADDR_WIDTH": 8,
+            "DATA_WIDTH": 8,
         },
         desc="Demonstration of a SystemC hardware simulation in SST",
         lib_dir="../../../../sit/",

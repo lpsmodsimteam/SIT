@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""Implementation of the BoilerPlate class
+"""Implementation of the PyRTL class
 
-This class generates the boilerplate code required to build the black box
-interface in SIT.
+This class inherits from the BoilerPlate base class and implements its own methods of parsing,
+modifying and generating boilerplate code for its specific paradigms.
 """
 
 import math
@@ -73,7 +73,7 @@ _sock = context.socket(zmq.REQ)"""
 
     @staticmethod
     def __parse_signal_type(signal):
-        """Parses the type and computes its size from the signal
+        """Parse the type and computes its width from the signal
 
         Parameters:
         -----------
@@ -83,7 +83,7 @@ _sock = context.socket(zmq.REQ)"""
         Returns:
         --------
         int
-            signal size
+            signal width
         """
         if signal == "1":
             return 1
@@ -94,7 +94,7 @@ _sock = context.socket(zmq.REQ)"""
         return math.floor(math.log2(__get_ints(signal)))
 
     def _get_driver_outputs(self):
-        """Generates output bindings for both the components in the black box
+        """Generate output bindings for both the components in the black box
 
         Returns:
         --------
@@ -112,7 +112,13 @@ _sock = context.socket(zmq.REQ)"""
         )
 
     def _get_driver_inputs(self):
+        """Wrap base _generate_driver_inputs() method with overridden parameters
 
+        Returns:
+        --------
+        func
+            _generate_driver_inputs(*args)
+        """
         return self._generate_driver_inputs(
             fmt="\"{sig}\": int(signal[{sp}:{sl}]),",
             start_pos=0,
