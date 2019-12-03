@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """Implementation of the base class of BoilerPlate. This class generates the boilerplate code
-required to build the black box interface in SIT.
+required to build the black box interface in SST Interoperability Toolkit.
 
 This class is purely virtual and therefore requires a child class to inherit and implement its
 protected methods. The child class must implement the following protected methods:
