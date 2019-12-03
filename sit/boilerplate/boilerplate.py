@@ -318,8 +318,8 @@ class BoilerPlate(object):
             no ports were provided
         """
         if not len(self.ports):
-            raise PortException("""No ports were set.
-Make sure to call set_ports() before generating files.""")
+            raise PortException(
+                "No ports were set. Make sure to call set_ports() before generating files.")
 
         if not os.path.exists(self.bbox_dir):
             os.makedirs(self.bbox_dir)
