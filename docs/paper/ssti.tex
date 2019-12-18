@@ -2,40 +2,6 @@
 
 \usepackage{custom}
 
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
-\usepackage{url}            % simple URL typesetting
-\usepackage{booktabs}       % professional-quality tables
-\usepackage{amsfonts}       % blackboard math symbols
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
-
-\usepackage{graphicx}
-\usepackage{listings}
-\usepackage{color}
-\usepackage[labelfont=bf]{caption}
-
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-\definecolor{gray}{rgb}{0.5,0.5,0.5}
-\definecolor{mauve}{rgb}{0.58,0,0.82}
-
-\lstset{frame=tb,
-  aboveskip=3mm,
-  belowskip=3mm,
-  showstringspaces=false,
-  columns=flexible,
-  basicstyle={\small\ttfamily},
-  numbers=none,
-  numberstyle=\tiny\color{gray},
-  keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
-  stringstyle=\color{mauve},
-  breaklines=true,
-  breakatwhitespace=true,
-  tabsize=4,
-  escapeinside={<@}{@>}
-}
-
 \title{Creating Heterogeneous Simulations by Interoperating SST with Hardware Description Frameworks}
 
 \author{
@@ -56,26 +22,24 @@
     such toolkit. However, SST must be able to support models implemented in various hardware-level
     modeling languages (PyRTL, SystemC, Chisel, etc.) and hardware description languages (VHDL,
     Verilog and SystemVerilog). Establishing communication with these modules would allow SST to
-    interface numerous existing synthesizable hardware models. SST Interoperable (SSTI) is a toolkit
-    developed to provide interoperability between SST and other frameworks. SSTI aims to achieve
+    interface numerous existing synthesizable hardware models. SST Interoperability Toolkit (SIT) is a toolkit
+    developed to provide interoperability between SST and other frameworks. SIT aims to achieve
     this capability in a modular design without interfering with the kernels by concealing the
-    communication protocols in black box interfaces. This project includes a demonstration of the
-    interoperability by simulating a vehicular traffic intersection with traffic lights driven by
-    SystemC and PyRTL processes.
+    communication protocols in black box interfaces. 
+    % This project includes a demonstration of the
+    % interoperability by simulating a vehicular traffic intersection with traffic lights driven by
+    % SystemC and PyRTL processes.
   \end{abstract}
 
   \section{Introduction}  
   The increasing size and complexity of systems require engineers heavily rely on simulation
   techniques during the development phases. Typically, simulations of these complex systems require
-  both custom and off-the-shelf logic functionality in ASICs or FPGAs. High-level commercial tools
-  simulate and model these components in their native environments. On the other side, developers
-  create the register transfer level (RTL) models representing the systems to simulate them with
-  computer-aided design (CAD) tools and test benches. These duplicative strategies require a method
-  that simulates the entire system in one heterogeneous model.
-
-  Successful attempts have been made to establish interoperability between Structural Simulation
-  Toolkit (SST) and the Python-based RTL language, PyRTL \cite{pyrtl-sst}. This project generalizes
-  that capability to include other HDLs such as SystemC.
+  both custom and off-the-shelf logic functionality in application-specific integrated circuits
+  (ASIC) or field programmable gate arrays (FPGA). High-level commercial tools simulate and model
+  these components in their native environments. On the other side, developers create the register
+  transfer level (RTL) models representing the systems to simulate them with computer-aided design
+  (CAD) tools and test benches. These duplicative strategies require a method that simulates the
+  entire system in one heterogeneous model.
 
   SST is an event-based framework that has the capabilities to simulate not only functionality but
   timing, power or any other information required. Each SST components can be assigned a clock to
@@ -92,17 +56,21 @@
   the interoperability by simulating a vehicular traffic intersection with traffic lights driven by
   PyRTL and SystemC processes.
 
-  Note: for simplicity, the hardware-level modeling and description languages will be referred to
-  ``HDL'' or ``external HDL'' in this paper.
+  Note: For the sake of simplicity and consistency in the nomenclature, the languages, toolkits or
+  libraries in the following categories will be simply labeled as ``HDL'' or ``external HDL'':
+  \begin{itemize}
+    \item hardware description languages (SystemVerilog, Verilog, VHDL, etc.)
+    \item hardware level modeling languages (Chisel, PyRTL, SystemC, etc.)
+  \end{itemize}
 
   \section{Black Box Interface}
-  SSTI conceals the communication implementation in black box driver files. This strategy allows the
+  SIT conceals the communication implementation in black box driver files. This strategy allows the
   SST component to connect with the HDL processes via SST links as if they were a component itself.
 
   \begin{figure}[!h]
     \centering
     \includegraphics[width=6.5in]{diagrams/comm.png}
-    \caption{Components of SSTI}
+    \caption{Components of SIT}
     \label{fig:comm}
   \end{figure}
 
@@ -110,22 +78,30 @@
   \begin{enumerate}
     \item an HDL driver
     \item an SST component
-    \item configurations for inter-black box communication
   \end{enumerate}
 
     \subsection{HDL Driver}
-    Each HDL modules must have their corresponding driver file to interoperate within the black box
-    interface. The language must be able to bind to interprocess communication (IPC) ports to send
-    and receive data. The driver must be compiled separately from the SST component.
+    Each HDL modules must have their corresponding driver file to interoperate with the SST kernel
+    within the black box interface. The language must be able to bind to interprocess communication
+    (IPC) ports to send and receive data. The driver must be compiled separately from the SST
+    component.
 
     \subsection{SST Component}
-    
+    The black box SST component consist of the following methods:
+    \begin{itemize}
+      \item Constructor
+      \item \texttt{void setup()}
+      \item \texttt{bool tick(SST::Cycle\_t)}
+      \item \texttt{void handle\_event(SST::Event *)}
+    \end{itemize}
 
-    \subsection{Configuration File}
-    The interface also includes a header file with configurations for the communication between the
-    components. These configurations include the number of elements being shared and their
-    corresponding data structure indices. Some HDLs, such as PyRTL, do not require an extra
-    configuration file.
+      \subsubsection{Constructor}
+      \subsubsection{setup}
+      \subsubsection{tick}
+      The method simply returns \texttt{false}.
+
+      \subsubsection{handle\_event}
+      The method is a custom event handler that receives SST String Events and parses the data for tran
 
     \subsection{Boilerplate Code Generator}
     The toolkit includes a Python class that generates the boilerplate code required for the black
@@ -155,13 +131,16 @@
     shared memories.
 
     \subsection{SST-Black Box Communication}
-    An SST component can interface the black box via standard SST links. The data is received as a
-    \lstinline{SST::Interfaces::StringEvent} object which is casted to a standard string. SSTI
+    SST links are used to interface the SST component with the black box. The data is received as a
+    \lstinline{SST::Interfaces::StringEvent} object which is casted to a standard string. SIT
     provides a custom event handler as part of its black box interface to allocate the substring
     positions and lengths for the ports.
 
     \subsection{HDL-Black Box Communication}
+    The HDL module utilizes its program specific mechanism of communication to interface the black
+    box driver. The method may be source file inclusion or importing modules.
 
+\iffalse
   \section{Proof of Concept: Traffic Intersection Simulation}
   A simulation model has been developed to demonstrate the project. The model simulates a traffic
   intersection controlled by two traffic lights. A flow of traffic is simulated through a road only
@@ -295,7 +274,7 @@
 <@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Destroying Traffic (PyRTL)...
 Simulation is complete, simulated time: 86.4 Ks
 \end{lstlisting}
-
+\fi
   \section{Extensibility}
 
     \subsection{Communication}
