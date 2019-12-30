@@ -11,7 +11,7 @@
 \AtBeginDocument{
   \newgeometry{
     textheight=9.5in,
-    textwidth=6.5in,
+    textwidth=7in,
     top=0.5in,
     headheight=12pt,
     headsep=20pt,
@@ -24,31 +24,6 @@
 \def\keywords#1{\par\addvspace\medskipamount{\rightskip=0pt plus1cm
 \def\and{\ifhmode\unskip\nobreak\fi\ $\cdot$
 }\noindent\keywordname\enspace\ignorespaces#1\par}}
-
-% % font sizes with reduced leading
-% \renewcommand{\normalsize}{%
-%   \@setfontsize\normalsize\@xpt\@xipt
-%   \abovedisplayskip      7\p@ \@plus 2\p@ \@minus 5\p@
-%   \abovedisplayshortskip \z@ \@plus 3\p@
-%   \belowdisplayskip      \abovedisplayskip
-%   \belowdisplayshortskip 4\p@ \@plus 3\p@ \@minus 3\p@
-% }
-% \normalsize
-% \renewcommand{\small}{%
-%   \@setfontsize\small\@ixpt\@xpt
-%   \abovedisplayskip      6\p@ \@plus 1.5\p@ \@minus 4\p@
-%   \abovedisplayshortskip \z@  \@plus 2\p@
-%   \belowdisplayskip      \abovedisplayskip
-%   \belowdisplayshortskip 3\p@ \@plus 2\p@   \@minus 2\p@
-% }
-% \renewcommand{\footnotesize}{\@setfontsize\footnotesize\@ixpt\@xpt}
-% \renewcommand{\scriptsize}{\@setfontsize\scriptsize\@viipt\@viiipt}
-% \renewcommand{\tiny}{\@setfontsize\tiny\@vipt\@viipt}
-% \renewcommand{\large}{\@setfontsize\large\@xiipt{14}}
-% \renewcommand{\Large}{\@setfontsize\Large\@xivpt{50}}
-% \renewcommand{\LARGE}{\@setfontsize\LARGE\@xviipt{20}}
-% \renewcommand{\huge}{\@setfontsize\huge\@xxpt{23}}
-% \renewcommand{\Huge}{\@setfontsize\Huge\@xxvpt{28}}
 
 % sections with less space
 \providecommand{\section}{}
@@ -232,33 +207,10 @@
 \usepackage{url}            % simple URL typesetting
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
-\usepackage{nicefrac}       % compact symbols for 1/2, etc.
 
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{color}
 \usepackage[labelfont=bf]{caption}
-
-\definecolor{dkgreen}{rgb}{0,0.6,0}
-\definecolor{gray}{rgb}{0.5,0.5,0.5}
-\definecolor{mauve}{rgb}{0.58,0,0.82}
-
-\lstset{frame=tb,
-  aboveskip=3mm,
-  belowskip=3mm,
-  showstringspaces=false,
-  columns=flexible,
-  basicstyle={\small\ttfamily},
-  numbers=none,
-  numberstyle=\tiny\color{gray},
-  keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
-  stringstyle=\color{mauve},
-  breaklines=true,
-  breakatwhitespace=true,
-  tabsize=4,
-  escapeinside={<@}{@>}
-}
-
 
 \endinput

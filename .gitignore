@@ -24,3 +24,5 @@ build/
 dist/
 *.egg-info/
 blackboxes/
+
+*.log

@@ -22,10 +22,10 @@
     such toolkit. However, SST must be able to support models implemented in various hardware-level
     modeling languages (PyRTL, SystemC, Chisel, etc.) and hardware description languages (VHDL,
     Verilog and SystemVerilog). Establishing communication with these modules would allow SST to
-    interface numerous existing synthesizable hardware models. SST Interoperability Toolkit (SIT) is a toolkit
-    developed to provide interoperability between SST and other frameworks. SIT aims to achieve
-    this capability in a modular design without interfering with the kernels by concealing the
-    communication protocols in black box interfaces. 
+    interface numerous existing synthesizable hardware models. SST Interoperability Toolkit (SIT) is
+    a toolkit developed to provide interoperability between SST and other frameworks. SIT aims to
+    achieve this capability in a modular design without interfering with the kernels by concealing
+    the communication protocols in black box interfaces.
     % This project includes a demonstration of the
     % interoperability by simulating a vehicular traffic intersection with traffic lights driven by
     % SystemC and PyRTL processes.
@@ -46,21 +46,25 @@
   synchronize tasks. They communicate events with each other via SST links by triggering their
   corresponding event handlers. The SST models are constructed in C++ and consist of the
   functionality of the element, the definition of each links' ports and the event handlers. The
-  models are connected and initialized through the SST Python module. PyRTL and SystemC are similar
-  platforms that deliberately mimic hardware description languages in Python and C++ respectively.
-  These system-level modeling languages provide event-driven simulation kernels along with signals,
-  events and synchronization primitives.
+  models are connected and initialized through the SST Python module.
+
+  % PyRTL and SystemC are platforms that deliberately mimic hardware description languages in Python
+  % and C++ respectively. These system-level modeling languages provide event-driven simulation
+  % kernels along with signals, events and synchronization primitives.
 
   Implementing a heterogeneous system to synchronize signals and events between the frameworks would
-  allow the developers to work cooperatively and efficiently. This paper provides a demonstration of
-  the interoperability by simulating a vehicular traffic intersection with traffic lights driven by
-  PyRTL and SystemC processes.
+  allow the developers to work cooperatively and efficiently.
+
+  % This paper provides a demonstration of
+  % the interoperability by simulating a vehicular traffic intersection with traffic lights driven by
+  % PyRTL and SystemC processes.
 
   Note: For the sake of simplicity and consistency in the nomenclature, the languages, toolkits or
-  libraries in the following categories will be simply labeled as ``HDL'' or ``external HDL'':
+  libraries in the following categories will be simply labeled as ``hardware description
+  frameworks'', ``HDL'' or ``external HDL'':
   \begin{itemize}
     \item hardware description languages (SystemVerilog, Verilog, VHDL, etc.)
-    \item hardware level modeling languages (Chisel, PyRTL, SystemC, etc.)
+    \item system-level modeling languages (Chisel, PyRTL, SystemC, etc.)
   \end{itemize}
 
   \section{Black Box Interface}
@@ -80,14 +84,8 @@
     \item an SST component
   \end{enumerate}
 
-    \subsection{HDL Driver}
-    Each HDL modules must have their corresponding driver file to interoperate with the SST kernel
-    within the black box interface. The language must be able to bind to interprocess communication
-    (IPC) ports to send and receive data. The driver must be compiled separately from the SST
-    component.
-
     \subsection{SST Component}
-    The black box SST component consist of the following methods:
+    The black box SST component consists of the following methods:
     \begin{itemize}
       \item Constructor
       \item \texttt{void setup()}
@@ -96,16 +94,53 @@
     \end{itemize}
 
       \subsubsection{Constructor}
+      The constructor assigns the component links and declares the member attributes and sizes.
+
       \subsubsection{setup}
+      The overridden method forks and synchronizes with its corresponding HDL driver child process.
+
       \subsubsection{tick}
-      The method simply returns \texttt{false}.
+      The overridden method simply returns \texttt{false} to prevent any clock delays.
 
       \subsubsection{handle\_event}
-      The method is a custom event handler that receives SST String Events and parses the data for tran
+      The method is a custom event handler that receives SST String Events and parses the string
+      buffer for transfer. The first 2 characters of the string are flags for the HDL driver to
+      continue sending and receiving data respectively. The rest of the data is prepended with the
+      HDL driver power state flag and sent to the child process via the selected communication
+      protocol.
+
+    \subsection{HDL Driver}
+    Each HDL modules must have their corresponding driver file to interoperate with the SST kernel
+    within the black box interface. The language or framework must be able to bind to interprocess
+    communication (IPC) ports to send and receive data. The driver must be compiled separately from
+    the SST component.
 
     \subsection{Boilerplate Code Generator}
     The toolkit includes a Python class that generates the boilerplate code required for the black
     box interface.
+
+    The generator expects the following inputs:
+    \begin{itemize}
+
+      \item ipc - method of interprocess communication protocol
+
+      \item module - SST element component and HDL module name
+
+      \item lib - SST element library name
+
+      \item width\_macros (default: dict(None:None)) - mapping of signal width macros to their integer values. An HDL module may declare constants or user-inputted variables in their implementation to determine signal widths. The module can only know the values of those macros by utilizing this parameter.
+
+      \item module\_dir (default: "") - directory of HDL module
+
+      \item lib\_dir (default: "") - directory of SIT library
+
+      \item desc (default: "") - description of the SST model
+
+      \item driver\_template\_path (default: "") - path to the black box-driver boilerplate
+
+      \item component\_template\_path (default: "") - path to the black box-model boilerplate
+
+    \end{itemize}
 
   \begin{figure}[!h]
     \centering
@@ -118,10 +153,10 @@
   \section{Communication}
 
     \subsection{Inter-Black Box Communication} \label{sec:ipc}
-    The data is represented in a standard vector of strings with the indices generated by the black
-    box interface and then serialized with MessagePack methods \cite{msgpack}. The components inside
-    the black box interface are spawned in the same node and therefore communicate via interprocess
-    communication (IPC) transports. The following is a list of supported IPC transports:
+    The data is serialized into a string buffer with the substring positions and lengths generated
+    by the Boilerplate Code Generator. The components inside the black box interface are spawned in
+    the same node and therefore communicate via interprocess communication (IPC) transports. The
+    following is a list of supported IPC transports:
     \begin{enumerate}
       \item Unix domain sockets
       \item ZeroMQ
@@ -140,141 +175,140 @@
     The HDL module utilizes its program specific mechanism of communication to interface the black
     box driver. The method may be source file inclusion or importing modules.
 
-\iffalse
-  \section{Proof of Concept: Traffic Intersection Simulation}
-  A simulation model has been developed to demonstrate the project. The model simulates a traffic
-  intersection controlled by two traffic lights. A flow of traffic is simulated through a road only
-  when its traffic light generates a green or yellow light with the other generating a red light.
-  The number of cars in a traffic flow is represented by random number generators.
+%   \section{Proof of Concept: Traffic Intersection Simulation}
+%   A simulation model has been developed to demonstrate the project. The model simulates a traffic
+%   intersection controlled by two traffic lights. A flow of traffic is simulated through a road only
+%   when its traffic light generates a green or yellow light with the other generating a red light.
+%   The number of cars in a traffic flow is represented by random number generators.
 
-  \begin{figure}[!h]
-    \centering
-    \includegraphics[width=3.5in]{diagrams/intersection.png}
-    \caption{Simple Two-Road Intersection}
-    \label{fig:intersection}
-  \end{figure}
+%   \begin{figure}[!h]
+%     \centering
+%     \includegraphics[width=3.5in]{diagrams/intersection.png}
+%     \caption{Simple Two-Road Intersection}
+%     \label{fig:intersection}
+%   \end{figure}
 
-  The concept of this simulation is derived from the original project that established
-  interoperability between SST and PyRTL. \cite{pyrtl-sst}
+%   The concept of this simulation is derived from the original project that established
+%   interoperability between SST and PyRTL. \cite{pyrtl-sst}
 
-    \subsection{SystemC and PyRTL Drivers}
-    The simulation project includes a SystemC module and a PyRTL module with identical
-    functionalities. Their corresponding drivers interact with the SST component
-    \lstinline{traffic_light}. The module is a clock-driven FSM of three states representing the
-    three colors of a traffic light: green, yellow and red. The FSM proceeds to the next state when
-    indicated by its internal counter initialized in the beginning. The input variables to the
-    module include: the three durations for the three colors of the light, \lstinline{green_time},
-    \lstinline{yellow_time} and \lstinline{red_time}, the preset variable \lstinline{load} to
-    initialize the FSM, and \lstinline{start_green} to indicate if the first state should be
-    ``green'' or ``red''.
+%     \subsection{SystemC and PyRTL Drivers}
+%     The simulation project includes a SystemC module and a PyRTL module with identical
+%     functionalities. Their corresponding drivers interact with the SST component
+%     \lstinline{traffic_light}. The module is a clock-driven FSM of three states representing the
+%     three colors of a traffic light: green, yellow and red. The FSM proceeds to the next state when
+%     indicated by its internal counter initialized in the beginning. The input variables to the
+%     module include: the three durations for the three colors of the light, \lstinline{green_time},
+%     \lstinline{yellow_time} and \lstinline{red_time}, the preset variable \lstinline{load} to
+%     initialize the FSM, and \lstinline{start_green} to indicate if the first state should be
+%     ``green'' or ``red''.
 
-    \begin{figure}[!h]
-      \centering
-      \includegraphics[width=4in]{diagrams/fsm.png}
-      \caption{Traffic Light Finite State Machine}
-      \label{fig:fsm}
-    \end{figure}
+%     \begin{figure}[!h]
+%       \centering
+%       \includegraphics[width=4in]{diagrams/fsm.png}
+%       \caption{Traffic Light Finite State Machine}
+%       \label{fig:fsm}
+%     \end{figure}
 
-    \subsection{SST Components}
-    The project also consists of three SST components: \lstinline{car_generator},
-    \lstinline{traffic_light_controller} and \lstinline{intersection}. All the components with the
-    exception of most of \lstinline{traffic_light_controller} were inherited from the original
-    project.
+%     \subsection{SST Components}
+%     The project also consists of three SST components: \lstinline{car_generator},
+%     \lstinline{traffic_light_controller} and \lstinline{intersection}. All the components with the
+%     exception of most of \lstinline{traffic_light_controller} were inherited from the original
+%     project.
 
-      \begin{figure}[!h]
-        \centering
-        \includegraphics[width=4.5in]{diagrams/intersection_comp.png}
-        \caption{Simple Two-Road Intersection Represented by SST Components}
-        \label{fig:intersection_comp}
-      \end{figure}
+%       \begin{figure}[!h]
+%         \centering
+%         \includegraphics[width=4.5in]{diagrams/intersection_comp.png}
+%         \caption{Simple Two-Road Intersection Represented by SST Components}
+%         \label{fig:intersection_comp}
+%       \end{figure}
 
-      \subsubsection{car\_generator}
-      The \lstinline{car_generator} component consists of a random number generator that yields $0$
-      or $1$. The output is redirected to \lstinline{intersection} via SST links.
+%       \subsubsection{car\_generator}
+%       The \lstinline{car_generator} component consists of a random number generator that yields $0$
+%       or $1$. The output is redirected to \lstinline{intersection} via SST links.
 
-      \subsubsection{traffic\_light}
-      The \lstinline{traffic_light} component generates the light colors of the traffic lights using
-      a simple finite state machine (FSM). The component delegates the FSM portion of its algorithm
-      to the HDL module \lstinline{traffic_light_fsm} and inter-procedurally communicates with
-      it via Unix domain sockets. The component initializes the FSM with the SST parameters and
-      sends its output to \lstinline{intersection} via SST links every clock cycle.
+%       \subsubsection{traffic\_light}
+%       The \lstinline{traffic_light} component generates the light colors of the traffic lights using
+%       a simple finite state machine (FSM). The component delegates the FSM portion of its algorithm
+%       to the HDL module \lstinline{traffic_light_fsm} and inter-procedurally communicates with
+%       it via Unix domain sockets. The component initializes the FSM with the SST parameters and
+%       sends its output to \lstinline{intersection} via SST links every clock cycle.
 
-      \subsubsection{intersection}
-      \lstinline{intersection} is the main driver of the simulation. The component is able to handle
-      $n$ instances of \lstinline{traffic_light} subcomponents and therefore expects the same number
-      of \lstinline{car_generator} instances. For the purposes of this simulation, two instances of
-      the subcomponent pairs are set up. The driver keeps track of the number of cars generated and
-      the color of the light per clock cycle for each subcomponent pairs and stores them in local
-      variables. The variables are summarized in the end to generate statistics about the
-      simulation.
+%       \subsubsection{intersection}
+%       \lstinline{intersection} is the main driver of the simulation. The component is able to handle
+%       $n$ instances of \lstinline{traffic_light} subcomponents and therefore expects the same number
+%       of \lstinline{car_generator} instances. For the purposes of this simulation, two instances of
+%       the subcomponent pairs are set up. The driver keeps track of the number of cars generated and
+%       the color of the light per clock cycle for each subcomponent pairs and stores them in local
+%       variables. The variables are summarized in the end to generate statistics about the
+%       simulation.
 
-      The component does not check for any collisions in the intersection, i.e. comparing if both
-      the \lstinline{traffic_light} subcomponents yield ``green'' during the same clock cycle. The
-      SST Python module is responsible for setting up the \lstinline{traffic_light} components with
-      the proper initial values.
+%       The component does not check for any collisions in the intersection, i.e. comparing if both
+%       the \lstinline{traffic_light} subcomponents yield ``green'' during the same clock cycle. The
+%       SST Python module is responsible for setting up the \lstinline{traffic_light} components with
+%       the proper initial values.
 
-    \subsection{Example Simulation}
-    A sample output of the simulation has been generated and provided below. The SST components were
-    linked along with the parameters in the SST Python module.
+%     \subsection{Example Simulation}
+%     A sample output of the simulation has been generated and provided below. The SST components were
+%     linked along with the parameters in the SST Python module.
 
-\begin{lstlisting}[caption={Sample Simulation Output}, captionpos=b]
-<@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> GREENTIME=30, YELLOWTIME=3, REDTIME=63, STARTGREEN=0
-<@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> GREENTIME=60, YELLOWTIME=3, REDTIME=33, STARTGREEN=1
-<@\textcolor{mauve}{car\_generator-Car Generator 0 ->}@> Minimum Delay Between Cars=3s, Random Number Seed=151515
-<@\textcolor{mauve}{car\_generator-Car Generator 1 ->}@> Minimum Delay Between Cars=5s, Random Number Seed=239478
-<@\textcolor{blue}{intersection-Intersection ->}@> sim_duration=24 Hours
-<@\textcolor{blue}{intersection-Intersection ->}@> Component is being set up.
-<@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> Component is being set up.
-<@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> Forking process "/path/to/traffic_light_fsm.o"...
-<@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> Process "/path/to/traffic_light_fsm.o" successfully synchronized
-<@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Component is being set up.
-<@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Forking process "/path/to/traffic_light_fsm.o"...
-<@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Process "/path/to/traffic_light_fsm_driver.py" successfully synchronized
-<@\textcolor{blue}{intersection-Intersection ->}@> --------------------------------------
-<@\textcolor{blue}{intersection-Intersection ->}@> -------- SIMULATION INITIATED --------
-<@\textcolor{blue}{intersection-Intersection ->}@> --------------------------------------
-<@\textcolor{blue}{intersection-Intersection ->}@> Hour | Total Cars TL0 | Total Cars TL1
-<@\textcolor{blue}{intersection-Intersection ->}@> -----+----------------+---------------
-<@\textcolor{blue}{intersection-Intersection ->}@>    1 |              618 |            369
-<@\textcolor{blue}{intersection-Intersection ->}@>    2 |             1238 |            719
-<@\textcolor{blue}{intersection-Intersection ->}@>    3 |             1851 |           1074
-<@\textcolor{blue}{intersection-Intersection ->}@>    4 |             2432 |           1426
-<@\textcolor{blue}{intersection-Intersection ->}@>    5 |             3041 |           1774
-<@\textcolor{blue}{intersection-Intersection ->}@>    6 |             3688 |           2121
-<@\textcolor{blue}{intersection-Intersection ->}@>    7 |             4290 |           2467
-<@\textcolor{blue}{intersection-Intersection ->}@>    8 |             4892 |           2813
-<@\textcolor{blue}{intersection-Intersection ->}@>    9 |             5467 |           3175
-<@\textcolor{blue}{intersection-Intersection ->}@>   10 |             6054 |           3525
-<@\textcolor{blue}{intersection-Intersection ->}@>   11 |             6644 |           3885
-<@\textcolor{blue}{intersection-Intersection ->}@>   12 |             7228 |           4233
-<@\textcolor{blue}{intersection-Intersection ->}@>   13 |             7813 |           4607
-<@\textcolor{blue}{intersection-Intersection ->}@>   14 |             8435 |           4973
-<@\textcolor{blue}{intersection-Intersection ->}@>   15 |             9047 |           5337
-<@\textcolor{blue}{intersection-Intersection ->}@>   16 |             9656 |           5691
-<@\textcolor{blue}{intersection-Intersection ->}@>   17 |            10255 |           6059
-<@\textcolor{blue}{intersection-Intersection ->}@>   18 |            10843 |           6428
-<@\textcolor{blue}{intersection-Intersection ->}@>   19 |            11448 |           6791
-<@\textcolor{blue}{intersection-Intersection ->}@>   20 |            12025 |           7140
-<@\textcolor{blue}{intersection-Intersection ->}@>   21 |            12617 |           7499
-<@\textcolor{blue}{intersection-Intersection ->}@>   22 |            13225 |           7867
-<@\textcolor{blue}{intersection-Intersection ->}@>   23 |            13807 |           8223
-<@\textcolor{blue}{intersection-Intersection ->}@>   24 |            14400 |           8580
-<@\textcolor{blue}{intersection-Intersection ->}@> 
-<@\textcolor{blue}{intersection-Intersection ->}@> -------------------------------------------
-<@\textcolor{blue}{intersection-Intersection ->}@> ---------- SIMULATION STATISTICS ----------
-<@\textcolor{blue}{intersection-Intersection ->}@> -------------------------------------------
-<@\textcolor{blue}{intersection-Intersection ->}@> Traffic Light | Total Cars | Largest Backup
-<@\textcolor{blue}{intersection-Intersection ->}@> --------------+------------+---------------
-<@\textcolor{blue}{intersection-Intersection ->}@>              0 |       14400 |              18
-<@\textcolor{blue}{intersection-Intersection ->}@>              1 |        8581 |               7
-<@\textcolor{blue}{intersection-Intersection ->}@> Destroying Intersection...
-<@\textcolor{mauve}{car\_generator-Car Generator 1 ->}@> Destroying Car Generator 1...
-<@\textcolor{mauve}{car\_generator-Car Generator 0 ->}@> Destroying Car Generator 0...
-<@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> Destroying Traffic (SystemC)...
-<@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Destroying Traffic (PyRTL)...
-Simulation is complete, simulated time: 86.4 Ks
-\end{lstlisting}
-\fi
+% \begin{lstlisting}[caption={Sample Simulation Output}, captionpos=b]
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> GREENTIME=30, YELLOWTIME=3, REDTIME=63, STARTGREEN=0
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> GREENTIME=60, YELLOWTIME=3, REDTIME=33, STARTGREEN=1
+% <@\textcolor{mauve}{car\_generator-Car Generator 0 ->}@> Minimum Delay Between Cars=3s, Random Number Seed=151515
+% <@\textcolor{mauve}{car\_generator-Car Generator 1 ->}@> Minimum Delay Between Cars=5s, Random Number Seed=239478
+% <@\textcolor{blue}{intersection-Intersection ->}@> sim_duration=24 Hours
+% <@\textcolor{blue}{intersection-Intersection ->}@> Component is being set up.
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> Component is being set up.
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> Forking process "/path/to/traffic_light_fsm.o"...
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> Process "/path/to/traffic_light_fsm.o" successfully synchronized
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Component is being set up.
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Forking process "/path/to/traffic_light_fsm.o"...
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Process "/path/to/traffic_light_fsm_driver.py" successfully synchronized
+% <@\textcolor{blue}{intersection-Intersection ->}@> --------------------------------------
+% <@\textcolor{blue}{intersection-Intersection ->}@> -------- SIMULATION INITIATED --------
+% <@\textcolor{blue}{intersection-Intersection ->}@> --------------------------------------
+% <@\textcolor{blue}{intersection-Intersection ->}@> Hour | Total Cars TL0 | Total Cars TL1
+% <@\textcolor{blue}{intersection-Intersection ->}@> -----+----------------+---------------
+% <@\textcolor{blue}{intersection-Intersection ->}@>    1 |              618 |            369
+% <@\textcolor{blue}{intersection-Intersection ->}@>    2 |             1238 |            719
+% <@\textcolor{blue}{intersection-Intersection ->}@>    3 |             1851 |           1074
+% <@\textcolor{blue}{intersection-Intersection ->}@>    4 |             2432 |           1426
+% <@\textcolor{blue}{intersection-Intersection ->}@>    5 |             3041 |           1774
+% <@\textcolor{blue}{intersection-Intersection ->}@>    6 |             3688 |           2121
+% <@\textcolor{blue}{intersection-Intersection ->}@>    7 |             4290 |           2467
+% <@\textcolor{blue}{intersection-Intersection ->}@>    8 |             4892 |           2813
+% <@\textcolor{blue}{intersection-Intersection ->}@>    9 |             5467 |           3175
+% <@\textcolor{blue}{intersection-Intersection ->}@>   10 |             6054 |           3525
+% <@\textcolor{blue}{intersection-Intersection ->}@>   11 |             6644 |           3885
+% <@\textcolor{blue}{intersection-Intersection ->}@>   12 |             7228 |           4233
+% <@\textcolor{blue}{intersection-Intersection ->}@>   13 |             7813 |           4607
+% <@\textcolor{blue}{intersection-Intersection ->}@>   14 |             8435 |           4973
+% <@\textcolor{blue}{intersection-Intersection ->}@>   15 |             9047 |           5337
+% <@\textcolor{blue}{intersection-Intersection ->}@>   16 |             9656 |           5691
+% <@\textcolor{blue}{intersection-Intersection ->}@>   17 |            10255 |           6059
+% <@\textcolor{blue}{intersection-Intersection ->}@>   18 |            10843 |           6428
+% <@\textcolor{blue}{intersection-Intersection ->}@>   19 |            11448 |           6791
+% <@\textcolor{blue}{intersection-Intersection ->}@>   20 |            12025 |           7140
+% <@\textcolor{blue}{intersection-Intersection ->}@>   21 |            12617 |           7499
+% <@\textcolor{blue}{intersection-Intersection ->}@>   22 |            13225 |           7867
+% <@\textcolor{blue}{intersection-Intersection ->}@>   23 |            13807 |           8223
+% <@\textcolor{blue}{intersection-Intersection ->}@>   24 |            14400 |           8580
+% <@\textcolor{blue}{intersection-Intersection ->}@> 
+% <@\textcolor{blue}{intersection-Intersection ->}@> -------------------------------------------
+% <@\textcolor{blue}{intersection-Intersection ->}@> ---------- SIMULATION STATISTICS ----------
+% <@\textcolor{blue}{intersection-Intersection ->}@> -------------------------------------------
+% <@\textcolor{blue}{intersection-Intersection ->}@> Traffic Light | Total Cars | Largest Backup
+% <@\textcolor{blue}{intersection-Intersection ->}@> --------------+------------+---------------
+% <@\textcolor{blue}{intersection-Intersection ->}@>              0 |       14400 |              18
+% <@\textcolor{blue}{intersection-Intersection ->}@>              1 |        8581 |               7
+% <@\textcolor{blue}{intersection-Intersection ->}@> Destroying Intersection...
+% <@\textcolor{mauve}{car\_generator-Car Generator 1 ->}@> Destroying Car Generator 1...
+% <@\textcolor{mauve}{car\_generator-Car Generator 0 ->}@> Destroying Car Generator 0...
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (SystemC) ->}@> Destroying Traffic (SystemC)...
+% <@\textcolor{dkgreen}{traffic\_light-Traffic (PyRTL) ->}@> Destroying Traffic (PyRTL)...
+% Simulation is complete, simulated time: 86.4 Ks
+% \end{lstlisting}
+
   \section{Extensibility}
 
     \subsection{Communication}
@@ -286,7 +320,6 @@ Simulation is complete, simulated time: 86.4 Ks
     of reading and flushing buffers.
 
     \subsection{Interface}
-
     This entire paper focuses on the interoperability established between SST and SystemC processes.
     However, the concept was derived off of the efforts already established by the SST-PyRTL project
     \cite{pyrtl-sst}. In fact, a hybrid version of the Traffic Intersection Simulation has been
@@ -305,14 +338,8 @@ Simulation is complete, simulated time: 86.4 Ks
 
     \bibitem{sst} SST Simulator - The Structural Simulation Toolkit. \texttt{sst-simulator.org}.
 
-    \bibitem{sysc} 1666-2011 - IEEE Standard for Standard SystemC Language Reference Manual. IEEE, 9
-    Jan. 2012, \texttt{standards.ieee.org/standard/1666-2011.html}.
-
     \bibitem{pyrtl-sst} Mrosky, Robert P, et al.
     \textit{Creating Heterogeneous Simulations with SST and PyRTL}.
-
-    \bibitem{msgpack} ``MessagePack.'' \textit{MessagePack: It's like JSON. but Fast and Small.,}
-    msgpack.org/index.html.
 
   \end{thebibliography}
 

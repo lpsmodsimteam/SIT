@@ -3,7 +3,7 @@
 
 A toolkit to provide interoperability between [Structural Simulation Toolkit (SST)](https://github.com/sstsimulator/sst-core) and external hardware description languages (HDL).
 
-___Note__: For the sake of simplicity and consistency in the nomenclature, the languages, toolkits or libraries in the following categories will be simply labeled as HDLs:_
+___Note__: For the sake of simplicity and consistency in the nomenclature, the languages, toolkits or libraries in the following categories will be simply labeled as HDL:_
 - _hardware description languages (SystemVerilog, Verilog, VHDL, etc.)_
 - _hardware level modeling languages (Chisel, PyRTL, SystemC, etc.)_
 
