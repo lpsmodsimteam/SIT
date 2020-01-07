@@ -16,6 +16,13 @@ endef
 HDL_LIST = systemc pyrtl
 IPC = sock zmq
 
+.PHONY: chisel
+.ONESHELL:
+chisel:
+	cd chisel
+	mkdir -p build && mkdir -p sock/blackboxes
+
+
 .PHONY: test
 test: $(HDL_LIST)
 
@@ -30,11 +37,10 @@ $(HDL_LIST):
 $(IPC):
 	@$(call iecho,"Running $(HDL) tests using $@...")
 	cd $(HDL)
-	mkdir -p build
-	mkdir -p $@/blackboxes && mkdir -p common/blackboxes
+	mkdir -p build && mkdir -p $@/blackboxes
 	@$(call iecho,"Generating boilerplate files...")
 	python generate_bbox.py $@ || { $(call eecho,"Install the boilerplate generator"); exit 1; }
-	mv blackboxes/* $@/blackboxes
+	mv blackboxes $@
 	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=$(shell echo $@ | tr a-z A-Z) .. && $(MAKE)
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
 	@$(call iecho,"Running simulations...")
