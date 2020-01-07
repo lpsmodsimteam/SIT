@@ -23,11 +23,11 @@ mem[address] <<= pyrtl.MemBlock.EnabledWrite(data_in, we & cs)
 data_out_wire = pyrtl.wire.WireVector(DATA_WIDTH, "DATA_WIDTH")
 
 with pyrtl.conditional_assignment:
-    with oe:
+    with cs:
         with we:
             pass
         with pyrtl.otherwise:
-            with cs:
+            with oe:
                 data_out_wire |= mem[address]
 
 data_out <<= data_out_wire

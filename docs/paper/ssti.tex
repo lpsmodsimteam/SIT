@@ -128,7 +128,7 @@
 
       \item lib - SST element library name
 
-      \item width\_macros (default: dict(None:None)) - mapping of signal width macros to their integer values. An HDL module may declare constants or user-inputted variables in their implementation to determine signal widths. The module can only know the values of those macros by utilizing this parameter.
+      \item width\_macros (default: None) - mapping of signal width macros to their integer values. An HDL module may declare constants or user-inputted variables in their implementation to determine signal widths.
 
       \item module\_dir (default: "") - directory of HDL module
 
@@ -142,6 +142,8 @@
 
     \end{itemize}
 
+  \section{Communication}
+
   \begin{figure}[!h]
     \centering
     \includegraphics[width=5in]{diagrams/data_flow.png}
@@ -149,8 +151,6 @@
     Communication Signals}
     \label{fig:data_flow}
   \end{figure}
-
-  \section{Communication}
 
     \subsection{Inter-Black Box Communication} \label{sec:ipc}
     The data is serialized into a string buffer with the substring positions and lengths generated
