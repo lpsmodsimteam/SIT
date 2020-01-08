@@ -20,7 +20,14 @@ IPC = sock zmq
 .ONESHELL:
 chisel:
 	cd chisel
-	mkdir -p build && mkdir -p sock/blackboxes
+	mkdir -p build
+	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=SOCK .. && $(MAKE)
+	mv libtests.so ../sock
+	cd ../sock
+	sst-register chisel chisel_LIBDIR=$(BASE_DIR)/chisel/sock
+	@$(call iecho,"Running simulations...")
+	sst run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
+	python ../../read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $@") || $(call eecho,"FAILED: $(HDL) using $@")
 
 
 .PHONY: test
@@ -56,4 +63,6 @@ clean:
 	find . -name "*.pyc" -type f -delete
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +
 	@$(call iecho,"Removing black boxes and build files...")
-	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +
+	find . \( -name "target" -o -name "test_run_dir" -o -name "project" -o -name "build" \) -type d -exec rm -rf {} +
+
+# find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +

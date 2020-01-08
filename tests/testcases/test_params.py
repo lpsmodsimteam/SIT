@@ -40,8 +40,7 @@ def setup(hdl, ipc, comp):
     elif hdl == "pyrtl":
         proc = os.path.join(os.path.dirname(BASE_PATH), ipc, "blackboxes", "ram_driver.py")
     elif hdl == "chisel":
-        print(BASE_PATH)
-        proc = os.path.join("sbt 'test:runMain ram.RAMMain'")
+        proc = "test:runMain ram.RAMMain"
     else:
         raise NotImplementedError()
     ram_comp.addParams({
