@@ -34,7 +34,7 @@ def setup(hdl, ipc, comp):
     })
 
     ram_comp = sst.Component("ram", "tests.ram")
-    # override default parameters
+
     if hdl == "systemc":
         proc = os.path.join(BASE_PATH, "ram.o")
     elif hdl == "pyrtl":
