@@ -7,7 +7,7 @@ import scala.util.control.Breaks._
 import org.newsclub.net.unix.{AFUNIXSocket, AFUNIXSocketAddress, AFUNIXServerSocket}
 import chisel3.iotesters
 
-class {module}UnitTester(c: RAM, args: Array[String]) extends iotesters.PeekPokeTester(c) {{
+class {module}Driver(c: {module}, args: Array[String]) extends iotesters.PeekPokeTester(c) {{
 
     private val {module} = c
 
@@ -20,14 +20,14 @@ class {module}UnitTester(c: RAM, args: Array[String]) extends iotesters.PeekPoke
     ostream.write(ProcessHandle.current().pid().toString.getBytes("UTF-8"))
     ostream.flush()
 
-    var _buf = new Array[Byte](10)
+    var _buf = new Array[Byte]({buf_size})
 
     breakable {{
 
         while (true) {{
 
             var read: Int = istream.read(_buf)
-            var signal = new String(_buf, UTF_8)
+            var signal: String = new String(_buf, UTF_8)
 
             var alive: Int = signal.slice(0, 1).toInt
             signal = signal.slice(1, read)
@@ -36,11 +36,7 @@ class {module}UnitTester(c: RAM, args: Array[String]) extends iotesters.PeekPoke
                 break
             }}
 
-            var address: Int = signal.slice(0, 3).toInt
-            var cs: Boolean = signal.slice(3, 4).toInt == 1
-            var we: Boolean = signal.slice(4, 5).toInt == 1
-            var oe: Boolean = signal.slice(5, 6).toInt == 1
-            var data_in: Int = signal.slice(6, 9).toInt
+            {inputs}
 
             poke({module}.io.address, address)
             poke({module}.io.cs, cs)
@@ -62,7 +58,7 @@ class {module}UnitTester(c: RAM, args: Array[String]) extends iotesters.PeekPoke
 }}
 
 object {module}Main extends App {{
-  iotesters.Driver.execute(args, () => new RAM) {{
-    c => new RAMUnitTester(c, args)
+  iotesters.Driver.execute(args, () => new {module}) {{
+    c => new {module}Driver(c, args)
   }}
 }}

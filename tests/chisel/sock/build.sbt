@@ -26,7 +26,7 @@ def javacOptionsVersion(scalaVersion: String): Seq[String] = {
   }
 }
 
-name := "chisel-module-template"
+name := "ram"
 
 version := "3.2.0"
 
@@ -52,3 +52,5 @@ libraryDependencies += "com.kohlschutter.junixsocket" % "junixsocket-core" % "2.
 scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
 
 javacOptions ++= javacOptionsVersion(scalaVersion.value)
+
+scalaSource in Compile := file("/home/sabbir/sit/tests/chisel/sock")

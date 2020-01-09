@@ -2,7 +2,7 @@ package ram
 
 import chisel3._
 
-class RAM extends Module {
+class ram extends Module {
     val DATA_WIDTH: Int = 8
     val ADDR_WIDTH: Int = 8
     val RAM_DEPTH: Int = 1 << 8
