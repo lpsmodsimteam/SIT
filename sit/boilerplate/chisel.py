@@ -73,7 +73,7 @@ class Chisel(BoilerPlate):
         int
             signal width
         """
-        if signal == "1":
+        if any(x in signal for x in ("bool", "Bool", "Boolean")):
             return 1
 
         def __get_ints(sig):

@@ -2,15 +2,15 @@ MAKEFLAGS += --no-print-directory
 BASE_DIR = $(CURDIR)
 
 define iecho
-	echo "\e[1;34m$1\e[0m"
+	echo -e "\e[1;34m$1\e[0m"
 endef
 
 define secho
-	echo "\e[1;32m$1\e[0m"
+	echo -e "\e[1;32m$1\e[0m"
 endef
 
 define eecho
-	echo "\e[1;31m$1\e[0m"
+	echo -e "\e[1;31m$1\e[0m"
 endef
 
 HDL_LIST = systemc pyrtl
@@ -64,4 +64,4 @@ clean:
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +
 	@$(call iecho,"Removing black boxes and build files...")
 	find . \( -name "target" -o -name "test_run_dir" -o -name "project" -o -name "build" \) -type d -exec rm -rf {} +
-	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +
+# 	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +

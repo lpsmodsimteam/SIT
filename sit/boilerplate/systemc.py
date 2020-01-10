@@ -72,8 +72,8 @@ class SystemC(BoilerPlate):
 
         Returns:
         --------
-        tuple2(str,int)
-            C++ datatype and its size
+        int
+            signal width
         """
         def __get_ints():
             """Extract integers from signal string
