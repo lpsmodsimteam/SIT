@@ -48,16 +48,17 @@ class Chisel(BoilerPlate):
             component_template_path=component_template_path
         )
 
-        if self.ipc == "sock":
+        # if self.ipc == "sock":
 
-            # driver attributes
-            self.driver_ipc = "socket"
-            self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""
-            self.send = "sendall"
-            self.connect = "connect"
+        #     # driver attributes
+        #     self.driver_ipc = "socket"
+        #     self.driver_bind = "_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"
+        #     self.send = "sendall"
+        #     self.connect = "connect"
 
         self.driver_path += "_driver.scala"
         self.comp_path += "_comp.cpp"
+        self.sbt_built = "build.sbt"
 
     @staticmethod
     def __parse_signal_type(signal):
@@ -90,7 +91,7 @@ class Chisel(BoilerPlate):
             snippet of code representing output bindings
         """
         return self._sig_fmt(
-            "str({module}.sim.inspect({module}.{sig})).encode()",
+            "peek({module}.io.{sig}).toString",
             lambda x: {
                 "module": self.module,
                 "sig": x[-1]
@@ -108,7 +109,7 @@ class Chisel(BoilerPlate):
             _generate_driver_inputs(*args)
         """
         return self._generate_driver_inputs(
-            fmt="var {sig} = signal.slice({sp}, {sl}).toInt",
+            fmt="poke({module}.io.{sig} = signal.slice({sp}, {sl}).toInt)",
             start_pos=0,
             signal_type_parser=self.__parse_signal_type,
             splice=True

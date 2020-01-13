@@ -1,10 +1,10 @@
 package {module}
 
-import java.io.{File, InputStream, OutputStream}
+import java.io.{{File, InputStream, OutputStream}}
 import java.nio.charset.StandardCharsets.UTF_8
-import scala.util.control.Breaks._
+import scala.util.control.Breaks.{{break, breakable}}
 
-import org.newsclub.net.unix.{AFUNIXSocket, AFUNIXSocketAddress, AFUNIXServerSocket}
+import org.newsclub.net.unix.{{AFUNIXSocket, AFUNIXSocketAddress, AFUNIXServerSocket}}
 import chisel3.iotesters
 
 class {module}Driver(c: {module}, args: Array[String]) extends iotesters.PeekPokeTester(c) {{
@@ -20,34 +20,29 @@ class {module}Driver(c: {module}, args: Array[String]) extends iotesters.PeekPok
     ostream.write(ProcessHandle.current().pid().toString.getBytes("UTF-8"))
     ostream.flush()
 
+    var alive: Int = _
+    var signal: String = _
     var _buf = new Array[Byte]({buf_size})
+    var _read: Int = _
 
     breakable {{
 
         while (true) {{
 
-            var read: Int = istream.read(_buf)
+            var _read: Int = istream.read(_buf)
             var signal: String = new String(_buf, UTF_8)
 
             var alive: Int = signal.slice(0, 1).toInt
-            signal = signal.slice(1, read)
+            signal = signal.slice(1, _read)
 
             if (alive == 0) {{
                 break
             }}
 
             {inputs}
-
-            poke({module}.io.address, address)
-            poke({module}.io.cs, cs)
-            poke({module}.io.we, we)
-            poke({module}.io.oe, oe)
-            poke({module}.io.data_in, data_in)
             step(1)
 
-            var data_out: String = peek({module}.io.data_out).toString
-
-            ostream.write(data_out.getBytes("UTF-8"))
+            ostream.write(({outputs}).getBytes("UTF-8"))
             ostream.flush()
 
         }}

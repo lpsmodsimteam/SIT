@@ -13,8 +13,17 @@ define eecho
 	echo -e "\e[1;31m$1\e[0m"
 endef
 
+define generate
+	python $(BASE_DIR)/$1/generate_bbox.py $2 || { $(call eecho,"Install the boilerplate generator"); exit 1; }
+endef
+
+define read_mem
+	python $(BASE_DIR)/read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $1") || $(call eecho,"FAILED: $(HDL) using $1")
+endef
+
 HDL_LIST = systemc pyrtl
-IPC = sock zmq
+HDL := $(HDL_LIST)
+IPC_LIST = sock zmq
 
 .PHONY: chisel
 .ONESHELL:
@@ -27,7 +36,11 @@ chisel:
 	sst-register chisel chisel_LIBDIR=$(BASE_DIR)/chisel/build/sock
 	@$(call iecho,"Running simulations...")
 	sst ../sock/run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
-	python ../../read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $@") || $(call eecho,"FAILED: $(HDL) using $@")
+	@$(call read_mem,$@)
+
+.PHONY: generate
+generate:
+	@$(call generate,$(HDL),$(IPC))
 
 
 .PHONY: test
@@ -36,23 +49,30 @@ test: $(HDL_LIST)
 
 .PHONY: $(HDL_LIST)
 $(HDL_LIST):
-	@${MAKE} $(IPC) HDL=$@
+	@${MAKE} $(IPC_LIST) HDL=$@
 
 
-.PHONY: $(IPC)
+.PHONY: $(IPC_LIST)
 .ONESHELL:
-$(IPC):
+$(IPC_LIST):
 	@$(call iecho,"Running $(HDL) tests using $@...")
 	cd $(HDL)
 	mkdir -p build
 	@$(call iecho,"Generating boilerplate files...")
-	python generate_bbox.py $@ || { $(call eecho,"Install the boilerplate generator"); exit 1; }
-	mv blackboxes $@
+	@$(call generate,$(HDL),$@) && mv blackboxes $@
 	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=$(shell echo $@ | tr a-z A-Z) .. && $(MAKE)
+ifeq ($(HDL), "chisel")
+	cp ../$@/build.sbt .
+endif
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
 	@$(call iecho,"Running simulations...")
-	sst ../$@/run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
-	python ../../read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $@") || $(call eecho,"FAILED: $(HDL) using $@")
+	sst ../$@/run.py || { $(call eecho,"SST failed to launch properly"); exit 1; }
+	@$(call read_mem,$@)
+
+
+.PHONY: ipc
+ipc:
+	@$(foreach hdl, $(HDL_LIST), ${MAKE} $(IPC) HDL=$(hdl);)
 
 
 .PHONY: clean
@@ -64,4 +84,5 @@ clean:
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +
 	@$(call iecho,"Removing black boxes and build files...")
 	find . \( -name "target" -o -name "test_run_dir" -o -name "project" -o -name "build" \) -type d -exec rm -rf {} +
+
 # 	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +

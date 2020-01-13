@@ -55,7 +55,7 @@ class PyRTL(BoilerPlate):
 
             # driver attributes
             self.driver_ipc = "socket"
-            self.driver_bind = """_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"""
+            self.driver_bind = "_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"
             self.send = "sendall"
             self.connect = "connect"
 
