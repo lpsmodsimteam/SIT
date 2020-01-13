@@ -5,6 +5,8 @@ from setuptools import setup
 
 from boilerplate import boilerplate
 
+HDL = ("chisel", "pyrtl", "systemc")
+
 setup(
     name="boilerplate",
     version=os.environ["SIT_VERSION"],
@@ -18,13 +20,8 @@ setup(
         "boilerplate": "boilerplate"
     },
     data_files=[
-        ("boilerplate/template/pyrtl",
-         ["boilerplate/template/pyrtl/driver",
-          "boilerplate/template/pyrtl/comp"]
-         ),
-        ("boilerplate/template/systemc",
-         ["boilerplate/template/systemc/driver",
-          "boilerplate/template/systemc/comp"]
-         )
-    ],
+        ("boilerplate/template/" + hdl,
+         ["boilerplate/template/" + hdl + "/driver",
+          "boilerplate/template/" + hdl + "/comp"]
+         ) for hdl in HDL]
 )

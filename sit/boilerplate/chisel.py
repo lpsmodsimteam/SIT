@@ -109,7 +109,7 @@ class Chisel(BoilerPlate):
             _generate_driver_inputs(*args)
         """
         return self._generate_driver_inputs(
-            fmt="poke({module}.io.{sig} = signal.slice({sp}, {sl}).toInt)",
+            fmt="poke(uut.io.{sig} = signal.slice({sp}, {sl}).toInt)",
             start_pos=0,
             signal_type_parser=self.__parse_signal_type,
             splice=True
@@ -124,11 +124,6 @@ class Chisel(BoilerPlate):
             format mapping of template Chisel driver string
         """
         return {
-            "ipc": self.driver_ipc,
-            "driver_bind": self.driver_bind,
-            "connect": self.connect,
-            "send": self.send,
-            "module_dir": self.module_dir,
             "module": self.module,
             "buf_size": self.buf_size
         }
