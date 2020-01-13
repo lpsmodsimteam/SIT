@@ -15,6 +15,7 @@ class {module} : public SST::Component {{
     SST::Link *m_din_link, *m_dout_link;
 
    public:
+    // constructor for component
     {module}(SST::ComponentId_t id, SST::Params &params)
         : SST::Component(id),
           m_signal_io({buf_size}),
@@ -43,7 +44,7 @@ class {module} : public SST::Component {{
         if (!child_pid) {{
 
             m_proc += " " + m_ipc_port;
-            char *args[] = {(char *) "sbt", &m_proc[0u], nullptr};
+            char *args[] = {{(char *) "sbt", &m_proc[0u], nullptr}};
             m_output.verbose(CALL_INFO, 1, 0, "Forking process \"sbt \'%s\'\"...\n", m_proc.c_str());
             execvp(args[0], args);
 
@@ -73,7 +74,7 @@ class {module} : public SST::Component {{
             bool keep_recv = _data_in[1] != '0';
             _data_in = 'X' + _data_in.substr(2);
 
-            // inputs from parent SST model, outputs to PyRTL child process
+            // inputs from parent SST model, outputs to Chisel child process
             {sender}.set(_data_in);
 
             if (keep_send) {{
@@ -84,7 +85,7 @@ class {module} : public SST::Component {{
                 {receiver}.recv();
             }}
 
-            // inputs to parent SST model, outputs from PyRTL child process
+            // inputs to parent SST model, outputs from Chisel child process
             std::string _data_out = {receiver}.get();
             m_dout_link->send(new SST::Interfaces::StringEvent(_data_out));
 

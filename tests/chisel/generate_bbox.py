@@ -16,11 +16,11 @@ if __name__ == "__main__":
         module_dir="../../common/",
     )
     boilerplate_obj.set_ports((
-        ("Int", "address", "input"),
-        ("Boolean", "cs", "input"),
-        ("Boolean", "we", "input"),
-        ("Boolean", "oe", "input"),
-        ("Int", "data_in", "input"),
-        ("Int", "data_out", "output"),
+        ("8", "address", "input"),
+        ("1", "cs", "input"),
+        ("1", "we", "input"),
+        ("1", "oe", "input"),
+        ("8", "data_in", "input"),
+        ("8", "data_out", "output"),
     ))
     boilerplate_obj.generate_bbox()

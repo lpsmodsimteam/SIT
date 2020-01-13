@@ -3,3 +3,4 @@
 
 from .pyrtl import PyRTL
 from .systemc import SystemC
+from .chisel import Chisel

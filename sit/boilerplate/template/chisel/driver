@@ -9,7 +9,7 @@ import chisel3.iotesters
 
 class {module}Driver(c: {module}, args: Array[String]) extends iotesters.PeekPokeTester(c) {{
 
-    private val {module} = c
+    private val uut = c
 
     private val _sock: AFUNIXSocket = AFUNIXSocket.newInstance()
     _sock.connect(new AFUNIXSocketAddress(new File(args(0))))
@@ -29,10 +29,10 @@ class {module}Driver(c: {module}, args: Array[String]) extends iotesters.PeekPok
 
         while (true) {{
 
-            var _read: Int = istream.read(_buf)
-            var signal: String = new String(_buf, UTF_8)
+            _read = istream.read(_buf)
+            signal = new String(_buf, UTF_8)
 
-            var alive: Int = signal.slice(0, 1).toInt
+            alive = signal.slice(0, 1).toInt
             signal = signal.slice(1, _read)
 
             if (alive == 0) {{

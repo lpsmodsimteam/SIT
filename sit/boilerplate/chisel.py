@@ -74,7 +74,7 @@ class Chisel(BoilerPlate):
         int
             signal width
         """
-        if any(x in signal for x in ("bool", "Bool", "Boolean")):
+        if signal == "1":
             return 1
 
         def __get_ints(sig):
@@ -91,7 +91,7 @@ class Chisel(BoilerPlate):
             snippet of code representing output bindings
         """
         return self._sig_fmt(
-            "peek({module}.io.{sig}).toString",
+            "peek(uut.io.{sig}).toString",
             lambda x: {
                 "module": self.module,
                 "sig": x[-1]
