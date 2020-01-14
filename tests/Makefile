@@ -42,6 +42,7 @@ $(HDL_LIST):
 .PHONY: $(IPC)
 .ONESHELL:
 $(IPC):
+	@if [ "$(HDL)/$@" = "chisel/zmq" ]; then exit; fi
 	@$(call iecho,"Running $(HDL) tests using $@...")
 	cd $(HDL)
 	mkdir -p build
@@ -55,7 +56,6 @@ endif
 	@$(call iecho,"Running simulations...")
 	sst ../$@/run.py || { $(call eecho,"SST failed to launch properly"); exit 1; }
 	@$(call read_mem,$@)
-
 
 .PHONY: ipc
 ipc:
