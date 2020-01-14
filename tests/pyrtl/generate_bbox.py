@@ -12,8 +12,8 @@ if __name__ == "__main__":
         module="ram",
         lib="tests",
         desc="Demonstration of a PyRTL hardware simulation in SST",
-        module_dir="../../common/",
         lib_dir="../../../../sit/",
+        module_dir="../../common/",
     )
     boilerplate_obj.set_ports((
         ("8", "address", "input"),

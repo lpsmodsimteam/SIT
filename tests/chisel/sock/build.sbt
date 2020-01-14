@@ -51,7 +51,8 @@ libraryDependencies ++= Seq("chisel3","chisel-iotesters").map {
 libraryDependencies += "com.kohlschutter.junixsocket" % "junixsocket-core" % "2.3.0"
 
 scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
-
 javacOptions ++= javacOptionsVersion(scalaVersion.value)
 
-scalaSource in Compile := file(sys.env.get("HOME").get + "/SIT/tests/chisel/sock")
+sourcesInBase := false
+scalaSource in Compile := baseDirectory.value / "../sock"
+unmanagedSourceDirectories in Compile += baseDirectory.value / "../common"

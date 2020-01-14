@@ -187,51 +187,6 @@ class BoilerPlate(object):
             except KeyError:
                 raise PortException(f"{port_type} is an invalid port type") from None
 
-    def _generate_driver_inputs(self, fmt, start_pos, signal_type_parser, splice=False,
-                                clock_fmt=""):
-        """Generate input bindings for the driver.
-
-        Parameters:
-        -----------
-        fmt : str
-            format string for inputs
-        start_pos : int
-            starting position of signals
-        signal_type_parser : func or lambda
-            signal parser
-        splice : bool (default: False)
-            if signals are being spliced from a buffer.
-            If true, the starting position is added to the signal length.
-        clock_fmt : str (default: "")
-            special string format for clock signals
-
-        Returns:
-        --------
-        str
-            snippet of code representing input bindings
-        """
-        driver_inputs = []
-        for input_type, input_name in self.ports["input"]:
-            sig_len = signal_type_parser(input_type)
-            driver_inputs.append(
-                fmt.format(
-                    sp=start_pos,
-                    sl=str(sig_len + (splice * start_pos)),
-                    sig=input_name,
-                )
-            )
-            start_pos += sig_len
-
-        if self.ports["clock"]:
-            for clock_type, clock_name in self.ports["clock"]:
-                driver_inputs.append(
-                    clock_fmt.format(sp=start_pos, sig=clock_name)
-                )
-                start_pos += int(self._get_signal_width(clock_type))
-
-        self.buf_size = start_pos + 1 if splice else start_pos
-        return ("\n" + " " * 8).join(driver_inputs)
-
     def __get_comp_defs(self):
         """Map definitions for the component format string
 

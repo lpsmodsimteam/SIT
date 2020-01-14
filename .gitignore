@@ -23,7 +23,7 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-# blackboxes/
+blackboxes/
 
 *.log
 

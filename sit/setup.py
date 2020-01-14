@@ -6,11 +6,12 @@ from setuptools import setup
 from boilerplate import boilerplate
 
 HDL = ("chisel", "pyrtl", "systemc")
+TEMPL_DIR = "boilerplate/template/"
 
 setup(
     name="boilerplate",
     version=os.environ["SIT_VERSION"],
-    description="SST Interoperable Boilerplate Black Box Generator",
+    description="SST Interoperability Toolkit Boilerplate Black Box Generator",
     long_description=boilerplate.__doc__,
     author="Sabbir Ahmed",
     author_email="ahmed_sabbir@bah.com",
@@ -20,8 +21,9 @@ setup(
         "boilerplate": "boilerplate"
     },
     data_files=[
-        ("boilerplate/template/" + hdl,
-         ["boilerplate/template/" + hdl + "/driver",
-          "boilerplate/template/" + hdl + "/comp"]
-         ) for hdl in HDL]
+        (TEMPL_DIR + hdl,
+         [TEMPL_DIR + hdl + "/driver",
+          TEMPL_DIR + hdl + "/comp"]
+         ) for hdl in HDL
+    ],
 )

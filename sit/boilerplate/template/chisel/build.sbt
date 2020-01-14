@@ -1,5 +1,3 @@
-// See README.md for license details.
-
 def scalacOptionsVersion(scalaVersion: String): Seq[String] = {
   Seq() ++ {
     // If we're building with Scala > 2.11, enable the compile option
@@ -26,12 +24,9 @@ def javacOptionsVersion(scalaVersion: String): Seq[String] = {
   }
 }
 
-name := "ram"
-
+name := "{module}"
 version := "3.2.0"
-
 scalaVersion := "2.12.10"
-
 crossScalaVersions := Seq("2.12.10", "2.11.12")
 
 resolvers ++= Seq(
@@ -48,10 +43,11 @@ val defaultVersions = Map(
 libraryDependencies ++= Seq("chisel3","chisel-iotesters").map {
   dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep))
 }
-libraryDependencies += "com.kohlschutter.junixsocket" % "junixsocket-core" % "2.3.0"
+libraryDependencies += {ipc}
 
 scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
-
 javacOptions ++= javacOptionsVersion(scalaVersion.value)
 
-scalaSource in Compile := file(sys.env.get("HOME").get + "/SIT/tests/chisel/sock")
+sourcesInBase := false
+scalaSource in Compile := baseDirectory.value / "../sock"
+unmanagedSourceDirectories in Compile += baseDirectory.value / "../common"

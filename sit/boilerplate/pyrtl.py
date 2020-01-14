@@ -112,19 +112,29 @@ _sock = context.socket(zmq.REQ)"""
         )
 
     def _get_driver_inputs(self):
-        """Wrap base _generate_driver_inputs() method with overridden parameters
+        """Generate input bindings for the driver.
 
         Returns:
         --------
-        func
-            _generate_driver_inputs(*args)
+        str
+            snippet of code representing input bindings
         """
-        return self._generate_driver_inputs(
-            fmt="\"{sig}\": int(signal[{sp}:{sl}]),",
-            start_pos=0,
-            signal_type_parser=self.__parse_signal_type,
-            splice=True
-        )
+        fmt = "\"{sig}\": int(signal[{sp}:{sl}]),"
+        start_pos = 0
+        driver_inputs = []
+        for input_type, input_name in self.ports["input"]:
+            sig_len = self.__parse_signal_type(input_type)
+            driver_inputs.append(
+                fmt.format(
+                    sp=start_pos,
+                    sl=str(sig_len + start_pos),
+                    sig=input_name,
+                )
+            )
+            start_pos += sig_len
+
+        self.buf_size = start_pos + 1
+        return ("\n" + " " * 8).join(driver_inputs)
 
     def _get_driver_defs(self):
         """Map definitions for the PyRTL driver format string

@@ -21,22 +21,9 @@ define read_mem
 	python $(BASE_DIR)/read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $1") || $(call eecho,"FAILED: $(HDL) using $1")
 endef
 
-HDL_LIST = systemc pyrtl
+HDL_LIST = systemc chisel pyrtl
 HDL := $(HDL_LIST)
-IPC_LIST = sock zmq
-
-.PHONY: chisel
-.ONESHELL:
-chisel:
-	@$(call iecho,"Running $(HDL) tests using $@...")
-	cd chisel
-	mkdir -p build
-	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=SOCK .. && $(MAKE)
-	cp ../sock/build.sbt .
-	sst-register chisel chisel_LIBDIR=$(BASE_DIR)/chisel/build/sock
-	@$(call iecho,"Running simulations...")
-	sst ../sock/run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
-	@$(call read_mem,$@)
+IPC = sock zmq
 
 .PHONY: generate
 generate:
@@ -49,19 +36,19 @@ test: $(HDL_LIST)
 
 .PHONY: $(HDL_LIST)
 $(HDL_LIST):
-	@${MAKE} $(IPC_LIST) HDL=$@
+	@${MAKE} $(IPC) HDL=$@
 
 
-.PHONY: $(IPC_LIST)
+.PHONY: $(IPC)
 .ONESHELL:
-$(IPC_LIST):
+$(IPC):
 	@$(call iecho,"Running $(HDL) tests using $@...")
 	cd $(HDL)
 	mkdir -p build
 	@$(call iecho,"Generating boilerplate files...")
 	@$(call generate,$(HDL),$@) && mv blackboxes $@
 	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=$(shell echo $@ | tr a-z A-Z) .. && $(MAKE)
-ifeq ($(HDL), "chisel")
+ifeq ("$(HDL)", "chisel")
 	cp ../$@/build.sbt .
 endif
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
@@ -83,6 +70,5 @@ clean:
 	find . -name "*.pyc" -type f -delete
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +
 	@$(call iecho,"Removing black boxes and build files...")
-	find . \( -name "target" -o -name "test_run_dir" -o -name "project" -o -name "build" \) -type d -exec rm -rf {} +
-
-# 	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +
+	find . \( -name "blackboxes" -o -name "build" \) -type d -exec rm -rf {} +
+	find . \( -name "target" -o -name "test_run_dir" -o -name "project" \) -type d -exec rm -rf {} +
