@@ -8,8 +8,10 @@ modifying and generating boilerplate code for its specific paradigms.
 """
 
 import math
+import os
 
 from .boilerplate import BoilerPlate
+from .exceptions import IPCException, TemplateFileNotFound
 
 
 class Chisel(BoilerPlate):
@@ -48,17 +50,12 @@ class Chisel(BoilerPlate):
             component_template_path=component_template_path
         )
 
-        # if self.ipc == "sock":
+        if self.ipc != "sock":
+            raise IPCException(f"Java does not support {self.ipc}")
 
-        #     # driver attributes
-        #     self.driver_ipc = "socket"
-        #     self.driver_bind = "_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"
-        #     self.send = "sendall"
-        #     self.connect = "connect"
-
+        self.sbt_build_path = self.driver_path.replace(self.module, "build.sbt")
         self.driver_path += "_driver.scala"
         self.comp_path += "_comp.cpp"
-        self.sbt_built = "build.sbt"
 
     @staticmethod
     def __parse_signal_type(signal):
@@ -138,3 +135,19 @@ class Chisel(BoilerPlate):
             "module": self.module,
             "buf_size": self.buf_size
         }
+
+    def _generate_extra_files(self):
+
+        template_str = ""
+        build_sbt_templ_path = os.path.join(self.template_path, "build.sbt")
+        if os.path.isfile(build_sbt_templ_path):
+            with open(build_sbt_templ_path) as template:
+                template_str = template.read().format(
+                    module=self.module
+                )
+        else:
+            raise TemplateFileNotFound(
+                f"Component boilerplate template file: {build_sbt_templ_path} not found")
+
+        with open(self.sbt_build_path, "w") as build_file:
+            build_file.write(template_str)

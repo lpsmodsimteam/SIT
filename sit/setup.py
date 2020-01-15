@@ -5,8 +5,8 @@ from setuptools import setup
 
 from boilerplate import boilerplate
 
-HDL = ("chisel", "pyrtl", "systemc")
 TEMPL_DIR = "boilerplate/template/"
+HDL = (TEMPL_DIR + hdl for hdl in ("chisel", "pyrtl", "systemc"))
 
 setup(
     name="boilerplate",
@@ -21,9 +21,6 @@ setup(
         "boilerplate": "boilerplate"
     },
     data_files=[
-        (TEMPL_DIR + hdl,
-         [TEMPL_DIR + hdl + "/driver",
-          TEMPL_DIR + hdl + "/comp"]
-         ) for hdl in HDL
+        (hdl, [hdl + "/" + f for f in os.listdir(hdl)]) for hdl in HDL
     ],
 )

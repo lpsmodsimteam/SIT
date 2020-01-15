@@ -50,7 +50,12 @@ $(IPC):
 	@$(call generate,$(HDL),$@) && mv blackboxes $@
 	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} -DIPC=$(shell echo $@ | tr a-z A-Z) .. && $(MAKE)
 ifeq ("$(HDL)", "chisel")
-	cp ../$@/build.sbt .
+	mv ../$@/blackboxes/build.sbt .
+	cat <<EOF >> build.sbt
+	sourcesInBase := false
+	scalaSource in Compile := baseDirectory.value / "../$@"
+	unmanagedSourceDirectories in Compile += baseDirectory.value / "../common"
+	EOF
 endif
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
 	@$(call iecho,"Running simulations...")

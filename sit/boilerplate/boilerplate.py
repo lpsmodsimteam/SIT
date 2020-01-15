@@ -75,12 +75,12 @@ class BoilerPlate(object):
         self.lib_dir = lib_dir
         self.desc = desc
 
-        template_path = os.path.join(os.path.dirname(
+        self.template_path = os.path.join(os.path.dirname(
             __file__), "template", self.__class__.__name__.lower())
         self.driver_template_path = driver_template_path if driver_template_path else os.path.join(
-            template_path, "driver")
+            self.template_path, "driver")
         self.component_template_path = component_template_path if component_template_path else os.path.join(
-            template_path, "comp")
+            self.template_path, "comp")
 
         self.width_macros = width_macros if width_macros else {}
         self.ports = {
@@ -284,3 +284,8 @@ class BoilerPlate(object):
 
         with open(self.comp_path, "w") as comp_file:
             comp_file.write(self.__generate_comp_str())
+
+        try:
+            self._generate_extra_files()
+        except AttributeError:
+            pass
