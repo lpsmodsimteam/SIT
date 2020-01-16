@@ -29,21 +29,13 @@ version := "3.2.0"
 scalaVersion := "2.12.10"
 crossScalaVersions := Seq("2.12.10", "2.11.12")
 
+scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
+javacOptions ++= javacOptionsVersion(scalaVersion.value)
+
 resolvers ++= Seq(
   Resolver.sonatypeRepo("snapshots"),
   Resolver.sonatypeRepo("releases")
 )
-
-// Provide a managed dependency on X if -DXVersion="" is supplied on the command line.
-val defaultVersions = Map(
-  "chisel3" -> "3.2.+",
-  "chisel-iotesters" -> "1.3.+"
-)
-
-libraryDependencies ++= Seq("chisel3","chisel-iotesters").map {{
-  dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep))
-}}
+libraryDependencies += "edu.berkeley.cs" %% "chisel3" % "3.2-SNAPSHOT"
+libraryDependencies += "edu.berkeley.cs" %% "chisel-iotesters" % "1.3-SNAPSHOT"
 libraryDependencies += "com.kohlschutter.junixsocket" % "junixsocket-core" % "2.3.0"
-
-scalacOptions ++= scalacOptionsVersion(scalaVersion.value)
-javacOptions ++= javacOptionsVersion(scalaVersion.value)

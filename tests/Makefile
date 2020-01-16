@@ -2,15 +2,15 @@ MAKEFLAGS += --no-print-directory
 BASE_DIR = $(CURDIR)
 
 define iecho
-	echo -e "\e[1;34m$1\e[0m"
+	echo "\e[1;34m$1\e[0m"
 endef
 
 define secho
-	echo -e "\e[1;32m$1\e[0m"
+	echo "\e[1;32m$1\e[0m"
 endef
 
 define eecho
-	echo -e "\e[1;31m$1\e[0m"
+	echo "\e[1;31m$1\e[0m"
 endef
 
 define generate
