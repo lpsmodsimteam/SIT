@@ -8,6 +8,7 @@ ___Note__: For the sake of simplicity and consistency in the nomenclature, the l
 - _hardware level modeling languages (Chisel, PyRTL, SystemC, etc.)_
 
 For interoperability with supported HDLs, see their corresponding README:
+- [Chisel](/docs/chisel.md)
 - [PyRTL](/docs/pyrtl.md)
 - [SystemC](/docs/systemc.md)
 
@@ -140,7 +141,7 @@ installing CMake can be found [here](https://cmake.org/install/).
 
 The following snippet details instructions on installing SST Core in the project's home directory.
 
-```bash
+```sh
 # make directory to manage all dependencies
 mkdir -p deps
 # initialize empty file for SST configurations

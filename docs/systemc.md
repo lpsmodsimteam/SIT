@@ -1,33 +1,4 @@
-# SST Interoperable: SystemC
-
-## Black Box Code Generation
-
-The following snippet demonstrates an example usage of the class to generate black box components
-for `demo`.
-
-```python
-# demo/generate_bbox.py
-
-import boilerplate
-
-DEMO_ARGS = {
-    "module" : "demo",
-    "lib" : "demo_lib",
-    "ipc" : "sock",
-    "desc" : "Demo SST Black Box Component",
-}
-
-demo_obj = boilerplate.SystemC(**DEMO_ARGS)
-demo_obj.set_ports((
-    ("<bool>", "clock", "clock"),
-    ("<bool>", "input1", "input"),
-    ("<int>", "input2", "input"),
-    ("<sc_uint<4> >", "data_out", "output"),
-)).generate_bbox()
-```
-
-Running the script `python generate_bbox.py` will generate the boilerplate code necessary to
-establish interoperability between the black box components of `demo`.
+# SST Interoperability Toolkit: SystemC
 
 ## Installation
 
@@ -35,7 +6,7 @@ SystemC can be built with CMake to allow more convenient inclusion in the projec
 The following snippet details instructions on installing SystemC with CMake in the project's home
 directory.
 
-```bash
+```sh
 # make directory to manage all dependencies
 mkdir -p deps/systemc-${SYSC_VER}/build  # SYSC_VER is the version of SystemC
 SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
@@ -50,3 +21,74 @@ The following table summarizes the minimum versions of the languages and librari
 |Requirement|Version|
 |-----------|-------|
 |SystemC    |2.3.3  |
+
+## Black Box Code Generation
+
+### Usage
+The `boilerplate.SystemC` class provides the following methods to generate the black box code:
+- Constructor
+```python
+boilerplate.SystemC(
+    ipc=ipc, 
+    module=module, 
+    lib=lib, 
+    module_dir="", 
+    lib_dir="", 
+    desc="",
+    driver_template_path="", 
+    component_template_path=""
+)
+```
+|Parameter|Type|Description|
+|---------|----|-----------|
+|`ipc`    |`str (options: "sock")`|method of IPC|
+|`module` |`str`|SST element component and HDL module name|
+|`lib`    |`str`|SST element library name|
+|`width_macros`|`dict(str:[str\|int]) (default: dict(None:None))`|mapping of signal width macros to their integer values|
+|`module_dir`   | `str (default: "")` |directory of HDL module|
+|`lib_dir`|`str (default: "")`|directory of SIT library|
+|`desc`|`str (default: "")`|description of the SST model|
+|`driver_template_path`|`str (default: "")`|path to the black box-driver boilerplate|
+|`component_template_path`|`str (default: "")`|path to the black box-model boilerplate|
+
+- `set_ports(ports)` - Assign ports to their corresponding member lists
+
+|Parameter|Type|Description|
+|---------|----|-----------|
+|`ports`|`tuple(tuple3(str))`|type-declared signals in the form `(<DATA TYPE>, <PORT NAME>, <PORT TYPE>)`<br>`<DATA TYPE>` are represented as C++ style data types where the integer width must also be provided as necessary.<br>The current types of signals supported are `("input", "output", "clock", "inout")`.|
+
+```python
+boilerplate.SystemC.set_ports(ports)
+```
+
+- `generate_box()` - Provide a high-level interface to the user to generate both the components of the black box and dump them to their corresponding files
+```python
+boilerplate.SystemC.generate_bbox()
+```
+
+### Example
+
+The following snippet demonstrates an example usage of the class to generate black box components
+for `demo`.
+
+```python
+# demo/generate_bbox.py
+
+import boilerplate
+
+demo_obj = boilerplate.SystemC(
+    module="demo",
+    lib="demo_lib",
+    ipc="sock",
+    desc="Demo SST Black Box Component",
+    width_macros={
+        "DATA_WIDTH": 4,
+    },
+)
+demo_obj.set_ports((
+    ("<bool>", "clock", "clock"),
+    ("<bool>", "input1", "input"),
+    ("<int>", "input2", "input"),
+    ("<sc_uint<DATA_WIDTH> >", "data_out", "output"),
+)).generate_bbox()
+```

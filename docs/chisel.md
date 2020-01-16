@@ -1,29 +1,23 @@
-# SST Interoperability Toolkit: PyRTL
+# SST Interoperability Toolkit: Chisel
 
-[PyRTL](https://ucsbarchlab.github.io/PyRTL/) is a Python library for register-transfer level design, simulation, tracing, and testing suitable for teaching and research.
-
-## Installation
-
-PyRTL can be installed via pip:
-```bash
-pip install pyrtl
-```
+[Chisel](https://www.chisel-lang.org/) is a hardware design language that facilitates advanced circuit generation and design reuse for both ASIC and FPGA digital logic designs.
 
 ## Requirements
 
 The following table summarizes the minimum versions of the languages and libraries supported:
 
-|Requirement|Version|
-|-----------|-------|
-|PyRTL      |0.8.7  |
+|Requirement | Version|
+|----------- | -------|
+|Chisel      | 3.2    |
+|iotesters   | 1.3    |
 
 ## Black Box Code Generation
 
 ### Usage
-The `boilerplate.PyRTL` class provides the following methods to generate the black box code:
+The `boilerplate.Chisel` class provides the following methods to generate the black box code:
 - Constructor
 ```python
-boilerplate.PyRTL(
+boilerplate.Chisel(
     ipc=ipc, 
     module=module, 
     lib=lib, 
@@ -36,7 +30,7 @@ boilerplate.PyRTL(
 ```
 |Parameter|Type|Description|
 |---------|----|-----------|
-|`ipc`    |`str (options: "sock", "zmq")`|method of IPC|
+|`ipc`    |`str (options: "sock")`|method of IPC|
 |`module` |`str`|SST element component and HDL module name|
 |`lib`    |`str`|SST element library name|
 |`module_dir`   | `str (default: "")` |directory of HDL module|
@@ -49,16 +43,22 @@ boilerplate.PyRTL(
 
 |Parameter|Type|Description|
 |---------|----|-----------|
-|`ports`|`tuple(tuple3(str))`|type-declared signals in the form `(<INTEGER BIT WIDTH>, <PORT NAME>, <PORT TYPE>)`<br>An integer bit width of `1` (a binary value of 0 or 1) represents the boolean type.<br>The current types of signals supported are `("input", "output")`.<br>PyRTL does not require clock ports to be explicitly labeled due to Python's dynamically-typed system. Labeling an input as `clock` will be ignored. To specify a clock port, label it as `input` along with its data length.|
+|`ports`|`tuple(tuple3(str))`|type-declared signals in the form `(<INTEGER BIT WIDTH>, <PORT NAME>, <PORT TYPE>)`<br>An integer bit width of `1` (a binary value of 0 or 1) represents the boolean type.<br>The current types of signals supported are `("input", "output")`.|
 
 ```python
-boilerplate.PyRTL.set_ports(ports)
+boilerplate.Chisel.set_ports(ports)
 ```
 
 - `generate_box()` - Provide a high-level interface to the user to generate both the components of the black box and dump them to their corresponding files
 ```python
-boilerplate.PyRTL.generate_bbox()
+boilerplate.Chisel.generate_bbox()
 ```
+
+### Limitations
+Since Scala wraps Java APIs for most of its functionality, it inherits a majority of the
+disadvantages as well. Current versions of Java do not support interprocess communication and
+require third party libraries for support. Due to such restrictions, the toolkit only supports IPC
+via Unix domain sockets.
 
 ### Example
 
@@ -70,7 +70,7 @@ for `demo`.
 
 import boilerplate
 
-demo_obj = boilerplate.PyRTL(
+demo_obj = boilerplate.Chisel(
     module="demo",
     lib="demo_lib",
     ipc="sock",
