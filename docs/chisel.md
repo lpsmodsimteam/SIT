@@ -80,5 +80,8 @@ demo_obj.set_ports((
     ("2", "input1", "input"),
     ("4", "input2", "input"),
     ("4", "data_out", "output"),
-)).generate_bbox()
+))
+demo_obj.generate_bbox()
 ```
+
+The snippet generates `blackboxes/build.sbt`, `blackboxes/demo_driver.scala` and `blackboxes/demo_comp.cpp`.

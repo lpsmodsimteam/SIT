@@ -1,5 +1,7 @@
 # SST Interoperability Toolkit: SystemC
 
+[SystemC](https://www.accellera.org/community/systemc/about-systemc) is a set of C++ classes and macros which provide an event-driven simulation interface.
+
 ## Installation
 
 SystemC can be built with CMake to allow more convenient inclusion in the project `CMakeLists.txt`.
@@ -30,12 +32,13 @@ The `boilerplate.SystemC` class provides the following methods to generate the b
 ```python
 boilerplate.SystemC(
     ipc=ipc, 
-    module=module, 
-    lib=lib, 
-    module_dir="", 
+    module=module,
+    lib=lib,
+    width_macros=None,
+    module_dir="",
     lib_dir="", 
     desc="",
-    driver_template_path="", 
+    driver_template_path="",
     component_template_path=""
 )
 ```
@@ -90,5 +93,8 @@ demo_obj.set_ports((
     ("<bool>", "input1", "input"),
     ("<int>", "input2", "input"),
     ("<sc_uint<DATA_WIDTH> >", "data_out", "output"),
-)).generate_bbox()
+))
+demo_obj.generate_bbox()
 ```
+
+The snippet generates `blackboxes/demo_driver.cpp` and `blackboxes/demo_comp.cpp`.
