@@ -131,7 +131,7 @@ class SystemC(BoilerPlate):
         """
         fmt = "{sig} = std::stoi(_data_in.substr({sp}, {sl}));"
         start_pos = 1
-        clock_fmt = "{sig} = std::stoi(_data_in.substr({sp})) % 2;"
+        clock_fmt = "{sig} = std::stoi(_data_in.substr({sp}, {sl})) % 2;"
 
         driver_inputs = []
         for input_type, input_name in self.ports["input"]:
@@ -147,10 +147,15 @@ class SystemC(BoilerPlate):
 
         if self.ports["clock"]:
             for clock_type, clock_name in self.ports["clock"]:
+                sig_len = self.width_macros[clock_name]
                 driver_inputs.append(
-                    clock_fmt.format(sp=start_pos, sig=clock_name)
+                    clock_fmt.format(
+                        sp=start_pos,
+                        sl=sig_len,
+                        sig=clock_name
+                    )
                 )
-                start_pos += int(self.width_macros[clock_name])
+                start_pos += int(sig_len)
 
         self.buf_size = start_pos
         return ("\n" + " " * 8).join(driver_inputs)
