@@ -150,7 +150,7 @@ class SystemC(BoilerPlate):
                 driver_inputs.append(
                     clock_fmt.format(sp=start_pos, sig=clock_name)
                 )
-                start_pos += int(self._get_signal_width(clock_type))
+                start_pos += int(self.width_macros[clock_name])
 
         self.buf_size = start_pos
         return ("\n" + " " * 8).join(driver_inputs)

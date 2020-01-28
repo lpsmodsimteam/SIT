@@ -7,20 +7,19 @@ from boilerplate import PyRTL, SystemC
 
 if __name__ == "__main__":
 
-    args = {
-        "lib": "intersection",
-        "module_dir": "../",
-        "ipc": "sock",
-        "lib_dir": "../../../../sit/",
-    }
-
     if sys.argv[-1] == "systemc":
         systemc_obj = SystemC(
-            **args,
+            lib= "intersection",
+            module_dir= "../",
+            width_macros= {
+                "clock": 5
+            },
+            ipc= "sock",
+            lib_dir= "../../../../sit/",
             module="systemc_fsm",
         )
         systemc_obj.set_ports((
-            ("<bool>//5", "clock", "clock"),
+            ("<bool>", "clock", "clock"),
             ("<bool>", "load", "input"),
             ("<bool>", "start_green", "input"),
             ("<sc_uint<6>>", "green_time", "input"),
@@ -32,7 +31,10 @@ if __name__ == "__main__":
 
     elif sys.argv[-1] == "pyrtl":
         pyrtl_obj = PyRTL(
-            **args,
+            lib= "intersection",
+            module_dir= "../",
+            ipc= "sock",
+            lib_dir= "../../../../sit/",
             module="pyrtl_fsm",
         )
         pyrtl_obj.set_ports((
