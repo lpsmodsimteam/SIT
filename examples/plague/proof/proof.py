@@ -7,7 +7,7 @@ import sys
 
 SEED = int(sys.argv[-1])
 random.seed(SEED)
-LIMIT = random.randint(1, 1000)
+LIMIT = random.randint(3, 1000)
 
 POPULATION_TOTAL = 7760000000
 POPULATION_HEALTHY = POPULATION_TOTAL
@@ -17,16 +17,16 @@ POPULATION_DEAD = 0
 TOTAL_DEAD = 0
 POPULATION_AFFECTED = 0
 
-BIRTH_RATE = random.randint(2, 2 + LIMIT)
+BIRTH_RATE = random.randint(2, LIMIT)
 BIRTH_RATE = 1 / BIRTH_RATE
 
-SEVERITY = random.randint(2, 2 + LIMIT)  # rate of detection
+SEVERITY = random.randint(2, LIMIT)  # rate of detection
 SEVERITY = 1 / SEVERITY  # rate of detection
 
-LETHALITY = random.randint(2, 2 + LIMIT)  # rate of death
+LETHALITY = random.randint(2, LIMIT)  # rate of death
 LETHALITY = 1 / LETHALITY  # rate of death
 
-INFECTIVITY = random.randint(2, 2 + LIMIT)  # rate of infection
+INFECTIVITY = random.randint(2, LIMIT)  # rate of infection
 INFECTIVITY = 1 / INFECTIVITY  # rate of infection
 
 CURE = 0.00
@@ -41,30 +41,31 @@ while POPULATION_HEALTHY > 0 and CURE < 100:
     print(f"TIME: {TIME}, CURE: {CURE}, INFECTED: {POPULATION_INFECTED}, DEAD: {POPULATION_DEAD}, HEALTHY: {POPULATION_HEALTHY}")
     TIME += 1
 
-    _INFECTIVITY = random.randint(2, 2 + LIMIT)
+    _INFECTIVITY = random.randint(2, LIMIT)
     _INFECTIVITY = 1 / _INFECTIVITY
     INFECTIVITY = INFECTIVITY + _INFECTIVITY
     INFECTIVITY = min(INFECTIVITY, 0.99)
 
-    _LETHALITY = random.randint(2, 2 + LIMIT)
+    _LETHALITY = random.randint(2, LIMIT)
     _LETHALITY = 1 / _LETHALITY
     LETHALITY = LETHALITY + _LETHALITY
     LETHALITY = min(LETHALITY, 0.99)
 
     if TOTAL_INFECTED > CURE_THRESHOLD:
 
-        RESEARCH = random.randint(2, 2 + LIMIT)
+        RESEARCH = random.randint(2, LIMIT)
         RESEARCH = 1 / RESEARCH
         CURE = CURE + RESEARCH
 
         MUTATED_GENE = random.randint(0, 8)
+        MUTATED_GENE1 = MUTATED_GENE + 1
 
-        if str(LETHALITY)[-1] == str(MUTATED_GENE + 1):
+        if str(LETHALITY)[-1] == str(MUTATED_GENE1):
             CURE = CURE - RESEARCH
             CURE = abs(CURE)
 
         elif str(LETHALITY)[-1] == str(MUTATED_GENE):
-            _INFECTIVITY = random.randint(2, 2 + LIMIT)
+            _INFECTIVITY = random.randint(2, LIMIT)
             _INFECTIVITY = 1 / _INFECTIVITY
             INFECTIVITY = INFECTIVITY - _INFECTIVITY
             INFECTIVITY = abs(INFECTIVITY)
@@ -77,11 +78,11 @@ while POPULATION_HEALTHY > 0 and CURE < 100:
     _POPULATION_INFECTED = math.ceil(_POPULATION_INFECTED)
     POPULATION_INFECTED = min(POPULATION_HEALTHY, _POPULATION_INFECTED)
 
-    TOTAL_INFECTED += POPULATION_INFECTED
+    TOTAL_INFECTED = TOTAL_INFECTED + POPULATION_INFECTED
     POPULATION_DEAD = POPULATION_INFECTED * LETHALITY
     POPULATION_DEAD = math.ceil(POPULATION_DEAD)
 
-    TOTAL_DEAD += POPULATION_DEAD
+    TOTAL_DEAD = TOTAL_DEAD + POPULATION_DEAD
 
     _BATCH_BORN = math.exp(BIRTH_RATE)
     _BATCH_BORN = math.ceil(_BATCH_BORN)
