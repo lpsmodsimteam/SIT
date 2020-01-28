@@ -9,7 +9,7 @@ op1 = pyrtl.Input(33, "op1")
 op2 = pyrtl.Input(33, "op2")
 out = pyrtl.Output(33, "out")
 
-out <<= (op1 / op2) + ((op1 % op2) != 0)
+out <<= op1 + op2
 
 # Setup the simulation
 sim_trace = pyrtl.SimulationTrace([op1, op2, out])

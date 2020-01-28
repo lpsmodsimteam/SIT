@@ -6,6 +6,8 @@ import random
 import sys
 
 SEED = int(sys.argv[-1])
+random.seed(SEED)
+LIMIT = random.randint(1, 1000)
 
 POPULATION_TOTAL = 7760000000
 POPULATION_HEALTHY = POPULATION_TOTAL
@@ -14,29 +16,23 @@ TOTAL_INFECTED = 0
 POPULATION_DEAD = 0
 TOTAL_DEAD = 0
 POPULATION_AFFECTED = 0
-random.seed(SEED)
-LIMIT = random.randint(1, 1000)
 
-def rand_float():
-    return 1 / random.randint(2, 2 + LIMIT)
+BIRTH_RATE = random.randint(2, 2 + LIMIT)
+BIRTH_RATE = 1 / BIRTH_RATE
 
-def mutations(lethality, infectivity, cure, research):
-    GOOD_GENE, BAD_GENE = random.sample(range(1, 10), 2)
-    if str(lethality)[-1] == str(BAD_GENE):
-        return abs(cure - research), infectivity
-    elif str(lethality)[-1] == str(GOOD_GENE):
-        return cure, abs(infectivity - rand_float())
-    else:
-        return cure, infectivity
+SEVERITY = random.randint(2, 2 + LIMIT)  # rate of detection
+SEVERITY = 1 / SEVERITY  # rate of detection
 
-BIRTH_RATE = rand_float()
+LETHALITY = random.randint(2, 2 + LIMIT)  # rate of death
+LETHALITY = 1 / LETHALITY  # rate of death
 
-SEVERITY = rand_float()  # rate of detection
-LETHALITY = rand_float()  # rate of death
-INFECTIVITY = rand_float()  # rate of infection
+INFECTIVITY = random.randint(2, 2 + LIMIT)  # rate of infection
+INFECTIVITY = 1 / INFECTIVITY  # rate of infection
 
 CURE = 0.00
-CURE_THRESHOLD = math.ceil(POPULATION_TOTAL * SEVERITY * BIRTH_RATE)
+CURE_THRESHOLD = POPULATION_TOTAL * SEVERITY
+CURE_THRESHOLD = CURE_THRESHOLD * BIRTH_RATE
+CURE_THRESHOLD = math.ceil(CURE_THRESHOLD)
 
 TIME = 0
 
@@ -44,19 +40,60 @@ while POPULATION_HEALTHY > 0 and CURE < 100:
 
     print(f"TIME: {TIME}, CURE: {CURE}, INFECTED: {POPULATION_INFECTED}, DEAD: {POPULATION_DEAD}, HEALTHY: {POPULATION_HEALTHY}")
     TIME += 1
-    INFECTIVITY = min(INFECTIVITY + rand_float(), 10.0)
-    LETHALITY = min(LETHALITY + rand_float(), 0.9)
-    RESEARCH = rand_float()
+
+    _INFECTIVITY = random.randint(2, 2 + LIMIT)
+    _INFECTIVITY = 1 / _INFECTIVITY
+    INFECTIVITY = INFECTIVITY + _INFECTIVITY
+    INFECTIVITY = min(INFECTIVITY, 0.99)
+
+    _LETHALITY = random.randint(2, 2 + LIMIT)
+    _LETHALITY = 1 / _LETHALITY
+    LETHALITY = LETHALITY + _LETHALITY
+    LETHALITY = min(LETHALITY, 0.99)
+
     if TOTAL_INFECTED > CURE_THRESHOLD:
-        CURE += RESEARCH
-        CURE, INFECTIVITY = mutations(LETHALITY, INFECTIVITY, CURE, RESEARCH)
-    POPULATION_INFECTED = min(POPULATION_HEALTHY, math.ceil(random.randint(1, 100) * math.exp(INFECTIVITY)))
+
+        RESEARCH = random.randint(2, 2 + LIMIT)
+        RESEARCH = 1 / RESEARCH
+        CURE = CURE + RESEARCH
+
+        MUTATED_GENE = random.randint(0, 8)
+
+        if str(LETHALITY)[-1] == str(MUTATED_GENE + 1):
+            CURE = CURE - RESEARCH
+            CURE = abs(CURE)
+
+        elif str(LETHALITY)[-1] == str(MUTATED_GENE):
+            _INFECTIVITY = random.randint(2, 2 + LIMIT)
+            _INFECTIVITY = 1 / _INFECTIVITY
+            INFECTIVITY = INFECTIVITY - _INFECTIVITY
+            INFECTIVITY = abs(INFECTIVITY)
+
+    BATCH_INFECTED = random.randint(1, 100)
+    BATCH_BORN = random.randint(1, 100)
+
+    _POPULATION_INFECTED = math.exp(INFECTIVITY)
+    _POPULATION_INFECTED = BATCH_INFECTED * _POPULATION_INFECTED
+    _POPULATION_INFECTED = math.ceil(_POPULATION_INFECTED)
+    POPULATION_INFECTED = min(POPULATION_HEALTHY, _POPULATION_INFECTED)
+
     TOTAL_INFECTED += POPULATION_INFECTED
-    POPULATION_DEAD = math.ceil(POPULATION_INFECTED * LETHALITY)
+    POPULATION_DEAD = POPULATION_INFECTED * LETHALITY
+    POPULATION_DEAD = math.ceil(POPULATION_DEAD)
+
     TOTAL_DEAD += POPULATION_DEAD
-    POPULATION_HEALTHY = POPULATION_HEALTHY - POPULATION_DEAD - POPULATION_INFECTED + random.randint(1, 100) * math.ceil(math.exp(BIRTH_RATE))
-    if POPULATION_HEALTHY <= 0:
-        POPULATION_HEALTHY += POPULATION_DEAD + POPULATION_INFECTED
+
+    _BATCH_BORN = math.exp(BIRTH_RATE)
+    _BATCH_BORN = math.ceil(_BATCH_BORN)
+    BATCH_BORN = BATCH_BORN * _BATCH_BORN
+
+    POPULATION_HEALTHY = POPULATION_HEALTHY - POPULATION_DEAD
+    POPULATION_HEALTHY = POPULATION_HEALTHY - POPULATION_INFECTED
+    POPULATION_HEALTHY = POPULATION_HEALTHY + BATCH_BORN
+
+    if POPULATION_HEALTHY < 1:
+        POPULATION_HEALTHY = POPULATION_HEALTHY + POPULATION_DEAD
+        POPULATION_HEALTHY = POPULATION_HEALTHY + POPULATION_INFECTED
         print("\033[91mHUMANITY ERADICATED\033[00m")
         break
 

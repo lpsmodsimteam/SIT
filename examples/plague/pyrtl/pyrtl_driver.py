@@ -4,11 +4,11 @@
 import os
 import sys
 
-import add
+from add import *
 
 
-add.sim.step({
+sim.step({
     "op1": 4,
     "op2": 2,
 })
-print(add.sim.inspect(add.out))
+print(sim.inspect(out))

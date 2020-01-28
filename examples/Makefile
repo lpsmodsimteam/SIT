@@ -14,10 +14,8 @@ intersection:
 	@$(call iecho,"Generating files for intersection...")
 	cd $@
 	mkdir -p build
-	python generate_bbox.py systemc
-	mv blackboxes systemc
-	python generate_bbox.py pyrtl
-	mv blackboxes pyrtl
+	python generate_bbox.py systemc && mv blackboxes systemc
+	python generate_bbox.py pyrtl && mv blackboxes pyrtl
 	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} .. && $(MAKE)
 	sst-register intersection intersection_LIBDIR=$(CURDIR)
 	@$(call iecho,"Running intersection simulation...")
