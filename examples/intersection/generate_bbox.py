@@ -9,13 +9,13 @@ if __name__ == "__main__":
 
     if sys.argv[-1] == "systemc":
         systemc_obj = SystemC(
-            lib= "intersection",
-            module_dir= "../",
-            width_macros= {
+            lib="intersection",
+            module_dir="../",
+            width_macros={
                 "clock": 5
             },
-            ipc= "sock",
-            lib_dir= "../../../../sit/",
+            ipc="sock",
+            lib_dir="../../../../sit/",
             module="systemc_fsm",
         )
         systemc_obj.set_ports((
@@ -31,10 +31,10 @@ if __name__ == "__main__":
 
     elif sys.argv[-1] == "pyrtl":
         pyrtl_obj = PyRTL(
-            lib= "intersection",
-            module_dir= "../",
-            ipc= "sock",
-            lib_dir= "../../../../sit/",
+            lib="intersection",
+            module_dir="../",
+            ipc="sock",
+            lib_dir="../../../../sit/",
             module="pyrtl_fsm",
         )
         pyrtl_obj.set_ports((

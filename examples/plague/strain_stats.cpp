@@ -16,7 +16,11 @@ public:
 
     bool tick(SST::Cycle_t);
 
-    void handle_event(SST::Event *);
+    void handle_event_severity(SST::Event *);
+
+    void handle_event_infectivity(SST::Event *);
+
+    void handle_event_lethality(SST::Event *);
 
     SST_ELI_REGISTER_COMPONENT(
         strain_stats,
@@ -32,9 +36,12 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "sc_din", "Traffic Light FSM data_in", { "sst.Interfaces.StringEvent" }},
-        { "sc_dout", "Traffic Light FSM data_out", { "sst.Interfaces.StringEvent" }},
-        { "light_state", "Port on which to send/recv messages", { "sst.Interfaces.StringEvent" }},
+        { "severity_din", "severity_din", { "sst.Interfaces.StringEvent" }},
+        { "severity_dout", "severity_dout", { "sst.Interfaces.StringEvent" }},
+        { "infectivity_din", "infectivity_din", { "sst.Interfaces.StringEvent" }},
+        { "infectivity_dout", "infectivity_dout", { "sst.Interfaces.StringEvent" }},
+        { "lethality_din", "lethality_din", { "sst.Interfaces.StringEvent" }},
+        { "lethality_dout", "lethality_dout", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
@@ -45,7 +52,8 @@ private:
 
     // SST links and variables
     SST::Output m_output;
-    SST::Link *infectivity, *lethality, *severity;
+    SST::Link *infectivity_din_link, *infectivity_dout_link, *lethality_din_link, 
+        *lethality_dout_link, *severity_din_link; *severity_dout_link,
 
     unsigned int m_cycle{};
 
@@ -58,34 +66,20 @@ strain_stats::strain_stats(SST::ComponentId_t id, SST::Params &params) :
     sc_dout_link(configureLink("infectivity_din"),
     sc_dout_link(configureLink(
         "infectivity_dout",
-        new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event))),
+        new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event_infectivity))),
     sc_dout_link(configureLink("severity_din")),
     sc_dout_link(configureLink(
         "severity_dout",
-        new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event))),
+        new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event_severity))),
     sc_dout_link(configureLink("lethality_din")),
     sc_dout_link(configureLink(
         "lethality_dout",
-        new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event))) {
+        new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event_lethality))) {
 
     m_output.init("\033[93mstrain_stats-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
-    // Check parameters
-    if (!(GREENTIME && YELLOWTIME && REDTIME)) {
-        m_output.fatal(CALL_INFO, -1, "Error: times must be greater than zero.\n");
-    }
-
-    // Print parameters
-    m_output.verbose(CALL_INFO, 1, 0, "GREENTIME=%d, YELLOWTIME=%d, REDTIME=%d, STARTGREEN=%d\n",
-                     GREENTIME, YELLOWTIME, REDTIME, STARTGREEN);
-
     // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<strain_stats>(this, &strain_stats::tick));
-
-    // Configure our ports
-    if (!light_state) {
-        m_output.fatal(CALL_INFO, -1, "Failed to configure light_state 'light_state'\n");
-    }
 
 }
 
@@ -101,25 +95,47 @@ void strain_stats::finish() {
 
 }
 
-void strain_stats::handle_event(SST::Event *ev) {
+void strain_stats::handle_event_infectivity(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
 
-        if (m_cycle < SIMTIME - 2) {
+        std::cout << "INF " << se->getString() << '\n';
 
-            switch (std::stoi(se->getString())) {
-                case 0:
-                    light_state->send(new SST::Interfaces::StringEvent("green"));
-                    break;
-                case 1:
-                    light_state->send(new SST::Interfaces::StringEvent("yellow"));
-                    break;
-                case 2:
-                    light_state->send(new SST::Interfaces::StringEvent("red"));
-                    break;
-            }
-        }
+            // switch (std::stoi(se->getString())) {
+            //     case 0:
+            //         light_state->send(new SST::Interfaces::StringEvent("green"));
+            //         break;
+            //     case 1:
+            //         light_state->send(new SST::Interfaces::StringEvent("yellow"));
+            //         break;
+            //     case 2:
+            //         light_state->send(new SST::Interfaces::StringEvent("red"));
+            //         break;
+            // }
+        
+    }
+
+}
+
+void strain_stats::handle_event_severity(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+
+        std::cout << "SEV " << se->getString() << '\n';
+        
+    }
+
+}
+
+void strain_stats::handle_event_lethality(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+
+        std::cout << "LET " << se->getString() << '\n';
+        
     }
 
 }
@@ -135,13 +151,24 @@ bool strain_stats::tick(SST::Cycle_t current_cycle) {
     std::string m_data;
 
     if (current_cycle == 1) {
-        m_data = '1' + std::to_string(STARTGREEN) + std::to_string(GREENTIME) + 
-        std::to_string(YELLOWTIME) + std::to_string(REDTIME);
-    } else {
-        m_data = "0000000";
+        m_data = "000000109999";
     }
 
-    sc_din_link->send(new SST::Interfaces::StringEvent(
+    severity_din_link->send(new SST::Interfaces::StringEvent(
+        std::to_string(keep_send) +
+        std::to_string(keep_recv) +
+        m_data +
+        std::to_string(current_cycle)
+    ));
+
+    lethality_din_link->send(new SST::Interfaces::StringEvent(
+        std::to_string(keep_send) +
+        std::to_string(keep_recv) +
+        m_data +
+        std::to_string(current_cycle)
+    ));
+
+    infectivity_din_link->send(new SST::Interfaces::StringEvent(
         std::to_string(keep_send) +
         std::to_string(keep_recv) +
         m_data +
