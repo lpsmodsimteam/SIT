@@ -21,6 +21,18 @@ intersection:
 	@$(call iecho,"Running intersection simulation...")
 	sst ../run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
 
+.PHONY: plague
+.ONESHELL:
+plague:
+	@$(call iecho,"Generating files for plague...")
+	cd $@
+	mkdir -p build
+	python generate_bbox.py systemc && mv blackboxes systemc
+	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} .. && $(MAKE)
+	sst-register plague plague_LIBDIR=$(CURDIR)
+	@$(call iecho,"Running plague simulation...")
+	sst ../run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
+
 .PHONY: clean
 # unregister SST components and remove all compiled objects and cached files
 clean:

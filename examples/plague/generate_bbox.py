@@ -9,8 +9,8 @@ if __name__ == "__main__":
 
     if sys.argv[-1] == "systemc":
         systemc_obj = SystemC(
-            lib="intersection",
-            module_dir="../systemc/",
+            lib="plague",
+            module_dir="../",
             ipc="sock",
             lib_dir="../../../../sit/",
             module="randf",

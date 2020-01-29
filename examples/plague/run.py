@@ -29,26 +29,26 @@ systemc_main.addParams({
 })
 
 severity_comp = sst.Component(
-    "SystemC Component for Severity", "plague.randf")
+    "Severity Component (SystemC)", "plague.randf")
 severity_comp.addParams({
     "clock": CLOCK,
-    "proc": os.path.join(BASE_PATH, "severity.o"),
+    "proc": os.path.join(BASE_PATH, "randf.o"),
     "ipc_port": get_rand_tmp(),
 })
 
 infectivity_comp = sst.Component(
-    "SystemC Component for Infectivity", "plague.randf")
+    "Infectivity Component (SystemC)", "plague.randf")
 infectivity_comp.addParams({
     "clock": CLOCK,
-    "proc": os.path.join(BASE_PATH, "infectivity.o"),
+    "proc": os.path.join(BASE_PATH, "randf.o"),
     "ipc_port": get_rand_tmp(),
 })
 
 lethality_comp = sst.Component(
-    "SystemC Component for Lethality", "plague.randf")
+    "Lethality Component (SystemC)", "plague.randf")
 lethality_comp.addParams({
     "clock": CLOCK,
-    "proc": os.path.join(BASE_PATH, "lethality.o"),
+    "proc": os.path.join(BASE_PATH, "randf.o"),
     "ipc_port": get_rand_tmp(),
 })
 
@@ -75,29 +75,29 @@ lethality_comp.addParams({
 
 # connect the subcomponents
 sst.Link("severity_din").connect(
-    (severity_comp, "severity_din", LINK_DELAY),
+    (severity_comp, "randf_din", LINK_DELAY),
     (systemc_main, "severity_din", LINK_DELAY)
 )
 sst.Link("severity_dout").connect(
-    (severity_comp, "severity_dout", LINK_DELAY),
+    (severity_comp, "randf_dout", LINK_DELAY),
     (systemc_main, "severity_dout", LINK_DELAY)
 )
 
 sst.Link("infectivity_din").connect(
-    (severity_comp, "infectivity_din", LINK_DELAY),
+    (infectivity_comp, "randf_din", LINK_DELAY),
     (systemc_main, "infectivity_din", LINK_DELAY)
 )
 sst.Link("infectivity_dout").connect(
-    (severity_comp, "infectivity_dout", LINK_DELAY),
+    (infectivity_comp, "randf_dout", LINK_DELAY),
     (systemc_main, "infectivity_dout", LINK_DELAY)
 )
 
 sst.Link("lethality_din").connect(
-    (severity_comp, "lethality_din", LINK_DELAY),
+    (lethality_comp, "randf_din", LINK_DELAY),
     (systemc_main, "lethality_din", LINK_DELAY)
 )
 sst.Link("lethality_dout").connect(
-    (severity_comp, "lethality_dout", LINK_DELAY),
+    (lethality_comp, "randf_dout", LINK_DELAY),
     (systemc_main, "lethality_dout", LINK_DELAY)
 )
 
@@ -123,4 +123,4 @@ sst.Link("lethality_dout").connect(
 #     (car_generator1, "is_car", LINK_DELAY)
 # )
 
-sst.setProgramOption("stopAtCycle", "86401s")
+sst.setProgramOption("stopAtCycle", "20s")

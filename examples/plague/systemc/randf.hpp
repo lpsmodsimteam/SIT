@@ -2,7 +2,7 @@
 #include "rng.hpp"
 #include "reciprocal.hpp"
 
-SC_MODULE(reci_rand) {
+SC_MODULE(randf) {
     sc_in<sc_uint<16> > seed;
     sc_in<sc_uint<8> > lower_limit;
     sc_in<sc_uint<16> > upper_limit;
@@ -13,7 +13,7 @@ SC_MODULE(reci_rand) {
 
     sc_signal<sc_uint<16> > rng_data_out;
 
-    SC_CTOR(reci_rand) : rng_uut("rng_uut"), reciprocal_uut("reciprocal_uut") {
+    SC_CTOR(randf) : rng_uut("rng_uut"), reciprocal_uut("reciprocal_uut") {
         rng_uut.seed(seed);
         rng_uut.lower_limit(lower_limit);
         rng_uut.upper_limit(upper_limit);
