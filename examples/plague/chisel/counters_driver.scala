@@ -1,4 +1,4 @@
-package lol
+package counters
 
 import java.io.{File, InputStream, OutputStream}
 // import java.lang.ProcessHandle
@@ -8,20 +8,20 @@ import scala.util.control.Breaks.{break, breakable}
 // import org.newsclub.net.unix.{AFUNIXSocket, AFUNIXSocketAddress, AFUNIXServerSocket}
 import chisel3.iotesters
 
-class lolDriver(c: lol, args: Array[String]) extends iotesters.PeekPokeTester(c) {
+class countersDriver(c: counters, args: Array[String]) extends iotesters.PeekPokeTester(c) {
 
     private val uut = c
 
-    poke(uut.io.op1, 100000000)
-    poke(uut.io.op2, 100000000)
+    poke(uut.io.op1, 2)
+    poke(uut.io.op2, 10)
     step(1)
 
     println(peek(uut.io.out).toString)
 
 }
 
-object lolMain extends App {
-  iotesters.Driver.execute(args, () => new lol) {
-    c => new lolDriver(c, args)
+object countersMain extends App {
+  iotesters.Driver.execute(args, () => new counters) {
+    c => new countersDriver(c, args)
   }
 }

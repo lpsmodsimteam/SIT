@@ -3,6 +3,7 @@
 #include <systemc.h>
 
 SC_MODULE(rng) {
+    sc_in<bool> reseed;
     sc_in<sc_uint<16> > seed;
     sc_in<sc_uint<8> > lower_limit;
     sc_in<sc_uint<16> > upper_limit;
@@ -10,11 +11,12 @@ SC_MODULE(rng) {
 
     /* initialize random seed: */
     void new_seed() {
-        std::cout << "seeding\n";
-        srand(seed.read());
-    }        
+        if (reseed) {
+            std::cout << "seeding\n";
+            srand(seed.read());
+        }
+    }
 
-    /* generate secret number between 1 and 10: */
     void generate() {
         if (lower_limit.read() < upper_limit.read()) {
             data_out.write(rand() % upper_limit.read() + lower_limit.read());
@@ -23,8 +25,8 @@ SC_MODULE(rng) {
 
     SC_CTOR(rng) {
         SC_METHOD(new_seed);
-        sensitive << seed;
+        sensitive << reseed << seed;
         SC_METHOD(generate);
-        sensitive << upper_limit << lower_limit;
+        sensitive << reseed << upper_limit << lower_limit;
     }
 };

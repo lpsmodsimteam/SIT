@@ -16,7 +16,7 @@ add_definitions(-DBUFSIZE=15)
 
 add_executable(
     libplague.so
-    strain_stats.cpp
+    strain.cpp
     systemc/blackboxes/randf_comp.cpp
 )
 _sst_compile_link(libplague.so)

@@ -23,7 +23,7 @@ def get_rand_tmp():
 
 # SystemC
 systemc_main = sst.Component(
-    "Strain Statistics", "plague.strain_stats")
+    "Strain Statistics", "plague.strain")
 systemc_main.addParams({
     "CLOCK": CLOCK,
 })
@@ -66,7 +66,7 @@ lethality_comp.addParams({
 #     "ipc_port": get_rand_tmp(),
 # })
 
-# Plague Simulation main driver
+# # Plague Simulation main driver
 # plague = sst.Component("plague", "plague.plague")
 # plague.addParams({
 #     "CLOCK": CLOCK,

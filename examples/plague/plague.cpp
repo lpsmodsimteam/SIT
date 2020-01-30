@@ -55,7 +55,7 @@ public:
 private:
     SST::Output m_output;
     SST::Link *light[2], *cars[2];
-    std::string clock;
+    std::string clock, seed;
 
     int POPULATION_TOTAL;
     int POPULATION_HEALTHY;
@@ -77,6 +77,7 @@ private:
 plague::plague(SST::ComponentId_t id, SST::Params &params) :
     SST::Component(id),
     clock(params.find<std::string>("CLOCK", "1Hz")),
+    seed(params.find<std::string>("SEED", "0000")),
     light{
         configureLink(
             "light0", new SST::Event::Handler<plague>(this, &plague::handle_light0)
