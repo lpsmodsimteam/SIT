@@ -52,6 +52,14 @@ lethality_comp.addParams({
     "ipc_port": get_rand_tmp(),
 })
 
+minf_comp = sst.Component(
+    "Minimum Float Component (SystemC)", "plague.minf")
+minf_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "minf.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
 # # PyRTL
 # pyrtl_main = sst.Component(
 #     "Traffic Light (PyRTL)", "plague.traffic_light_pyrtl")
@@ -99,6 +107,15 @@ sst.Link("lethality_din").connect(
 sst.Link("lethality_dout").connect(
     (lethality_comp, "randf_dout", LINK_DELAY),
     (systemc_main, "lethality_dout", LINK_DELAY)
+)
+
+sst.Link("minf_din").connect(
+    (minf_comp, "minf_din", LINK_DELAY),
+    (systemc_main, "minf_din", LINK_DELAY)
+)
+sst.Link("minf_dout").connect(
+    (minf_comp, "minf_dout", LINK_DELAY),
+    (systemc_main, "minf_dout", LINK_DELAY)
 )
 
 # sst.Link("py_din").connect(

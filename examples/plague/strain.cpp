@@ -2,7 +2,7 @@
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
-#define SIMTIME 5
+#define SIMTIME 20
 
 class strain : public SST::Component {
 
@@ -21,6 +21,8 @@ public:
     void handle_event_infectivity(SST::Event *);
 
     void handle_event_lethality(SST::Event *);
+
+    void handle_event_minf(SST::Event *);
 
     SST_ELI_REGISTER_COMPONENT(
             strain,
@@ -42,19 +44,22 @@ public:
             { "infectivity_dout", "infectivity_dout", { "sst.Interfaces.StringEvent" }},
             { "lethality_din", "lethality_din", { "sst.Interfaces.StringEvent" }},
             { "lethality_dout", "lethality_dout", { "sst.Interfaces.StringEvent" }},
+            { "minf_din", "minf_din", { "sst.Interfaces.StringEvent" }},
+            { "minf_dout", "minf_dout", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
 
     // SST parameters
     std::string m_clock;
-
     // SST links and variables
     SST::Output m_output;
     SST::Link *infectivity_din_link, *infectivity_dout_link,
             *lethality_din_link, *lethality_dout_link,
-            *severity_din_link, *severity_dout_link;
+            *severity_din_link, *severity_dout_link,
+            *minf_din_link, *minf_dout_link;
 
+    bool keep_send, keep_recv;
     unsigned int m_cycle{};
 
 };
@@ -74,7 +79,12 @@ strain::strain(SST::ComponentId_t id, SST::Params &params) :
         severity_din_link(configureLink("severity_din")),
         severity_dout_link(configureLink(
                 "severity_dout",
-                new SST::Event::Handler<strain>(this, &strain::handle_event_severity))) {
+                new SST::Event::Handler<strain>(this, &strain::handle_event_severity))),
+        minf_din_link(configureLink("minf_din")),
+        minf_dout_link(configureLink(
+                "minf_dout",
+                new SST::Event::Handler<strain>(this, &strain::handle_event_minf)))
+                 {
 
     m_output.init("\033[93mstrain-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
@@ -101,18 +111,12 @@ void strain::handle_event_infectivity(SST::Event *ev) {
     if (se) {
 
         std::cout << "INF " << se->getString() << '\n';
-
-        // switch (std::stoi(se->getString())) {
-        //     case 0:
-        //         light_state->send(new SST::Interfaces::StringEvent("green"));
-        //         break;
-        //     case 1:
-        //         light_state->send(new SST::Interfaces::StringEvent("yellow"));
-        //         break;
-        //     case 2:
-        //         light_state->send(new SST::Interfaces::StringEvent("red"));
-        //         break;
-        // }
+        minf_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(keep_send) +
+                std::to_string(keep_recv) +
+                se->getString() +
+                "0.990000000"
+        ));
 
     }
 
@@ -124,6 +128,20 @@ void strain::handle_event_severity(SST::Event *ev) {
     if (se) {
 
         std::cout << "SEV " << se->getString() << '\n';
+        // minf_din_link->send(new SST::Interfaces::StringEvent(
+        //         "110.0000492760.000149276"
+        // ));
+
+    }
+
+}
+
+void strain::handle_event_minf(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+
+        std::cout << "MINF " << se->getString() << '\n';
 
     }
 
@@ -135,17 +153,21 @@ void strain::handle_event_lethality(SST::Event *ev) {
     if (se) {
 
         std::cout << "LET " << se->getString() << '\n';
+        minf_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(keep_send) +
+                std::to_string(keep_recv) +
+                se->getString() +
+                "0.990000000"
+        ));
 
     }
 
 }
 
-
-// Send a command to the PyRTL stopLight every clock
 bool strain::tick(SST::Cycle_t current_cycle) {
 
-    bool keep_send = current_cycle < SIMTIME;
-    bool keep_recv = current_cycle < SIMTIME - 1;
+    keep_send = current_cycle < SIMTIME;
+    keep_recv = current_cycle < SIMTIME - 1;
     m_cycle = current_cycle;
 
     std::string m_data;
@@ -155,38 +177,45 @@ bool strain::tick(SST::Cycle_t current_cycle) {
         severity_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
-                "104201109999"
+                "12340110999" +
+                std::to_string(current_cycle)
         ));
 
         lethality_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
-                "104201109999"
+                "23450110999" +
+                std::to_string(current_cycle)
         ));
 
         infectivity_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
-                "104201109999"
+                "34560110999" +
+                std::to_string(current_cycle)
         ));
+
     } else {
 
         severity_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
-                "004201109999"
+                "12340110999" +
+                std::to_string(current_cycle)
         ));
 
         lethality_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
-                "004201109999"
+                "23450110999" +
+                std::to_string(current_cycle)
         ));
 
         infectivity_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
-                "004201109999"
+                "34560110999" +
+                std::to_string(current_cycle)
         ));
 
     }

@@ -7,53 +7,49 @@ from boilerplate import PyRTL, SystemC
 
 if __name__ == "__main__":
 
+    ARGS = {
+        "lib": "plague",
+        "module_dir": "../",
+        "ipc": "sock",
+        "lib_dir": "../../../../sit/",
+    }
+
     if sys.argv[-1] == "systemc":
-        systemc_obj = SystemC(
-            lib="plague",
-            module_dir="../",
-            ipc="sock",
-            lib_dir="../../../../sit/",
+        randf = SystemC(
+            **ARGS,
+            width_macros={
+                "clock": 2,
+            },
             module="randf",
         )
-        systemc_obj.set_ports((
-            ("<bool>", "reseed", "input"),
+        randf.set_ports((
+            ("<bool>", "clock", "clock"),
             ("<sc_uint<16>>", "seed", "input"),
             ("<sc_uint<8>>", "lower_limit", "input"),
             ("<sc_uint<16>>", "upper_limit", "input"),
             ("<float>", "data_out", "output"),
         ))
-        systemc_obj.generate_bbox()
+        randf.generate_bbox()
 
-        systemc_obj = SystemC(
-            lib="plague",
-            module_dir="../",
-            ipc="sock",
-            lib_dir="../../../../sit/",
-            module="rng",
+        minf = SystemC(
+            **ARGS,
+            module="minf",
         )
-        systemc_obj.set_ports((
-            ("<bool>", "reseed", "input"),
-            ("<sc_uint<16>>", "seed", "input"),
-            ("<sc_uint<8>>", "lower_limit", "input"),
-            ("<sc_uint<16>>", "upper_limit", "input"),
-            ("<sc_uint<16>>", "data_out", "output"),
+        minf.set_ports((
+            ("<float>", "operand1", "input"),
+            ("<float>", "operand2", "input"),
+            ("<float>", "data_out", "output"),
         ))
-        systemc_obj.generate_bbox()
+        minf.generate_bbox()
 
-    # elif sys.argv[-1] == "pyrtl":
-    #     pyrtl_obj = PyRTL(
-    #         lib="intersection",
-    #         module_dir="../",
-    #         ipc="sock",
-    #         lib_dir="../../../../sit/",
-    #         module="pyrtl_fsm",
-    #     )
-    #     pyrtl_obj.set_ports((
-    #         ("1", "load", "input"),
-    #         ("1", "start_green", "input"),
-    #         ("6", "green_time", "input"),
-    #         ("2", "yellow_time", "input"),
-    #         ("6", "red_time", "input"),
-    #         ("2", "state", "output"),
-    #     ))
-    #     pyrtl_obj.generate_bbox()
+    elif sys.argv[-1] == "pyrtl":
+        mutation = PyRTL(
+            **ARGS,
+            module="mutation",
+        )
+        mutation.set_ports((
+            ("4", "chance", "input"),
+            ("4", "gene", "input"),
+            ("2", "data_out", "output"),
+        ))
+        mutation.generate_bbox()

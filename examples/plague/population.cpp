@@ -4,11 +4,11 @@
 
 #define SIMTIME 5
 
-class strain_stats : public SST::Component {
+class population : public SST::Component {
 
 public:
 
-    strain_stats(SST::ComponentId_t, SST::Params &);
+    population(SST::ComponentId_t, SST::Params &);
 
     void setup() override;
 
@@ -23,9 +23,9 @@ public:
     void handle_event_lethality(SST::Event *);
 
     SST_ELI_REGISTER_COMPONENT(
-            strain_stats,
+            population,
             "plague",
-            "strain_stats",
+            "population",
             SST_ELI_ELEMENT_VERSION(1, 0, 0),
             "Traffic light simulator for the plague",
             COMPONENT_CATEGORY_UNCATEGORIZED
@@ -59,43 +59,43 @@ private:
 
 };
 
-strain_stats::strain_stats(SST::ComponentId_t id, SST::Params &params) :
+population::population(SST::ComponentId_t id, SST::Params &params) :
         SST::Component(id),
         // Collect all the parameters from the project driver
         m_clock(params.find<std::string>("CLOCK", "1Hz")),
         infectivity_din_link(configureLink("infectivity_din")),
         infectivity_dout_link(configureLink(
                 "infectivity_dout",
-                new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event_infectivity))),
+                new SST::Event::Handler<population>(this, &population::handle_event_infectivity))),
         lethality_din_link(configureLink("lethality_din")),
         lethality_dout_link(configureLink(
                 "lethality_dout",
-                new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event_lethality))),
+                new SST::Event::Handler<population>(this, &population::handle_event_lethality))),
         severity_din_link(configureLink("severity_din")),
         severity_dout_link(configureLink(
                 "severity_dout",
-                new SST::Event::Handler<strain_stats>(this, &strain_stats::handle_event_severity))) {
+                new SST::Event::Handler<population>(this, &population::handle_event_severity))) {
 
-    m_output.init("\033[93mstrain_stats-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
+    m_output.init("\033[93mpopulation-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
     // Just register a plain clock for this simple example
-    registerClock(m_clock, new SST::Clock::Handler<strain_stats>(this, &strain_stats::tick));
+    registerClock(m_clock, new SST::Clock::Handler<population>(this, &population::tick));
 
 }
 
-void strain_stats::setup() {
+void population::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
 
 }
 
-void strain_stats::finish() {
+void population::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
 
 }
 
-void strain_stats::handle_event_infectivity(SST::Event *ev) {
+void population::handle_event_infectivity(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
@@ -118,7 +118,7 @@ void strain_stats::handle_event_infectivity(SST::Event *ev) {
 
 }
 
-void strain_stats::handle_event_severity(SST::Event *ev) {
+void population::handle_event_severity(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
@@ -129,7 +129,7 @@ void strain_stats::handle_event_severity(SST::Event *ev) {
 
 }
 
-void strain_stats::handle_event_lethality(SST::Event *ev) {
+void population::handle_event_lethality(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
@@ -142,7 +142,7 @@ void strain_stats::handle_event_lethality(SST::Event *ev) {
 
 
 // Send a command to the PyRTL stopLight every clock
-bool strain_stats::tick(SST::Cycle_t current_cycle) {
+bool population::tick(SST::Cycle_t current_cycle) {
 
     bool keep_send = current_cycle < SIMTIME;
     bool keep_recv = current_cycle < SIMTIME - 1;

@@ -3,7 +3,7 @@
 #include <systemc.h>
 
 SC_MODULE(rng) {
-    sc_in<bool> reseed;
+    sc_in_clk clock;
     sc_in<sc_uint<16> > seed;
     sc_in<sc_uint<8> > lower_limit;
     sc_in<sc_uint<16> > upper_limit;
@@ -11,10 +11,8 @@ SC_MODULE(rng) {
 
     /* initialize random seed: */
     void new_seed() {
-        if (reseed) {
-            std::cout << "seeding\n";
-            srand(seed.read());
-        }
+        std::cout << "seeding\n";
+        srand(seed.read());
     }
 
     void generate() {
@@ -25,8 +23,8 @@ SC_MODULE(rng) {
 
     SC_CTOR(rng) {
         SC_METHOD(new_seed);
-        sensitive << reseed << seed;
+        sensitive << seed;
         SC_METHOD(generate);
-        sensitive << reseed << upper_limit << lower_limit;
+        sensitive << clock;
     }
 };

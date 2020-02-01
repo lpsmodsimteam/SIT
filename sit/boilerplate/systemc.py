@@ -101,6 +101,9 @@ class SystemC(BoilerPlate):
             elif any(x in signal for x in ("bit", "logic")):
                 return __get_ints()
 
+        elif signal == "<float>":
+            return 12
+
         else:
             return 1
 
@@ -129,7 +132,7 @@ class SystemC(BoilerPlate):
         str
             snippet of code representing input bindings
         """
-        fmt = "{sig} = std::stoi(_data_in.substr({sp}, {sl}));"
+        fmt = "{sig} = std::sto{type}(_data_in.substr({sp}, {sl}));"
         start_pos = 1
         clock_fmt = "{sig} = std::stoi(_data_in.substr({sp}, {sl})) % 2;"
 
@@ -138,6 +141,7 @@ class SystemC(BoilerPlate):
             sig_len = self.__parse_signal_type(input_type)
             driver_inputs.append(
                 fmt.format(
+                    type="f" if input_type == "<float>" else "i",
                     sp=start_pos,
                     sl=str(sig_len),
                     sig=input_name,
@@ -147,7 +151,7 @@ class SystemC(BoilerPlate):
 
         if self.ports["clock"]:
             for clock_type, clock_name in self.ports["clock"]:
-                sig_len = self.width_macros[clock_name]
+                sig_len = self.width_macros.get(clock_name, 4)
                 driver_inputs.append(
                     clock_fmt.format(
                         sp=start_pos,
