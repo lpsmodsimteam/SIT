@@ -62,7 +62,7 @@ class SystemC(BoilerPlate):
         self.driver_path += "_driver.cpp"
         self.comp_path += "_comp.cpp"
 
-    def __parse_signal_type(self, signal):
+    def _parse_signal_type(self, signal):
         """Parse the type and computes its size from the signal
 
         Parameters:
@@ -102,7 +102,7 @@ class SystemC(BoilerPlate):
                 return __get_ints()
 
         elif signal == "<float>":
-            return 12
+            return 10
 
         else:
             return 1
@@ -116,9 +116,11 @@ class SystemC(BoilerPlate):
             snippet of code representing output bindings
         """
         return self._sig_fmt(
-            "_data_out << {sig}",
+            "_data_out << {precision}{sig}",
             lambda x: {
-                "sig": x[-1],
+                "sig": x["name"],
+                "precision": f"std::fixed << std::setprecision({self.precision}) << " 
+                if self.precision else "",
             },
             self.ports["output"],
             ";\n" + " " * 8
@@ -135,31 +137,30 @@ class SystemC(BoilerPlate):
         fmt = "{sig} = std::sto{type}(_data_in.substr({sp}, {sl}));"
         start_pos = 1
         clock_fmt = "{sig} = std::stoi(_data_in.substr({sp}, {sl})) % 2;"
-
         driver_inputs = []
-        for input_type, input_name in self.ports["input"]:
-            sig_len = self.__parse_signal_type(input_type)
+
+        # input_port = (INPUT NAME, INPUT TYPE)
+        for input_port in self.ports["input"]:
             driver_inputs.append(
                 fmt.format(
-                    type="f" if input_type == "<float>" else "i",
+                    type="f" if input_port["type"] == "<float>" else "i",
                     sp=start_pos,
-                    sl=str(sig_len),
-                    sig=input_name,
+                    sl=str(input_port["len"]),
+                    sig=input_port["name"],
                 )
             )
-            start_pos += sig_len
+            start_pos += input_port["len"]
 
         if self.ports["clock"]:
-            for clock_type, clock_name in self.ports["clock"]:
-                sig_len = self.width_macros.get(clock_name, 4)
+            for clock_port in self.ports["clock"]:
                 driver_inputs.append(
                     clock_fmt.format(
                         sp=start_pos,
-                        sl=sig_len,
-                        sig=clock_name
+                        sl=clock_port["len"],
+                        sig=clock_port["name"]
                     )
                 )
-                start_pos += int(sig_len)
+                start_pos += int(clock_port["len"])
 
         self.buf_size = start_pos
         return ("\n" + " " * 8).join(driver_inputs)
@@ -172,7 +173,7 @@ class SystemC(BoilerPlate):
         str
            string format of driver port definitions
         """
-        return "sc_signal" + ";\n    sc_signal".join(" ".join(i) for i in self._get_all_ports())
+        return "sc_signal" + ";\n    sc_signal".join(i["type"] + " " + i["name"] for i in self._get_all_ports())
 
     def __get_driver_bindings(self):
         """Generate port bindings for the black box-driver
@@ -184,7 +185,7 @@ class SystemC(BoilerPlate):
         """
         return self._sig_fmt(
             "DUT.{sig}({sig})",
-            lambda x: {"sig": x[-1]}, self._get_all_ports()
+            lambda x: {"sig": x["name"]}, self._get_all_ports()
         )
 
     def _get_driver_defs(self):
@@ -196,6 +197,7 @@ class SystemC(BoilerPlate):
             format mapping of template SystemC driver string
         """
         return {
+            "extra_libs": self.extra_libs,
             "module_dir": self.module_dir,
             "lib_dir": self.lib_dir,
             "module": self.module,

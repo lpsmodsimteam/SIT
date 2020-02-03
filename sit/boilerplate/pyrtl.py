@@ -72,7 +72,7 @@ _sock = context.socket(zmq.REQ)"""
         self.comp_path += "_comp.cpp"
 
     @staticmethod
-    def __parse_signal_type(signal):
+    def _parse_signal_type(signal):
         """Parse the type and computes its width from the signal
 
         Parameters:
@@ -105,7 +105,7 @@ _sock = context.socket(zmq.REQ)"""
             "str({module}.sim.inspect({module}.{sig})).encode()",
             lambda x: {
                 "module": self.module,
-                "sig": x[-1]
+                "sig": x["name"]
             },
             self.ports["output"],
             " +\n" + " " * 8
@@ -122,16 +122,16 @@ _sock = context.socket(zmq.REQ)"""
         fmt = "\"{sig}\": int(signal[{sp}:{sl}]),"
         start_pos = 0
         driver_inputs = []
-        for input_type, input_name in self.ports["input"]:
-            sig_len = self.__parse_signal_type(input_type)
+
+        for input_port in self.ports["input"]:
             driver_inputs.append(
                 fmt.format(
                     sp=start_pos,
-                    sl=str(sig_len + start_pos),
-                    sig=input_name,
+                    sl=str(input_port["len"] + start_pos),
+                    sig=input_port["name"],
                 )
             )
-            start_pos += sig_len
+            start_pos += input_port["len"]
 
         self.buf_size = start_pos + 1
         return ("\n" + " " * 8).join(driver_inputs)

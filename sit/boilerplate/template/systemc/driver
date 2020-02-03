@@ -1,6 +1,8 @@
 #include "{module_dir}{module}.hpp"
 #include "{lib_dir}sit.hpp"
 
+{extra_libs}
+
 int sc_main(int, char *argv[]) {{
 
     // ---------- SYSTEMC UUT INIT ---------- //

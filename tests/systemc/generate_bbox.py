@@ -20,11 +20,11 @@ if __name__ == "__main__":
         module_dir="../../common/",
     )
     boilerplate_obj.set_ports((
-        ("<sc_bv<ADDR_WIDTH>>", "address", "input"),
-        ("<bool>", "cs", "input"),
-        ("<bool>", "we", "input"),
-        ("<bool>", "oe", "input"),
-        ("<sc_bv<DATA_WIDTH>>", "data_in", "input"),
-        ("<sc_bv<DATA_WIDTH>>", "data_out", "output"),
+        ("input", "address", "<sc_bv<ADDR_WIDTH>>"),
+        ("input", "cs", "<bool>"),
+        ("input", "we", "<bool>"),
+        ("input", "oe", "<bool>"),
+        ("input", "data_in", "<sc_bv<DATA_WIDTH>>"),
+        ("output", "data_out", "<sc_bv<DATA_WIDTH>>"),
     ))
     boilerplate_obj.generate_bbox()

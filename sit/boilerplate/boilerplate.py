@@ -74,6 +74,8 @@ class BoilerPlate(object):
         self.module_dir = module_dir
         self.lib_dir = lib_dir
         self.desc = desc
+        self.precision = None
+        self.extra_libs = ""
 
         self.template_path = os.path.join(os.path.dirname(
             __file__), "template", self.__class__.__name__.lower())
@@ -96,12 +98,12 @@ class BoilerPlate(object):
         if self.ipc == "sock":
 
             # component attributes
-            self.sig_type = """SocketSignal"""
+            self.sig_type = "SocketSignal"
 
         elif self.ipc == "zmq":
 
             # component attributes
-            self.sig_type = """ZMQSignal"""
+            self.sig_type = "ZMQSignal"
 
         # shared attributes
         self.sender = self.receiver = "m_signal_io"
@@ -178,14 +180,18 @@ class BoilerPlate(object):
         PortException
             invalid port type provided
         """
-        if set(len(port) for port in ports) != {3}:
-            raise SignalFormatException("Invalid signal format") from None
-
-        for port_data_type, port_name, port_type in ports:
+        # PORT =  PORT_DATA_TYPE, PORT_NAME, PORT_TYPE, PORT_LENGTH
+        for port in ports:
+            if len(port) not in (3, 4):
+                raise SignalFormatException("Invalid signal format") from None
             try:
-                self.ports[port_type].append((port_data_type, port_name))
+                self.ports[port[0]].append({
+                    "name": port[1],
+                    "type": port[2],
+                    "len": int(port[-1]) if len(port) == 4 else self._parse_signal_type(port[2])
+                })
             except KeyError:
-                raise PortException(f"{port_type} is an invalid port type") from None
+                raise PortException(f"{port[0]} is an invalid port type") from None
 
     def __get_comp_defs(self):
         """Map definitions for the component format string
@@ -289,3 +295,8 @@ class BoilerPlate(object):
             self._generate_extra_files()
         except AttributeError:
             pass
+
+    def fixed_width_float_output(self, precision):
+
+        self.precision = precision
+        self.extra_libs += "#include <iomanip>"

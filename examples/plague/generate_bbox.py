@@ -17,18 +17,16 @@ if __name__ == "__main__":
     if sys.argv[-1] == "systemc":
         randf = SystemC(
             **ARGS,
-            width_macros={
-                "clock": 2,
-            },
             module="randf",
         )
         randf.set_ports((
-            ("<bool>", "clock", "clock"),
-            ("<sc_uint<16>>", "seed", "input"),
-            ("<sc_uint<8>>", "lower_limit", "input"),
-            ("<sc_uint<16>>", "upper_limit", "input"),
-            ("<float>", "data_out", "output"),
+            ("clock", "clock", "<bool>", 3),
+            ("input", "seed", "<sc_uint<16>>"),
+            ("input", "lower_limit", "<sc_uint<8>>"),
+            ("input", "upper_limit", "<sc_uint<16>>"),
+            ("output", "data_out", "<float>", 12),
         ))
+        randf.fixed_width_float_output(9)
         randf.generate_bbox()
 
         minf = SystemC(
@@ -36,10 +34,11 @@ if __name__ == "__main__":
             module="minf",
         )
         minf.set_ports((
-            ("<float>", "operand1", "input"),
-            ("<float>", "operand2", "input"),
-            ("<float>", "data_out", "output"),
+            ("input", "operand1", "<float>", 12),
+            ("input", "operand2", "<float>", 12),
+            ("output", "data_out", "<float>", 12),
         ))
+        minf.fixed_width_float_output(9)
         minf.generate_bbox()
 
     elif sys.argv[-1] == "pyrtl":
@@ -48,8 +47,8 @@ if __name__ == "__main__":
             module="mutation",
         )
         mutation.set_ports((
-            ("4", "chance", "input"),
-            ("4", "gene", "input"),
-            ("2", "data_out", "output"),
+            ("input", "chance", "4"),
+            ("input", "gene", "4"),
+            ("output", "data_out", "2"),
         ))
         mutation.generate_bbox()

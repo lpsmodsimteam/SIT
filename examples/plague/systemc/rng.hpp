@@ -25,6 +25,6 @@ SC_MODULE(rng) {
         SC_METHOD(new_seed);
         sensitive << seed;
         SC_METHOD(generate);
-        sensitive << clock;
+        sensitive << clock.pos();
     }
 };
