@@ -21,9 +21,10 @@ if __name__ == "__main__":
         )
         randf.set_ports((
             ("clock", "clock", "<bool>", 3),
+            ("input", "en", "<bool>"),
             ("input", "seed", "<sc_uint<16>>"),
             ("input", "lower_limit", "<sc_uint<8>>"),
-            ("input", "upper_limit", "<sc_uint<16>>"),
+            ("input", "upper_limit", "<sc_uint<10>>"),
             ("output", "data_out", "<float>", 12),
         ))
         randf.fixed_width_float_output(9)
@@ -35,11 +36,25 @@ if __name__ == "__main__":
         )
         minf.set_ports((
             ("input", "operand1", "<float>", 12),
-            ("input", "operand2", "<float>", 12),
+            ("input", "operand2", "<float>", 5),
             ("output", "data_out", "<float>", 12),
         ))
         minf.fixed_width_float_output(9)
         minf.generate_bbox()
+
+        rng = SystemC(
+            **ARGS,
+            module="rng",
+        )
+        rng.set_ports((
+            ("clock", "clock", "<bool>"),
+            ("input", "en", "<bool>"),
+            ("input", "seed", "<sc_uint<16>>"),
+            ("input", "lower_limit", "<sc_uint<8>>"),
+            ("input", "upper_limit", "<sc_uint<10>>"),
+            ("output", "data_out", "<sc_uint<10>>"),
+        ))
+        rng.generate_bbox()
 
     elif sys.argv[-1] == "pyrtl":
         mutation = PyRTL(

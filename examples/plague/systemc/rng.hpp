@@ -4,10 +4,11 @@
 
 SC_MODULE(rng) {
     sc_in_clk clock;
+    sc_in<bool> en;
     sc_in<sc_uint<16> > seed;
     sc_in<sc_uint<8> > lower_limit;
-    sc_in<sc_uint<16> > upper_limit;
-    sc_out<sc_uint<16> > data_out;
+    sc_in<sc_uint<10> > upper_limit;
+    sc_out<sc_uint<10> > data_out;
 
     /* initialize random seed: */
     void new_seed() {
@@ -16,15 +17,14 @@ SC_MODULE(rng) {
     }
 
     void generate() {
-        if (lower_limit.read() < upper_limit.read()) {
-            data_out.write(rand() % upper_limit.read() + lower_limit.read());
+        if ((lower_limit.read() < upper_limit.read()) && en.read()) {
+            data_out.write(rand() % (upper_limit.read() - lower_limit.read() + 1));
         }
     }
 
     SC_CTOR(rng) {
         SC_METHOD(new_seed);
-        sensitive << seed;
         SC_METHOD(generate);
-        sensitive << clock.pos();
+        sensitive << clock;
     }
 };

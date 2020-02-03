@@ -1,7 +1,7 @@
 #include <systemc.h>
 
 SC_MODULE(reciprocal) {
-    sc_in<sc_uint<16> > operand;
+    sc_in<sc_uint<10> > operand;
     sc_out<float> data_out;
 
     void div() {

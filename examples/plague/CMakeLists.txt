@@ -17,10 +17,14 @@ add_definitions(-DBUFSIZE=15)
 add_executable(
     libplague.so
     strain.cpp
+    systemc/blackboxes/rng_comp.cpp
     systemc/blackboxes/randf_comp.cpp
     systemc/blackboxes/minf_comp.cpp
 )
 _sst_compile_link(libplague.so)
+
+add_executable(rng.o systemc/blackboxes/rng_driver.cpp)
+target_link_libraries(rng.o SystemC::systemc)
 
 add_executable(randf.o systemc/blackboxes/randf_driver.cpp)
 target_link_libraries(randf.o SystemC::systemc)

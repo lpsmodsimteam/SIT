@@ -28,6 +28,14 @@ systemc_main.addParams({
     "CLOCK": CLOCK,
 })
 
+limit_comp = sst.Component(
+    "Limit Component (SystemC)", "plague.rng")
+limit_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "rng.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
 severity_comp = sst.Component(
     "Severity Component (SystemC)", "plague.randf")
 severity_comp.addParams({
@@ -52,9 +60,25 @@ lethality_comp.addParams({
     "ipc_port": get_rand_tmp(),
 })
 
-minf_comp = sst.Component(
-    "Minimum Float Component (SystemC)", "plague.minf")
-minf_comp.addParams({
+birth_rate_comp = sst.Component(
+    "Birth Rate Component (SystemC)", "plague.randf")
+birth_rate_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "randf.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
+minf_lethality_comp = sst.Component(
+    "Minimum Float Lethality Component (SystemC)", "plague.minf")
+minf_lethality_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "minf.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
+minf_infectivity_comp = sst.Component(
+    "Minimum Float Infectivity Component (SystemC)", "plague.minf")
+minf_infectivity_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "minf.o"),
     "ipc_port": get_rand_tmp(),
@@ -82,6 +106,16 @@ minf_comp.addParams({
 # })
 
 # connect the subcomponents
+sst.Link("limit_din").connect(
+    (limit_comp, "rng_din", LINK_DELAY),
+    (systemc_main, "limit_din", LINK_DELAY)
+)
+sst.Link("limit_dout").connect(
+    (limit_comp, "rng_dout", LINK_DELAY),
+    (systemc_main, "limit_dout", LINK_DELAY)
+)
+
+
 sst.Link("severity_din").connect(
     (severity_comp, "randf_din", LINK_DELAY),
     (systemc_main, "severity_din", LINK_DELAY)
@@ -109,13 +143,31 @@ sst.Link("lethality_dout").connect(
     (systemc_main, "lethality_dout", LINK_DELAY)
 )
 
-sst.Link("minf_din").connect(
-    (minf_comp, "minf_din", LINK_DELAY),
-    (systemc_main, "minf_din", LINK_DELAY)
+sst.Link("birth_rate_din").connect(
+    (birth_rate_comp, "randf_din", LINK_DELAY),
+    (systemc_main, "birth_rate_din", LINK_DELAY)
 )
-sst.Link("minf_dout").connect(
-    (minf_comp, "minf_dout", LINK_DELAY),
-    (systemc_main, "minf_dout", LINK_DELAY)
+sst.Link("birth_rate_dout").connect(
+    (birth_rate_comp, "randf_dout", LINK_DELAY),
+    (systemc_main, "birth_rate_dout", LINK_DELAY)
+)
+
+sst.Link("minf_lethality_din").connect(
+    (minf_lethality_comp, "minf_din", LINK_DELAY),
+    (systemc_main, "minf_lethality_din", LINK_DELAY)
+)
+sst.Link("minf_lethality_dout").connect(
+    (minf_lethality_comp, "minf_dout", LINK_DELAY),
+    (systemc_main, "minf_lethality_dout", LINK_DELAY)
+)
+
+sst.Link("minf_infectivity_din").connect(
+    (minf_infectivity_comp, "minf_din", LINK_DELAY),
+    (systemc_main, "minf_infectivity_din", LINK_DELAY)
+)
+sst.Link("minf_infectivity_dout").connect(
+    (minf_infectivity_comp, "minf_dout", LINK_DELAY),
+    (systemc_main, "minf_infectivity_dout", LINK_DELAY)
 )
 
 # sst.Link("py_din").connect(

@@ -4,17 +4,19 @@
 
 SC_MODULE(randf) {
     sc_in_clk clock;
+    sc_in<bool> en;
     sc_in<sc_uint<16> > seed;
     sc_in<sc_uint<8> > lower_limit;
-    sc_in<sc_uint<16> > upper_limit;
+    sc_in<sc_uint<10> > upper_limit;
     sc_out<float> data_out;
 
     rng rng_uut;
     reciprocal reciprocal_uut;
 
-    sc_signal<sc_uint<16> > rng_data_out;
+    sc_signal<sc_uint<10> > rng_data_out;
 
     SC_CTOR(randf) : rng_uut("rng_uut"), reciprocal_uut("reciprocal_uut") {
+        rng_uut.en(en);
         rng_uut.clock(clock);
         rng_uut.seed(seed);
         rng_uut.lower_limit(lower_limit);

@@ -299,4 +299,4 @@ class BoilerPlate(object):
     def fixed_width_float_output(self, precision):
 
         self.precision = precision
-        self.extra_libs += "#include <iomanip>"
+        self._fixed_width_float_output()
