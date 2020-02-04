@@ -26,6 +26,15 @@ systemc_main = sst.Component(
     "Strain Statistics", "plague.strain")
 systemc_main.addParams({
     "CLOCK": CLOCK,
+    "SEED0": 90856,
+    "SEED1": 55465,
+    "SEED2": 84568,
+    "SEED3": 99999,
+    "SEED4": 58465,
+    "SEED5": 55465,
+    "SEED6": 84568,
+    "SEED7": 99999,
+    "SEED8": 58465
 })
 
 limit_comp = sst.Component(
