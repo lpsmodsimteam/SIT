@@ -62,7 +62,7 @@ if __name__ == "__main__":
         )
         sc_ceil.set_ports((
             ("input", "operand", "<float>", 12),
-            ("output", "data_out", "<sc_uint<24>>"),
+            ("output", "data_out", "<sc_uint<25>>"),
         ))
         sc_ceil.generate_bbox()
 
@@ -85,11 +85,11 @@ if __name__ == "__main__":
             module="ram",
         )
         ram.set_ports((
-            ("input", "address", "24"),
+            ("input", "address", "25"),
             ("input", "cs", "1"),
             ("input", "we", "1"),
             ("input", "oe", "1"),
-            ("input", "data_in", "24"),
-            ("output", "data_out", "24"),
+            ("input", "data_in", "25"),
+            ("output", "data_out", "25"),
         ))
         ram.generate_bbox()

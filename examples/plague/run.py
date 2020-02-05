@@ -20,21 +20,21 @@ def get_rand_tmp():
         SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)
     )
 
-
+# 15554
 # SystemC
 plague_main = sst.Component(
     "Strain Statistics", "plague.strain")
 plague_main.addParams({
     "CLOCK": CLOCK,
-    "SEED0": 15554,
-    "SEED1": 55465,
-    "SEED2": 84568,
-    "SEED3": 99999,
-    "SEED4": 58465,
-    "SEED5": 55465,
-    "SEED6": 84568,
-    "SEED7": 99999,
-    "SEED8": 58465
+    "SEED0": "11225",
+    "SEED1": "55465",
+    "SEED2": "84568",
+    "SEED3": "99999",
+    "SEED4": "58465",
+    "SEED5": "55465",
+    "SEED6": "84568",
+    "SEED7": "99999",
+    "SEED8": "58465"
 })
 
 limit_comp = sst.Component(

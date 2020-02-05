@@ -16,7 +16,7 @@ while POPULATION_HEALTHY > 0 and CURE < 100:
 
         SEED = int(sys.argv[-1])
         random.seed(SEED)
-        LIMIT = random.randint(3, 1000)
+        LIMIT = random.randint(20, 1000)
 
         POPULATION_INFECTED = 0
         TOTAL_INFECTED = 0

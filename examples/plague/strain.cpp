@@ -21,6 +21,8 @@ public:
 
     bool tick(SST::Cycle_t);
 
+    static void fix_signal_width(char, int, std::string &);
+
     void handle_event_pthresh_sc_ceil(SST::Event *);
 
     void handle_event_ram(SST::Event *);
@@ -44,7 +46,7 @@ public:
             "plague",
             "strain",
             SST_ELI_ELEMENT_VERSION(1, 0, 0),
-            "Traffic light simulator for the plague",
+            "Simulator for the plague",
             COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
@@ -77,8 +79,8 @@ private:
 
     // SST parameters
     std::string m_clock;
-    int64_t m_seed0, m_seed1, m_seed2, m_seed3, m_seed4,
-        m_seed5, m_seed6, m_seed7, m_seed8;
+    std::string m_seed0, m_seed1, m_seed2, m_seed3, m_seed4,
+            m_seed5, m_seed6, m_seed7, m_seed8;
 
     // SST links and variables
     SST::Output m_output;
@@ -95,8 +97,14 @@ private:
     bool keep_send, keep_recv;
 
     float SEVERITY, INFECTIVITY, LETHALITY, BIRTH_RATE;
-    float m_lethality, m_infectivity, m_severity;
-    int LIMIT, CURE_THRESHOLD;
+    std::string CURE_THRESHOLD,
+            POPULATION_HEALTHY,
+            POPULATION_INFECTED,
+            TOTAL_INFECTED,
+            POPULATION_DEAD,
+            TOTAL_DEAD,
+            POPULATION_AFFECTED;
+    std::string LIMIT;
 
     unsigned int m_cycle{};
 
@@ -106,15 +114,15 @@ strain::strain(SST::ComponentId_t id, SST::Params &params) :
         SST::Component(id),
         // Collect all the parameters from the project driver
         m_clock(params.find<std::string>("CLOCK", "1Hz")),
-        m_seed0(params.find<int64_t>("SEED0", 12345)),
-        m_seed1(params.find<int64_t>("SEED1", 12346)),
-        m_seed2(params.find<int64_t>("SEED2", 12347)),
-        m_seed3(params.find<int64_t>("SEED3", 12348)),
-        m_seed4(params.find<int64_t>("SEED4", 12349)),
-        m_seed5(params.find<int64_t>("SEED5", 12350)),
-        m_seed6(params.find<int64_t>("SEED6", 12351)),
-        m_seed7(params.find<int64_t>("SEED7", 12352)),
-        m_seed8(params.find<int64_t>("SEED8", 12353)),
+        m_seed0(params.find<std::string>("SEED0", "12345")),
+        m_seed1(params.find<std::string>("SEED1", "12346")),
+        m_seed2(params.find<std::string>("SEED2", "12347")),
+        m_seed3(params.find<std::string>("SEED3", "12348")),
+        m_seed4(params.find<std::string>("SEED4", "12349")),
+        m_seed5(params.find<std::string>("SEED5", "12350")),
+        m_seed6(params.find<std::string>("SEED6", "12351")),
+        m_seed7(params.find<std::string>("SEED7", "12352")),
+        m_seed8(params.find<std::string>("SEED8", "12353")),
         ram_din_link(configureLink("ram_din")),
         ram_dout_link(configureLink(
                 "ram_dout",
@@ -150,8 +158,7 @@ strain::strain(SST::ComponentId_t id, SST::Params &params) :
         minf_infectivity_din_link(configureLink("minf_infectivity_din")),
         minf_infectivity_dout_link(configureLink(
                 "minf_infectivity_dout",
-                new SST::Event::Handler<strain>(this, &strain::handle_event_minf_infectivity)))
-        {
+                new SST::Event::Handler<strain>(this, &strain::handle_event_minf_infectivity))) {
 
     m_output.init("\033[93mstrain-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
@@ -177,9 +184,7 @@ void strain::handle_event_ram(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
 
-        // if (m_cycle == 1) {
-            // std::cout << "RAM " << m_cycle << ' ' << se->getString() << '\n';
-        // }
+        std::cout << "RAM " << m_cycle << ' ' << se->getString() << '\n';
 
     }
 
@@ -194,6 +199,16 @@ void strain::handle_event_pthresh_sc_ceil(SST::Event *ev) {
 
         // if (m_cycle == 1) {
         std::cout << "CEIL " << m_cycle << ' ' << se->getString() << '\n';
+        CURE_THRESHOLD = se->getString();
+        fix_signal_width('0', 8, CURE_THRESHOLD);
+
+        ram_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(keep_send) +
+                std::to_string(keep_recv) +
+                "00000005" +
+                "111" +
+                CURE_THRESHOLD
+        ));
         // }
 
     }
@@ -209,7 +224,8 @@ void strain::handle_event_limit(SST::Event *ev) {
 
         if (m_cycle == 1) {
             std::cout << "LIM " << m_cycle << ' ' << se->getString() << '\n';
-            LIMIT = std::stoi(se->getString());
+            LIMIT = se->getString();
+            fix_signal_width('0', 4, LIMIT);
         }
 
     }
@@ -332,18 +348,29 @@ void strain::handle_event_minf_infectivity(SST::Event *ev) {
 
 }
 
+void strain::fix_signal_width(const char chr, int width, std::string &signal) {
+    int _len = signal.length();
+    if (_len < width) {
+        signal = std::string(width - _len, chr).append(signal);
+    }
+}
+
 bool strain::tick(SST::Cycle_t current_cycle) {
 
     keep_send = current_cycle < SIMTIME;
     keep_recv = current_cycle < SIMTIME - 1;
     m_cycle = current_cycle;
 
-    std::string m_data, dont_care = "00000000000000";
+    std::string m_data;
+    std::string cycle = std::to_string(current_cycle);
+    fix_signal_width('0', 8, cycle);
 
     ram_din_link->send(new SST::Interfaces::StringEvent(
             std::to_string(keep_send) +
             std::to_string(keep_recv) +
-            "1234567811100000001"
+            cycle +
+            "101" +
+            "00000000"
     ));
 
     if (current_cycle == 1) {
@@ -352,8 +379,8 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
                 "1" +
-                std::to_string(m_seed0) +
-                "0031000" +
+                m_seed0 +
+                "0201000" +
                 std::to_string(current_cycle)
         ));
 
@@ -367,9 +394,9 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "1" +
-                    std::to_string(m_seed1) +
-                    "0020" +
-                    std::to_string(LIMIT) +
+                    m_seed1 +
+                    "002" +
+                    LIMIT +
                     std::to_string(current_cycle)
             ));
 
@@ -377,15 +404,16 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "1" +
-                    std::to_string(m_seed2) +
-                    "0020" +
-                    std::to_string(LIMIT) +
+                    m_seed2 +
+                    "002" +
+                    LIMIT +
                     std::to_string(current_cycle)
             ));
 
         } else if (current_cycle == 3) {
 
-            std::cout << "LOL " << SEVERITY * LETHALITY * POPULATION_TOTAL << '\n';
+            std::cout << "LOL " << SEVERITY << ' ' << LETHALITY << ' ' << POPULATION_TOTAL << ' '
+                      << SEVERITY * LETHALITY * POPULATION_TOTAL << '\n';
             pthresh_sc_ceil_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
@@ -398,8 +426,8 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
-                    std::to_string(m_seed1) +
-                    "0020" +
+                    m_seed1 +
+                    "002" +
                     std::to_string(current_cycle)
             ));
 
@@ -407,8 +435,8 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
-                    std::to_string(m_seed2) +
-                    "0020" +
+                    m_seed2 +
+                    "002" +
                     std::to_string(current_cycle)
             ));
 
@@ -416,7 +444,7 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
-                    std::to_string(m_seed0) +
+                    m_seed0 +
                     "0031000" +
                     std::to_string(current_cycle)
             ));
@@ -425,9 +453,9 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
-                    std::to_string(m_seed3) +
-                    "0020" +
-                    std::to_string(LIMIT) +
+                    m_seed3 +
+                    "002" +
+                    LIMIT +
                     std::to_string(current_cycle)
             ));
 
@@ -435,22 +463,21 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
-                    std::to_string(m_seed4) +
-                    "0020" +
-                    std::to_string(LIMIT) +
+                    m_seed4 +
+                    "002" +
+                    LIMIT +
                     std::to_string(current_cycle)
             ));
 
         }
 
-
         lethality_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
                 "1" +
-                std::to_string(m_seed3) +
-                "0020" +
-                std::to_string(LIMIT) +
+                m_seed3 +
+                "002" +
+                LIMIT +
                 std::to_string(current_cycle)
         ));
 
@@ -458,9 +485,9 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
                 "1" +
-                std::to_string(m_seed4) +
-                "0020" +
-                std::to_string(LIMIT) +
+                m_seed4 +
+                "002" +
+                LIMIT +
                 std::to_string(current_cycle)
         ));
 
