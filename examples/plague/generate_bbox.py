@@ -42,17 +42,6 @@ if __name__ == "__main__":
         minf.fixed_width_float_output(9)
         minf.generate_bbox()
 
-        min_obj = SystemC(
-            **ARGS,
-            module="min",
-        )
-        min_obj.set_ports((
-            ("input", "operand1", "<sc_uint<25>>"),
-            ("input", "operand2", "<sc_uint<25>>"),
-            ("output", "data_out", "<sc_uint<25>>"),
-        ))
-        min_obj.generate_bbox()
-
         sc_exp = SystemC(
             **ARGS,
             module="sc_exp",

@@ -29,11 +29,17 @@ public:
 
     static void fix_signal_width(char, int, std::string &);
 
-    void handle_event_pthresh_sc_ceil(SST::Event *);
+    void handle_event_sc_ceil_cure_thresh(SST::Event *);
+
+    void handle_event_sc_ceil_pop_inf(SST::Event *);
 
     void handle_event_ram(SST::Event *);
 
     void handle_event_limit(SST::Event *);
+
+    void handle_event_exp_pop_inf(SST::Event *);
+
+    void handle_event_exp_br(SST::Event *);
 
     void handle_event_pborn_today(SST::Event *);
 
@@ -45,9 +51,11 @@ public:
 
     void handle_event_lethality(SST::Event *);
 
-    void handle_event_minf_lethality(SST::Event *);
+    void handle_event_min_pop_inf(SST::Event *);
 
-    void handle_event_minf_infectivity(SST::Event *);
+    void handle_event_minf_let(SST::Event *);
+
+    void handle_event_minf_inf(SST::Event *);
 
     void handle_event_birth_rate(SST::Event *);
 
@@ -66,25 +74,31 @@ public:
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
             { "limit_din", "limit_din", { "sst.Interfaces.StringEvent" }},
+            { "limit_dout", "limit_dout", { "sst.Interfaces.StringEvent" }},
+            { "exp_pop_inf_din", "exp_pop_inf_din", { "sst.Interfaces.StringEvent" }},
+            { "exp_pop_inf_dout", "exp_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
             { "pborn_today_dout", "pborn_today_dout", { "sst.Interfaces.StringEvent" }},
             { "pborn_today_din", "pborn_today_din", { "sst.Interfaces.StringEvent" }},
             { "pinf_today_dout", "pinf_today_dout", { "sst.Interfaces.StringEvent" }},
             { "pinf_today_din", "pinf_today_din", { "sst.Interfaces.StringEvent" }},
-            { "limit_dout", "limit_dout", { "sst.Interfaces.StringEvent" }},
             { "severity_din", "severity_din", { "sst.Interfaces.StringEvent" }},
             { "severity_dout", "severity_dout", { "sst.Interfaces.StringEvent" }},
             { "infectivity_din", "infectivity_din", { "sst.Interfaces.StringEvent" }},
             { "infectivity_dout", "infectivity_dout", { "sst.Interfaces.StringEvent" }},
             { "lethality_din", "lethality_din", { "sst.Interfaces.StringEvent" }},
             { "lethality_dout", "lethality_dout", { "sst.Interfaces.StringEvent" }},
-            { "minf_lethality_din", "minf_lethality_din", { "sst.Interfaces.StringEvent" }},
-            { "minf_lethality_dout", "minf_lethality_dout", { "sst.Interfaces.StringEvent" }},
-            { "minf_infectivity_din", "minf_infectivity_din", { "sst.Interfaces.StringEvent" }},
-            { "minf_infectivity_dout", "minf_infectivity_dout", { "sst.Interfaces.StringEvent" }},
+            { "min_pop_inf_din", "min_pop_inf_din", { "sst.Interfaces.StringEvent" }},
+            { "min_pop_inf_dout", "min_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
+            { "minf_let_din", "minf_let_din", { "sst.Interfaces.StringEvent" }},
+            { "minf_let_dout", "minf_let_dout", { "sst.Interfaces.StringEvent" }},
+            { "minf_inf_din", "minf_inf_din", { "sst.Interfaces.StringEvent" }},
+            { "minf_inf_dout", "minf_inf_dout", { "sst.Interfaces.StringEvent" }},
             { "birth_rate_din", "birth_rate_din", { "sst.Interfaces.StringEvent" }},
             { "birth_rate_dout", "birth_rate_dout", { "sst.Interfaces.StringEvent" }},
-            { "pthresh_sc_ceil_din", "pthresh_sc_ceil_din", { "sst.Interfaces.StringEvent" }},
-            { "pthresh_sc_ceil_dout", "pthresh_sc_ceil_dout", { "sst.Interfaces.StringEvent" }},
+            { "sc_ceil_cure_thresh_din", "sc_ceil_cure_thresh_din", { "sst.Interfaces.StringEvent" }},
+            { "sc_ceil_cure_thresh_dout", "sc_ceil_cure_thresh_dout", { "sst.Interfaces.StringEvent" }},
+            { "sc_ceil_pop_inf_din", "sc_ceil_pop_inf_din", { "sst.Interfaces.StringEvent" }},
+            { "sc_ceil_pop_inf_dout", "sc_ceil_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
             { "ram_din", "ram_din", { "sst.Interfaces.StringEvent" }},
             { "ram_dout", "ram_dout", { "sst.Interfaces.StringEvent" }},
     )
@@ -100,17 +114,22 @@ private:
     SST::Output m_output;
     SST::Link *ram_din_link, *ram_dout_link,
             *limit_din_link, *limit_dout_link,
+            *exp_pop_inf_din_link, *exp_pop_inf_dout_link,
             *pborn_today_din_link, *pborn_today_dout_link,
             *pinf_today_din_link, *pinf_today_dout_link,
             *infectivity_din_link, *infectivity_dout_link,
             *lethality_din_link, *lethality_dout_link,
             *severity_din_link, *severity_dout_link,
             *birth_rate_din_link, *birth_rate_dout_link,
-            *pthresh_sc_ceil_din_link, *pthresh_sc_ceil_dout_link,
-            *minf_lethality_din_link, *minf_lethality_dout_link,
-            *minf_infectivity_din_link, *minf_infectivity_dout_link;
+            *sc_ceil_cure_thresh_din_link, *sc_ceil_cure_thresh_dout_link,
+            *sc_ceil_pop_inf_din_link, *sc_ceil_pop_inf_dout_link,
+            *min_pop_inf_din_link, *min_pop_inf_dout_link,
+            *minf_let_din_link, *minf_let_dout_link,
+            *minf_inf_din_link, *minf_inf_dout_link;
 
     bool keep_send, keep_recv;
+
+    int BATCH_INFECTED, BATCH_BORN;
 
     float SEVERITY, INFECTIVITY, LETHALITY, BIRTH_RATE;
     float _POPULATION_INFECTED;
@@ -148,6 +167,10 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         limit_dout_link(configureLink(
                 "limit_dout",
                 new SST::Event::Handler<plague>(this, &plague::handle_event_limit))),
+        exp_pop_inf_din_link(configureLink("exp_pop_inf_din")),
+        exp_pop_inf_dout_link(configureLink(
+                "exp_pop_inf_dout",
+                new SST::Event::Handler<plague>(this, &plague::handle_event_exp_pop_inf))),
         pborn_today_din_link(configureLink("pborn_today_din")),
         pborn_today_dout_link(configureLink(
                 "pborn_today_dout",
@@ -172,18 +195,26 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         birth_rate_dout_link(configureLink(
                 "birth_rate_dout",
                 new SST::Event::Handler<plague>(this, &plague::handle_event_birth_rate))),
-        pthresh_sc_ceil_din_link(configureLink("pthresh_sc_ceil_din")),
-        pthresh_sc_ceil_dout_link(configureLink(
-                "pthresh_sc_ceil_dout",
-                new SST::Event::Handler<plague>(this, &plague::handle_event_pthresh_sc_ceil))),
-        minf_lethality_din_link(configureLink("minf_lethality_din")),
-        minf_lethality_dout_link(configureLink(
-                "minf_lethality_dout",
-                new SST::Event::Handler<plague>(this, &plague::handle_event_minf_lethality))),
-        minf_infectivity_din_link(configureLink("minf_infectivity_din")),
-        minf_infectivity_dout_link(configureLink(
-                "minf_infectivity_dout",
-                new SST::Event::Handler<plague>(this, &plague::handle_event_minf_infectivity))) {
+        sc_ceil_cure_thresh_din_link(configureLink("sc_ceil_cure_thresh_din")),
+        sc_ceil_cure_thresh_dout_link(configureLink(
+                "sc_ceil_cure_thresh_dout",
+                new SST::Event::Handler<plague>(this, &plague::handle_event_sc_ceil_cure_thresh))),
+        sc_ceil_pop_inf_din_link(configureLink("sc_ceil_pop_inf_din")),
+        sc_ceil_pop_inf_dout_link(configureLink(
+                "sc_ceil_pop_inf_dout",
+                new SST::Event::Handler<plague>(this, &plague::handle_event_sc_ceil_pop_inf))),
+        min_pop_inf_din_link(configureLink("min_pop_inf_din")),
+        min_pop_inf_dout_link(configureLink(
+                "min_pop_inf_dout",
+                new SST::Event::Handler<plague>(this, &plague::handle_event_min_pop_inf))),
+        minf_let_din_link(configureLink("minf_let_din")),
+        minf_let_dout_link(configureLink(
+                "minf_let_dout",
+                new SST::Event::Handler<plague>(this, &plague::handle_event_minf_let))),
+        minf_inf_din_link(configureLink("minf_inf_din")),
+        minf_inf_dout_link(configureLink(
+                "minf_inf_dout",
+                new SST::Event::Handler<plague>(this, &plague::handle_event_minf_inf))) {
 
     m_output.init("\033[93mplague-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
@@ -207,7 +238,7 @@ void plague::finish() {
 void plague::handle_event_ram(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se) {
+    if (se && keep_recv) {
 
         std::cout << "RAM " << m_cycle << ' ' << se->getString() << '\n';
 
@@ -217,7 +248,7 @@ void plague::handle_event_ram(SST::Event *ev) {
 
 }
 
-void plague::handle_event_pthresh_sc_ceil(SST::Event *ev) {
+void plague::handle_event_sc_ceil_cure_thresh(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
@@ -262,9 +293,10 @@ void plague::handle_event_limit(SST::Event *ev) {
 void plague::handle_event_pborn_today(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se) {
+    if (se && keep_recv) {
 
         std::cout << "POPULATION BORN TODAY " << m_cycle << ' ' << se->getString() << '\n';
+        BATCH_BORN = std::stoi(se->getString());
 
     }
 
@@ -275,9 +307,10 @@ void plague::handle_event_pborn_today(SST::Event *ev) {
 void plague::handle_event_pinf_today(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se) {
+    if (se && keep_recv) {
 
         std::cout << "POPULATION INFECTED TODAY " << m_cycle << ' ' << se->getString() << '\n';
+        BATCH_INFECTED = std::stoi(se->getString());
 
     }
 
@@ -326,7 +359,7 @@ void plague::handle_event_infectivity(SST::Event *ev) {
             std::cout << "INF " << m_cycle << ' ' << se->getString() << '\n';
             std::ostringstream _data_out;
             _data_out << std::fixed << std::setprecision(10) << (INFECTIVITY + std::stof(se->getString()));
-            minf_infectivity_din_link->send(new SST::Interfaces::StringEvent(
+            minf_inf_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(_keep_send) +
                     std::to_string(_keep_recv) +
                     _data_out.str() +
@@ -356,7 +389,7 @@ void plague::handle_event_lethality(SST::Event *ev) {
             std::cout << "LET " << m_cycle << ' ' << se->getString() << '\n';
             std::ostringstream _data_out;
             _data_out << std::fixed << std::setprecision(10) << (LETHALITY + std::stof(se->getString()));
-            minf_lethality_din_link->send(new SST::Interfaces::StringEvent(
+            minf_let_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(_keep_send) +
                     std::to_string(_keep_recv) +
                     _data_out.str() +
@@ -371,7 +404,7 @@ void plague::handle_event_lethality(SST::Event *ev) {
 
 }
 
-void plague::handle_event_minf_lethality(SST::Event *ev) {
+void plague::handle_event_minf_let(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_cycle < LOOPEND) {
@@ -385,13 +418,81 @@ void plague::handle_event_minf_lethality(SST::Event *ev) {
 
 }
 
-void plague::handle_event_minf_infectivity(SST::Event *ev) {
+void plague::handle_event_minf_inf(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    bool _keep_send = m_cycle < SIMTIME - 2;
+    bool _keep_recv = m_cycle < SIMTIME - 3;
+
     if (se && m_cycle < LOOPEND) {
 
         std::cout << "MIN INF " << se->getString() << '\n';
         INFECTIVITY = std::stof(se->getString());
+        std::ostringstream _data_out;
+        _data_out << std::fixed << std::setprecision(10) << INFECTIVITY;
+        exp_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(_keep_send) +
+                std::to_string(_keep_recv) +
+                _data_out.str()
+        ));
+
+    }
+
+    delete se;
+
+}
+
+void plague::handle_event_sc_ceil_pop_inf(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    bool _keep_send = m_cycle < SIMTIME - 4;
+    bool _keep_recv = m_cycle < SIMTIME - 5;
+
+    if (se && m_cycle < LOOPEND) {
+
+        POPULATION_INFECTED = se->getString();
+        std::cout << "FINAL POPULATION INFECTED " << POPULATION_INFECTED << '\n';
+
+    }
+
+    delete se;
+
+}
+
+void plague::handle_event_min_pop_inf(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    bool _keep_send = m_cycle < SIMTIME - 4;
+    bool _keep_recv = m_cycle < SIMTIME - 5;
+
+    if (se && m_cycle < LOOPEND) {
+
+        std::cout << "FINAL POPULATION INFECTED " << se->getString() << '\n';
+
+    }
+
+    delete se;
+
+}
+
+void plague::handle_event_exp_pop_inf(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    bool _keep_send = m_cycle < SIMTIME - 3;
+    bool _keep_recv = m_cycle < SIMTIME - 4;
+
+    if (se && m_cycle < LOOPEND) {
+
+        std::cout << "EXP INF " << se->getString() << '\n';
+        _POPULATION_INFECTED = std::stof(se->getString()) * BATCH_INFECTED;
+        std::cout << "POPULATION_INFECTED " << _POPULATION_INFECTED << '\n';
+        std::ostringstream _data_out;
+        _data_out << std::fixed << std::setprecision(2) << _POPULATION_INFECTED;
+        sc_ceil_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(_keep_send) +
+                std::to_string(_keep_recv) +
+                _data_out.str()
+        ));
 
     }
 
@@ -465,7 +566,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
             std::ostringstream _data_out;
             _data_out << std::fixed << std::setprecision(2) << (SEVERITY * LETHALITY * POPULATION_TOTAL);
-            pthresh_sc_ceil_din_link->send(new SST::Interfaces::StringEvent(
+            sc_ceil_cure_thresh_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     _data_out.str()
@@ -538,7 +639,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            pthresh_sc_ceil_din_link->send(new SST::Interfaces::StringEvent(
+            sc_ceil_cure_thresh_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0000000"

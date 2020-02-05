@@ -96,26 +96,43 @@ birth_rate_comp.addParams({
 })
 
 # Ceiling components
-pthresh_sc_ceil_comp = sst.Component(
-    "Ceiling Component (SystemC)", "plague.sc_ceil")
-pthresh_sc_ceil_comp.addParams({
+sc_ceil_cure_thresh_comp = sst.Component(
+    "Ceiling Component for Cure Threshold (SystemC)", "plague.sc_ceil")
+sc_ceil_cure_thresh_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "sc_ceil.o"),
     "ipc_port": get_rand_tmp(),
 })
 
+sc_ceil_pop_inf_comp = sst.Component(
+    "Ceiling Component for Infected Population (SystemC)", "plague.sc_ceil")
+sc_ceil_pop_inf_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "sc_ceil.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
+# Exponential components
+exp_pop_inf_comp = sst.Component(
+    "Exponential Infectivity Component (SystemC)", "plague.sc_exp")
+exp_pop_inf_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "sc_exp.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
 # Minimum float components
-minf_lethality_comp = sst.Component(
+minf_let_comp = sst.Component(
     "Minimum Float Lethality Component (SystemC)", "plague.minf")
-minf_lethality_comp.addParams({
+minf_let_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "minf.o"),
     "ipc_port": get_rand_tmp(),
 })
 
-minf_infectivity_comp = sst.Component(
+minf_inf_comp = sst.Component(
     "Minimum Float Infectivity Component (SystemC)", "plague.minf")
-minf_infectivity_comp.addParams({
+minf_inf_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "minf.o"),
     "ipc_port": get_rand_tmp(),
@@ -166,10 +183,15 @@ connect_comps(infectivity_comp, plague_main, "randf", "infectivity")
 connect_comps(lethality_comp, plague_main, "randf", "lethality")
 connect_comps(birth_rate_comp, plague_main, "randf", "birth_rate")
 
-connect_comps(minf_lethality_comp, plague_main, "minf", "minf_lethality")
-connect_comps(minf_infectivity_comp, plague_main, "minf", "minf_infectivity")
+connect_comps(minf_let_comp, plague_main, "minf", "minf_let")
+connect_comps(minf_inf_comp, plague_main, "minf", "minf_inf")
 
-connect_comps(pthresh_sc_ceil_comp, plague_main, "sc_ceil", "pthresh_sc_ceil")
+connect_comps(sc_ceil_cure_thresh_comp, plague_main, "sc_ceil", "sc_ceil_cure_thresh")
+connect_comps(sc_ceil_pop_inf_comp, plague_main, "sc_ceil", "sc_ceil_pop_inf")
+# connect_comps(sc_ceil_cure_thresh_comp, plague_main, "sc_ceil", "sc_ceil_cure_thresh")
+# connect_comps(sc_ceil_cure_thresh_comp, plague_main, "sc_ceil", "sc_ceil_cure_thresh")
+
+connect_comps(exp_pop_inf_comp, plague_main, "sc_exp", "exp_pop_inf")
 
 connect_comps(ram_comp, plague_main, "ram", "ram")
 
