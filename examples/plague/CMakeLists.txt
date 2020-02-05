@@ -13,7 +13,7 @@ set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 
 add_executable(
     libplague.so
-    strain.cpp
+    plague.cpp
     chisel/blackboxes/ram_comp.cpp
     systemc/blackboxes/sc_ceil_comp.cpp
     systemc/blackboxes/rng_comp.cpp

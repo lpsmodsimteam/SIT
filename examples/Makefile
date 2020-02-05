@@ -45,6 +45,7 @@ plague:
 clean:
 	@$(call iecho,"Unregistering components...")
 	sst-register -u intersection
+	sst-register -u plague
 	@$(call iecho,"Removing cached files...")
 	find . -name "*.pyc" -type f -delete
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +

@@ -10,23 +10,21 @@ import sst
 BASE_PATH = os.getcwd()
 
 CLOCK = "1Hz"
-SEED = 0
 
 LINK_DELAY = "1ps"
-
 
 def get_rand_tmp():
     return "/tmp/" + ''.join(
         SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)
     )
 
-# 15554
-# SystemC
+# Main SST component
+###############################################################################
 plague_main = sst.Component(
-    "Strain Statistics", "plague.strain")
+    "Strain Statistics", "plague.plague")
 plague_main.addParams({
     "CLOCK": CLOCK,
-    "SEED0": "11225",
+    "SEED0": "11725",
     "SEED1": "55465",
     "SEED2": "84568",
     "SEED3": "99999",
@@ -37,6 +35,9 @@ plague_main.addParams({
     "SEED8": "58465"
 })
 
+# SystemC components
+###############################################################################
+# RNG components
 limit_comp = sst.Component(
     "Limit Component (SystemC)", "plague.rng")
 limit_comp.addParams({
@@ -45,6 +46,23 @@ limit_comp.addParams({
     "ipc_port": get_rand_tmp(),
 })
 
+pborn_today_comp = sst.Component(
+    "Population Born Today Component (SystemC)", "plague.rng")
+pborn_today_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "rng.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
+pinf_today_comp = sst.Component(
+    "Population Infected Today Component (SystemC)", "plague.rng")
+pinf_today_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "rng.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
+# Random Float components
 severity_comp = sst.Component(
     "Severity Component (SystemC)", "plague.randf")
 severity_comp.addParams({
@@ -77,6 +95,7 @@ birth_rate_comp.addParams({
     "ipc_port": get_rand_tmp(),
 })
 
+# Ceiling components
 pthresh_sc_ceil_comp = sst.Component(
     "Ceiling Component (SystemC)", "plague.sc_ceil")
 pthresh_sc_ceil_comp.addParams({
@@ -85,6 +104,7 @@ pthresh_sc_ceil_comp.addParams({
     "ipc_port": get_rand_tmp(),
 })
 
+# Minimum float components
 minf_lethality_comp = sst.Component(
     "Minimum Float Lethality Component (SystemC)", "plague.minf")
 minf_lethality_comp.addParams({
@@ -102,6 +122,7 @@ minf_infectivity_comp.addParams({
 })
 
 # Chisel components
+###############################################################################
 ram_comp = sst.Component(
     "Memory Component (Chisel)", "plague.ram")
 ram_comp.addParams({
@@ -110,7 +131,8 @@ ram_comp.addParams({
     "ipc_port": get_rand_tmp(),
 })
 
-# # PyRTL
+# PyRTL
+###############################################################################
 # pyrtl_main = sst.Component(
 #     "Traffic Light (PyRTL)", "plague.traffic_light_pyrtl")
 # pyrtl_main.addParams({
@@ -124,116 +146,31 @@ ram_comp.addParams({
 #     "ipc_port": get_rand_tmp(),
 # })
 
-# # Plague Simulation main driver
-# plague = sst.Component("plague", "plague.plague")
-# plague.addParams({
-#     "CLOCK": CLOCK,
-#     "SEED": SEED,
-# })
+def connect_comps(comp, main_comp, comp_name, main_comp_name):
+    sst.Link(main_comp_name + "_din").connect(
+        (comp, comp_name + "_din", LINK_DELAY),
+        (main_comp, main_comp_name + "_din", LINK_DELAY)
+    )
+    sst.Link(main_comp_name + "_dout").connect(
+        (comp, comp_name + "_dout", LINK_DELAY),
+        (main_comp, main_comp_name + "_dout", LINK_DELAY)
+    )
 
 # connect the subcomponents
-sst.Link("limit_din").connect(
-    (limit_comp, "rng_din", LINK_DELAY),
-    (plague_main, "limit_din", LINK_DELAY)
-)
-sst.Link("limit_dout").connect(
-    (limit_comp, "rng_dout", LINK_DELAY),
-    (plague_main, "limit_dout", LINK_DELAY)
-)
+connect_comps(limit_comp, plague_main, "rng", "limit")
+connect_comps(pborn_today_comp, plague_main, "rng", "pborn_today")
+connect_comps(pinf_today_comp, plague_main, "rng", "pinf_today")
 
+connect_comps(severity_comp, plague_main, "randf", "severity")
+connect_comps(infectivity_comp, plague_main, "randf", "infectivity")
+connect_comps(lethality_comp, plague_main, "randf", "lethality")
+connect_comps(birth_rate_comp, plague_main, "randf", "birth_rate")
 
-sst.Link("severity_din").connect(
-    (severity_comp, "randf_din", LINK_DELAY),
-    (plague_main, "severity_din", LINK_DELAY)
-)
-sst.Link("severity_dout").connect(
-    (severity_comp, "randf_dout", LINK_DELAY),
-    (plague_main, "severity_dout", LINK_DELAY)
-)
+connect_comps(minf_lethality_comp, plague_main, "minf", "minf_lethality")
+connect_comps(minf_infectivity_comp, plague_main, "minf", "minf_infectivity")
 
-sst.Link("infectivity_din").connect(
-    (infectivity_comp, "randf_din", LINK_DELAY),
-    (plague_main, "infectivity_din", LINK_DELAY)
-)
-sst.Link("infectivity_dout").connect(
-    (infectivity_comp, "randf_dout", LINK_DELAY),
-    (plague_main, "infectivity_dout", LINK_DELAY)
-)
+connect_comps(pthresh_sc_ceil_comp, plague_main, "sc_ceil", "pthresh_sc_ceil")
 
-sst.Link("lethality_din").connect(
-    (lethality_comp, "randf_din", LINK_DELAY),
-    (plague_main, "lethality_din", LINK_DELAY)
-)
-sst.Link("lethality_dout").connect(
-    (lethality_comp, "randf_dout", LINK_DELAY),
-    (plague_main, "lethality_dout", LINK_DELAY)
-)
-
-sst.Link("birth_rate_din").connect(
-    (birth_rate_comp, "randf_din", LINK_DELAY),
-    (plague_main, "birth_rate_din", LINK_DELAY)
-)
-sst.Link("birth_rate_dout").connect(
-    (birth_rate_comp, "randf_dout", LINK_DELAY),
-    (plague_main, "birth_rate_dout", LINK_DELAY)
-)
-
-sst.Link("minf_lethality_din").connect(
-    (minf_lethality_comp, "minf_din", LINK_DELAY),
-    (plague_main, "minf_lethality_din", LINK_DELAY)
-)
-sst.Link("minf_lethality_dout").connect(
-    (minf_lethality_comp, "minf_dout", LINK_DELAY),
-    (plague_main, "minf_lethality_dout", LINK_DELAY)
-)
-
-sst.Link("minf_infectivity_din").connect(
-    (minf_infectivity_comp, "minf_din", LINK_DELAY),
-    (plague_main, "minf_infectivity_din", LINK_DELAY)
-)
-sst.Link("minf_infectivity_dout").connect(
-    (minf_infectivity_comp, "minf_dout", LINK_DELAY),
-    (plague_main, "minf_infectivity_dout", LINK_DELAY)
-)
-
-sst.Link("pthresh_sc_ceil_din").connect(
-    (pthresh_sc_ceil_comp, "sc_ceil_din", LINK_DELAY),
-    (plague_main, "pthresh_sc_ceil_din", LINK_DELAY)
-)
-sst.Link("pthresh_sc_ceil_dout").connect(
-    (pthresh_sc_ceil_comp, "sc_ceil_dout", LINK_DELAY),
-    (plague_main, "pthresh_sc_ceil_dout", LINK_DELAY)
-)
-
-sst.Link("ram_din").connect(
-    (ram_comp, "ram_din", LINK_DELAY),
-    (plague_main, "ram_din", LINK_DELAY)
-)
-sst.Link("ram_dout").connect(
-    (ram_comp, "ram_dout", LINK_DELAY),
-    (plague_main, "ram_dout", LINK_DELAY)
-)
-
-# sst.Link("py_din").connect(
-#     (pyrtl_comp, "pyrtl_fsm_din", LINK_DELAY),
-#     (pyrtl_main, "py_din", LINK_DELAY)
-# )
-# sst.Link("py_dout").connect(
-#     (pyrtl_comp, "pyrtl_fsm_dout", LINK_DELAY),
-#     (pyrtl_main, "py_dout", LINK_DELAY)
-# )
-# sst.Link("light1").connect(
-#     (plague, "light1", LINK_DELAY),
-#     (pyrtl_main, "light_state", LINK_DELAY)
-# )
-
-# sst.Link("cars0").connect(
-#     (plague, "cars0", LINK_DELAY),
-#     (car_generator0, "is_car", LINK_DELAY)
-# )
-# sst.Link("cars1").connect(
-#     (plague, "cars1", LINK_DELAY),
-#     (car_generator1, "is_car", LINK_DELAY)
-# )
+connect_comps(ram_comp, plague_main, "ram", "ram")
 
 sst.setProgramOption("stopAtCycle", "20s")

@@ -18,7 +18,7 @@ SC_MODULE(rng) {
 
     void generate() {
         if ((lower_limit.read() < upper_limit.read()) && en.read()) {
-            data_out.write(rand() % (upper_limit.read() - lower_limit.read() + 1));
+            data_out.write(rand() % upper_limit.read() + lower_limit.read());
         }
     }
 

@@ -1,6 +1,6 @@
 #include <systemc.h>
 
-SC_MODULE(minf) {
+SC_MODULE(min) {
     sc_out<sc_uint<24> > operand1;
     sc_out<sc_uint<24> > operand2;
     sc_out<sc_uint<24> > data_out;
@@ -9,7 +9,7 @@ SC_MODULE(minf) {
         data_out.write(!(operand2 < operand1) ? operand1 : operand2);
     }
 
-    SC_CTOR(minf) {
+    SC_CTOR(min) {
         SC_METHOD(do_min);
         sensitive << operand1 << operand2;
     }
