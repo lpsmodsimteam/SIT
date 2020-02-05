@@ -1,9 +1,9 @@
 #include <systemc.h>
 
 SC_MODULE(minf) {
-    sc_out<sc_uint<33> > operand1;
-    sc_out<sc_uint<33> > operand2;
-    sc_out<sc_uint<33> > data_out;
+    sc_out<sc_uint<24> > operand1;
+    sc_out<sc_uint<24> > operand2;
+    sc_out<sc_uint<24> > data_out;
 
     void do_min() {
         data_out.write(!(operand2 < operand1) ? operand1 : operand2);

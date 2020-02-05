@@ -11,17 +11,19 @@ find_package(SystemCLanguage CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
 
-# increase buffer size (minimum is 5)
-add_definitions(-DBUFSIZE=15)
-
 add_executable(
     libplague.so
     strain.cpp
+    chisel/blackboxes/ram_comp.cpp
+    systemc/blackboxes/sc_ceil_comp.cpp
     systemc/blackboxes/rng_comp.cpp
     systemc/blackboxes/randf_comp.cpp
     systemc/blackboxes/minf_comp.cpp
 )
 _sst_compile_link(libplague.so)
+
+add_executable(sc_ceil.o systemc/blackboxes/sc_ceil_driver.cpp)
+target_link_libraries(sc_ceil.o SystemC::systemc)
 
 add_executable(rng.o systemc/blackboxes/rng_driver.cpp)
 target_link_libraries(rng.o SystemC::systemc)

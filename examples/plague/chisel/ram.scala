@@ -3,8 +3,8 @@ package ram
 import chisel3._
 
 class ram extends Module {
-    val DATA_WIDTH: Int = 8
-    val ADDR_WIDTH: Int = 8
+    val DATA_WIDTH: Int = 24
+    val ADDR_WIDTH: Int = 24
     val RAM_DEPTH: Int = 1 << DATA_WIDTH
     val io = IO(new Bundle {
         val address  = Input(UInt(ADDR_WIDTH.W))

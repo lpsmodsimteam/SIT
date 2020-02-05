@@ -3,7 +3,7 @@
 
 import sys
 
-from boilerplate import PyRTL, SystemC
+from boilerplate import Chisel, PyRTL, SystemC
 
 if __name__ == "__main__":
 
@@ -56,6 +56,16 @@ if __name__ == "__main__":
         ))
         rng.generate_bbox()
 
+        sc_ceil = SystemC(
+            **ARGS,
+            module="sc_ceil",
+        )
+        sc_ceil.set_ports((
+            ("input", "operand", "<float>", 12),
+            ("output", "data_out", "<sc_uint<24>>"),
+        ))
+        sc_ceil.generate_bbox()
+
     elif sys.argv[-1] == "pyrtl":
         mutation = PyRTL(
             **ARGS,
@@ -67,3 +77,19 @@ if __name__ == "__main__":
             ("output", "data_out", "2"),
         ))
         mutation.generate_bbox()
+
+    elif sys.argv[-1] == "chisel":
+
+        ram = Chisel(
+            **ARGS,
+            module="ram",
+        )
+        ram.set_ports((
+            ("input", "address", "24"),
+            ("input", "cs", "1"),
+            ("input", "we", "1"),
+            ("input", "oe", "1"),
+            ("input", "data_in", "24"),
+            ("output", "data_out", "24"),
+        ))
+        ram.generate_bbox()

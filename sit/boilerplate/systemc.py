@@ -97,7 +97,7 @@ class SystemC(BoilerPlate):
 
             if any(x in signal for x in ("bv", "lv", "int")):
                 # floor(log(-1 + 2^x)/log(10)) + 1
-                return math.floor(math.log(math.pow(2, __get_ints()) -1) / math.log(10)) + 1
+                return math.floor(math.log(math.pow(2, __get_ints()) - 1) / math.log(10)) + 1
 
             elif any(x in signal for x in ("bit", "logic")):
                 return __get_ints()
@@ -120,7 +120,7 @@ class SystemC(BoilerPlate):
             "_data_out << {precision}{sig}",
             lambda x: {
                 "sig": x["name"],
-                "precision": f"std::fixed << std::setprecision({self.precision}) << " 
+                "precision": f"std::fixed << std::setprecision({self.precision}) << "
                 if self.precision else "",
             },
             self.ports["output"],

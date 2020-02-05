@@ -77,7 +77,7 @@ class Chisel(BoilerPlate):
         def __get_ints(sig):
             return int("".join(s for s in sig if s.isdigit()))
 
-        return math.floor(math.log2(__get_ints(signal)))
+        return math.floor(math.log(math.pow(2, __get_ints(signal)) - 1) / math.log(10)) + 1
 
     def _get_driver_outputs(self):
         """Generate output bindings for both the components in the black box

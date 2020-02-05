@@ -7,6 +7,7 @@
 #define SIMTIME 20
 #define LOOPBEGIN 2
 #define LOOPEND (SIMTIME - 2)
+#define POPULATION_TOTAL 7760000000
 
 class strain : public SST::Component {
 
@@ -19,6 +20,10 @@ public:
     void finish() override;
 
     bool tick(SST::Cycle_t);
+
+    void handle_event_pthresh_sc_ceil(SST::Event *);
+
+    void handle_event_ram(SST::Event *);
 
     void handle_event_limit(SST::Event *);
 
@@ -62,6 +67,10 @@ public:
             { "minf_infectivity_dout", "minf_infectivity_dout", { "sst.Interfaces.StringEvent" }},
             { "birth_rate_din", "birth_rate_din", { "sst.Interfaces.StringEvent" }},
             { "birth_rate_dout", "birth_rate_dout", { "sst.Interfaces.StringEvent" }},
+            { "pthresh_sc_ceil_din", "pthresh_sc_ceil_din", { "sst.Interfaces.StringEvent" }},
+            { "pthresh_sc_ceil_dout", "pthresh_sc_ceil_dout", { "sst.Interfaces.StringEvent" }},
+            { "ram_din", "ram_din", { "sst.Interfaces.StringEvent" }},
+            { "ram_dout", "ram_dout", { "sst.Interfaces.StringEvent" }},
     )
 
 private:
@@ -73,11 +82,13 @@ private:
 
     // SST links and variables
     SST::Output m_output;
-    SST::Link *limit_din_link, *limit_dout_link,
+    SST::Link *ram_din_link, *ram_dout_link,
+            *limit_din_link, *limit_dout_link,
             *infectivity_din_link, *infectivity_dout_link,
             *lethality_din_link, *lethality_dout_link,
             *severity_din_link, *severity_dout_link,
             *birth_rate_din_link, *birth_rate_dout_link,
+            *pthresh_sc_ceil_din_link, *pthresh_sc_ceil_dout_link,
             *minf_lethality_din_link, *minf_lethality_dout_link,
             *minf_infectivity_din_link, *minf_infectivity_dout_link;
 
@@ -104,6 +115,10 @@ strain::strain(SST::ComponentId_t id, SST::Params &params) :
         m_seed6(params.find<int64_t>("SEED6", 12351)),
         m_seed7(params.find<int64_t>("SEED7", 12352)),
         m_seed8(params.find<int64_t>("SEED8", 12353)),
+        ram_din_link(configureLink("ram_din")),
+        ram_dout_link(configureLink(
+                "ram_dout",
+                new SST::Event::Handler<strain>(this, &strain::handle_event_ram))),
         limit_din_link(configureLink("limit_din")),
         limit_dout_link(configureLink(
                 "limit_dout",
@@ -124,6 +139,10 @@ strain::strain(SST::ComponentId_t id, SST::Params &params) :
         birth_rate_dout_link(configureLink(
                 "birth_rate_dout",
                 new SST::Event::Handler<strain>(this, &strain::handle_event_birth_rate))),
+        pthresh_sc_ceil_din_link(configureLink("pthresh_sc_ceil_din")),
+        pthresh_sc_ceil_dout_link(configureLink(
+                "pthresh_sc_ceil_dout",
+                new SST::Event::Handler<strain>(this, &strain::handle_event_pthresh_sc_ceil))),
         minf_lethality_din_link(configureLink("minf_lethality_din")),
         minf_lethality_dout_link(configureLink(
                 "minf_lethality_dout",
@@ -150,6 +169,36 @@ void strain::setup() {
 void strain::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
+
+}
+
+void strain::handle_event_ram(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+
+        // if (m_cycle == 1) {
+            // std::cout << "RAM " << m_cycle << ' ' << se->getString() << '\n';
+        // }
+
+    }
+
+    delete se;
+
+}
+
+void strain::handle_event_pthresh_sc_ceil(SST::Event *ev) {
+
+    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    if (se) {
+
+        // if (m_cycle == 1) {
+        std::cout << "CEIL " << m_cycle << ' ' << se->getString() << '\n';
+        // }
+
+    }
+
+    delete se;
 
 }
 
@@ -291,6 +340,12 @@ bool strain::tick(SST::Cycle_t current_cycle) {
 
     std::string m_data, dont_care = "00000000000000";
 
+    ram_din_link->send(new SST::Interfaces::StringEvent(
+            std::to_string(keep_send) +
+            std::to_string(keep_recv) +
+            "1234567811100000001"
+    ));
+
     if (current_cycle == 1) {
 
         limit_din_link->send(new SST::Interfaces::StringEvent(
@@ -301,9 +356,6 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                 "0031000" +
                 std::to_string(current_cycle)
         ));
-
-    } else {
-
 
     }
 
@@ -329,6 +381,15 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     "0020" +
                     std::to_string(LIMIT) +
                     std::to_string(current_cycle)
+            ));
+
+        } else if (current_cycle == 3) {
+
+            std::cout << "LOL " << SEVERITY * LETHALITY * POPULATION_TOTAL << '\n';
+            pthresh_sc_ceil_din_link->send(new SST::Interfaces::StringEvent(
+                    std::to_string(keep_send) +
+                    std::to_string(keep_recv) +
+                    std::to_string(SEVERITY * LETHALITY * POPULATION_TOTAL)
             ));
 
         } else if (!keep_recv) {
@@ -360,7 +421,28 @@ bool strain::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
+            lethality_din_link->send(new SST::Interfaces::StringEvent(
+                    std::to_string(keep_send) +
+                    std::to_string(keep_recv) +
+                    "0" +
+                    std::to_string(m_seed3) +
+                    "0020" +
+                    std::to_string(LIMIT) +
+                    std::to_string(current_cycle)
+            ));
+
+            infectivity_din_link->send(new SST::Interfaces::StringEvent(
+                    std::to_string(keep_send) +
+                    std::to_string(keep_recv) +
+                    "0" +
+                    std::to_string(m_seed4) +
+                    "0020" +
+                    std::to_string(LIMIT) +
+                    std::to_string(current_cycle)
+            ));
+
         }
+
 
         lethality_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +

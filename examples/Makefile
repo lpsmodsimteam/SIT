@@ -29,7 +29,13 @@ plague:
 	mkdir -p build
 	python generate_bbox.py systemc && mv blackboxes systemc
 	python generate_bbox.py pyrtl && mv blackboxes pyrtl
+	python generate_bbox.py chisel && mv blackboxes chisel
 	cd build && cmake -DCMAKE_CXX_COMPILER=${CXX} .. && $(MAKE)
+	mv ../chisel/blackboxes/build.sbt .
+	cat <<EOF >> build.sbt
+	sourcesInBase := false
+	scalaSource in Compile := baseDirectory.value / "../chisel"
+	EOF
 	sst-register plague plague_LIBDIR=$(CURDIR)
 	@$(call iecho,"Running plague simulation...")
 	sst ../run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
