@@ -6,12 +6,13 @@
 
 #define SIMTIME 20
 #define LOOPBEGIN 2
-#define LOOPEND (SIMTIME - 2)
+#define LOOPEND (SIMTIME - 3)
 #define POPULATION_TOTAL 7760000000
 
 enum ADDRESSES {
-    POPULATION_INFECTED = 2,
-    POPULATION_DEAD,
+    DAYS = 2,
+    TOTAL_INFECTED,
+    TOTAL_DEAD,
     CURE_THRESHOLD,
 };
 
@@ -51,7 +52,7 @@ public:
 
     void handle_event_lethality(SST::Event *);
 
-    void handle_event_min_pop_inf(SST::Event *);
+    void handle_event_sc_ceil_pop_dead(SST::Event *);
 
     void handle_event_minf_let(SST::Event *);
 
@@ -77,8 +78,6 @@ public:
             { "limit_dout", "limit_dout", { "sst.Interfaces.StringEvent" }},
             { "exp_pop_inf_din", "exp_pop_inf_din", { "sst.Interfaces.StringEvent" }},
             { "exp_pop_inf_dout", "exp_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
-            { "pborn_today_dout", "pborn_today_dout", { "sst.Interfaces.StringEvent" }},
-            { "pborn_today_din", "pborn_today_din", { "sst.Interfaces.StringEvent" }},
             { "pinf_today_dout", "pinf_today_dout", { "sst.Interfaces.StringEvent" }},
             { "pinf_today_din", "pinf_today_din", { "sst.Interfaces.StringEvent" }},
             { "severity_din", "severity_din", { "sst.Interfaces.StringEvent" }},
@@ -87,8 +86,8 @@ public:
             { "infectivity_dout", "infectivity_dout", { "sst.Interfaces.StringEvent" }},
             { "lethality_din", "lethality_din", { "sst.Interfaces.StringEvent" }},
             { "lethality_dout", "lethality_dout", { "sst.Interfaces.StringEvent" }},
-            { "min_pop_inf_din", "min_pop_inf_din", { "sst.Interfaces.StringEvent" }},
-            { "min_pop_inf_dout", "min_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
+            { "sc_ceil_pop_dead_din", "sc_ceil_pop_dead_din", { "sst.Interfaces.StringEvent" }},
+            { "sc_ceil_pop_dead_dout", "sc_ceil_pop_dead_dout", { "sst.Interfaces.StringEvent" }},
             { "minf_let_din", "minf_let_din", { "sst.Interfaces.StringEvent" }},
             { "minf_let_dout", "minf_let_dout", { "sst.Interfaces.StringEvent" }},
             { "minf_inf_din", "minf_inf_din", { "sst.Interfaces.StringEvent" }},
@@ -108,14 +107,13 @@ private:
     // SST parameters
     std::string m_clock;
     std::string seed_lim, seed_sev, seed_birth_rate, seed_let, seed_inf,
-            seed_pop_born, seed_pop_inf, m_seed7, m_seed8;
+            seed_pop_born, seed_pop_inf, seed_evolve, seed_gene;
 
     // SST links and variables
     SST::Output m_output;
     SST::Link *ram_din_link, *ram_dout_link,
             *limit_din_link, *limit_dout_link,
             *exp_pop_inf_din_link, *exp_pop_inf_dout_link,
-            *pborn_today_din_link, *pborn_today_dout_link,
             *pinf_today_din_link, *pinf_today_dout_link,
             *infectivity_din_link, *infectivity_dout_link,
             *lethality_din_link, *lethality_dout_link,
@@ -123,7 +121,7 @@ private:
             *birth_rate_din_link, *birth_rate_dout_link,
             *sc_ceil_cure_thresh_din_link, *sc_ceil_cure_thresh_dout_link,
             *sc_ceil_pop_inf_din_link, *sc_ceil_pop_inf_dout_link,
-            *min_pop_inf_din_link, *min_pop_inf_dout_link,
+            *sc_ceil_pop_dead_din_link, *sc_ceil_pop_dead_dout_link,
             *minf_let_din_link, *minf_let_dout_link,
             *minf_inf_din_link, *minf_inf_dout_link;
 
@@ -155,10 +153,9 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         seed_birth_rate(params.find<std::string>("SEED2", "12347")),
         seed_let(params.find<std::string>("SEED3", "12348")),
         seed_inf(params.find<std::string>("SEED4", "12349")),
-        seed_pop_born(params.find<std::string>("SEED5", "12350")),
-        seed_pop_inf(params.find<std::string>("SEED6", "12351")),
-        m_seed7(params.find<std::string>("SEED7", "12352")),
-        m_seed8(params.find<std::string>("SEED8", "12353")),
+        seed_pop_inf(params.find<std::string>("SEED5", "12351")),
+        seed_evolve(params.find<std::string>("SEED6", "12352")),
+        seed_gene(params.find<std::string>("SEED7", "12353")),
         ram_din_link(configureLink("ram_din")),
         ram_dout_link(configureLink(
                 "ram_dout",
@@ -171,10 +168,6 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         exp_pop_inf_dout_link(configureLink(
                 "exp_pop_inf_dout",
                 new SST::Event::Handler<plague>(this, &plague::handle_event_exp_pop_inf))),
-        pborn_today_din_link(configureLink("pborn_today_din")),
-        pborn_today_dout_link(configureLink(
-                "pborn_today_dout",
-                new SST::Event::Handler<plague>(this, &plague::handle_event_pborn_today))),
         pinf_today_din_link(configureLink("pinf_today_din")),
         pinf_today_dout_link(configureLink(
                 "pinf_today_dout",
@@ -203,10 +196,10 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         sc_ceil_pop_inf_dout_link(configureLink(
                 "sc_ceil_pop_inf_dout",
                 new SST::Event::Handler<plague>(this, &plague::handle_event_sc_ceil_pop_inf))),
-        min_pop_inf_din_link(configureLink("min_pop_inf_din")),
-        min_pop_inf_dout_link(configureLink(
-                "min_pop_inf_dout",
-                new SST::Event::Handler<plague>(this, &plague::handle_event_min_pop_inf))),
+        sc_ceil_pop_dead_din_link(configureLink("sc_ceil_pop_dead_din")),
+        sc_ceil_pop_dead_dout_link(configureLink(
+                "sc_ceil_pop_dead_dout",
+                new SST::Event::Handler<plague>(this, &plague::handle_event_sc_ceil_pop_dead))),
         minf_let_din_link(configureLink("minf_let_din")),
         minf_let_dout_link(configureLink(
                 "minf_let_dout",
@@ -258,7 +251,6 @@ void plague::handle_event_sc_ceil_cure_thresh(SST::Event *ev) {
 
         std::string addr = std::to_string(ADDRESSES::CURE_THRESHOLD);
         fix_signal_width('0', 8, addr);
-        std::cout << "CEIL " << addr << ' ' << se->getString() << '\n';
         ram_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
@@ -283,20 +275,6 @@ void plague::handle_event_limit(SST::Event *ev) {
             LIMIT = se->getString();
             fix_signal_width('0', 4, LIMIT);
         }
-
-    }
-
-    delete se;
-
-}
-
-void plague::handle_event_pborn_today(SST::Event *ev) {
-
-    auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se && keep_recv) {
-
-        std::cout << "POPULATION BORN TODAY " << m_cycle << ' ' << se->getString() << '\n';
-        BATCH_BORN = std::stoi(se->getString());
 
     }
 
@@ -452,6 +430,13 @@ void plague::handle_event_sc_ceil_pop_inf(SST::Event *ev) {
 
         POPULATION_INFECTED = se->getString();
         std::cout << "FINAL POPULATION INFECTED " << POPULATION_INFECTED << '\n';
+        std::ostringstream _data_out;
+        _data_out << std::fixed << std::setprecision(2) << (std::stoi(POPULATION_INFECTED) * LETHALITY);
+        sc_ceil_pop_dead_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(_keep_send) +
+                std::to_string(_keep_recv) +
+                _data_out.str()
+        ));
 
     }
 
@@ -459,15 +444,13 @@ void plague::handle_event_sc_ceil_pop_inf(SST::Event *ev) {
 
 }
 
-void plague::handle_event_min_pop_inf(SST::Event *ev) {
+void plague::handle_event_sc_ceil_pop_dead(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    bool _keep_send = m_cycle < SIMTIME - 4;
-    bool _keep_recv = m_cycle < SIMTIME - 5;
 
     if (se && m_cycle < LOOPEND) {
 
-        std::cout << "FINAL POPULATION INFECTED " << se->getString() << '\n';
+        std::cout << "FINAL POPULATION DEAD " << se->getString() << '\n';
 
     }
 
@@ -601,15 +584,6 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            pborn_today_din_link->send(new SST::Interfaces::StringEvent(
-                    std::to_string(keep_send) +
-                    std::to_string(keep_recv) +
-                    "0" +
-                    seed_pop_born +
-                    "0020100" +
-                    std::to_string(current_cycle)
-            ));
-
             pinf_today_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
@@ -646,15 +620,6 @@ bool plague::tick(SST::Cycle_t current_cycle) {
             ));
 
         }
-
-        pborn_today_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
-                "1" +
-                seed_pop_born +
-                "0020100" +
-                std::to_string(current_cycle)
-        ));
 
         pinf_today_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
