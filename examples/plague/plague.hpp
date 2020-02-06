@@ -7,7 +7,7 @@
 
 #define SIMTIME 20
 #define LOOPBEGIN 2
-#define LOOPEND (SIMTIME - 3)
+#define LOOPEND (SIMTIME - 2)
 #define POPULATION_TOTAL 7760000000
 
 class plague : public SST::Component {
@@ -22,11 +22,15 @@ public:
 
     bool tick(SST::Cycle_t);
 
-    static void fix_signal_width(char, int, std::string &);
+    static void align_signal_width(char, int, std::string &);
+
+    static std::string align_signal_width(int, float);
 
     void ram(SST::Event *);
 
     void rng_limit(SST::Event *);
+
+    void rng_pop_inf(SST::Event *);
 
     void randf_br(SST::Event *);
 
@@ -35,8 +39,6 @@ public:
     void randf_inf(SST::Event *);
 
     void randf_let(SST::Event *);
-
-    void rng_pop_inf(SST::Event *);
 
     void min_let(SST::Event *);
 
@@ -49,10 +51,6 @@ public:
     void ceil_pop_dead(SST::Event *);
 
     void exp_pop_inf(SST::Event *);
-
-    void exp_br(SST::Event *);
-
-    void pborn_today(SST::Event *);
 
     SST_ELI_REGISTER_COMPONENT(
             plague,
@@ -104,6 +102,8 @@ private:
         TOTAL_DEAD_ADDR,
         CURE_THRESHOLD_ADDR,
     };
+
+    std::string m_ram_noop = "000", m_ram_read = "101", m_ram_write = "111";
 
     // SST parameters
     std::string m_clock;
