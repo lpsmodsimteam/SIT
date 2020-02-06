@@ -13,10 +13,12 @@ CLOCK = "1Hz"
 
 LINK_DELAY = "1ps"
 
+
 def get_rand_tmp():
     return "/tmp/" + ''.join(
         SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)
     )
+
 
 # Main SST component
 ###############################################################################
@@ -162,6 +164,7 @@ ram_comp.addParams({
 #     "ipc_port": get_rand_tmp(),
 # })
 
+
 def connect_comps(comp, main_comp, comp_name, main_comp_name):
     sst.Link(main_comp_name + "_din").connect(
         (comp, comp_name + "_din", LINK_DELAY),
@@ -172,21 +175,22 @@ def connect_comps(comp, main_comp, comp_name, main_comp_name):
         (main_comp, main_comp_name + "_dout", LINK_DELAY)
     )
 
+
 # connect the subcomponents
-connect_comps(limit_comp, plague_main, "rng", "limit")
-connect_comps(pinf_today_comp, plague_main, "rng", "pinf_today")
+connect_comps(limit_comp, plague_main, "rng", "rng_limit")
+connect_comps(pinf_today_comp, plague_main, "rng", "rng_pop_inf")
 
-connect_comps(severity_comp, plague_main, "randf", "severity")
-connect_comps(infectivity_comp, plague_main, "randf", "infectivity")
-connect_comps(lethality_comp, plague_main, "randf", "lethality")
-connect_comps(birth_rate_comp, plague_main, "randf", "birth_rate")
+connect_comps(severity_comp, plague_main, "randf", "randf_sev")
+connect_comps(infectivity_comp, plague_main, "randf", "randf_inf")
+connect_comps(lethality_comp, plague_main, "randf", "randf_let")
+connect_comps(birth_rate_comp, plague_main, "randf", "randf_br")
 
-connect_comps(minf_let_comp, plague_main, "minf", "minf_let")
-connect_comps(minf_inf_comp, plague_main, "minf", "minf_inf")
+connect_comps(minf_let_comp, plague_main, "minf", "min_let")
+connect_comps(minf_inf_comp, plague_main, "minf", "min_inf")
 
-connect_comps(sc_ceil_cure_thresh_comp, plague_main, "sc_ceil", "sc_ceil_cure_thresh")
-connect_comps(sc_ceil_pop_inf_comp, plague_main, "sc_ceil", "sc_ceil_pop_inf")
-connect_comps(sc_ceil_pop_dead_comp, plague_main, "sc_ceil", "sc_ceil_pop_dead")
+connect_comps(sc_ceil_cure_thresh_comp, plague_main, "sc_ceil", "ceil_cure_thresh")
+connect_comps(sc_ceil_pop_inf_comp, plague_main, "sc_ceil", "ceil_pop_inf")
+connect_comps(sc_ceil_pop_dead_comp, plague_main, "sc_ceil", "ceil_pop_dead")
 # connect_comps(sc_ceil_cure_thresh_comp, plague_main, "sc_ceil", "sc_ceil_cure_thresh")
 
 connect_comps(exp_pop_inf_comp, plague_main, "sc_exp", "exp_pop_inf")

@@ -15,69 +15,82 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         seed_pop_inf(params.find<std::string>("SEED5", "12351")),
         seed_evolve(params.find<std::string>("SEED6", "12352")),
         seed_gene(params.find<std::string>("SEED7", "12353")),
+        // initialize ram links
         ram_din_link(configureLink("ram_din")),
         ram_dout_link(configureLink(
                 "ram_dout",
                 new SST::Event::Handler<plague>(this, &plague::ram))
         ),
-        limit_din_link(configureLink("limit_din")),
-        limit_dout_link(configureLink(
-                "limit_dout",
-                new SST::Event::Handler<plague>(this, &plague::limit))
+        // initialize limit links
+        rng_limit_din_link(configureLink("rng_limit_din")),
+        rng_limit_dout_link(configureLink(
+                "rng_limit_dout",
+                new SST::Event::Handler<plague>(this, &plague::rng_limit))
         ),
+        // initialize population infected RNG links
+        rng_pop_inf_din_link(configureLink("rng_pop_inf_din")),
+        rng_pop_inf_dout_link(configureLink(
+                "rng_pop_inf_dout",
+                new SST::Event::Handler<plague>(this, &plague::rng_pop_inf))
+        ),
+        // initialize infectivity random float links
+        randf_inf_din_link(configureLink("randf_inf_din")),
+        randf_inf_dout_link(configureLink(
+                "randf_inf_dout",
+                new SST::Event::Handler<plague>(this, &plague::randf_inf))
+        ),
+        // initialize lethality random float links
+        randf_let_din_link(configureLink("randf_let_din")),
+        randf_let_dout_link(configureLink(
+                "randf_let_dout",
+                new SST::Event::Handler<plague>(this, &plague::randf_let))
+        ),
+        // initialize severity random float links
+        randf_sev_din_link(configureLink("randf_sev_din")),
+        randf_sev_dout_link(configureLink(
+                "randf_sev_dout",
+                new SST::Event::Handler<plague>(this, &plague::randf_sev))
+        ),
+        // initialize birth rate random float links
+        randf_br_din_link(configureLink("randf_br_din")),
+        randf_br_dout_link(configureLink(
+                "randf_br_dout",
+                new SST::Event::Handler<plague>(this, &plague::randf_br))
+        ),
+        // initialize exp population infected links
         exp_pop_inf_din_link(configureLink("exp_pop_inf_din")),
         exp_pop_inf_dout_link(configureLink(
                 "exp_pop_inf_dout",
                 new SST::Event::Handler<plague>(this, &plague::exp_pop_inf))
         ),
-        pinf_today_din_link(configureLink("pinf_today_din")),
-        pinf_today_dout_link(configureLink(
-                "pinf_today_dout",
-                new SST::Event::Handler<plague>(this, &plague::randf_pop_inf))
-        ),
-        infectivity_din_link(configureLink("infectivity_din")),
-        infectivity_dout_link(configureLink(
-                "infectivity_dout",
-                new SST::Event::Handler<plague>(this, &plague::randf_inf))
-        ),
-        lethality_din_link(configureLink("lethality_din")),
-        lethality_dout_link(configureLink(
-                "lethality_dout",
-                new SST::Event::Handler<plague>(this, &plague::randf_let))
-        ),
-        severity_din_link(configureLink("severity_din")),
-        severity_dout_link(configureLink(
-                "severity_dout",
-                new SST::Event::Handler<plague>(this, &plague::randf_sev))
-        ),
-        birth_rate_din_link(configureLink("birth_rate_din")),
-        birth_rate_dout_link(configureLink(
-                "birth_rate_dout",
-                new SST::Event::Handler<plague>(this, &plague::randf_br))
-        ),
-        sc_ceil_cure_thresh_din_link(configureLink("sc_ceil_cure_thresh_din")),
-        sc_ceil_cure_thresh_dout_link(configureLink(
-                "sc_ceil_cure_thresh_dout",
+        // initialize cure threshold ceiling links
+        ceil_cure_thresh_din_link(configureLink("ceil_cure_thresh_din")),
+        ceil_cure_thresh_dout_link(configureLink(
+                "ceil_cure_thresh_dout",
                 new SST::Event::Handler<plague>(this, &plague::ceil_cure_thresh))
         ),
-        sc_ceil_pop_inf_din_link(configureLink("sc_ceil_pop_inf_din")),
-        sc_ceil_pop_inf_dout_link(configureLink(
-                "sc_ceil_pop_inf_dout",
+        // initialize population infected ceiling links
+        ceil_pop_inf_din_link(configureLink("ceil_pop_inf_din")),
+        ceil_pop_inf_dout_link(configureLink(
+                "ceil_pop_inf_dout",
                 new SST::Event::Handler<plague>(this, &plague::ceil_pop_inf))
         ),
-        sc_ceil_pop_dead_din_link(configureLink("sc_ceil_pop_dead_din")),
-        sc_ceil_pop_dead_dout_link(configureLink(
-                "sc_ceil_pop_dead_dout",
+        // initialize population dead ceiling links
+        ceil_pop_dead_din_link(configureLink("ceil_pop_dead_din")),
+        ceil_pop_dead_dout_link(configureLink(
+                "ceil_pop_dead_dout",
                 new SST::Event::Handler<plague>(this, &plague::ceil_pop_dead))
         ),
-        minf_let_din_link(configureLink("minf_let_din")),
-        minf_let_dout_link(configureLink(
-                "minf_let_dout",
+        // initialize minimum lethality links
+        min_let_din_link(configureLink("min_let_din")),
+        min_let_dout_link(configureLink(
+                "min_let_dout",
                 new SST::Event::Handler<plague>(this, &plague::min_let))
         ),
-        minf_inf_din_link(configureLink("minf_inf_din")),
-        minf_inf_dout_link(configureLink(
-                "minf_inf_dout",
+        // initialize minimum infectivity links
+        min_inf_din_link(configureLink("min_inf_din")),
+        min_inf_dout_link(configureLink(
+                "min_inf_dout",
                 new SST::Event::Handler<plague>(this, &plague::min_inf))
         ) {
 

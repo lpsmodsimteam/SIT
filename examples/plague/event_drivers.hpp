@@ -43,7 +43,7 @@ void plague::ceil_cure_thresh(SST::Event *ev) {
 
 }
 
-void plague::limit(SST::Event *ev) {
+void plague::rng_limit(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
@@ -60,7 +60,7 @@ void plague::limit(SST::Event *ev) {
 
 }
 
-void plague::randf_pop_inf(SST::Event *ev) {
+void plague::rng_pop_inf(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && keep_recv) {
@@ -115,7 +115,7 @@ void plague::randf_inf(SST::Event *ev) {
             std::cout << "INF " << m_cycle << ' ' << se->getString() << '\n';
             std::ostringstream _data_out;
             _data_out << std::fixed << std::setprecision(10) << (INFECTIVITY + std::stof(se->getString()));
-            minf_inf_din_link->send(new SST::Interfaces::StringEvent(
+            min_inf_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(_keep_send) +
                     std::to_string(_keep_recv) +
                     _data_out.str() +
@@ -145,7 +145,7 @@ void plague::randf_let(SST::Event *ev) {
             std::cout << "LET " << m_cycle << ' ' << se->getString() << '\n';
             std::ostringstream _data_out;
             _data_out << std::fixed << std::setprecision(10) << (LETHALITY + std::stof(se->getString()));
-            minf_let_din_link->send(new SST::Interfaces::StringEvent(
+            min_let_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(_keep_send) +
                     std::to_string(_keep_recv) +
                     _data_out.str() +
@@ -210,7 +210,7 @@ void plague::ceil_pop_inf(SST::Event *ev) {
         std::cout << "FINAL POPULATION INFECTED " << POPULATION_INFECTED << '\n';
         std::ostringstream _data_out;
         _data_out << std::fixed << std::setprecision(2) << (std::stoi(POPULATION_INFECTED) * LETHALITY);
-        sc_ceil_pop_dead_din_link->send(new SST::Interfaces::StringEvent(
+        ceil_pop_dead_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(_keep_send) +
                 std::to_string(_keep_recv) +
                 _data_out.str()
@@ -249,7 +249,7 @@ void plague::exp_pop_inf(SST::Event *ev) {
         std::cout << "POPULATION_INFECTED " << _POPULATION_INFECTED << '\n';
         std::ostringstream _data_out;
         _data_out << std::fixed << std::setprecision(2) << _POPULATION_INFECTED;
-        sc_ceil_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
+        ceil_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(_keep_send) +
                 std::to_string(_keep_recv) +
                 _data_out.str()

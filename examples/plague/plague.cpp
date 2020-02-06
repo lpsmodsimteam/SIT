@@ -22,7 +22,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
     if (current_cycle == 1) {
 
-        limit_din_link->send(new SST::Interfaces::StringEvent(
+        rng_limit_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
                 "1" +
@@ -37,7 +37,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
         if (current_cycle == 2) {
 
-            severity_din_link->send(new SST::Interfaces::StringEvent(
+            randf_sev_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "1" +
@@ -47,7 +47,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            birth_rate_din_link->send(new SST::Interfaces::StringEvent(
+            randf_br_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "1" +
@@ -61,7 +61,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
             std::ostringstream _data_out;
             _data_out << std::fixed << std::setprecision(2) << (SEVERITY * LETHALITY * POPULATION_TOTAL);
-            sc_ceil_cure_thresh_din_link->send(new SST::Interfaces::StringEvent(
+            ceil_cure_thresh_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     _data_out.str()
@@ -69,7 +69,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
         } else if (!keep_recv) {
 
-            severity_din_link->send(new SST::Interfaces::StringEvent(
+            randf_sev_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
@@ -78,7 +78,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            birth_rate_din_link->send(new SST::Interfaces::StringEvent(
+            randf_br_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
@@ -87,7 +87,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            limit_din_link->send(new SST::Interfaces::StringEvent(
+            rng_limit_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
@@ -96,7 +96,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            pinf_today_din_link->send(new SST::Interfaces::StringEvent(
+            rng_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
@@ -105,7 +105,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            lethality_din_link->send(new SST::Interfaces::StringEvent(
+            randf_let_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
@@ -115,7 +115,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            infectivity_din_link->send(new SST::Interfaces::StringEvent(
+            randf_inf_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0" +
@@ -125,7 +125,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                     std::to_string(current_cycle)
             ));
 
-            sc_ceil_cure_thresh_din_link->send(new SST::Interfaces::StringEvent(
+            ceil_cure_thresh_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(keep_send) +
                     std::to_string(keep_recv) +
                     "0000000"
@@ -133,7 +133,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
         }
 
-        pinf_today_din_link->send(new SST::Interfaces::StringEvent(
+        rng_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
                 "1" +
@@ -142,7 +142,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                 std::to_string(current_cycle)
         ));
 
-        lethality_din_link->send(new SST::Interfaces::StringEvent(
+        randf_let_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
                 "1" +
@@ -152,7 +152,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                 std::to_string(current_cycle)
         ));
 
-        infectivity_din_link->send(new SST::Interfaces::StringEvent(
+        randf_inf_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(keep_send) +
                 std::to_string(keep_recv) +
                 "1" +

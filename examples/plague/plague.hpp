@@ -24,21 +24,11 @@ public:
 
     static void fix_signal_width(char, int, std::string &);
 
-    void ceil_cure_thresh(SST::Event *);
-
-    void ceil_pop_inf(SST::Event *);
-
     void ram(SST::Event *);
 
-    void limit(SST::Event *);
+    void rng_limit(SST::Event *);
 
-    void exp_pop_inf(SST::Event *);
-
-    void exp_br(SST::Event *);
-
-    void pborn_today(SST::Event *);
-
-    void randf_pop_inf(SST::Event *);
+    void randf_br(SST::Event *);
 
     void randf_sev(SST::Event *);
 
@@ -46,13 +36,23 @@ public:
 
     void randf_let(SST::Event *);
 
-    void ceil_pop_dead(SST::Event *);
+    void rng_pop_inf(SST::Event *);
 
     void min_let(SST::Event *);
 
     void min_inf(SST::Event *);
 
-    void randf_br(SST::Event *);
+    void ceil_cure_thresh(SST::Event *);
+
+    void ceil_pop_inf(SST::Event *);
+
+    void ceil_pop_dead(SST::Event *);
+
+    void exp_pop_inf(SST::Event *);
+
+    void exp_br(SST::Event *);
+
+    void pborn_today(SST::Event *);
 
     SST_ELI_REGISTER_COMPONENT(
             plague,
@@ -68,30 +68,30 @@ public:
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-            { "limit_din", "limit_din", { "sst.Interfaces.StringEvent" }},
-            { "limit_dout", "limit_dout", { "sst.Interfaces.StringEvent" }},
+            { "rng_limit_din", "rng_limit_din", { "sst.Interfaces.StringEvent" }},
+            { "rng_limit_dout", "rng_limit_dout", { "sst.Interfaces.StringEvent" }},
             { "exp_pop_inf_din", "exp_pop_inf_din", { "sst.Interfaces.StringEvent" }},
             { "exp_pop_inf_dout", "exp_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
-            { "pinf_today_dout", "pinf_today_dout", { "sst.Interfaces.StringEvent" }},
-            { "pinf_today_din", "pinf_today_din", { "sst.Interfaces.StringEvent" }},
-            { "severity_din", "severity_din", { "sst.Interfaces.StringEvent" }},
-            { "severity_dout", "severity_dout", { "sst.Interfaces.StringEvent" }},
-            { "infectivity_din", "infectivity_din", { "sst.Interfaces.StringEvent" }},
-            { "infectivity_dout", "infectivity_dout", { "sst.Interfaces.StringEvent" }},
-            { "lethality_din", "lethality_din", { "sst.Interfaces.StringEvent" }},
-            { "lethality_dout", "lethality_dout", { "sst.Interfaces.StringEvent" }},
-            { "sc_ceil_pop_dead_din", "sc_ceil_pop_dead_din", { "sst.Interfaces.StringEvent" }},
-            { "sc_ceil_pop_dead_dout", "sc_ceil_pop_dead_dout", { "sst.Interfaces.StringEvent" }},
-            { "minf_let_din", "minf_let_din", { "sst.Interfaces.StringEvent" }},
-            { "minf_let_dout", "minf_let_dout", { "sst.Interfaces.StringEvent" }},
-            { "minf_inf_din", "minf_inf_din", { "sst.Interfaces.StringEvent" }},
-            { "minf_inf_dout", "minf_inf_dout", { "sst.Interfaces.StringEvent" }},
-            { "birth_rate_din", "birth_rate_din", { "sst.Interfaces.StringEvent" }},
-            { "birth_rate_dout", "birth_rate_dout", { "sst.Interfaces.StringEvent" }},
-            { "sc_ceil_cure_thresh_din", "sc_ceil_cure_thresh_din", { "sst.Interfaces.StringEvent" }},
-            { "sc_ceil_cure_thresh_dout", "sc_ceil_cure_thresh_dout", { "sst.Interfaces.StringEvent" }},
-            { "sc_ceil_pop_inf_din", "sc_ceil_pop_inf_din", { "sst.Interfaces.StringEvent" }},
-            { "sc_ceil_pop_inf_dout", "sc_ceil_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
+            { "rng_pop_inf_dout", "rng_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
+            { "rng_pop_inf_din", "rng_pop_inf_din", { "sst.Interfaces.StringEvent" }},
+            { "randf_sev_din", "randf_sev_din", { "sst.Interfaces.StringEvent" }},
+            { "randf_sev_dout", "randf_sev_dout", { "sst.Interfaces.StringEvent" }},
+            { "randf_inf_din", "randf_inf_din", { "sst.Interfaces.StringEvent" }},
+            { "randf_inf_dout", "randf_inf_dout", { "sst.Interfaces.StringEvent" }},
+            { "randf_let_din", "randf_let_din", { "sst.Interfaces.StringEvent" }},
+            { "randf_let_dout", "randf_let_dout", { "sst.Interfaces.StringEvent" }},
+            { "ceil_pop_dead_din", "ceil_pop_dead_din", { "sst.Interfaces.StringEvent" }},
+            { "ceil_pop_dead_dout", "ceil_pop_dead_dout", { "sst.Interfaces.StringEvent" }},
+            { "min_let_din", "min_let_din", { "sst.Interfaces.StringEvent" }},
+            { "min_let_dout", "min_let_dout", { "sst.Interfaces.StringEvent" }},
+            { "min_inf_din", "min_inf_din", { "sst.Interfaces.StringEvent" }},
+            { "min_inf_dout", "min_inf_dout", { "sst.Interfaces.StringEvent" }},
+            { "randf_br_din", "randf_br_din", { "sst.Interfaces.StringEvent" }},
+            { "randf_br_dout", "randf_br_dout", { "sst.Interfaces.StringEvent" }},
+            { "ceil_cure_thresh_din", "ceil_cure_thresh_din", { "sst.Interfaces.StringEvent" }},
+            { "ceil_cure_thresh_dout", "ceil_cure_thresh_dout", { "sst.Interfaces.StringEvent" }},
+            { "ceil_pop_inf_din", "ceil_pop_inf_din", { "sst.Interfaces.StringEvent" }},
+            { "ceil_pop_inf_dout", "ceil_pop_inf_dout", { "sst.Interfaces.StringEvent" }},
             { "ram_din", "ram_din", { "sst.Interfaces.StringEvent" }},
             { "ram_dout", "ram_dout", { "sst.Interfaces.StringEvent" }},
     )
@@ -113,27 +113,26 @@ private:
     // SST links and variables
     SST::Output m_output;
     SST::Link *ram_din_link, *ram_dout_link,
-            *limit_din_link, *limit_dout_link,
+            *rng_limit_din_link, *rng_limit_dout_link,
+            *rng_pop_inf_din_link, *rng_pop_inf_dout_link,
+            *randf_inf_din_link, *randf_inf_dout_link,
+            *randf_let_din_link, *randf_let_dout_link,
+            *randf_sev_din_link, *randf_sev_dout_link,
+            *randf_br_din_link, *randf_br_dout_link,
             *exp_pop_inf_din_link, *exp_pop_inf_dout_link,
-            *pinf_today_din_link, *pinf_today_dout_link,
-            *infectivity_din_link, *infectivity_dout_link,
-            *lethality_din_link, *lethality_dout_link,
-            *severity_din_link, *severity_dout_link,
-            *birth_rate_din_link, *birth_rate_dout_link,
-            *sc_ceil_cure_thresh_din_link, *sc_ceil_cure_thresh_dout_link,
-            *sc_ceil_pop_inf_din_link, *sc_ceil_pop_inf_dout_link,
-            *sc_ceil_pop_dead_din_link, *sc_ceil_pop_dead_dout_link,
-            *minf_let_din_link, *minf_let_dout_link,
-            *minf_inf_din_link, *minf_inf_dout_link;
+            *ceil_cure_thresh_din_link, *ceil_cure_thresh_dout_link,
+            *ceil_pop_inf_din_link, *ceil_pop_inf_dout_link,
+            *ceil_pop_dead_din_link, *ceil_pop_dead_dout_link,
+            *min_let_din_link, *min_let_dout_link,
+            *min_inf_din_link, *min_inf_dout_link;
 
     bool keep_send, keep_recv;
 
-    int BATCH_INFECTED, BATCH_BORN;
+    int BATCH_INFECTED;
 
     float SEVERITY, INFECTIVITY, LETHALITY, BIRTH_RATE;
     float _POPULATION_INFECTED;
     std::string CURE_THRESHOLD,
-            POPULATION_HEALTHY,
             POPULATION_INFECTED,
             TOTAL_INFECTED,
             POPULATION_DEAD,
