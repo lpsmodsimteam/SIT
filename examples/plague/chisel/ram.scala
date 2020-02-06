@@ -17,7 +17,7 @@ class ram extends Module {
 
     val data_out_wire = Reg(UInt(DATA_WIDTH.W))
     val mem = Mem(RAM_DEPTH, UInt(DATA_WIDTH.W))
-    data_out_wire := DontCare
+    data_out_wire := (RAM_DEPTH - 1).U
 
     when (io.cs) {
         when(!io.we && io.oe) {

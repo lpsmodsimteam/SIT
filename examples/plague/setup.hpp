@@ -13,13 +13,19 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         seed_let(params.find<std::string>("SEED3", "12348")),
         seed_inf(params.find<std::string>("SEED4", "12349")),
         seed_pop_inf(params.find<std::string>("SEED5", "12351")),
-        seed_evolve(params.find<std::string>("SEED6", "12352")),
-        seed_gene(params.find<std::string>("SEED7", "12353")),
+        seed_research(params.find<std::string>("SEED6", "12352")),
+        seed_mutation(params.find<std::string>("SEED7", "12353")),
         // initialize ram links
         ram_din_link(configureLink("ram_din")),
         ram_dout_link(configureLink(
                 "ram_dout",
                 new SST::Event::Handler<plague>(this, &plague::ram))
+        ),
+        // initialize mutation links
+        mutation_din_link(configureLink("mutation_din")),
+        mutation_dout_link(configureLink(
+                "mutation_dout",
+                new SST::Event::Handler<plague>(this, &plague::mutation))
         ),
         // initialize limit links
         rng_limit_din_link(configureLink("rng_limit_din")),
@@ -32,6 +38,12 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         rng_pop_inf_dout_link(configureLink(
                 "rng_pop_inf_dout",
                 new SST::Event::Handler<plague>(this, &plague::rng_pop_inf))
+        ),
+        // initialize mutation RNG links
+        rng_mut_din_link(configureLink("rng_mut_din")),
+        rng_mut_dout_link(configureLink(
+                "rng_mut_dout",
+                new SST::Event::Handler<plague>(this, &plague::rng_mut))
         ),
         // initialize infectivity random float links
         randf_inf_din_link(configureLink("randf_inf_din")),
@@ -56,6 +68,12 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         randf_br_dout_link(configureLink(
                 "randf_br_dout",
                 new SST::Event::Handler<plague>(this, &plague::randf_br))
+        ),
+        // initialize research random float links
+        randf_rsrch_din_link(configureLink("randf_rsrch_din")),
+        randf_rsrch_dout_link(configureLink(
+                "randf_rsrch_dout",
+                new SST::Event::Handler<plague>(this, &plague::randf_rsrch))
         ),
         // initialize exp population infected links
         exp_pop_inf_din_link(configureLink("exp_pop_inf_din")),

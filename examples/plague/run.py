@@ -39,75 +39,91 @@ plague_main.addParams({
 # SystemC components
 ###############################################################################
 # RNG components
-limit_comp = sst.Component(
-    "Limit Component (SystemC)", "plague.rng")
-limit_comp.addParams({
+rng_limit_comp = sst.Component(
+    "Random Limit Component (SystemC)", "plague.rng")
+rng_limit_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "rng.o"),
     "ipc_port": get_rand_tmp(),
 })
 
-pinf_today_comp = sst.Component(
-    "Population Infected Today Component (SystemC)", "plague.rng")
-pinf_today_comp.addParams({
+rng_pop_inf_comp = sst.Component(
+    "Infected Population RNG Component (SystemC)", "plague.rng")
+rng_pop_inf_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "rng.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
+rng_mut_comp = sst.Component(
+    "Mutation RNG Component (SystemC)", "plague.rng")
+rng_mut_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "rng.o"),
     "ipc_port": get_rand_tmp(),
 })
 
 # Random Float components
-severity_comp = sst.Component(
+randf_sev_comp = sst.Component(
     "Severity Component (SystemC)", "plague.randf")
-severity_comp.addParams({
+randf_sev_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "randf.o"),
     "ipc_port": get_rand_tmp(),
 })
 
-infectivity_comp = sst.Component(
+randf_inf_comp = sst.Component(
     "Infectivity Component (SystemC)", "plague.randf")
-infectivity_comp.addParams({
+randf_inf_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "randf.o"),
     "ipc_port": get_rand_tmp(),
 })
 
-lethality_comp = sst.Component(
+randf_let_comp = sst.Component(
     "Lethality Component (SystemC)", "plague.randf")
-lethality_comp.addParams({
+randf_let_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "randf.o"),
     "ipc_port": get_rand_tmp(),
 })
 
-birth_rate_comp = sst.Component(
+randf_br_comp = sst.Component(
     "Birth Rate Component (SystemC)", "plague.randf")
-birth_rate_comp.addParams({
+randf_br_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "randf.o"),
+    "ipc_port": get_rand_tmp(),
+})
+
+randf_rsrch_comp = sst.Component(
+    "Research Component (SystemC)", "plague.randf")
+randf_rsrch_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "randf.o"),
     "ipc_port": get_rand_tmp(),
 })
 
 # Ceiling components
-sc_ceil_cure_thresh_comp = sst.Component(
+ceil_cure_thresh_comp = sst.Component(
     "Ceiling Component for Cure Threshold (SystemC)", "plague.sc_ceil")
-sc_ceil_cure_thresh_comp.addParams({
+ceil_cure_thresh_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "sc_ceil.o"),
     "ipc_port": get_rand_tmp(),
 })
 
-sc_ceil_pop_inf_comp = sst.Component(
+ceil_pop_inf_comp = sst.Component(
     "Ceiling Component for Infected Population (SystemC)", "plague.sc_ceil")
-sc_ceil_pop_inf_comp.addParams({
+ceil_pop_inf_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "sc_ceil.o"),
     "ipc_port": get_rand_tmp(),
 })
 
-sc_ceil_pop_dead_comp = sst.Component(
+ceil_pop_dead_comp = sst.Component(
     "Ceiling Component for Dead Population (SystemC)", "plague.sc_ceil")
-sc_ceil_pop_dead_comp.addParams({
+ceil_pop_dead_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "sc_ceil.o"),
     "ipc_port": get_rand_tmp(),
@@ -151,18 +167,14 @@ ram_comp.addParams({
 
 # PyRTL
 ###############################################################################
-# pyrtl_main = sst.Component(
-#     "Traffic Light (PyRTL)", "plague.traffic_light_pyrtl")
-# pyrtl_main.addParams({
-#     "CLOCK": CLOCK,
-# })
-# pyrtl_comp = sst.Component(
-#     "PyRTL Component", "plague.pyrtl_fsm")
-# pyrtl_comp.addParams({
-#     "clock": CLOCK,
-#     "proc": os.path.join(BASE_PATH, "../pyrtl/blackboxes/pyrtl_fsm_driver.py"),
-#     "ipc_port": get_rand_tmp(),
-# })
+print(os.path.join(BASE_PATH, "../pyrtl/blackboxes/mutation_driver.py"))
+mutation_comp = sst.Component(
+    "Gene Mutation Component (PyRTL)", "plague.mutation")
+mutation_comp.addParams({
+    "clock": CLOCK,
+    "proc": os.path.join(BASE_PATH, "../pyrtl/blackboxes/mutation_driver.py"),
+    "ipc_port": get_rand_tmp(),
+})
 
 
 def connect_comps(comp, main_comp, comp_name, main_comp_name):
@@ -177,24 +189,27 @@ def connect_comps(comp, main_comp, comp_name, main_comp_name):
 
 
 # connect the subcomponents
-connect_comps(limit_comp, plague_main, "rng", "rng_limit")
-connect_comps(pinf_today_comp, plague_main, "rng", "rng_pop_inf")
+connect_comps(rng_limit_comp, plague_main, "rng", "rng_limit")
+connect_comps(rng_pop_inf_comp, plague_main, "rng", "rng_pop_inf")
+connect_comps(rng_mut_comp, plague_main, "rng", "rng_mut")
 
-connect_comps(severity_comp, plague_main, "randf", "randf_sev")
-connect_comps(infectivity_comp, plague_main, "randf", "randf_inf")
-connect_comps(lethality_comp, plague_main, "randf", "randf_let")
-connect_comps(birth_rate_comp, plague_main, "randf", "randf_br")
+connect_comps(randf_sev_comp, plague_main, "randf", "randf_sev")
+connect_comps(randf_inf_comp, plague_main, "randf", "randf_inf")
+connect_comps(randf_let_comp, plague_main, "randf", "randf_let")
+connect_comps(randf_br_comp, plague_main, "randf", "randf_br")
+connect_comps(randf_rsrch_comp, plague_main, "randf", "randf_rsrch")
 
 connect_comps(minf_let_comp, plague_main, "minf", "min_let")
 connect_comps(minf_inf_comp, plague_main, "minf", "min_inf")
 
-connect_comps(sc_ceil_cure_thresh_comp, plague_main, "sc_ceil", "ceil_cure_thresh")
-connect_comps(sc_ceil_pop_inf_comp, plague_main, "sc_ceil", "ceil_pop_inf")
-connect_comps(sc_ceil_pop_dead_comp, plague_main, "sc_ceil", "ceil_pop_dead")
-# connect_comps(sc_ceil_cure_thresh_comp, plague_main, "sc_ceil", "sc_ceil_cure_thresh")
+connect_comps(ceil_cure_thresh_comp, plague_main, "sc_ceil", "ceil_cure_thresh")
+connect_comps(ceil_pop_inf_comp, plague_main, "sc_ceil", "ceil_pop_inf")
+connect_comps(ceil_pop_dead_comp, plague_main, "sc_ceil", "ceil_pop_dead")
 
 connect_comps(exp_pop_inf_comp, plague_main, "sc_exp", "exp_pop_inf")
 
 connect_comps(ram_comp, plague_main, "ram", "ram")
+
+connect_comps(mutation_comp, plague_main, "mutation", "mutation")
 
 sst.setProgramOption("stopAtCycle", "20s")

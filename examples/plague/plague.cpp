@@ -4,27 +4,15 @@
 
 bool plague::tick(SST::Cycle_t current_cycle) {
 
-    keep_send = current_cycle < SIMTIME;
-    keep_recv = current_cycle < SIMTIME - 1;
+    m_keep_send = current_cycle < SIMTIME;
+    m_keep_recv = current_cycle < SIMTIME - 1;
     m_cycle = current_cycle;
-
-    // RAM COMPONENT
-    std::string dont_care_addr = "00000000", ram_cycle = std::to_string(current_cycle);
-    align_signal_width('0', 8, ram_cycle);
-
-    ram_din_link->send(new SST::Interfaces::StringEvent(
-            std::to_string(keep_send) +
-            std::to_string(keep_recv) +
-            ram_cycle +
-            m_ram_noop +
-            dont_care_addr
-    ));
 
     if (current_cycle == 1) {
 
         rng_limit_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "1" +
                 seed_lim +
                 "0201000" +
@@ -36,18 +24,18 @@ bool plague::tick(SST::Cycle_t current_cycle) {
     if (current_cycle == LOOPBEGIN + 1) {
 
         ceil_cure_thresh_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
-                align_signal_width(2, SEVERITY * LETHALITY * POPULATION_TOTAL)
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                align_signal_width(8, SEVERITY * BIRTH_RATE * POPULATION_TOTAL)
         ));
 
     }
 
-    if (current_cycle > 1 && keep_recv) {
+    if (current_cycle > 1 && m_keep_recv) {
 
         randf_let_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "1" +
                 seed_let +
                 "002" +
@@ -56,8 +44,8 @@ bool plague::tick(SST::Cycle_t current_cycle) {
         ));
 
         randf_inf_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "1" +
                 seed_inf +
                 "002" +
@@ -65,9 +53,28 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                 std::to_string(current_cycle)
         ));
 
+        randf_rsrch_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                "1" +
+                seed_research +
+                "002" +
+                LIMIT +
+                std::to_string(current_cycle)
+        ));
+
+        rng_mut_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                "1" +
+                seed_mutation +
+                "0020008" +
+                std::to_string(current_cycle)
+        ));
+
         rng_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "1" +
                 seed_pop_inf +
                 "0020100" +
@@ -76,13 +83,57 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
     }
 
-    if (!keep_recv) {
+    // if (current_cycle == LOOPEND - 4) {
+    //     std::cout << "RAM WRITING\n";
+    //     std::string total_dead = std::to_string(TOTAL_DEAD);
+    //     align_signal_width('0', 8, total_dead);
+
+    //     std::string addr = std::to_string(ADDRESSES::TOTAL_DEAD_ADDR);
+    //     align_signal_width('0', 8, addr);
+
+    //     ram_din_link->send(new SST::Interfaces::StringEvent(
+    //             std::to_string(m_keep_send) +
+    //             std::to_string(m_keep_recv) +
+    //             addr +
+    //             m_ram_write +
+    //             total_dead
+    //     ));
+    // }
+
+    if (current_cycle == LOOPEND - 4) {
+        std::cout << "RAM READING\n";
+        
+        std::string addr = std::to_string(ADDRESSES::TOTAL_DEAD_ADDR);
+        align_signal_width('0', 8, addr);
+
+        ram_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                addr +
+                m_ram_read +
+                dont_care_data
+        ));
+    }
+
+    if (!m_keep_recv) {
 
         std::cout << current_cycle << " STOP RECVING\n";
 
+        // RAM COMPONENT
+        std::string ram_cycle = std::to_string(current_cycle);
+        align_signal_width('0', 8, ram_cycle);
+
+        ram_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                dont_care_data +
+                m_ram_noop +
+                dont_care_data
+        ));
+
         rng_limit_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "0" +
                 seed_lim +
                 "0201000" +
@@ -90,8 +141,8 @@ bool plague::tick(SST::Cycle_t current_cycle) {
         ));
 
         randf_sev_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "0" +
                 seed_sev +
                 "002" +
@@ -99,8 +150,8 @@ bool plague::tick(SST::Cycle_t current_cycle) {
         ));
 
         randf_br_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "0" +
                 seed_birth_rate +
                 "002" +
@@ -108,14 +159,14 @@ bool plague::tick(SST::Cycle_t current_cycle) {
         ));
 
         ceil_cure_thresh_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "0.00"
         ));
 
         randf_let_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "0" +
                 seed_let +
                 "002" +
@@ -124,8 +175,8 @@ bool plague::tick(SST::Cycle_t current_cycle) {
         ));
 
         randf_inf_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "0" +
                 seed_inf +
                 "002" +
@@ -133,9 +184,28 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                 std::to_string(current_cycle)
         ));
 
+        randf_rsrch_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                "0" +
+                seed_research +
+                "002" +
+                LIMIT +
+                std::to_string(current_cycle)
+        ));
+
+        rng_mut_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                "0" +
+                seed_mutation +
+                "0020008" +
+                std::to_string(current_cycle)
+        ));
+
         rng_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(keep_send) +
-                std::to_string(keep_recv) +
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
                 "0" +
                 seed_pop_inf +
                 "0020100" +
