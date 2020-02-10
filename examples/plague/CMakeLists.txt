@@ -11,6 +11,14 @@ find_package(SystemCLanguage CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
 
+# ------------------ SYSTEMC EXECUTABLES ------------------
+foreach(SYSC_MOD minf randf rng sc_ceil sc_exp)
+    add_executable(${SYSC_MOD}.o systemc/blackboxes/${SYSC_MOD}_driver.cpp)
+    target_link_libraries(${SYSC_MOD}.o SystemC::systemc)
+endforeach()
+# ------------------ SYSTEMC EXECUTABLES ------------------
+
+# -------------------- SST EXECUTABLES --------------------
 add_executable(
     libplague.so
     plague.cpp
@@ -19,26 +27,8 @@ add_executable(
     systemc/blackboxes/minf_comp.cpp
     systemc/blackboxes/randf_comp.cpp
     systemc/blackboxes/rng_comp.cpp
-    # systemc/blackboxes/sc_abs_comp.cpp
     systemc/blackboxes/sc_ceil_comp.cpp
     systemc/blackboxes/sc_exp_comp.cpp
 )
 _sst_compile_link(libplague.so)
-
-add_executable(minf.o systemc/blackboxes/minf_driver.cpp)
-target_link_libraries(minf.o SystemC::systemc)
-
-add_executable(randf.o systemc/blackboxes/randf_driver.cpp)
-target_link_libraries(randf.o SystemC::systemc)
-
-add_executable(rng.o systemc/blackboxes/rng_driver.cpp)
-target_link_libraries(rng.o SystemC::systemc)
-
-# add_executable(sc_abs.o systemc/blackboxes/sc_abs_driver.cpp)
-# target_link_libraries(sc_abs.o SystemC::systemc)
-
-add_executable(sc_ceil.o systemc/blackboxes/sc_ceil_driver.cpp)
-target_link_libraries(sc_ceil.o SystemC::systemc)
-
-add_executable(sc_exp.o systemc/blackboxes/sc_exp_driver.cpp)
-target_link_libraries(sc_exp.o SystemC::systemc)
+# -------------------- SST EXECUTABLES --------------------

@@ -24,7 +24,23 @@ void plague::mutation(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        std::cout << m_cycle << " GENE " << se->getString() << '\n';
+        GENE = std::stoi(se->getString());
+        std::cout << m_cycle << " GENE " << GENE << '\n';
+        switch (GENE) {
+            case 0:
+                std::cout << "NEUTRAL\n";
+                break;
+            case 1:
+                std::cout << "GOOD\n";
+                INFECTIVITY = abs(INFECTIVITY - RESEARCH);
+                std::cout << m_cycle << " INF (ABS) " << INFECTIVITY << '\n';
+                m_mutate_lock = true;
+                break;
+            case 2:
+                std::cout << "BAD\n";
+                CURE -= RESEARCH;
+                break;
+        }
 
     }
 
@@ -72,7 +88,8 @@ void plague::rng_mut(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        std::cout << m_cycle << " MUT " << se->getString() << '\n';
+        MUTATION = se->getString();
+        std::cout << m_cycle << " MUT " << MUTATION << '\n';
 
     }
 
@@ -85,7 +102,8 @@ void plague::randf_rsrch(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        std::cout << m_cycle << " RES " << se->getString() << '\n';
+        RESEARCH = std::stof(se->getString());
+        std::cout << m_cycle << " RES " << RESEARCH << '\n';
 
     }
 
@@ -126,10 +144,11 @@ void plague::ceil_cure_thresh(SST::Event *ev) {
     if (se && m_keep_recv) {
 
         std::cout << m_cycle << " THRESH (CEIL) " << se->getString() << '\n';
-        CURE_THRESHOLD = se->getString();
-        align_signal_width('0', 8, CURE_THRESHOLD);
+        std::string cure_threshold_str = se->getString();
+        CURE_THRESHOLD = std::stoi(cure_threshold_str);
+        align_signal_width('0', 8, cure_threshold_str);
 
-        std::string addr = std::to_string(ADDRESSES::CURE_THRESHOLD_ADDR);
+        std::string addr = std::to_string(m_ram_addr::CURE_THRESHOLD_ADDR);
         align_signal_width('0', 8, addr);
 
         ram_din_link->send(new SST::Interfaces::StringEvent(
@@ -137,7 +156,7 @@ void plague::ceil_cure_thresh(SST::Event *ev) {
                 std::to_string(m_keep_recv) +
                 addr +
                 m_ram_write +
-                CURE_THRESHOLD
+                cure_threshold_str
         ));
 
     }
@@ -229,7 +248,13 @@ void plague::min_inf(SST::Event *ev) {
     if (se && m_cycle < LOOPEND) {
 
         std::cout << m_cycle << " INF (MIN) " << se->getString() << '\n';
-        INFECTIVITY = std::stof(se->getString());
+        if (!m_mutate_lock) {
+            INFECTIVITY = std::stof(se->getString());
+            std::cout << "NORMAL\n";
+        } else {
+            m_mutate_lock = false;
+        }
+        std::cout << m_cycle << " INF (ACTUAL) " << INFECTIVITY << '\n';
         exp_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(_keep_send) +
                 std::to_string(_keep_recv) +
@@ -268,7 +293,7 @@ void plague::rng_pop_inf(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_cycle < LOOPEND) {
 
-        std::cout << m_cycle << " POP INF (RANDF) " << se->getString() << '\n';
+        std::cout << m_cycle << " POP INF (RNG) " << se->getString() << '\n';
         BATCH_INFECTED = std::stoi(se->getString());
 
     }
@@ -321,7 +346,7 @@ void plague::ceil_pop_dead(SST::Event *ev) {
         std::string total_dead = std::to_string(TOTAL_DEAD);
         align_signal_width('0', 8, total_dead);
 
-        std::string addr = std::to_string(ADDRESSES::TOTAL_DEAD_ADDR);
+        std::string addr = std::to_string(m_ram_addr::TOTAL_DEAD_ADDR);
         align_signal_width('0', 8, addr);
 
         ram_din_link->send(new SST::Interfaces::StringEvent(

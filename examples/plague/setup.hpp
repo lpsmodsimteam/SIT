@@ -110,7 +110,9 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         min_inf_dout_link(configureLink(
                 "min_inf_dout",
                 new SST::Event::Handler<plague>(this, &plague::min_inf))
-        ) {
+        ),
+        CURE_THRESHOLD(0), BATCH_INFECTED(0), TOTAL_INFECTED(0), TOTAL_DEAD(0), GENE(0),
+        SEVERITY(0.0), INFECTIVITY(0.0), LETHALITY(0.0), BIRTH_RATE(0.0), CURE(0.0), RESEARCH(0.0) {
 
     m_output.init("\033[93mplague-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 

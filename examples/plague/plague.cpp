@@ -8,6 +8,40 @@ bool plague::tick(SST::Cycle_t current_cycle) {
     m_keep_recv = current_cycle < SIMTIME - 1;
     m_cycle = current_cycle;
 
+    if (TOTAL_INFECTED > CURE_THRESHOLD) {
+
+        randf_rsrch_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                "1" +
+                seed_research +
+                "002" +
+                LIMIT +
+                std::to_string(current_cycle)
+        ));
+
+        rng_mut_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                "1" +
+                seed_mutation +
+                "0000008" +
+                std::to_string(current_cycle)
+        ));
+
+        mutation_din_link->send(new SST::Interfaces::StringEvent(
+                std::to_string(m_keep_send) +
+                std::to_string(m_keep_recv) +
+                std::to_string(LETHALITY).back() +
+                MUTATION
+        ));
+
+        CURE += RESEARCH;
+        std::cout << current_cycle << " CURE " << CURE << " MUTATION " << MUTATION << " LETHALITY "
+                  << std::to_string(LETHALITY).back() << ' ' << std::to_string(LETHALITY) << '\n';
+
+    }
+
     if (current_cycle == 1) {
 
         rng_limit_din_link->send(new SST::Interfaces::StringEvent(
@@ -53,25 +87,6 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                 std::to_string(current_cycle)
         ));
 
-        randf_rsrch_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(m_keep_send) +
-                std::to_string(m_keep_recv) +
-                "1" +
-                seed_research +
-                "002" +
-                LIMIT +
-                std::to_string(current_cycle)
-        ));
-
-        rng_mut_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(m_keep_send) +
-                std::to_string(m_keep_recv) +
-                "1" +
-                seed_mutation +
-                "0020008" +
-                std::to_string(current_cycle)
-        ));
-
         rng_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(m_keep_send) +
                 std::to_string(m_keep_recv) +
@@ -88,7 +103,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
     //     std::string total_dead = std::to_string(TOTAL_DEAD);
     //     align_signal_width('0', 8, total_dead);
 
-    //     std::string addr = std::to_string(ADDRESSES::TOTAL_DEAD_ADDR);
+    //     std::string addr = std::to_string(m_ram_addr::TOTAL_DEAD_ADDR);
     //     align_signal_width('0', 8, addr);
 
     //     ram_din_link->send(new SST::Interfaces::StringEvent(
@@ -102,8 +117,8 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
     if (current_cycle == LOOPEND - 4) {
         std::cout << "RAM READING\n";
-        
-        std::string addr = std::to_string(ADDRESSES::TOTAL_DEAD_ADDR);
+
+        std::string addr = std::to_string(m_ram_addr::TOTAL_DEAD_ADDR);
         align_signal_width('0', 8, addr);
 
         ram_din_link->send(new SST::Interfaces::StringEvent(
@@ -216,6 +231,6 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
     std::cout << "------------------------------------------------\n";
 
-    return false;
+    return CURE >= 100;
 
 }

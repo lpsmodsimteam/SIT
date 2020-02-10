@@ -5,7 +5,7 @@
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
-#define SIMTIME 20
+#define SIMTIME 50000
 #define LOOPBEGIN 2
 #define LOOPEND (SIMTIME - 2)
 #define POPULATION_TOTAL 7760000000
@@ -108,14 +108,6 @@ public:
 
 private:
 
-    enum ADDRESSES {
-        DAYS_ADDR = 2,
-        TOTAL_INFECTED_ADDR,
-        TOTAL_DEAD_ADDR = 10,
-        CURE_THRESHOLD_ADDR = 5,
-    };
-
-    std::string m_ram_noop = "000", m_ram_read = "101", m_ram_write = "111", dont_care_data = "10001010";
     // SST parameters
     std::string m_clock;
     std::string seed_lim, seed_sev, seed_birth_rate, seed_let, seed_inf,
@@ -140,13 +132,20 @@ private:
             *min_let_din_link, *min_let_dout_link,
             *min_inf_din_link, *min_inf_dout_link;
 
-    bool m_keep_send, m_keep_recv;
+    bool m_keep_send{}, m_keep_recv{};
 
-    int BATCH_INFECTED, TOTAL_INFECTED, TOTAL_DEAD;
+    unsigned int CURE_THRESHOLD{}, BATCH_INFECTED{}, TOTAL_INFECTED{}, TOTAL_DEAD{}, GENE{};
+    float SEVERITY{}, INFECTIVITY{}, LETHALITY{}, BIRTH_RATE{}, CURE{}, RESEARCH{};
+    std::string LIMIT, MUTATION = "0";
+    bool m_mutate_lock = false;
 
-    float SEVERITY, INFECTIVITY, LETHALITY, BIRTH_RATE, CURE;
-    std::string CURE_THRESHOLD;
-    std::string LIMIT;
+    std::string m_ram_noop = "000", m_ram_read = "101", m_ram_write = "111", dont_care_data = "10001010";
+    enum m_ram_addr {
+        DAYS_ADDR = 2,
+        TOTAL_INFECTED_ADDR,
+        TOTAL_DEAD_ADDR = 10,
+        CURE_THRESHOLD_ADDR = 50,
+    };
 
     unsigned int m_cycle{};
 

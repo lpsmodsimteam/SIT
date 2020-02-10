@@ -20,7 +20,7 @@ if __name__ == "__main__":
             module="randf",
         )
         randf.set_ports((
-            ("clock", "clock", "<bool>", 3),
+            ("clock", "clock", "<bool>", 5),
             ("input", "en", "<bool>"),
             ("input", "seed", "<sc_uint<16>>"),
             ("input", "lower_limit", "<sc_uint<8>>"),
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             module="rng",
         )
         rng.set_ports((
-            ("clock", "clock", "<bool>", 3),
+            ("clock", "clock", "<bool>", 5),
             ("input", "en", "<bool>"),
             ("input", "seed", "<sc_uint<16>>"),
             ("input", "lower_limit", "<sc_uint<8>>"),
@@ -83,9 +83,9 @@ if __name__ == "__main__":
             module="mutation",
         )
         mutation.set_ports((
-            ("input", "chance", "4"),
-            ("input", "gene", "4"),
-            ("output", "data_out", "2"),
+            ("input", "chance", "3"),
+            ("input", "gene", "3"),
+            ("output", "out", "2"),
         ))
         mutation.generate_bbox()
 

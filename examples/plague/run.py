@@ -212,4 +212,4 @@ connect_comps(ram_comp, plague_main, "ram", "ram")
 
 connect_comps(mutation_comp, plague_main, "mutation", "mutation")
 
-sst.setProgramOption("stopAtCycle", "20s")
+sst.setProgramOption("stopAtCycle", "50000s")
