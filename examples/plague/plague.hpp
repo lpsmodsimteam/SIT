@@ -134,7 +134,7 @@ private:
 
     bool m_keep_send{}, m_keep_recv{};
 
-    unsigned int CURE_THRESHOLD{}, BATCH_INFECTED{}, TOTAL_INFECTED{}, TOTAL_DEAD{}, GENE{};
+    unsigned int CURE_THRESHOLD{}, BATCH_INFECTED{}, TOTAL_INFECTED{}, TOTAL_DEAD{},TOTAL_INFECTED_TODAY{}, TOTAL_DEAD_TODAY{}, GENE{};
     float SEVERITY{}, INFECTIVITY{}, LETHALITY{}, BIRTH_RATE{}, CURE{}, RESEARCH{};
     std::string LIMIT, MUTATION = "0";
     bool m_mutate_lock = false, m_loop_lock = true;

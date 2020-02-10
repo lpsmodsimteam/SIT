@@ -310,18 +310,12 @@ void plague::ceil_pop_inf(SST::Event *ev) {
 
     if (se && m_cycle < LOOPEND - 2) {
 
-        // std::cout << m_cycle << " POP INF (CEIL) " << se->getString() << '\n';
-        if (m_cycle == LOOPBEGIN + 1) {
-            TOTAL_INFECTED = std::stoi(se->getString());
-        } else if (m_cycle > LOOPBEGIN + 1) {
-            TOTAL_INFECTED += std::stoi(se->getString());
-        }
-        // std::cout << m_cycle << " TOTAL INF " << TOTAL_INFECTED << '\n';
+        TOTAL_INFECTED_TODAY = std::stoi(se->getString());
 
         ceil_pop_dead_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(_keep_send) +
                 std::to_string(_keep_recv) +
-                align_signal_width(2, std::stoi(se->getString()) * LETHALITY)
+                align_signal_width(2, TOTAL_INFECTED_TODAY * LETHALITY)
         ));
 
     }
@@ -335,14 +329,8 @@ void plague::ceil_pop_dead(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
     if (se && m_cycle < LOOPEND - 3) {
-
-        // std::cout << m_cycle << " POP DEAD (CEIL) " << se->getString() << '\n';
-        if (m_cycle == LOOPBEGIN + 1) {
-            TOTAL_DEAD = std::stoi(se->getString());
-        } else if (m_cycle > LOOPBEGIN + 1) {
-            TOTAL_DEAD += std::stoi(se->getString());
-        }
-        // std::cout << m_cycle << " TOTAL DEAD " << TOTAL_DEAD << '\n';
+        TOTAL_DEAD_TODAY = std::stoi(se->getString());
+    }
 //        std::string total_dead = std::to_string(TOTAL_DEAD);
 //        align_signal_width('0', 8, total_dead);
 //
@@ -357,7 +345,7 @@ void plague::ceil_pop_dead(SST::Event *ev) {
 //                total_dead
 //        ));
 
-    }
+//    }
 
     delete se;
 

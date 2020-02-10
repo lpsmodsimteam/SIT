@@ -15,8 +15,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                 std::to_string(m_keep_recv) +
                 "1" +
                 seed_research +
-                "002" +
-                LIMIT +
+                "0020100" +
                 std::to_string(current_cycle)
         ));
 
@@ -37,13 +36,15 @@ bool plague::tick(SST::Cycle_t current_cycle) {
         ));
 
         CURE += RESEARCH;
-//        std::cout << current_cycle << " CURE " << CURE << " MUTATION " << MUTATION << " LETHALITY "
-//                  << std::to_string(LETHALITY).back() << ' ' << std::to_string(LETHALITY) << '\n';
-
     }
 
     if (current_cycle == 1) {
 
+        m_output.verbose(CALL_INFO, 1, 0, "----------------------------------------\n");
+        m_output.verbose(CALL_INFO, 1, 0, "--------- SIMULATION INITIATED ---------\n");
+        m_output.verbose(CALL_INFO, 1, 0, "----------------------------------------\n");
+        m_output.verbose(CALL_INFO, 1, 0, "   Day  |  Cure  | Infected | Dead\n");
+        m_output.verbose(CALL_INFO, 1, 0, "--------+--------+----------+---------\n");
         rng_limit_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(m_keep_send) +
                 std::to_string(m_keep_recv) +
@@ -115,24 +116,22 @@ bool plague::tick(SST::Cycle_t current_cycle) {
     //     ));
     // }
 
-    if (current_cycle == LOOPEND - 4) {
-        std::cout << "RAM READING\n";
-
-        std::string addr = std::to_string(m_ram_addr::TOTAL_DEAD_ADDR);
-        align_signal_width('0', 8, addr);
-
-        ram_din_link->send(new SST::Interfaces::StringEvent(
-                std::to_string(m_keep_send) +
-                std::to_string(m_keep_recv) +
-                addr +
-                m_ram_read +
-                dont_care_data
-        ));
-    }
+//    if (current_cycle == LOOPEND - 4) {
+//        std::cout << "RAM READING\n";
+//
+//        std::string addr = std::to_string(m_ram_addr::TOTAL_DEAD_ADDR);
+//        align_signal_width('0', 8, addr);
+//
+//        ram_din_link->send(new SST::Interfaces::StringEvent(
+//                std::to_string(m_keep_send) +
+//                std::to_string(m_keep_recv) +
+//                addr +
+//                m_ram_read +
+//                dont_care_data
+//        ));
+//    }
 
     if (!m_keep_recv) {
-
-        std::cout << current_cycle << " STOP RECVING\n";
 
         // RAM COMPONENT
         std::string ram_cycle = std::to_string(current_cycle);
@@ -204,8 +203,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
                 std::to_string(m_keep_recv) +
                 "0" +
                 seed_research +
-                "002" +
-                LIMIT +
+                "0020100" +
                 std::to_string(current_cycle)
         ));
 
@@ -229,20 +227,29 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
     }
 
-//    std::cout << "------------------------------------------------\n";
+    TOTAL_INFECTED += TOTAL_INFECTED_TODAY;
+    TOTAL_DEAD += TOTAL_DEAD_TODAY;
 
     if (CURE > 100.00 && m_loop_lock) {
         SIMTIME = current_cycle + 10;
         LOOPEND = (SIMTIME - 2);
         m_loop_lock = false;
     } else if (CURE <= 100.00) {
-        std::cout << "DAY: " << current_cycle << " CURE: " << CURE << " TOTAL INFECTED: " << TOTAL_INFECTED
-                  << " TOTAL DEAD: " << TOTAL_DEAD << '\n';
+        m_output.verbose(CALL_INFO, 1, 0, " %6lu | %6.2f | %8d | %8d\n", current_cycle,
+                         CURE, TOTAL_INFECTED_TODAY, TOTAL_DEAD_TODAY);
+        std::string _cure = std::to_string((unsigned int) CURE);
+        std::string _pop_inf = std::to_string(TOTAL_INFECTED_TODAY);
+        std::string _pop_dead = std::to_string(TOTAL_DEAD_TODAY);
+        std::cout << (unsigned int) CURE << ' ' << std::to_string((unsigned int) CURE) << '\n';
     }
 
     if (current_cycle == SIMTIME) {
-        std::cout << "SEVERITY: " << SEVERITY << " INFECTIVITY: " << INFECTIVITY << " LETHALITY: " << LETHALITY
-                  << " THRESHOLD: " << CURE_THRESHOLD << '\n';
+        m_output.verbose(CALL_INFO, 1, 0, " Severity: %f\n", SEVERITY);
+        m_output.verbose(CALL_INFO, 1, 0, " Infectivity: %f\n", INFECTIVITY);
+        m_output.verbose(CALL_INFO, 1, 0, " Lethality: %f\n", LETHALITY);
+        m_output.verbose(CALL_INFO, 1, 0, " Cure threshold: %d\n", CURE_THRESHOLD);
+        m_output.verbose(CALL_INFO, 1, 0, " Total infected: %d\n", TOTAL_INFECTED);
+        m_output.verbose(CALL_INFO, 1, 0, " Total dead: %d\n", TOTAL_DEAD);
         primaryComponentOKToEndSim();
     }
     return current_cycle == SIMTIME;
