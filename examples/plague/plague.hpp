@@ -5,9 +5,6 @@
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
-#define SIMTIME 50000
-#define LOOPBEGIN 2
-#define LOOPEND (SIMTIME - 2)
 #define POPULATION_TOTAL 7760000000
 
 class plague : public SST::Component {
@@ -131,13 +128,16 @@ private:
             *ceil_pop_dead_din_link, *ceil_pop_dead_dout_link,
             *min_let_din_link, *min_let_dout_link,
             *min_inf_din_link, *min_inf_dout_link;
+    unsigned int SIMTIME = 50000;
+    unsigned int LOOPBEGIN = 2;
+    unsigned int LOOPEND = (SIMTIME - 2);
 
     bool m_keep_send{}, m_keep_recv{};
 
     unsigned int CURE_THRESHOLD{}, BATCH_INFECTED{}, TOTAL_INFECTED{}, TOTAL_DEAD{}, GENE{};
     float SEVERITY{}, INFECTIVITY{}, LETHALITY{}, BIRTH_RATE{}, CURE{}, RESEARCH{};
     std::string LIMIT, MUTATION = "0";
-    bool m_mutate_lock = false;
+    bool m_mutate_lock = false, m_loop_lock = true;
 
     std::string m_ram_noop = "000", m_ram_read = "101", m_ram_write = "111", dont_care_data = "10001010";
     enum m_ram_addr {

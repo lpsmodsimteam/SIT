@@ -37,8 +37,8 @@ bool plague::tick(SST::Cycle_t current_cycle) {
         ));
 
         CURE += RESEARCH;
-        std::cout << current_cycle << " CURE " << CURE << " MUTATION " << MUTATION << " LETHALITY "
-                  << std::to_string(LETHALITY).back() << ' ' << std::to_string(LETHALITY) << '\n';
+//        std::cout << current_cycle << " CURE " << CURE << " MUTATION " << MUTATION << " LETHALITY "
+//                  << std::to_string(LETHALITY).back() << ' ' << std::to_string(LETHALITY) << '\n';
 
     }
 
@@ -229,8 +229,22 @@ bool plague::tick(SST::Cycle_t current_cycle) {
 
     }
 
-    std::cout << "------------------------------------------------\n";
+//    std::cout << "------------------------------------------------\n";
 
-    return CURE >= 100;
+    if (CURE > 100.00 && m_loop_lock) {
+        SIMTIME = current_cycle + 10;
+        LOOPEND = (SIMTIME - 2);
+        m_loop_lock = false;
+    } else if (CURE <= 100.00) {
+        std::cout << "DAY: " << current_cycle << " CURE: " << CURE << " TOTAL INFECTED: " << TOTAL_INFECTED
+                  << " TOTAL DEAD: " << TOTAL_DEAD << '\n';
+    }
+
+    if (current_cycle == SIMTIME) {
+        std::cout << "SEVERITY: " << SEVERITY << " INFECTIVITY: " << INFECTIVITY << " LETHALITY: " << LETHALITY
+                  << " THRESHOLD: " << CURE_THRESHOLD << '\n';
+        primaryComponentOKToEndSim();
+    }
+    return current_cycle == SIMTIME;
 
 }

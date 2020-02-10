@@ -118,7 +118,8 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
 
     // Just register a plain clock for this simple example
     registerClock(m_clock, new SST::Clock::Handler<plague>(this, &plague::tick));
-
+    registerAsPrimaryComponent();
+    primaryComponentDoNotEndSim();
 }
 
 void plague::setup() {

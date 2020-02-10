@@ -26,14 +26,6 @@ plague_main = sst.Component(
     "Strain Statistics", "plague.plague")
 plague_main.addParams({
     "CLOCK": CLOCK,
-    "SEED0": "11725",
-    "SEED1": "55465",
-    "SEED2": "84568",
-    "SEED3": "99999",
-    "SEED4": "58465",
-    "SEED5": "84568",
-    "SEED6": "99999",
-    "SEED7": "58465"
 })
 
 # SystemC components
@@ -211,5 +203,3 @@ connect_comps(exp_pop_inf_comp, plague_main, "sc_exp", "exp_pop_inf")
 connect_comps(ram_comp, plague_main, "ram", "ram")
 
 connect_comps(mutation_comp, plague_main, "mutation", "mutation")
-
-sst.setProgramOption("stopAtCycle", "50000s")
