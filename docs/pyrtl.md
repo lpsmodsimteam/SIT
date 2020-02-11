@@ -77,9 +77,9 @@ demo_obj = boilerplate.PyRTL(
     desc="Demo SST Black Box Component",
 )
 demo_obj.set_ports((
-    ("2", "input1", "input"),
-    ("4", "input2", "input"),
-    ("4", "data_out", "output"),
+    ("input", "input1", "2"),
+    ("input", "input2", "4"),
+    ("output", "data_out", "4"),
 ))
 demo_obj.generate_bbox()
 ```

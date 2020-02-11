@@ -89,10 +89,10 @@ demo_obj = boilerplate.SystemC(
     },
 )
 demo_obj.set_ports((
-    ("<bool>", "clock", "clock"),
-    ("<bool>", "input1", "input"),
-    ("<int>", "input2", "input"),
-    ("<sc_uint<DATA_WIDTH> >", "data_out", "output"),
+    ("clock", "clock", "<bool>"),
+    ("input", "input1", "<bool>"),
+    ("input", "input2", "<int>"),
+    ("output", "data_out", "<sc_uint<DATA_WIDTH> >"),
 ))
 demo_obj.generate_bbox()
 ```
