@@ -24,9 +24,10 @@ def get_rand_tmp():
 ###############################################################################
 plague_main = sst.Component(
     "Strain Statistics", "plague.plague")
+# 15462
 plague_main.addParams({
     "CLOCK": CLOCK,
-    "SEED0": "99999"
+    "SEED0": "15464"
 })
 
 # SystemC components

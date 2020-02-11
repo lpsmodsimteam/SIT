@@ -247,6 +247,7 @@ bool plague::tick(SST::Cycle_t current_cycle) {
         m_output.verbose(CALL_INFO, 1, 0, "Severity: %f\n", SEVERITY);
         m_output.verbose(CALL_INFO, 1, 0, "Infectivity: %f\n", INFECTIVITY);
         m_output.verbose(CALL_INFO, 1, 0, "Fatality: %f\n", LETHALITY);
+        m_output.verbose(CALL_INFO, 1, 0, "Birth rate: %f\n", BIRTH_RATE);
         m_output.verbose(CALL_INFO, 1, 0, "Cure threshold: %d\n", CURE_THRESHOLD);
         m_output.verbose(CALL_INFO, 1, 0, "Total infected: %d\n", TOTAL_INFECTED);
         m_output.verbose(CALL_INFO, 1, 0, "Total dead: %d\n", TOTAL_DEAD);

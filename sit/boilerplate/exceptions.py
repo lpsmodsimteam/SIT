@@ -11,6 +11,13 @@ class BoilerPlateError(Exception):
         pass
 
 
+class APIException(BoilerPlateError):
+    """Exceptions for unsupported attributes"""
+
+    def __init__(self, message):
+        pass
+
+
 class IPCException(BoilerPlateError):
     """Exceptions for invalid or unsupported interprocess communication"""
 

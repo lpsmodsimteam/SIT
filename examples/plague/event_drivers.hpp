@@ -65,7 +65,7 @@ void plague::rng_limit(SST::Event *ev) {
                 std::to_string(m_keep_recv) +
                 "1" +
                 seed_sev +
-                "002" +
+                "020" +
                 LIMIT +
                 std::to_string(m_cycle)
         ));
@@ -75,7 +75,7 @@ void plague::rng_limit(SST::Event *ev) {
                 std::to_string(m_keep_recv) +
                 "1" +
                 seed_birth_rate +
-                "002" +
+                "020" +
                 LIMIT +
                 std::to_string(m_cycle)
         ));
@@ -145,7 +145,7 @@ void plague::ceil_cure_thresh(SST::Event *ev) {
     if (se && m_keep_recv) {
 
         std::string cure_threshold_str = se->getString();
-        CURE_THRESHOLD = std::stoi(cure_threshold_str);
+        CURE_THRESHOLD = std::stoi(cure_threshold_str) / 100;
 
     }
 

@@ -212,9 +212,15 @@ class SystemC(BoilerPlate):
         }
 
     def _fixed_width_float_output(self):
-
+        """Add <iomanip> library to handle ports with float signals"""
         self.extra_libs += "#include <iomanip>"
 
     def _disable_runtime_warnings(self, warning):
+        """Add sc_report_handler to disable driver runtime warnings
 
+        Parameters:
+        -----------
+        warning : str
+            runtime warning to ignore
+        """
         self.disable_warning += f"sc_report_handler::set_actions({warning}, SC_DO_NOTHING);"

@@ -13,6 +13,8 @@ protected methods. The child class must implement the following protected method
 The following public methods are inherited by the child classes and are not to be overridden:
 - set_ports(ports)
 - generate_bbox()
+- fixed_width_float_output(precision)
+- disable_runtime_warnings(warnings)
 """
 
 import os
@@ -297,14 +299,52 @@ class BoilerPlate(object):
         except AttributeError:
             pass
 
-    def fixed_width_float_output(self, precision):
+        print("------------------------------------------------------------")
+        print(f"Ports for: {self.module}")
+        for port_type in self.ports:
+            for port in self.ports[port_type]:
+                print(f"Name: {port['name']}")
+                print(f"Port type: {port_type}")
+                print(f"Data type: {port['type']}")
+                print(f"Length: {port['len']}")
+        print(f"Total buffer size: {self.buf_size}")
 
+    def fixed_width_float_output(self, precision):
+        """Generate additional methods to handle ports with float signals
+
+        Parameters:
+        -----------
+        precision : int
+            level of precision for float signals
+
+        Raises:
+        -------
+        APIException
+            method not supported
+        """
         self.precision = precision
-        self._fixed_width_float_output()
+        try:
+            self._fixed_width_float_output()
+        except AttributeError:
+            raise APIException(f"fixed_width_float_output() not supported with {self.module}")
 
     def disable_runtime_warnings(self, warnings):
+        """Generate additional methods to disable driver runtime warnings
 
+        Parameters:
+        -----------
+        warnings : str|list(str)
+            runtime warning or list of runtime warnings to ignore
+
+        Raises:
+        -------
+        APIException
+            method not supported
+        """
         if not isinstance(warnings, list):
             warnings = [warnings]
         for warning in warnings:
-            self._disable_runtime_warnings(warning)
+            try:
+                self._disable_runtime_warnings(warning)
+            except AttributeError:
+                raise APIException(f"disable_runtime_warnings() not supported with {self.module}")
