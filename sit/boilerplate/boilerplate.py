@@ -76,6 +76,7 @@ class BoilerPlate(object):
         self.desc = desc
         self.precision = None
         self.extra_libs = ""
+        self.disable_warning = ""
 
         self.template_path = os.path.join(os.path.dirname(
             __file__), "template", self.__class__.__name__.lower())
@@ -300,3 +301,10 @@ class BoilerPlate(object):
 
         self.precision = precision
         self._fixed_width_float_output()
+
+    def disable_runtime_warnings(self, warnings):
+
+        if not isinstance(warnings, list):
+            warnings = [warnings]
+        for warning in warnings:
+            self._disable_runtime_warnings(warning)

@@ -136,18 +136,13 @@ private:
 
     unsigned int CURE_THRESHOLD{}, BATCH_INFECTED{}, TOTAL_INFECTED{}, TOTAL_DEAD{},TOTAL_INFECTED_TODAY{}, TOTAL_DEAD_TODAY{}, GENE{};
     float SEVERITY{}, INFECTIVITY{}, LETHALITY{}, BIRTH_RATE{}, CURE{}, RESEARCH{};
-    std::string LIMIT, MUTATION = "0";
-    bool m_mutate_lock = false, m_loop_lock = true;
+    std::string LIMIT, MUTATION = "0", ram_data_out;
+    bool m_mutate_lock = false, m_loop_lock = true, m_ram_read_flag = false;
 
     std::string m_ram_noop = "000", m_ram_read = "101", m_ram_write = "111", dont_care_data = "10001010";
-    enum m_ram_addr {
-        DAYS_ADDR = 2,
-        TOTAL_INFECTED_ADDR,
-        TOTAL_DEAD_ADDR = 10,
-        CURE_THRESHOLD_ADDR = 50,
-    };
 
     unsigned int m_cycle{};
+    FILE *m_fp{};
 
 };
 

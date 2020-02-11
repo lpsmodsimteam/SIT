@@ -12,7 +12,6 @@ SC_MODULE(rng) {
 
     /* initialize random seed: */
     void new_seed() {
-        std::cout << "SEED: " << seed.read() << '\n';
         srand(seed.read());
     }
 

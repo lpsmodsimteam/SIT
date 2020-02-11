@@ -26,6 +26,7 @@ plague_main = sst.Component(
     "Strain Statistics", "plague.plague")
 plague_main.addParams({
     "CLOCK": CLOCK,
+    "SEED0": "99999"
 })
 
 # SystemC components

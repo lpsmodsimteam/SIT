@@ -202,6 +202,7 @@ class SystemC(BoilerPlate):
             "module_dir": self.module_dir,
             "lib_dir": self.lib_dir,
             "module": self.module,
+            "disable_warning": self.disable_warning,
             "port_defs": self.__get_driver_port_defs(),
             "bindings": self.__get_driver_bindings(),
             "sender": self.sender,
@@ -213,3 +214,7 @@ class SystemC(BoilerPlate):
     def _fixed_width_float_output(self):
 
         self.extra_libs += "#include <iomanip>"
+
+    def _disable_runtime_warnings(self, warning):
+
+        self.disable_warning += f"sc_report_handler::set_actions({warning}, SC_DO_NOTHING);"

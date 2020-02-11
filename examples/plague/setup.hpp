@@ -126,13 +126,12 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
 void plague::setup() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
-
 }
 
 void plague::finish() {
 
     m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
-
+    std::fclose(m_fp);
 }
 
 void plague::align_signal_width(const char chr, int width, std::string &signal) {

@@ -28,6 +28,7 @@ if __name__ == "__main__":
             ("output", "data_out", "<float>", 12),
         ))
         randf.fixed_width_float_output(9)
+        randf.disable_runtime_warnings(["SC_ID_NO_SC_START_ACTIVITY_"])
         randf.generate_bbox()
 
         minf = SystemC(
@@ -40,6 +41,7 @@ if __name__ == "__main__":
             ("output", "data_out", "<float>", 12),
         ))
         minf.fixed_width_float_output(9)
+        minf.disable_runtime_warnings(["SC_ID_NO_SC_START_ACTIVITY_"])
         minf.generate_bbox()
 
         sc_exp = SystemC(
@@ -51,6 +53,7 @@ if __name__ == "__main__":
             ("output", "data_out", "<float>", 12),
         ))
         sc_exp.fixed_width_float_output(9)
+        sc_exp.disable_runtime_warnings(["SC_ID_NO_SC_START_ACTIVITY_"])
         sc_exp.generate_bbox()
 
         rng = SystemC(
@@ -65,6 +68,7 @@ if __name__ == "__main__":
             ("input", "upper_limit", "<sc_uint<10>>"),
             ("output", "data_out", "<sc_uint<10>>"),
         ))
+        rng.disable_runtime_warnings(["SC_ID_NO_SC_START_ACTIVITY_"])
         rng.generate_bbox()
 
         sc_ceil = SystemC(
@@ -75,6 +79,7 @@ if __name__ == "__main__":
             ("input", "operand", "<float>", 12),
             ("output", "data_out", "<sc_uint<25>>"),
         ))
+        sc_ceil.disable_runtime_warnings(["SC_ID_NO_SC_START_ACTIVITY_"])
         sc_ceil.generate_bbox()
 
     elif sys.argv[-1] == "pyrtl":
