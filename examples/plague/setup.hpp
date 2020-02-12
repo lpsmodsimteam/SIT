@@ -141,6 +141,13 @@ void plague::align_signal_width(const char chr, int width, std::string &signal) 
     }
 }
 
+void plague::append_signal(const char chr, int width, std::string &signal) {
+    int _len = signal.length();
+    if (_len < width) {
+        signal += std::string(width - _len, chr);
+    }
+}
+
 std::string plague::align_signal_width(int width, float signal) {
     std::ostringstream _data_out;
     _data_out << std::fixed << std::setprecision(width) << signal;

@@ -3,8 +3,8 @@
 
 import pyrtl
 
-chance = pyrtl.Input(3, "chance")
-gene = pyrtl.Input(3, "gene")
+chance = pyrtl.Input(4, "chance")
+gene = pyrtl.Input(4, "gene")
 out = pyrtl.Output(2, "out")
 
 mutation_state = pyrtl.Register(2, "mutation_state")

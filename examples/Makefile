@@ -1,4 +1,5 @@
 MAKEFLAGS += --no-print-directory
+BASE_DIR = $(CURDIR)
 
 define iecho
 	echo "\e[1;34m$1\e[0m"
@@ -6,6 +7,10 @@ endef
 
 define eecho
 	echo "\e[1;31m$1\e[0m"
+endef
+
+define read_mem
+	python $(BASE_DIR)/$1/read_mem.py memory_dump.txt
 endef
 
 .PHONY: intersection
@@ -39,6 +44,7 @@ plague:
 	sst-register plague plague_LIBDIR=$(CURDIR)
 	@$(call iecho,"Running plague simulation...")
 	sst ../run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
+# 	@$(call read_mem,$@)
 
 .PHONY: clean
 # unregister SST components and remove all compiled objects and cached files

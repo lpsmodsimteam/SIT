@@ -21,6 +21,8 @@ public:
 
     static void align_signal_width(char, int, std::string &);
 
+    static void append_signal(char, int, std::string &);
+
     static std::string align_signal_width(int, float);
 
     void flash_mem(SST::Event *);

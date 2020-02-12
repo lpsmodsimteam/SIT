@@ -145,8 +145,7 @@ void plague::ceil_cure_thresh(SST::Event *ev) {
     if (se && m_keep_recv) {
 
         std::string cure_threshold_str = se->getString();
-        m_cure_threshold = std::stoi(cure_threshold_str) / 100;
-
+        m_cure_threshold = std::stoi(cure_threshold_str) / std::stoi(m_limit);
     }
 
     delete se;
@@ -171,7 +170,7 @@ void plague::randf_fat(SST::Event *ev) {
                     std::to_string(_keep_send) +
                     std::to_string(_keep_recv) +
                     align_signal_width(10, m_fatality + std::stof(se->getString())) +
-                    "0.49"
+                    "0.25"
             ));
 
         }
@@ -213,7 +212,7 @@ void plague::randf_inf(SST::Event *ev) {
                     std::to_string(_keep_send) +
                     std::to_string(_keep_recv) +
                     align_signal_width(10, m_infectivity + std::stof(se->getString())) +
-                    "0.99"
+                    "0.50"
             ));
 
         }
@@ -275,7 +274,7 @@ void plague::rng_pop_inf(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_cycle < LOOPEND) {
 
-        m_batch_infected = std::stoi(se->getString());
+        m_batch_infected = std::stoi(se->getString()) * m_cycle / std::stoi(m_limit) + 1;
 
     }
 
