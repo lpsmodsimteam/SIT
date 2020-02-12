@@ -17,6 +17,7 @@ The following public methods are inherited by the child classes and are not to b
 - disable_runtime_warnings(warnings)
 """
 
+import math
 import os
 
 from .exceptions import *
@@ -80,8 +81,8 @@ class BoilerPlate(object):
         self.extra_libs = ""
         self.disable_warning = ""
 
-        self.template_path = os.path.join(os.path.dirname(
-            __file__), "template", self.__class__.__name__.lower())
+        self.hdl_str = self.__class__.__name__.lower()
+        self.template_path = os.path.join(os.path.dirname(__file__), "template", self.hdl_str)
         self.driver_template_path = driver_template_path if driver_template_path else os.path.join(
             self.template_path, "driver")
         self.component_template_path = component_template_path if component_template_path else os.path.join(
@@ -133,7 +134,7 @@ class BoilerPlate(object):
         """
         return delim.join(fmt.format(**split_func(i)) for i in array)
 
-    def _get_signal_width(self, signal_type):
+    def _get_signal_width_from_macro(self, signal_type):
         """Get width of a signal type mapped in width_macros
 
         Parameters:
@@ -300,13 +301,14 @@ class BoilerPlate(object):
             pass
 
         print("------------------------------------------------------------")
-        print(f"Ports for: {self.module}")
+        print(f"Ports generated for: {self.module} ({self.hdl_str})")
         for port_type in self.ports:
-            for port in self.ports[port_type]:
-                print(f"Name: {port['name']}")
+            if self.ports[port_type]:
                 print(f"Port type: {port_type}")
-                print(f"Data type: {port['type']}")
-                print(f"Length: {port['len']}")
+                for port in self.ports[port_type]:
+                    print(f""" \"{port['name']}\" -> {{{
+                        "data type" if self.hdl_str == "systemc" else "integer width"
+                    }: {port['type']}, length: {port['len']}}}""")
         print(f"Total buffer size: {self.buf_size}")
 
     def fixed_width_float_output(self, precision):
@@ -348,3 +350,36 @@ class BoilerPlate(object):
                 self._disable_runtime_warnings(warning)
             except AttributeError:
                 raise APIException(f"disable_runtime_warnings() not supported with {self.module}")
+
+    @staticmethod
+    def _get_ints(signal):
+        """Extract integers from signal string
+
+        Parameters:
+        -----------
+        signal : str
+            signal data type or integer width
+
+        Returns:
+        --------
+        int
+            string of integer found in signal string
+        """
+        return int("".join(s for s in signal if s.isdigit()))
+
+    @staticmethod
+    def _get_num_digits(signal):
+        """Compute the minimum number of digits required to hold signal data type width by
+        calculating: `floor(log(-1 + 2^x)/log(10)) + 1`
+
+        Parameters:
+        -----------
+        signal : str
+            signal data type width
+
+        Returns:
+        --------
+        int
+            number of digits for signal width
+        """
+        return math.floor(math.log(math.pow(2, signal) - 1) / math.log(10)) + 1

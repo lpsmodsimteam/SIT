@@ -7,8 +7,6 @@ This class inherits from the BoilerPlate base class and implements its own metho
 modifying and generating boilerplate code for its specific paradigms.
 """
 
-import math
-
 from .boilerplate import BoilerPlate
 
 
@@ -85,28 +83,30 @@ class SystemC(BoilerPlate):
                 integers found in signal string
             """
             try:
-                return int("".join(s for s in signal if s.isdigit()))
+                return self._get_ints(signal)
             except ValueError:
-                return int(self._get_signal_width(signal))
+                return int(self._get_signal_width_from_macro(signal))
 
-        # NoneTypes are explicitly assigned to SystemC model clock signals
-        if not signal:
-            return 0
-
-        elif "sc" in signal:
+        # SystemC member data types
+        if "sc" in signal:
 
             if any(x in signal for x in ("bv", "lv", "int")):
-                # floor(log(-1 + 2^x)/log(10)) + 1
-                return math.floor(math.log(math.pow(2, __get_ints()) - 1) / math.log(10)) + 1
+                return self._get_num_digits(__get_ints())
 
             elif any(x in signal for x in ("bit", "logic")):
                 return __get_ints()
 
-        elif signal == "<float>":
-            return 10
-
-        else:
+        # boolean signals
+        elif signal == "<bool>":
             return 1
+
+        # arbitrary precision for float signals
+        elif signal == "<float>":
+            return 12
+
+        # default C++ data types
+        else:
+            return __get_ints()
 
     def _get_driver_outputs(self):
         """Generate output bindings for both the components in the black box

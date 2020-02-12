@@ -7,7 +7,6 @@ This class inherits from the BoilerPlate base class and implements its own metho
 modifying and generating boilerplate code for its specific paradigms.
 """
 
-import math
 
 from .boilerplate import BoilerPlate
 
@@ -71,8 +70,7 @@ _sock = context.socket(zmq.REQ)"""
         self.driver_path += "_driver.py"
         self.comp_path += "_comp.cpp"
 
-    @staticmethod
-    def _parse_signal_type(signal):
+    def _parse_signal_type(self, signal):
         """Parse the type and computes its width from the signal
 
         Parameters:
@@ -85,13 +83,7 @@ _sock = context.socket(zmq.REQ)"""
         int
             signal width
         """
-        if signal == "1":
-            return 1
-
-        def __get_ints(sig):
-            return int("".join(s for s in sig if s.isdigit()))
-
-        return math.floor(math.log(math.pow(2, __get_ints(signal)) - 1) / math.log(10)) + 1
+        return 1 if signal == "1" else self._get_num_digits(self._get_ints(signal))
 
     def _get_driver_outputs(self):
         """Generate output bindings for both the components in the black box
