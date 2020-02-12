@@ -6,17 +6,17 @@
 
 #include <iomanip>
 
-void plague::ram(SST::Event *ev) {
+void plague::flash_mem(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
-    if (se && m_ram_read_flag) {
+    if (se && m_mem_read_flag) {
 
-        ram_data_out = se->getString();
-        align_signal_width('0', 8, ram_data_out);
+        m_mem_data_out = se->getString();
+        align_signal_width('0', 8, m_mem_data_out);
 
         std::string ram_addr = std::to_string(m_cycle % (SIMTIME / 2));
         align_signal_width('0', 8, ram_addr);
-        fprintf(m_fp, "%s %s\n", ram_addr.c_str(), ram_data_out.c_str());
+        fprintf(m_fp, "%s %s\n", ram_addr.c_str(), m_mem_data_out.c_str());
 
     }
 
@@ -29,20 +29,20 @@ void plague::mutation(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        GENE = std::stoi(se->getString());
-        switch (GENE) {
+        m_gene = std::stoi(se->getString());
+        switch (m_gene) {
             case 0:
                 // std::cout << "NEUTRAL\n";
                 break;
             case 1:
                 // std::cout << "GOOD\n";
-                INFECTIVITY = abs(INFECTIVITY - RESEARCH);
+                m_infectivity = abs(m_infectivity - m_research);
                 // std::cout << m_cycle << " INF (ABS) " << INFECTIVITY << '\n';
                 m_mutate_lock = true;
                 break;
             case 2:
                 // std::cout << "BAD\n";
-                CURE -= RESEARCH;
+                m_cure -= m_research;
                 break;
         }
 
@@ -57,8 +57,8 @@ void plague::rng_limit(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        LIMIT = se->getString();
-        align_signal_width('0', 4, LIMIT);
+        m_limit = se->getString();
+        align_signal_width('0', 4, m_limit);
 
         randf_sev_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(m_keep_send) +
@@ -66,7 +66,7 @@ void plague::rng_limit(SST::Event *ev) {
                 "1" +
                 seed_sev +
                 "020" +
-                LIMIT +
+                m_limit +
                 std::to_string(m_cycle)
         ));
 
@@ -76,7 +76,7 @@ void plague::rng_limit(SST::Event *ev) {
                 "1" +
                 seed_birth_rate +
                 "020" +
-                LIMIT +
+                m_limit +
                 std::to_string(m_cycle)
         ));
 
@@ -91,7 +91,7 @@ void plague::rng_mut(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        MUTATION = se->getString();
+        m_mutation = se->getString();
 
     }
 
@@ -104,7 +104,7 @@ void plague::randf_rsrch(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        RESEARCH = std::stof(se->getString());
+        m_research = std::stof(se->getString());
 
     }
 
@@ -117,7 +117,7 @@ void plague::randf_sev(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        SEVERITY = std::stof(se->getString());
+        m_severity = std::stof(se->getString());
 
     }
 
@@ -130,7 +130,7 @@ void plague::randf_br(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_keep_recv) {
 
-        BIRTH_RATE = std::stof(se->getString());
+        m_birth_rate = std::stof(se->getString());
 
     }
 
@@ -145,7 +145,7 @@ void plague::ceil_cure_thresh(SST::Event *ev) {
     if (se && m_keep_recv) {
 
         std::string cure_threshold_str = se->getString();
-        CURE_THRESHOLD = std::stoi(cure_threshold_str) / 100;
+        m_cure_threshold = std::stoi(cure_threshold_str) / 100;
 
     }
 
@@ -153,7 +153,7 @@ void plague::ceil_cure_thresh(SST::Event *ev) {
 
 }
 
-void plague::randf_let(SST::Event *ev) {
+void plague::randf_fat(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     bool _keep_send = m_cycle < SIMTIME - 1;
@@ -163,14 +163,14 @@ void plague::randf_let(SST::Event *ev) {
 
         if (m_cycle == LOOPBEGIN) {
 
-            LETHALITY = std::stof(se->getString());
+            m_fatality = std::stof(se->getString());
 
         } else {
 
-            min_let_din_link->send(new SST::Interfaces::StringEvent(
+            min_fat_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(_keep_send) +
                     std::to_string(_keep_recv) +
-                    align_signal_width(10, LETHALITY + std::stof(se->getString())) +
+                    align_signal_width(10, m_fatality + std::stof(se->getString())) +
                     "0.49"
             ));
 
@@ -182,12 +182,12 @@ void plague::randf_let(SST::Event *ev) {
 
 }
 
-void plague::min_let(SST::Event *ev) {
+void plague::min_fat(SST::Event *ev) {
 
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_cycle < LOOPEND) {
 
-        LETHALITY = std::stof(se->getString());
+        m_fatality = std::stof(se->getString());
 
     }
 
@@ -205,14 +205,14 @@ void plague::randf_inf(SST::Event *ev) {
 
         if (m_cycle == LOOPBEGIN) {
 
-            INFECTIVITY = std::stof(se->getString());
+            m_infectivity = std::stof(se->getString());
 
         } else {
 
             min_inf_din_link->send(new SST::Interfaces::StringEvent(
                     std::to_string(_keep_send) +
                     std::to_string(_keep_recv) +
-                    align_signal_width(10, INFECTIVITY + std::stof(se->getString())) +
+                    align_signal_width(10, m_infectivity + std::stof(se->getString())) +
                     "0.99"
             ));
 
@@ -233,7 +233,7 @@ void plague::min_inf(SST::Event *ev) {
     if (se && m_cycle < LOOPEND) {
 
         if (!m_mutate_lock) {
-            INFECTIVITY = std::stof(se->getString());
+            m_infectivity = std::stof(se->getString());
         } else {
             m_mutate_lock = false;
         }
@@ -241,7 +241,7 @@ void plague::min_inf(SST::Event *ev) {
         exp_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(_keep_send) +
                 std::to_string(_keep_recv) +
-                align_signal_width(10, INFECTIVITY)
+                align_signal_width(10, m_infectivity)
         ));
 
     }
@@ -261,7 +261,7 @@ void plague::exp_pop_inf(SST::Event *ev) {
         ceil_pop_inf_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(_keep_send) +
                 std::to_string(_keep_recv) +
-                align_signal_width(2, std::stof(se->getString()) * BATCH_INFECTED)
+                align_signal_width(2, std::stof(se->getString()) * m_batch_infected)
         ));
 
     }
@@ -275,7 +275,7 @@ void plague::rng_pop_inf(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se && m_cycle < LOOPEND) {
 
-        BATCH_INFECTED = std::stoi(se->getString());
+        m_batch_infected = std::stoi(se->getString());
 
     }
 
@@ -291,12 +291,12 @@ void plague::ceil_pop_inf(SST::Event *ev) {
 
     if (se && m_cycle < LOOPEND - 2) {
 
-        TOTAL_INFECTED_TODAY = std::stoi(se->getString());
+        m_total_infected_today = std::stoi(se->getString());
 
         ceil_pop_dead_din_link->send(new SST::Interfaces::StringEvent(
                 std::to_string(_keep_send) +
                 std::to_string(_keep_recv) +
-                align_signal_width(2, TOTAL_INFECTED_TODAY * LETHALITY)
+                align_signal_width(2, m_total_infected_today * m_fatality)
         ));
 
     }
@@ -310,7 +310,7 @@ void plague::ceil_pop_dead(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
     if (se && m_cycle < LOOPEND - 3) {
-        TOTAL_DEAD_TODAY = std::stoi(se->getString());
+        m_total_dead_today = std::stoi(se->getString());
     }
 
     delete se;

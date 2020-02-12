@@ -74,9 +74,9 @@ randf_inf_comp.addParams({
     "ipc_port": get_rand_tmp(),
 })
 
-randf_let_comp = sst.Component(
-    "Lethality Component (SystemC)", "plague.randf")
-randf_let_comp.addParams({
+randf_fat_comp = sst.Component(
+    "Fatality Component (SystemC)", "plague.randf")
+randf_fat_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "randf.o"),
     "ipc_port": get_rand_tmp(),
@@ -133,9 +133,9 @@ exp_pop_inf_comp.addParams({
 })
 
 # Minimum float components
-minf_let_comp = sst.Component(
-    "Minimum Float Lethality Component (SystemC)", "plague.minf")
-minf_let_comp.addParams({
+minf_fat_comp = sst.Component(
+    "Minimum Float Fatality Component (SystemC)", "plague.minf")
+minf_fat_comp.addParams({
     "clock": CLOCK,
     "proc": os.path.join(BASE_PATH, "minf.o"),
     "ipc_port": get_rand_tmp(),
@@ -151,11 +151,11 @@ minf_inf_comp.addParams({
 
 # Chisel components
 ###############################################################################
-ram_comp = sst.Component(
-    "Memory Component (Chisel)", "plague.ram")
-ram_comp.addParams({
+flash_mem_comp = sst.Component(
+    "Memory Component (Chisel)", "plague.flash_mem")
+flash_mem_comp.addParams({
     "clock": CLOCK,
-    "proc": "test:runMain ram.ramMain",
+    "proc": "test:runMain flash_mem.flash_memMain",
     "ipc_port": get_rand_tmp(),
 })
 
@@ -189,11 +189,11 @@ connect_comps(rng_mut_comp, plague_main, "rng", "rng_mut")
 
 connect_comps(randf_sev_comp, plague_main, "randf", "randf_sev")
 connect_comps(randf_inf_comp, plague_main, "randf", "randf_inf")
-connect_comps(randf_let_comp, plague_main, "randf", "randf_let")
+connect_comps(randf_fat_comp, plague_main, "randf", "randf_fat")
 connect_comps(randf_br_comp, plague_main, "randf", "randf_br")
 connect_comps(randf_rsrch_comp, plague_main, "randf", "randf_rsrch")
 
-connect_comps(minf_let_comp, plague_main, "minf", "min_let")
+connect_comps(minf_fat_comp, plague_main, "minf", "min_fat")
 connect_comps(minf_inf_comp, plague_main, "minf", "min_inf")
 
 connect_comps(ceil_cure_thresh_comp, plague_main, "sc_ceil", "ceil_cure_thresh")
@@ -202,6 +202,6 @@ connect_comps(ceil_pop_dead_comp, plague_main, "sc_ceil", "ceil_pop_dead")
 
 connect_comps(exp_pop_inf_comp, plague_main, "sc_exp", "exp_pop_inf")
 
-connect_comps(ram_comp, plague_main, "ram", "ram")
+connect_comps(flash_mem_comp, plague_main, "flash_mem", "flash_mem")
 
 connect_comps(mutation_comp, plague_main, "mutation", "mutation")

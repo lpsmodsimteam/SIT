@@ -96,11 +96,11 @@ if __name__ == "__main__":
 
     elif sys.argv[-1] == "chisel":
 
-        ram = Chisel(
+        flash_mem = Chisel(
             **ARGS,
-            module="ram",
+            module="flash_mem",
         )
-        ram.set_ports((
+        flash_mem.set_ports((
             ("input", "address", "25"),
             ("input", "cs", "1"),
             ("input", "we", "1"),
@@ -108,4 +108,4 @@ if __name__ == "__main__":
             ("input", "data_in", "25"),
             ("output", "data_out", "25"),
         ))
-        ram.generate_bbox()
+        flash_mem.generate_bbox()

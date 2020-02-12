@@ -16,10 +16,10 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
         seed_research(params.find<std::string>("SEED6", "12352")),
         seed_mutation(params.find<std::string>("SEED7", "12353")),
         // initialize ram links
-        ram_din_link(configureLink("ram_din")),
-        ram_dout_link(configureLink(
-                "ram_dout",
-                new SST::Event::Handler<plague>(this, &plague::ram))
+        flash_mem_din_link(configureLink("flash_mem_din")),
+        flash_mem_dout_link(configureLink(
+                "flash_mem_dout",
+                new SST::Event::Handler<plague>(this, &plague::flash_mem))
         ),
         // initialize mutation links
         mutation_din_link(configureLink("mutation_din")),
@@ -52,10 +52,10 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
                 new SST::Event::Handler<plague>(this, &plague::randf_inf))
         ),
         // initialize lethality random float links
-        randf_let_din_link(configureLink("randf_let_din")),
-        randf_let_dout_link(configureLink(
-                "randf_let_dout",
-                new SST::Event::Handler<plague>(this, &plague::randf_let))
+        randf_fat_din_link(configureLink("randf_fat_din")),
+        randf_fat_dout_link(configureLink(
+                "randf_fat_dout",
+                new SST::Event::Handler<plague>(this, &plague::randf_fat))
         ),
         // initialize severity random float links
         randf_sev_din_link(configureLink("randf_sev_din")),
@@ -100,10 +100,10 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
                 new SST::Event::Handler<plague>(this, &plague::ceil_pop_dead))
         ),
         // initialize minimum lethality links
-        min_let_din_link(configureLink("min_let_din")),
-        min_let_dout_link(configureLink(
-                "min_let_dout",
-                new SST::Event::Handler<plague>(this, &plague::min_let))
+        min_fat_din_link(configureLink("min_fat_din")),
+        min_fat_dout_link(configureLink(
+                "min_fat_dout",
+                new SST::Event::Handler<plague>(this, &plague::min_fat))
         ),
         // initialize minimum infectivity links
         min_inf_din_link(configureLink("min_inf_din")),
@@ -111,9 +111,9 @@ plague::plague(SST::ComponentId_t id, SST::Params &params) :
                 "min_inf_dout",
                 new SST::Event::Handler<plague>(this, &plague::min_inf))
         ),
-        CURE_THRESHOLD(0), BATCH_INFECTED(0), TOTAL_INFECTED(0), TOTAL_DEAD(0), TOTAL_INFECTED_TODAY(0),
-        TOTAL_DEAD_TODAY(0), GENE(0),
-        SEVERITY(0.0), INFECTIVITY(0.0), LETHALITY(0.0), BIRTH_RATE(0.0), CURE(0.0), RESEARCH(0.0) {
+        m_cure_threshold(0), m_batch_infected(0), m_total_infected(0), m_total_dead(0), m_total_infected_today(0),
+        m_total_dead_today(0), m_gene(0),
+        m_severity(0.0), m_infectivity(0.0), m_fatality(0.0), m_birth_rate(0.0), m_cure(0.0), m_research(0.0) {
 
     m_output.init("\033[93mplague-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 

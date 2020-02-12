@@ -22,7 +22,7 @@ endforeach()
 add_executable(
     libplague.so
     plague.cpp
-    chisel/blackboxes/ram_comp.cpp
+    chisel/blackboxes/flash_mem_comp.cpp
     pyrtl/blackboxes/mutation_comp.cpp
     systemc/blackboxes/minf_comp.cpp
     systemc/blackboxes/randf_comp.cpp
