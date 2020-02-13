@@ -174,7 +174,7 @@ class BoilerPlate(object):
         Parameters:
         -----------
         ports : tuple(tuple3(str))
-            type-declared signals in the form (<DATA TYPE>, <PORT NAME>, <PORT TYPE>).
+            type-declared signals in the form (<PORT TYPE>, <PORT NAME>, <DATA TYPE>).
             The current types of signals supported are ("clock", "input", "output", "inout")
 
         Raises:

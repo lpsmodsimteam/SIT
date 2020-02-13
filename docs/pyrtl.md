@@ -49,7 +49,7 @@ boilerplate.PyRTL(
 
 |Parameter|Type|Description|
 |---------|----|-----------|
-|`ports`|`tuple(tuple3(str))`|type-declared signals in the form `(<INTEGER BIT WIDTH>, <PORT NAME>, <PORT TYPE>)`<br>An integer bit width of `1` (a binary value of 0 or 1) represents the boolean type.<br>The current types of signals supported are `("input", "output")`.<br>PyRTL does not require clock ports to be explicitly labeled due to Python's dynamically-typed system. Labeling an input as `clock` will be ignored. To specify a clock port, label it as `input` along with its data length.|
+|`ports`|`tuple(tuple3(str))`|type-declared signals in the form `(<PORT TYPE>, <PORT NAME>, <INTEGER BIT WIDTH>)`<br>An integer bit width of `1` (a binary value of 0 or 1) represents the boolean type.<br>The current types of signals supported are `("input", "output")`.<br>PyRTL does not require clock ports to be explicitly labeled due to Python's dynamically-typed system. Labeling an input as `clock` will be ignored. To specify a clock port, label it as `input` along with its data length.|
 
 ```python
 boilerplate.PyRTL.set_ports(ports)

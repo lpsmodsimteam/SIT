@@ -58,7 +58,7 @@ boilerplate.SystemC(
 
 |Parameter|Type|Description|
 |---------|----|-----------|
-|`ports`|`tuple(tuple3(str))`|type-declared signals in the form `(<DATA TYPE>, <PORT NAME>, <PORT TYPE>)`<br>`<DATA TYPE>` are represented as C++ style data types where the integer width must also be provided as necessary.<br>The current types of signals supported are `("input", "output", "clock", "inout")`.|
+|`ports`|`tuple(tuple3(str))`|type-declared signals in the form `(<PORT TYPE>, <PORT NAME>, <DATA TYPE>)`<br>`<DATA TYPE>` are represented as C++ style data types where the integer width must also be provided as necessary.<br>The current types of signals supported are `("input", "output", "clock", "inout")`.|
 
 ```python
 boilerplate.SystemC.set_ports(ports)
