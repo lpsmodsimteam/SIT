@@ -27,7 +27,7 @@ plague_main = sst.Component(
 # 15462
 plague_main.addParams({
     "CLOCK": CLOCK,
-    "SEED0": "20902",
+    "SEED0": "98554",
 })
 
 # SystemC components

@@ -26,6 +26,7 @@ dist/
 blackboxes/
 
 *.log
+*.json
 
 target/
 test_run_dir/
