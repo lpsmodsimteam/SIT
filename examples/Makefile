@@ -26,10 +26,10 @@ intersection:
 	@$(call iecho,"Running intersection simulation...")
 	sst ../run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
 
-.PHONY: plague
+.PHONY: plague-sim
 .ONESHELL:
-plague:
-	@$(call iecho,"Generating files for plague...")
+plague-sim:
+	@$(call iecho,"Generating files for plague-sim...")
 	cd $@
 	mkdir -p build
 	python generate_bbox.py systemc && mv blackboxes systemc
@@ -41,8 +41,8 @@ plague:
 	sourcesInBase := false
 	scalaSource in Compile := baseDirectory.value / "../chisel"
 	EOF
-	sst-register plague plague_LIBDIR=$(CURDIR)
-	@$(call iecho,"Running plague simulation...")
+	sst-register plague-sim plague-sim_LIBDIR=$(CURDIR)
+	@$(call iecho,"Running plague-sim simulation...")
 	sst ../run.py || { $(call eecho,"SST failed to launch properly - make sure to clear the cache"); exit 1; }
 # 	@$(call read_mem,$@)
 
@@ -51,7 +51,7 @@ plague:
 clean:
 	@$(call iecho,"Unregistering components...")
 	sst-register -u intersection
-	sst-register -u plague
+	sst-register -u plague-sim
 	@$(call iecho,"Removing cached files...")
 	find . -name "*.pyc" -type f -delete
 	find . \( -name "__pycache__" -o -name "cmake-build-debug" \) -type d -exec rm -rf {} +
