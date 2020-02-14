@@ -1,0 +1,3 @@
+[submodule "examples/plague-sim"]
+	path = examples/plague-sim
+	url = https://github.com/sabbirahm3d/plague-sim
