@@ -77,7 +77,7 @@ class BoilerPlate(object):
         self.module_dir = module_dir
         self.lib_dir = lib_dir
         self.desc = desc
-        self.precision = None
+        self.precision = 0
         self.extra_libs = ""
         self.disable_warning = ""
 
@@ -98,7 +98,8 @@ class BoilerPlate(object):
         self.bbox_dir = "blackboxes"
         self.driver_path = self.comp_path = os.path.join(self.bbox_dir, self.module)
 
-        self.buf_size = 0
+        self.driver_buf_size = 0
+        self.comp_buf_size = 0
         if self.ipc == "sock":
 
             # component attributes
@@ -220,7 +221,7 @@ class BoilerPlate(object):
                 ",\n" + " " * 8
             ),
             "sig_type": self.sig_type,
-            "buf_size": self.buf_size,
+            "buf_size": self.comp_buf_size,
             "sender": self.sender,
             "receiver": self.receiver,
         }
@@ -282,6 +283,7 @@ class BoilerPlate(object):
         PortException
             no ports were provided
         """
+        print("------------------------------------------------------------")
         if not len(self.ports):
             raise PortException(
                 "No ports were set. Make sure to call set_ports() before generating files.")
@@ -292,6 +294,9 @@ class BoilerPlate(object):
         with open(self.driver_path, "w") as driver_file:
             driver_file.write(self.__generate_driver_str())
 
+        for output_port in self.ports["output"]:
+            self.comp_buf_size += output_port["len"]
+
         with open(self.comp_path, "w") as comp_file:
             comp_file.write(self.__generate_comp_str())
 
@@ -300,7 +305,6 @@ class BoilerPlate(object):
         except AttributeError:
             pass
 
-        print("------------------------------------------------------------")
         print(f"Ports generated for: {self.module} ({self.hdl_str})")
         for port_type in self.ports:
             if self.ports[port_type]:
@@ -309,7 +313,8 @@ class BoilerPlate(object):
                     print(f""" \"{port['name']}\" -> {{{
                         "data type" if self.hdl_str == "systemc" else "integer width"
                     }: {port['type']}, length: {port['len']}}}""")
-        print(f"Total buffer size: {self.buf_size}")
+        print(f"Driver buffer size: {self.driver_buf_size}")
+        print(f"Component buffer size size: {self.comp_buf_size}")
 
     def fixed_width_float_output(self, precision):
         """Generate additional methods to handle ports with float signals

@@ -113,7 +113,7 @@ class Chisel(BoilerPlate):
             )
             start_pos += input_port["len"]
 
-        self.buf_size = start_pos + 1
+        self.driver_buf_size = start_pos + 1
         return ("\n" + " " * 12).join(driver_inputs)
 
     def _get_driver_defs(self):
@@ -126,7 +126,7 @@ class Chisel(BoilerPlate):
         """
         return {
             "module": self.module,
-            "buf_size": self.buf_size
+            "buf_size": self.driver_buf_size
         }
 
     def _generate_extra_files(self):

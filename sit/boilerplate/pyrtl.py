@@ -125,7 +125,7 @@ _sock = context.socket(zmq.REQ)"""
             )
             start_pos += input_port["len"]
 
-        self.buf_size = start_pos + 1
+        self.driver_buf_size = start_pos + 1
         return ("\n" + " " * 8).join(driver_inputs)
 
     def _get_driver_defs(self):
@@ -143,5 +143,5 @@ _sock = context.socket(zmq.REQ)"""
             "send": self.send,
             "module_dir": self.module_dir,
             "module": self.module,
-            "buf_size": self.buf_size
+            "buf_size": self.driver_buf_size
         }

@@ -163,7 +163,7 @@ class SystemC(BoilerPlate):
                 )
                 start_pos += int(clock_port["len"])
 
-        self.buf_size = start_pos
+        self.driver_buf_size = start_pos
         return ("\n" + " " * 8).join(driver_inputs)
 
     def __get_driver_port_defs(self):
@@ -207,7 +207,7 @@ class SystemC(BoilerPlate):
             "bindings": self.__get_driver_bindings(),
             "sender": self.sender,
             "receiver": self.receiver,
-            "buf_size": self.buf_size,
+            "buf_size": self.driver_buf_size,
             "sig_type": self.sig_type,
         }
 

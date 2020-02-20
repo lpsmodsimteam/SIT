@@ -21,6 +21,6 @@ if __name__ == "__main__":
         ("input", "we", "1"),
         ("input", "oe", "1"),
         ("input", "data_in", "8"),
-        ("output", "data_out", "8"),
+        ("output", "data_out", "8", 8),
     ))
     boilerplate_obj.generate_bbox()
