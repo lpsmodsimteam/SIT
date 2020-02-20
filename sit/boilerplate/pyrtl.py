@@ -7,7 +7,6 @@ This class inherits from the BoilerPlate base class and implements its own metho
 modifying and generating boilerplate code for its specific paradigms.
 """
 
-
 from .boilerplate import BoilerPlate
 
 
