@@ -206,6 +206,12 @@ class BoilerPlate(object):
         dict(str:str)
             format mapping of template component string
         """
+        self.comp_buf_size = sum(output_port["len"] for output_port in self.ports["output"])
+        if self.precision and self.precision > self.comp_buf_size - 2:
+            print(f"Component buffer size increased from {self.comp_buf_size} to ", end="")
+            self.comp_buf_size += self.precision - 2
+            print(f"{self.comp_buf_size} to include specified precision")
+
         return {
             "lib_dir": self.lib_dir,
             "module": self.module,
@@ -294,9 +300,6 @@ class BoilerPlate(object):
         with open(self.driver_path, "w") as driver_file:
             driver_file.write(self.__generate_driver_str())
 
-        for output_port in self.ports["output"]:
-            self.comp_buf_size += output_port["len"]
-
         with open(self.comp_path, "w") as comp_file:
             comp_file.write(self.__generate_comp_str())
 
@@ -315,6 +318,7 @@ class BoilerPlate(object):
                     }: {port['type']}, length: {port['len']}}}""")
         print(f"Driver buffer size: {self.driver_buf_size}")
         print(f"Component buffer size size: {self.comp_buf_size}")
+        print("------------------------------------------------------------")
 
     def fixed_width_float_output(self, precision):
         """Generate additional methods to handle ports with float signals
@@ -330,6 +334,7 @@ class BoilerPlate(object):
             method not supported
         """
         self.precision = precision
+        print("Adding fixed precision for float outputs")
         try:
             self._fixed_width_float_output()
         except AttributeError:
