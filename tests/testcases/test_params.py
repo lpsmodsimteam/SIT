@@ -41,6 +41,8 @@ def setup(hdl, ipc, comp):
         proc = os.path.join(os.path.dirname(BASE_PATH), ipc, "blackboxes", "ram_driver.py")
     elif hdl == "chisel":
         proc = "test:runMain ram.ramMain"
+    elif hdl == "verilog":
+        proc = "PLUSARGS=+ipc_proc="
     else:
         raise NotImplementedError()
     ram_comp.addParams({

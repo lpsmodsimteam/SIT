@@ -21,7 +21,7 @@ define read_mem
 	python $(BASE_DIR)/read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $1") || $(call eecho,"FAILED: $(HDL) using $1")
 endef
 
-HDL_LIST = systemc chisel pyrtl
+HDL_LIST = systemc chisel pyrtl verilog
 HDL := $(HDL_LIST)
 IPC = sock zmq
 
