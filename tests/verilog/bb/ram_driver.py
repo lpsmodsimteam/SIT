@@ -11,12 +11,10 @@ from cocotb.triggers import Timer
 @cocotb.test()
 def ram_test(dut):
 
-    print(cocotb.plusargs["ipc_proc"])
-    # Connect the PyRTL simulation to SST through socket
+    # Connect the cocotb simulation to SST through socket
     _sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
     _sock.connect(cocotb.plusargs["ipc_proc"])
 
-    print("sending", os.getpid())
     _sock.sendall(str(os.getpid()).encode())
 
     while True:
@@ -32,7 +30,6 @@ def ram_test(dut):
         dut.data_in = int(signal[6:9])
 
         yield Timer(1, units='ns')
-        print("data_out", str(dut.data_out))
         _sock.sendall(str(dut.data_out).encode())
 
     _sock.close()

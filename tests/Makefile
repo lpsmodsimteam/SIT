@@ -58,7 +58,8 @@ ifeq ("$(HDL)", "chisel")
 	EOF
 endif
 ifeq ("$(HDL)", "verilog")
-	export PYTHONPATH=/home/sabbir/sit/tests/verilog/build/build/libs/x86_64:/home/sabbir/sit/tests/verilog/build
+	cp ../$@/blackboxes/ram_driver.py .
+	make -f ../Makefile.config dumpconfig
 endif
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
 	@$(call iecho,"Running simulations...")

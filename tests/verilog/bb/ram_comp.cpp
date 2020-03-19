@@ -5,7 +5,7 @@
 #include <sst/core/link.h>
 
 class ram : public SST::Component {
-   private:
+private:
     // Prepare the signal handler
     SocketSignal m_signal_io;
 
@@ -14,17 +14,17 @@ class ram : public SST::Component {
     std::string m_clock, m_proc, m_ipc_port;
     SST::Link *m_din_link, *m_dout_link;
 
-   public:
+public:
     ram(SST::ComponentId_t id, SST::Params &params)
-        : SST::Component(id),
-          m_signal_io(3),
-          m_clock(params.find<std::string>("clock", "")),
-          m_proc(params.find<std::string>("proc", "")),
-          m_ipc_port(params.find<std::string>("ipc_port", "")),
-          m_din_link(configureLink(
-              "ram_din", new SST::Event::Handler<ram>(this, &ram::handle_event)
-          )),
-          m_dout_link(configureLink("ram_dout")) {
+            : SST::Component(id),
+              m_signal_io(10),
+              m_clock(params.find<std::string>("clock", "")),
+              m_proc(params.find<std::string>("proc", "")),
+              m_ipc_port(params.find<std::string>("ipc_port", "")),
+              m_din_link(configureLink(
+                      "ram_din", new SST::Event::Handler<ram>(this, &ram::handle_event)
+              )),
+              m_dout_link(configureLink("ram_dout")) {
 
         m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
 
@@ -42,7 +42,19 @@ class ram : public SST::Component {
 
         if (!child_pid) {
 
-            char *args[] = {(char *) "make", &m_proc[0u], &m_ipc_port[0u], nullptr};
+            std::string cmd = m_proc + m_ipc_port;
+
+            char *token = std::strtok(&cmd[0u], " ");
+            char *args[8];
+            int i = 0;
+
+            while (token != nullptr) {
+                args[i] = token;
+                i++;
+                token = strtok(nullptr, " ");
+            }
+            args[i] = nullptr;
+
             m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str());
             execvp(args[0], args);
 
@@ -93,18 +105,18 @@ class ram : public SST::Component {
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(
-        ram, // class
-        "tests", // element library
-        "ram", // component
-        SST_ELI_ELEMENT_VERSION(1, 0, 0),
-        "Demonstration of a PyRTL hardware simulation in SST",
-        COMPONENT_CATEGORY_UNCATEGORIZED
+            ram, // class
+            "tests", // element library
+            "ram", // component
+            SST_ELI_ELEMENT_VERSION(1, 0, 0),
+            "Demonstration of a PyRTL hardware simulation in SST",
+            COMPONENT_CATEGORY_UNCATEGORIZED
     )
 
     // Port name, description, event type
     SST_ELI_DOCUMENT_PORTS(
-        { "ram_din", "ram data in", { "sst.Interfaces.StringEvent" }},
-        { "ram_dout", "ram data out", { "sst.Interfaces.StringEvent" }}
+            { "ram_din", "ram data in", { "sst.Interfaces.StringEvent" }},
+            { "ram_dout", "ram data out", { "sst.Interfaces.StringEvent" }}
     )
 
 };
