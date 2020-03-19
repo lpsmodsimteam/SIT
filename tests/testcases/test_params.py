@@ -43,6 +43,9 @@ def setup(hdl, ipc, comp):
         proc = "test:runMain ram.ramMain"
     elif hdl == "verilog":
         proc = "PLUSARGS=+ipc_proc="
+        proc = """PYTHONPATH=/home/sabbir/sit/tests/verilog/build/build/libs/x86_64:/home/sabbir/sit/tests/verilog/build:/home/sabbir/sit/.venv/lib/python3.8/site-packages: LD_LIBRARY_PATH=/home/sabbir/sit/tests/verilog/build/build/libs/x86_64:/home/sabbir/sit/tests/verilog/build/sock:/home/sabbir/sit/examples::/usr/lib:/usr/lib:/usr/lib:/usr/lib MODULE=ram_driver \
+        TESTCASE= TOPLEVEL=ram TOPLEVEL_LANG= COCOTB_SIM=1 \
+        /usr/bin/vvp -M /home/sabbir/sit/tests/verilog/build/build/libs/x86_64 -m gpivpi sim_build/sim.vvp   +ipc_proc="""
     else:
         raise NotImplementedError()
     ram_comp.addParams({

@@ -15,7 +15,7 @@ module ram #(
 
     always @(cs or we or oe or addr) begin
 
-        if (cs && we && !oe) begin
+        if (cs && we) begin
             mem[addr] <= data_in;
         end
 

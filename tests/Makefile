@@ -57,6 +57,9 @@ ifeq ("$(HDL)", "chisel")
 	unmanagedSourceDirectories in Compile += baseDirectory.value / "../common"
 	EOF
 endif
+ifeq ("$(HDL)", "verilog")
+	export PYTHONPATH=/home/sabbir/sit/tests/verilog/build/build/libs/x86_64:/home/sabbir/sit/tests/verilog/build
+endif
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
 	@$(call iecho,"Running simulations...")
 	sst ../$@/run.py || { $(call eecho,"SST failed to launch properly"); exit 1; }
