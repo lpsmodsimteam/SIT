@@ -6,7 +6,7 @@ from setuptools import setup
 from boilerplate import boilerplate
 
 TEMPL_DIR = "boilerplate/template/"
-HDL = (TEMPL_DIR + hdl for hdl in ("chisel", "pyrtl", "systemc"))
+HDL = (TEMPL_DIR + hdl for hdl in ("chisel", "pyrtl", "systemc", "verilog"))
 
 setup(
     name="boilerplate",

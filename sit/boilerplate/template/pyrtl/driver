@@ -25,3 +25,5 @@ while True:
     }})
     _outputs = {outputs}
     _sock.{send}(_outputs)
+
+_sock.close()

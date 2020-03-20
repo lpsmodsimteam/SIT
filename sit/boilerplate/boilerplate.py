@@ -317,7 +317,7 @@ class BoilerPlate(object):
                         "data type" if self.hdl_str == "systemc" else "integer width"
                     }: {port['type']}, length: {port['len']}}}""")
         print(f"Driver buffer size: {self.driver_buf_size}")
-        print(f"Component buffer size size: {self.comp_buf_size}")
+        print(f"Component buffer size: {self.comp_buf_size}")
         print("------------------------------------------------------------")
 
     def fixed_width_float_output(self, precision):

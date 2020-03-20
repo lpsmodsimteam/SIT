@@ -21,7 +21,7 @@ define read_mem
 	python $(BASE_DIR)/read_mem.py memory_dump.txt && $(call secho,"PASSED: $(HDL) using $1") || $(call eecho,"FAILED: $(HDL) using $1")
 endef
 
-HDL_LIST = systemc chisel pyrtl verilog
+HDL_LIST = systemc chisel verilog pyrtl
 HDL := $(HDL_LIST)
 IPC = sock zmq
 
@@ -59,7 +59,7 @@ ifeq ("$(HDL)", "chisel")
 endif
 ifeq ("$(HDL)", "verilog")
 	cp ../$@/blackboxes/ram_driver.py .
-	make -f ../Makefile.config dumpconfig
+	$(MAKE) -f ../$@/blackboxes/Makefile.config dumpconfig
 endif
 	sst-register $(HDL) $(HDL)_LIBDIR=$(BASE_DIR)/$(HDL)/build/$@
 	@$(call iecho,"Running simulations...")
