@@ -104,7 +104,7 @@ jobs:
           SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
 
           LIBZMQ_VER="4.3.2"
-          CPPZMQ_VER="4.5.0"
+          CPPZMQ_VER="4.6.0"
           libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
           cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
 

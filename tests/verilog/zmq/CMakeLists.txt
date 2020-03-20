@@ -16,5 +16,5 @@ if (${cppzmq_FOUND})
     endmacro()
 endif ()
 
-add_executable(libtests.so ../../testcases/unit.cpp blackboxes/ram_comp.cpp)
+add_executable(libtests.so ../../unit.cpp blackboxes/ram_comp.cpp)
 _sst_compile_link(libtests.so)

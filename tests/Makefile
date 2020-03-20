@@ -66,6 +66,7 @@ endif
 	sst ../$@/run.py || { $(call eecho,"SST failed to launch properly"); exit 1; }
 	@$(call read_mem,$@)
 
+
 .PHONY: ipc
 ipc:
 	@$(foreach hdl, $(HDL_LIST), ${MAKE} $(IPC) HDL=$(hdl);)

@@ -11,6 +11,7 @@ For interoperability with supported HDLs, see their corresponding README:
 - [Chisel](/docs/chisel.md)
 - [PyRTL](/docs/pyrtl.md)
 - [SystemC](/docs/systemc.md)
+- [Verilog](/docs/verilog.md)
 
 ## Table of Contents
 

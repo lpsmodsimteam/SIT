@@ -99,6 +99,7 @@ class Chisel(BoilerPlate):
         """
         fmt = "poke(uut.io.{sig}, signal.slice({sp}, {sl}).toInt{boolcmp})"
         start_pos = 0
+        clock_fmt = "poke(uut.io.{sig}, (signal.slice({sp}, {sl}).toInt % 2) == 1)"
         driver_inputs = []
 
         # input_port = (INPUT NAME, INPUT TYPE)
@@ -112,6 +113,17 @@ class Chisel(BoilerPlate):
                 )
             )
             start_pos += input_port["len"]
+
+        if self.ports["clock"]:
+            for clock_port in self.ports["clock"]:
+                driver_inputs.append(
+                    clock_fmt.format(
+                        sp=start_pos,
+                        sl=str(input_port["len"] + start_pos),
+                        sig=clock_port["name"]
+                    )
+                )
+                start_pos += int(clock_port["len"])
 
         self.driver_buf_size = start_pos + 1
         return ("\n" + " " * 12).join(driver_inputs)
