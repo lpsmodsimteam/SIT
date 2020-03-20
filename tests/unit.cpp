@@ -22,6 +22,8 @@ class unit : public SST::Component {
 
     bool tick(SST::Cycle_t);
 
+    static void align_signal_width(int, std::string &);
+
     // Register the component
     SST_ELI_REGISTER_COMPONENT(unit,     // class
                                "tests",  // element library
@@ -74,16 +76,23 @@ void unit::finish() {
     std::fclose(m_fp);
 }
 
+void unit::align_signal_width(int width, std::string &signal) {
+    int _len = signal.length();
+    if (_len < width) {
+        signal = std::string(width - _len, '0') + signal;
+    }
+}
+
 void unit::handle_ram_data_out(SST::Event *ev) {
     auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
     if (se) {
         if ((m_cycle > WRITEMEM) && (m_cycle < SIMTIME - 2)) {
             std::string data_out = se->getString();
-            data_out = std::string(8 - data_out.length(), '0').append(data_out);
+            align_signal_width(8, data_out);
             fprintf(m_fp, "%s\n", data_out.c_str());
         }
     }
-    //    delete ev;
+   delete ev;
 }
 
 bool unit::tick(SST::Cycle_t current_cycle) {
@@ -92,17 +101,27 @@ bool unit::tick(SST::Cycle_t current_cycle) {
 
     bool cs = true, we, oe = true;
     std::string address = std::to_string((current_cycle - 1) % WRITEMEM);
-    std::string data_in = std::to_string(int(m_message[current_cycle - 1]));
+    align_signal_width(3, address);
 
-    address = (((current_cycle - 1) % WRITEMEM) < 10) ? std::string(2, '0').append(address)
-                                                      : std::string(1, '0').append(address);
-    data_in = ((current_cycle - 1) < WRITEMEM) ? std::string(1, '0').append(data_in) : "000";
+    std::string data_in = std::to_string(int(m_message[current_cycle - 1]));
+    if ((current_cycle - 1) < WRITEMEM) {
+        align_signal_width(3, data_in);
+    } else {
+        data_in = "000";
+    }
+
     we = current_cycle <= WRITEMEM;
     m_cycle = current_cycle;
 
     ram_din->send(new SST::Interfaces::StringEvent(
-        std::to_string(keep_send) + std::to_string(keep_recv) + address + std::to_string(cs) +
-        std::to_string(we) + std::to_string(oe) + data_in));
+        std::to_string(keep_send) +
+        std::to_string(keep_recv) +
+        address +
+        std::to_string(cs) +
+        std::to_string(we) +
+        std::to_string(oe) +
+        data_in
+    ));
 
     return false;
 }
