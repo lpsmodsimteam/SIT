@@ -149,6 +149,10 @@ jobs:
           curl -L https://piccolo.link/sbt-${SBT_VER}.tgz | tar xz -C ${DEPS_DIR}
           cd ${DEPS_DIR}/sbt && sudo cp -R * /usr/local/ && cd -
 
+          # install Verilog compilers and simulators
+          sudo apt install iverilog
+          pip install cocotb
+
           # install boilerplate
           cd sit
           source version
