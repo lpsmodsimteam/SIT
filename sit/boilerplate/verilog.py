@@ -162,6 +162,7 @@ class Verilog(BoilerPlate):
             "connect": self.connect,
             "send": self.send,
             "module": self.module,
+            "module_dir": self.module_dir,
             "buf_size": self.driver_buf_size
         }
 

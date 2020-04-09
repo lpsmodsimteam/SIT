@@ -6,7 +6,7 @@ module ram #(
     ) (
     input wire [ADDR_WIDTH - 1:0] address,
     input wire [DATA_WIDTH - 1:0] data_in,
-    input wire [DATA_WIDTH - 1:0] data_out,
+    output wire [DATA_WIDTH - 1:0] data_out,
     input wire cs, we, oe
 );
 
@@ -20,6 +20,5 @@ module ram #(
         end
 
     end
-
 
 endmodule

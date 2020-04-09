@@ -28,6 +28,7 @@ class {module} : public SST::Component {{
           m_dout_link(configureLink("{module}_dout")) {{
 
         m_output.init("\033[32mblackbox-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT);
+        m_output.setVerboseLevel(params.find<bool>("OUTPUT", true));
 
         registerClock(m_clock, new SST::Clock::Handler<{module}>(this, &{module}::tick));
 
