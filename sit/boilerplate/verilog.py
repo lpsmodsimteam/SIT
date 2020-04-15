@@ -174,7 +174,7 @@ class Verilog(BoilerPlate):
             with open(makefile_templ_path) as template:
                 template_str = template.read().format(
                     module=self.module,
-                    module_dir=self.module_dir
+                    module_dir=os.path.abspath(self.module_dir)
                 )
         else:
             raise TemplateFileNotFound(
