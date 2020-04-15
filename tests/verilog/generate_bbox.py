@@ -13,7 +13,7 @@ if __name__ == "__main__":
         lib="tests",
         desc="Demonstration of a Verilog hardware simulation in SST",
         lib_dir="../../../../sit/",
-        module_dir="${HOME}/sit/tests/verilog/common/",
+        module_dir="${HOME}/SIT/tests/verilog/common/",
     )
     boilerplate_obj.set_ports((
         ("input", "address", "8"),
