@@ -94,13 +94,13 @@ jobs:
           sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
 
           # set versions and URLs for requirements
-          CMAKE_VER="3.15.5"
+          CMAKE_VER="3.17.3"
           CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
 
           SYSC_VER="2.3.3"
           SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
 
-          SST_VER="9.1.0"
+          SST_VER="10.0.0"
           SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
 
           LIBZMQ_VER="4.3.2"
@@ -145,7 +145,7 @@ jobs:
           pip install pyrtl
 
           # install Chisel
-          SBT_VER="1.3.6"
+          SBT_VER="1.3.13"
           curl -L https://piccolo.link/sbt-${SBT_VER}.tgz | tar xz -C ${DEPS_DIR}
           export PATH=$(realpath ${DEPS_DIR}/sbt/bin):${PATH}
 
