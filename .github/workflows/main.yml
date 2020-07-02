@@ -5,17 +5,46 @@ on: [push]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       matrix:
+
+        os:
+          - ubuntu-18.04
+          - ubuntu-20.04
+
         _name:
           - Clang 7
           - Clang 8
           - Clang 9
+          - Clang 10
           - GCC 7
           - GCC 8
           - GCC 9
+
+        exclude:
+
+          - os: ubuntu-18.04
+            _name: "Clang 9"
+
+          - os: ubuntu-18.04
+            _name: "Clang 10"
+
+          - os: ubuntu-20.04
+            _name: "Clang 7"
+
+          - os: ubuntu-20.04
+            _name: "Clang 8"
+
+          - os: ubuntu-18.04
+            _name: "GCC 7"
+
+          - os: ubuntu-18.04
+            _name: "GCC 8"
+
+          - os: ubuntu-18.04
+            _name: "GCC 9"
 
         include:
 
@@ -33,8 +62,13 @@ jobs:
 
           # Clang 9
           - _name: "Clang 9"
-            _cxx: clang++-9
-            _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main"
+            _cxx: clang-9
+            _pkg: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-9 main"
+
+          # Clang 10
+          - _name: "Clang 10"
+            _cxx: clang-10
+            _pkg: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main"
 
           # --------------- GCC on Linux --------------- #
 
