@@ -52,12 +52,12 @@ jobs:
 
           # Clang 7
           - _name: "Clang 7"
-            _cxx: clang++-7
+            _cxx: clang-7
             _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-7 main"
 
           # Clang 8
           - _name: "Clang 8"
-            _cxx: clang++-8
+            _cxx: clang-8
             _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main"
 
           # Clang 9
@@ -121,8 +121,8 @@ jobs:
           # set the proper C++ and MPI compilers
           sudo add-apt-repository "${_PKG}" -y
           sudo apt install ${_CXX} -y
-          export CXX=${_CXX}
-          export OMPI_CXX=${_CXX}
+          export CXX=$(echo ${_CXX} | sed 's/clang/clang++/g')
+          export OMPI_CXX=${CXX}
 
           # install necessary packages
           sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
