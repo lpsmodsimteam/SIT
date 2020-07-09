@@ -166,5 +166,5 @@ jobs:
           # run tests
           cd ../tests
           make systemc
-          make pyrtl
           make chisel
+          make pyrtl

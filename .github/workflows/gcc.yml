@@ -151,6 +151,7 @@ jobs:
           python setup.py install
 
           # run tests
+          cd ../tests
           make systemc
-          make pyrtl
           make chisel
+          make pyrtl
