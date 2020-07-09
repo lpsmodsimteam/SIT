@@ -1,5 +1,6 @@
 # SST Interoperability Toolkit
-![](https://github.com/sabbirahm3d/sit/workflows/continuous%20integration/badge.svg)
+![gcc builds](https://github.com/sabbirahm3d/SIT/workflows/gcc/badge.svg)
+![clang builds](https://github.com/sabbirahm3d/SIT/workflows/clang/badge.svg)
 
 A toolkit to provide interoperability between [Structural Simulation Toolkit (SST)](https://github.com/sstsimulator/sst-core) and external hardware description languages (HDL).
 
