@@ -1,4 +1,4 @@
-name: continuous integration
+name: clang
 
 on: [push]
 
@@ -15,13 +15,11 @@ jobs:
           - ubuntu-20.04
 
         _name:
+          - Clang 6
           - Clang 7
           - Clang 8
           - Clang 9
           - Clang 10
-          - GCC 7
-          - GCC 8
-          - GCC 9
 
         exclude:
 
@@ -32,60 +30,42 @@ jobs:
             _name: "Clang 10"
 
           - os: ubuntu-20.04
+            _name: "Clang 6"
+
+          - os: ubuntu-20.04
             _name: "Clang 7"
 
           - os: ubuntu-20.04
             _name: "Clang 8"
 
-          - os: ubuntu-18.04
-            _name: "GCC 7"
-
-          - os: ubuntu-18.04
-            _name: "GCC 8"
-
-          - os: ubuntu-18.04
-            _name: "GCC 9"
-
         include:
 
           # --------------- Clang on Linux --------------- #
 
+          # Clang 6
+          - _name: "Clang 6"
+            _cxx: "6"
+            _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-6 main"
+
           # Clang 7
           - _name: "Clang 7"
-            _cxx: clang-7
+            _cxx: "7"
             _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-7 main"
 
           # Clang 8
           - _name: "Clang 8"
-            _cxx: clang-8
+            _cxx: "8"
             _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-8 main"
 
           # Clang 9
           - _name: "Clang 9"
-            _cxx: clang-9
+            _cxx: "9"
             _pkg: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-9 main"
 
           # Clang 10
           - _name: "Clang 10"
-            _cxx: clang-10
+            _cxx: "10"
             _pkg: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-10 main"
-
-          # --------------- GCC on Linux --------------- #
-
-          # GCC 7
-          - _name: "GCC 7"
-            _cxx: g++-7
-            _pkg: ppa:ubuntu-toolchain-r/test
-
-          # GCC 8
-          - _name: "GCC 8"
-            _cxx: g++-8
-            _pkg: ppa:ubuntu-toolchain-r/test
-
-          # GCC 9
-          - _name: "GCC 9"
-            _cxx: g++-9
-            _pkg: ppa:ubuntu-toolchain-r/test
 
     steps:
 
@@ -120,8 +100,8 @@ jobs:
 
           # set the proper C++ and MPI compilers
           sudo add-apt-repository "${_PKG}" -y
-          sudo apt install ${_CXX} -y
-          export CXX=$(echo ${_CXX} | sed 's/clang/clang++/g')
+          sudo apt install clang-${_CXX} -y
+          export CXX=clang++-${_CXX}
           export OMPI_CXX=${CXX}
 
           # install necessary packages
@@ -194,4 +174,6 @@ jobs:
 
           # run tests
           cd ../tests
-          make test
+          make systemc
+          make pyrtl
+          make chisel

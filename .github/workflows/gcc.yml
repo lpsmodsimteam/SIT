@@ -1,0 +1,156 @@
+name: gcc
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+
+        os:
+          - ubuntu-18.04
+          - ubuntu-20.04
+
+        _name:
+          - GCC 7
+          - GCC 8
+          - GCC 9
+
+        exclude:
+
+          - os: ubuntu-18.04
+            _name: "GCC 7"
+
+          - os: ubuntu-18.04
+            _name: "GCC 8"
+
+          - os: ubuntu-18.04
+            _name: "GCC 9"
+
+        include:
+
+          # --------------- GCC on Linux --------------- #
+
+          # GCC 7
+          - _name: "GCC 7"
+            _cxx: g++-7
+            _pkg: ppa:ubuntu-toolchain-r/test
+
+          # GCC 8
+          - _name: "GCC 8"
+            _cxx: g++-8
+            _pkg: ppa:ubuntu-toolchain-r/test
+
+          # GCC 9
+          - _name: "GCC 9"
+            _cxx: g++-9
+            _pkg: ppa:ubuntu-toolchain-r/test
+
+    steps:
+
+      - uses: actions/checkout@v1
+
+      - uses: actions/setup-python@v1
+        with:
+          python-version: 3.x
+          architecture: x64
+
+      - uses: actions/setup-java@v1
+        with:
+          java-version: "11.0.5"
+          java-package: jdk
+          architecture: x64
+
+      - name: ${{ matrix._name }}
+        env:
+          _CXX: ${{ matrix._cxx }}
+          _PKG: ${{ matrix._pkg }}
+        run: |
+          # set the maximum number of cores supported on GitHub dockers
+          JOBS=$(nproc --all)
+          echo "Using ${JOBS} processors"
+
+          # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
+          DEPS_DIR="deps"
+          mkdir -p "${DEPS_DIR}"
+
+          # set the proper C++ and MPI compilers
+          sudo apt install ${_CXX} -y
+          export CXX=${_CXX}
+          export OMPI_CXX=${CXX}
+
+          # install necessary packages
+          sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
+
+          # set versions and URLs for requirements
+          CMAKE_VER="3.17.3"
+          CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
+
+          SYSC_VER="2.3.3"
+          SYSC_URL="https://www.accellera.org/images/downloads/standards/systemc/"
+
+          SST_VER="10.0.0"
+          SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+
+          LIBZMQ_VER="4.3.2"
+          CPPZMQ_VER="4.6.0"
+          libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
+          cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
+
+          # download sources for requirements
+          # curl CMake
+          curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
+
+          # curl SST Core
+          curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+          mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
+
+          # curl SystemC
+          curl -L ${SYSC_URL}systemc-${SYSC_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+          mkdir -p ${DEPS_DIR}/systemc-${SYSC_VER}/build
+
+          # curl zmq
+          curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
+          curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
+          mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
+          mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
+
+          # upgrade CMake to a more recent version
+          export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
+
+          # install SST Core
+          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install && cd -
+
+          # install zmq
+          cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install && cd -
+          cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install && cd -
+          pip install pyzmq
+
+          # install SystemC
+          cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install && cd -
+          export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
+
+          # install PyRTL
+          pip install pyrtl
+
+          # install Chisel
+          SBT_VER="1.3.13"
+          curl -L https://piccolo.link/sbt-${SBT_VER}.tgz | tar xz -C ${DEPS_DIR}
+          export PATH=$(realpath ${DEPS_DIR}/sbt/bin):${PATH}
+
+          # install Verilog compilers and simulators
+          sudo apt install iverilog
+          pip install cocotb
+
+          # install boilerplate
+          cd sit
+          source version
+          python setup.py install
+
+          # run tests
+          make systemc
+          make pyrtl
+          make chisel
