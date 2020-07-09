@@ -15,7 +15,6 @@ jobs:
           - ubuntu-20.04
 
         _name:
-          - Clang 6
           - Clang 7
           - Clang 8
           - Clang 9
@@ -30,9 +29,6 @@ jobs:
             _name: "Clang 10"
 
           - os: ubuntu-20.04
-            _name: "Clang 6"
-
-          - os: ubuntu-20.04
             _name: "Clang 7"
 
           - os: ubuntu-20.04
@@ -41,11 +37,6 @@ jobs:
         include:
 
           # --------------- Clang on Linux --------------- #
-
-          # Clang 6
-          - _name: "Clang 6"
-            _cxx: "6"
-            _pkg: "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-6 main"
 
           # Clang 7
           - _name: "Clang 7"
