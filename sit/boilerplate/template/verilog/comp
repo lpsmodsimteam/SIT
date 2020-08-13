@@ -1,4 +1,4 @@
-#include "{lib_dir}sit.hpp"
+#include <sst/sit/sit.hpp>
 
 #include <sst/core/component.h>
 #include <sst/core/interfaces/stringEvent.h>

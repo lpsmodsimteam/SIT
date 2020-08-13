@@ -1,16 +1,19 @@
 #!/usr/bin/env python
 
 import os
+from pathlib import Path
+import re
 from setuptools import setup
 
 from boilerplate import boilerplate
 
-TEMPL_DIR = "boilerplate/template/"
-HDL = (TEMPL_DIR + hdl for hdl in ("chisel", "pyrtl", "systemc", "verilog"))
-
+os.chdir(Path(__file__).parents[0])
+TEMPL_DIR = Path("boilerplate") / "template"
+version_re = re.compile(r"\d.\d.\d")
+print([str(Path(*i.parts[1:])) for i in TEMPL_DIR.glob("*/*")])
 setup(
     name="boilerplate",
-    version=os.environ["SIT_VERSION"],
+    version=version_re.findall(Path("version").read_text())[0],
     description="SST Interoperability Toolkit Boilerplate Black Box Generator",
     long_description=boilerplate.__doc__,
     author="Sabbir Ahmed",
@@ -20,7 +23,7 @@ setup(
     package_dir={
         "boilerplate": "boilerplate"
     },
-    data_files=[
-        (hdl, [hdl + "/" + f for f in os.listdir(hdl)]) for hdl in HDL
-    ],
+    package_data={
+        "boilerplate": [str(Path(*i.parts[1:])) for i in TEMPL_DIR.glob("*/*")]
+    },
 )
