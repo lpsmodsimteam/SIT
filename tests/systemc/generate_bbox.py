@@ -16,8 +16,7 @@ if __name__ == "__main__":
             "DATA_WIDTH": 8,
         },
         desc="Demonstration of a SystemC hardware simulation in SST",
-        lib_dir="../../../../sit/",
-        module_dir="../../common/",
+        module_dir="../../systemc/common/",
     )
     boilerplate_obj.set_ports((
         ("input", "address", "<sc_bv<ADDR_WIDTH>>"),

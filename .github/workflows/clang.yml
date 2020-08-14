@@ -96,7 +96,7 @@ jobs:
           export OMPI_CXX=${CXX}
 
           # install necessary packages
-          sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
+          sudo apt install openmpi-bin
 
           # set versions and URLs for requirements
           CMAKE_VER="3.17.3"

@@ -39,4 +39,23 @@ install(EXPORT SITTargets DESTINATION lib/cmake/SIT)
 install(FILES "${PROJECT_BINARY_DIR}/SITConfigVersion.cmake"
               "${PROJECT_BINARY_DIR}/SITConfig.cmake"
         DESTINATION lib/cmake/SIT)
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/sit/ DESTINATION /usr/local/include/sst/sit)
+
+execute_process(
+    COMMAND which sst-config
+    OUTPUT_VARIABLE SST_CONFIG
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+    COMMAND ${SST_CONFIG} --prefix
+    OUTPUT_VARIABLE _PREFIX
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+execute_process(
+    COMMAND ${SST_CONFIG} --includedir
+    OUTPUT_VARIABLE INCLUDEDIR
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
+get_filename_component(INCLUDEDIR "${INCLUDEDIR}" NAME)
+set(INCLUDEDIR "${_PREFIX}/${INCLUDEDIR}")
+
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/sit/ DESTINATION ${INCLUDEDIR}/sst/sit)
