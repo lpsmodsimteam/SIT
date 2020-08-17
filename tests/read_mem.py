@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 import sys
 
-print("HELL")
 if __name__ == "__main__":
 
     with open(sys.argv[-1]) as mem_dump_file:

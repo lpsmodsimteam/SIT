@@ -4,5 +4,6 @@ project(sock CXX)
 add_executable(ram.o ${CMAKE_BINARY_DIR}/blackboxes/ram_driver.cpp)
 target_link_libraries(ram.o SystemC::systemc)
 
-add_executable(libtests.so ../../unit.cpp ${CMAKE_BINARY_DIR}/blackboxes/ram_comp.cpp)
-_sst_compile_link(libtests.so)
+add_definitions(-DELEM_LIB="systemc${CMAKE_PROJECT_NAME}")
+add_executable(libsystemc${CMAKE_PROJECT_NAME}.so ../unit.cpp ${CMAKE_BINARY_DIR}/blackboxes/ram_comp.cpp)
+_sst_compile_link(libsystemc${CMAKE_PROJECT_NAME}.so)

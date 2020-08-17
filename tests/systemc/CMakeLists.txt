@@ -1,19 +1,8 @@
 cmake_minimum_required(VERSION 3.12)
 project(systemc CXX)
-message(STATUS "YOOOOOOOOOOOo")
-
-# add compiler warnings
-add_compile_options(-Wall -Wextra -Wpedantic)
 
 # -------------------- SYSTEMC CONFIGS --------------------
 set(CMAKE_PREFIX_PATH /opt/systemc)
 find_package(SystemCLanguage CONFIG REQUIRED)
 set(CMAKE_CXX_STANDARD ${SystemC_CXX_STANDARD})
 # -------------------- SYSTEMC CONFIGS --------------------
-
-set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-# if ("${IPC}" STREQUAL "SOCK")
-#     add_subdirectory(sock)
-# elseif ("${IPC}" STREQUAL "ZMQ")
-#     add_subdirectory(zmq)
-# endif ()

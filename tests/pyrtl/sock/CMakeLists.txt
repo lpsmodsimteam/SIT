@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.12)
 project(sock CXX)
 
-add_executable(libtests.so ../../unit.cpp ${CMAKE_BINARY_DIR}/blackboxes/ram_comp.cpp)
-_sst_compile_link(libtests.so)
+add_definitions(-DELEM_LIB="pyrtl${CMAKE_PROJECT_NAME}")
+add_executable(libpyrtl${CMAKE_PROJECT_NAME}.so ../unit.cpp ${CMAKE_BINARY_DIR}/blackboxes/ram_comp.cpp)
+_sst_compile_link(libpyrtl${CMAKE_PROJECT_NAME}.so)

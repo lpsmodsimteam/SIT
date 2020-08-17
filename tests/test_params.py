@@ -28,17 +28,17 @@ def setup(hdl, ipc, comp):
 
     sst.setProgramOption("stopAtCycle", "25us")
 
-    main_comp = sst.Component(comp, "tests." + comp)
+    main_comp = sst.Component(comp, f"{hdl}{ipc}.{comp}")
     main_comp.addParams({
         "clock": CLOCK,
     })
 
-    ram_comp = sst.Component("ram", "tests.ram")
+    ram_comp = sst.Component("ram", f"{hdl}{ipc}.ram")
 
     if hdl == "systemc":
         proc = os.path.join(BASE_PATH, "ram.o")
     elif hdl == "pyrtl":
-        proc = os.path.join(os.path.dirname(BASE_PATH), ipc, "blackboxes", "ram_driver.py")
+        proc = os.path.join(BASE_PATH, "blackboxes", "ram_driver.py")
     elif hdl == "chisel":
         proc = "test:runMain ram.ramMain"
     elif hdl == "verilog":

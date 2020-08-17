@@ -10,6 +10,10 @@
 #include <sst/core/interfaces/stringEvent.h>
 #include <sst/core/link.h>
 
+#ifndef ELEM_LIB
+#define ELEM_LIB ""
+#endif
+
 class unit : public SST::Component {
    public:
     unit(SST::ComponentId_t, SST::Params &);
@@ -26,7 +30,7 @@ class unit : public SST::Component {
 
     // Register the component
     SST_ELI_REGISTER_COMPONENT(unit,     // class
-                               "tests",  // element library
+                               ELEM_LIB,  // element library
                                "unit",   // component
                                SST_ELI_ELEMENT_VERSION(1, 0, 0), "SST parent model",
                                COMPONENT_CATEGORY_UNCATEGORIZED)

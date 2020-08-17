@@ -10,10 +10,9 @@ if __name__ == "__main__":
     boilerplate_obj = Verilog(
         ipc=sys.argv[-1],
         module="ram",
-        lib="tests",
+        lib="verilog" + sys.argv[-1],
         desc="Demonstration of a Verilog hardware simulation in SST",
-        lib_dir="../../../../sit/",
-        module_dir="common/",
+        module_dir="../verilog/common/",
     )
     boilerplate_obj.set_ports((
         ("input", "address", "8"),

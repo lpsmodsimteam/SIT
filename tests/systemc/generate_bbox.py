@@ -10,7 +10,7 @@ if __name__ == "__main__":
     boilerplate_obj = SystemC(
         ipc=sys.argv[-1],
         module="ram",
-        lib="tests",
+        lib="systemc" + sys.argv[-1],
         width_macros={
             "ADDR_WIDTH": 8,
             "DATA_WIDTH": 8,

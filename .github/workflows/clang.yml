@@ -78,10 +78,6 @@ jobs:
           _CXX: ${{ matrix._cxx }}
           _PKG: ${{ matrix._pkg }}
         run: |
-          # set the maximum number of cores supported on GitHub dockers
-          JOBS=$(nproc --all)
-          echo "Using ${JOBS} processors"
-
           # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
           DEPS_DIR="deps"
           mkdir -p "${DEPS_DIR}"
@@ -135,15 +131,15 @@ jobs:
           export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
 
           # install SST Core
-          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install && cd -
+          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j all && sudo make install && cd -
 
           # install zmq
-          cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install && cd -
-          cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j${JOBS} install && cd -
+          cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j install && cd -
+          cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j install && cd -
           pip install pyzmq
 
           # install SystemC
-          cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j${JOBS} && sudo make install && cd -
+          cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j && sudo make install && cd -
           export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
 
           # install PyRTL
@@ -161,10 +157,15 @@ jobs:
           # install boilerplate
           cd sit
           source version
-          python setup.py install
+          mkdir build && cd build
+          cmake ..
+          cd /usr/local/include/sst/sit
+          pip install .
+          cd -
 
           # run tests
-          cd ../tests
-          make systemc
-          make chisel
-          make pyrtl
+          cd ../../tests
+          mkdir -p build && cd build
+          cmake -DHDL=SYSTEMC .. && make -j && make systemc_sock
+          cmake -DHDL=PYRTL .. && make -j && make pyrtl_sock
+          cmake -DHDL=VERILOG .. && make -j && make verilog_sock
