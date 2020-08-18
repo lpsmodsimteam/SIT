@@ -165,7 +165,5 @@ jobs:
           cd ../tests
           mkdir -p build && cd build
           cmake -DHDL=SYSTEMC .. && make -j && make systemc_sock
-          rm -rf *
-          cmake -DHDL=PYRTL .. && make -j && make pyrtl_sock
-          rm -rf *
           cmake -DHDL=VERILOG .. && make -j && make verilog_sock
+          cmake -DHDL=PYRTL .. && make -j && make pyrtl_sock
