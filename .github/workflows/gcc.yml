@@ -153,4 +153,6 @@ jobs:
           mkdir -p build && cd build
           cmake -DHDL=SYSTEMC .. && make -j && make systemc_sock
           cmake -DHDL=VERILOG .. && make -j && make verilog_sock
-          cmake -DHDL=PYRTL .. && make -j && make pyrtl_sock
+          ls blackboxes
+          cmake -DHDL=PYRTL .. && make -j
+          cat CMakeFiles/pyrtl_sock.dir/build.make
