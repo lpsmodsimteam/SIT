@@ -131,7 +131,7 @@ jobs:
           export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
 
           # install SST Core
-          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j all && sudo make install && cd -
+          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure --with-python=/usr/bin/python3-config && make -j all && sudo make install && cd -
 
           # install zmq
           cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j install && cd -
