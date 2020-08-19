@@ -7,13 +7,14 @@ from boilerplate import Chisel
 
 if __name__ == "__main__":
 
+    ipc = sys.argv[-1]
+
     boilerplate_obj = Chisel(
-        ipc=sys.argv[-1],
+        ipc=ipc,
         module="ram",
-        lib="tests",
+        lib="chisel" + ipc,
         desc="Demonstration of a Chisel hardware simulation in SST",
-        lib_dir="../../../../sit/",
-        module_dir="../../common/",
+        module_dir="../../tests/chisel/common/",
     )
     boilerplate_obj.set_ports((
         ("input", "address", "8"),

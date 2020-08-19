@@ -7,12 +7,14 @@ from boilerplate import PyRTL
 
 if __name__ == "__main__":
 
+    ipc = sys.argv[-1]
+
     boilerplate_obj = PyRTL(
-        ipc=sys.argv[-1],
+        ipc=ipc,
         module="ram",
-        lib="pyrtl" + sys.argv[-1],
+        lib="pyrtl" + ipc,
         desc="Demonstration of a PyRTL hardware simulation in SST",
-        module_dir="../../pyrtl/common/",
+        module_dir="../../tests/pyrtl/common/",
     )
     boilerplate_obj.set_ports((
         ("input", "address", "8"),

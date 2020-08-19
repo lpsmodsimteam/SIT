@@ -7,5 +7,5 @@ execute_process(
 )
 
 add_definitions(-DELEM_LIB="verilog${CMAKE_PROJECT_NAME}")
-add_executable(libverilog${CMAKE_PROJECT_NAME}.so ../unit.cpp ${CMAKE_BINARY_DIR}/blackboxes/ram_comp.cpp)
+add_executable(libverilog${CMAKE_PROJECT_NAME}.so ../tests/unit.cpp ${CMAKE_BINARY_DIR}/blackboxes/ram_comp.cpp)
 _sst_compile_link(libverilog${CMAKE_PROJECT_NAME}.so)

@@ -7,12 +7,14 @@ from boilerplate import Verilog
 
 if __name__ == "__main__":
 
+    ipc = sys.argv[-1]
+
     boilerplate_obj = Verilog(
-        ipc=sys.argv[-1],
+        ipc=ipc,
         module="ram",
-        lib="verilog" + sys.argv[-1],
+        lib="verilog" + ipc,
         desc="Demonstration of a Verilog hardware simulation in SST",
-        module_dir="../verilog/common/",
+        module_dir="../tests/verilog/common/",
     )
     boilerplate_obj.set_ports((
         ("input", "address", "8"),

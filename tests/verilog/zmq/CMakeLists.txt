@@ -17,5 +17,5 @@ if (${cppzmq_FOUND})
 endif ()
 
 add_definitions(-DELEM_LIB="pyrtl${CMAKE_PROJECT_NAME}")
-add_executable(libpyrtl${CMAKE_PROJECT_NAME}.so ../unit.cpp ${CMAKE_BINARY_DIR}/blackboxes/ram_comp.cpp)
+add_executable(libpyrtl${CMAKE_PROJECT_NAME}.so ../tests/unit.cpp ${CMAKE_BINARY_DIR}/blackboxes/ram_comp.cpp)
 _sst_compile_link(libpyrtl${CMAKE_PROJECT_NAME}.so)

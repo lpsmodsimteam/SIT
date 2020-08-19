@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(TESTS_DIR ${PROJECT_SOURCE_DIR}/tests)
 
 # add compiler warnings
 add_compile_options(-Wall -Wextra -Wpedantic)
@@ -64,18 +65,18 @@ find_package(SIT CONFIG REQUIRED)
 macro(_sst_run _hdl _ipc)
     add_custom_target(
         ${_hdl}_${_ipc}
-        COMMAND ${SST_BIN} ${PROJECT_SOURCE_DIR}/${_hdl}/${_ipc}/run.py
-        COMMAND python ${PROJECT_SOURCE_DIR}/read_mem.py memory_dump.txt
+        COMMAND ${SST_BIN} ${TESTS_DIR}/${_hdl}/${_ipc}/run.py
+        COMMAND python ${TESTS_DIR}/read_mem.py memory_dump.txt
     )
     execute_process(
-        COMMAND python ${PROJECT_SOURCE_DIR}/${_hdl}/generate_bbox.py ${_ipc}
+        COMMAND python ${TESTS_DIR}/${_hdl}/generate_bbox.py ${_ipc}
     )
-    include(${_hdl}/${_ipc}/CMakeLists.txt)
+    include(${TESTS_DIR}/${_hdl}/${_ipc}/CMakeLists.txt)
 endmacro()
 
 if ("${HDL}" STREQUAL "SYSTEMC")
 
-    include(systemc/CMakeLists.txt)
+    include(${TESTS_DIR}/systemc/CMakeLists.txt)
     _sst_run(systemc sock)
 
 elseif ("${HDL}" STREQUAL "PYRTL")
@@ -85,5 +86,9 @@ elseif ("${HDL}" STREQUAL "PYRTL")
 elseif ("${HDL}" STREQUAL "VERILOG")
 
     _sst_run(verilog sock)
+
+elseif ("${HDL}" STREQUAL "CHISEL")
+
+    _sst_run(chisel sock)
 
 endif()

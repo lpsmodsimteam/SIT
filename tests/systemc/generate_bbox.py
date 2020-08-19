@@ -7,16 +7,18 @@ from boilerplate import SystemC
 
 if __name__ == "__main__":
 
+    ipc = sys.argv[-1]
+
     boilerplate_obj = SystemC(
-        ipc=sys.argv[-1],
+        ipc=ipc,
         module="ram",
-        lib="systemc" + sys.argv[-1],
+        lib="systemc" + ipc,
         width_macros={
             "ADDR_WIDTH": 8,
             "DATA_WIDTH": 8,
         },
         desc="Demonstration of a SystemC hardware simulation in SST",
-        module_dir="../../systemc/common/",
+        module_dir="../../tests/systemc/common/",
     )
     boilerplate_obj.set_ports((
         ("input", "address", "<sc_bv<ADDR_WIDTH>>"),

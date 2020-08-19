@@ -3,7 +3,7 @@
 
 import sys
 
-sys.path.append("..")
+sys.path.append("../tests")
 from test_params import setup
 
 setup("verilog", "zmq", "unit")

@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+from os import environ
+from pathlib import Path
 from random import SystemRandom
 from string import ascii_uppercase, digits
 
 import sst
 
-BASE_PATH = os.getcwd()
+BASE_PATH = Path.cwd()
 CLOCK = "1MHz"
 LINK_SPEED = "1ps"
 
@@ -36,9 +37,9 @@ def setup(hdl, ipc, comp):
     ram_comp = sst.Component("ram", f"{hdl}{ipc}.ram")
 
     if hdl == "systemc":
-        proc = os.path.join(BASE_PATH, "ram.o")
+        proc = BASE_PATH / "ram.o"
     elif hdl == "pyrtl":
-        proc = os.path.join(BASE_PATH, "blackboxes", "ram_driver.py")
+        proc = BASE_PATH / "blackboxes" / "ram_driver.py"
     elif hdl == "chisel":
         proc = "test:runMain ram.ramMain"
     elif hdl == "verilog":
@@ -47,11 +48,12 @@ def setup(hdl, ipc, comp):
             data = json.load(cmd_file)
         for k, v in data.items():
             if k != "FILE":
-                os.environ[k] = v
+                environ[k] = v
             else:
                 proc = v
     else:
         raise NotImplementedError()
+
     ram_comp.addParams({
         "proc": proc,
         "ipc_port": port_prefix + get_rand_tmp(),

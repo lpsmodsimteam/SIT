@@ -36,9 +36,10 @@ configure_package_config_file(
 )
 
 install(EXPORT SITTargets DESTINATION lib/cmake/SIT)
-install(FILES "${PROJECT_BINARY_DIR}/SITConfigVersion.cmake"
-              "${PROJECT_BINARY_DIR}/SITConfig.cmake"
-        DESTINATION lib/cmake/SIT)
+install(
+    FILES "${PROJECT_BINARY_DIR}/SITConfigVersion.cmake" "${PROJECT_BINARY_DIR}/SITConfig.cmake"
+    DESTINATION lib/cmake/SIT
+)
 
 execute_process(
     COMMAND which sst-config
@@ -59,3 +60,5 @@ get_filename_component(INCLUDEDIR "${INCLUDEDIR}" NAME)
 set(INCLUDEDIR "${_PREFIX}/${INCLUDEDIR}")
 
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/sit/ DESTINATION ${INCLUDEDIR}/sst/sit)
+
+include(tests/CMakeLists.txt)
