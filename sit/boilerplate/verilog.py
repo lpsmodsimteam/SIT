@@ -103,7 +103,7 @@ class Verilog(BoilerPlate):
             snippet of code representing output bindings
         """
         return self._sig_fmt(
-            "str(dut.{sig}).encode()",
+            "str(dut.{sig}.value).encode()",
             lambda x: {
                 "sig": x["name"]
             },

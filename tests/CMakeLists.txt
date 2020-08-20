@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
-set(TESTS_DIR ${PROJECT_SOURCE_DIR}/tests)
 
 # add compiler warnings
 add_compile_options(-Wall -Wextra -Wpedantic)
@@ -14,6 +13,8 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 # -------------------- SST CONFIGS --------------------
 find_package(SIT CONFIG)
 if (${SIT_FOUND})
+
+    set(TESTS_DIR ${PROJECT_SOURCE_DIR}/tests)
 
     execute_process(
         COMMAND which sst-config
