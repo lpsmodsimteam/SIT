@@ -149,8 +149,6 @@ jobs:
           cd $(sst-config --prefix)/include/sst/sit && pip install . && cd -
 
           # run tests
-          cd ../tests
-          mkdir -p build && cd build
           cmake -DHDL=SYSTEMC .. && make -j && make systemc_sock
           cmake -DHDL=SYSTEMC -DIPC=zmq .. && make -j && make systemc_zmq
           cmake -DHDL=VERILOG .. && make -j && make verilog_sock
