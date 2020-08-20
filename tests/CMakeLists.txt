@@ -61,34 +61,37 @@ add_custom_target(
 # -------------------- SST CONFIGS --------------------
 
 find_package(SIT CONFIG REQUIRED)
+if (${SIT_FOUND})
 
-macro(_sst_run _hdl _ipc)
-    add_custom_target(
-        ${_hdl}_${_ipc}
-        COMMAND ${SST_BIN} ${TESTS_DIR}/${_hdl}/${_ipc}/run.py
-        COMMAND python ${TESTS_DIR}/read_mem.py memory_dump.txt
-    )
-    execute_process(
-        COMMAND python ${TESTS_DIR}/${_hdl}/generate_bbox.py ${_ipc}
-    )
-    include(${TESTS_DIR}/${_hdl}/${_ipc}/CMakeLists.txt)
-endmacro()
+    macro(_sst_run _hdl _ipc)
+        add_custom_target(
+            ${_hdl}_${_ipc}
+            COMMAND ${SST_BIN} ${TESTS_DIR}/${_hdl}/${_ipc}/run.py
+            COMMAND python ${TESTS_DIR}/read_mem.py memory_dump.txt
+        )
+        execute_process(
+            COMMAND python ${TESTS_DIR}/${_hdl}/generate_bbox.py ${_ipc}
+        )
+        include(${TESTS_DIR}/${_hdl}/${_ipc}/CMakeLists.txt)
+    endmacro()
 
-if ("${HDL}" STREQUAL "SYSTEMC")
+    if ("${HDL}" STREQUAL "SYSTEMC")
 
-    include(${TESTS_DIR}/systemc/CMakeLists.txt)
-    _sst_run(systemc sock)
+        include(${TESTS_DIR}/systemc/CMakeLists.txt)
+        _sst_run(systemc sock)
 
-elseif ("${HDL}" STREQUAL "PYRTL")
+    elseif ("${HDL}" STREQUAL "PYRTL")
 
-    _sst_run(pyrtl sock)
+        _sst_run(pyrtl sock)
 
-elseif ("${HDL}" STREQUAL "VERILOG")
+    elseif ("${HDL}" STREQUAL "VERILOG")
 
-    _sst_run(verilog sock)
+        _sst_run(verilog sock)
 
-elseif ("${HDL}" STREQUAL "CHISEL")
+    elseif ("${HDL}" STREQUAL "CHISEL")
 
-    _sst_run(chisel sock)
+        _sst_run(chisel sock)
+
+    endif()
 
 endif()

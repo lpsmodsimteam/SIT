@@ -118,15 +118,15 @@ jobs:
           export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
 
           # install SST Core
-          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure --with-python=/usr/bin/python3-config && make -j all && sudo make install && cd -
+          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure --with-python=/usr/bin/python3-config && make -j2 all && sudo make install && cd -
 
           # install zmq
-          cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j install && cd -
-          cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j install && cd -
+          cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j2 install && cd -
+          cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j2 install && cd -
           pip install pyzmq
 
           # install SystemC
-          cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j && sudo make install && cd -
+          cd ${DEPS_DIR}/systemc-${SYSC_VER}/build && cmake -DCMAKE_CXX_STANDARD=11 .. && make -j2 && sudo make install && cd -
           export SYSTEMC_DISABLE_COPYRIGHT_MESSAGE=1
 
           # install PyRTL
