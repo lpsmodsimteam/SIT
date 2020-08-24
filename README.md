@@ -121,14 +121,25 @@ Simple unit tests can be ran by the Makefile in the `tests` directory.
 
 ## Installation
 
-The toolkit itself is a collection of static header files that does not require any installation.
+The toolkit itself is a collection of static header files and can be installed as an interface using CMake.
+
+```shell
+mkdir build
+cd build
+cmake ..
+sudo make install
+```
+
 The requirements for the project are listed below.
 
 ### boilerplate
 
-The `boilerplate` module can be installed locally by running the following command:
+The `boilerplate` module can be installed locally by running `pip`:
 ```shell
-cd sit && python setup.py install
+mkdir -p cd $(sst-config --prefix)/include/sst/sit
+
+cd $(sst-config --prefix)/include/sst/sit
+pip install .
 ```
 
 See [Black Box Code Generation](#black-box-code-generation) for its purposes.
@@ -152,9 +163,8 @@ mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
 # install OpenMPI and its dependencies
 sudo apt install libhwloc-dev libopenmpi-dev libtool-bin
 
-SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
-curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C deps  # SST_VER is the version of SST
-cd deps/sstcore-${SST_VER} && ./configure && make -j${JOBS} all && sudo make install
+curl -L ${SST_CORE_URL} | tar xz -C deps
+cd deps/sstcore-* && ./configure && make -j all && sudo make install
 ```
 
 ## Requirements
@@ -177,7 +187,7 @@ project.
 |Library|Version|
 |-------|-------|
 |CMake  |3.14   |
-|SST    |8.0.0  |
+|SST    |10.0.0 |
 
 ### Systems
 
