@@ -136,7 +136,7 @@ The requirements for the project are listed below.
 
 The `boilerplate` module can be installed locally by running `pip`:
 ```shell
-mkdir -p cd $(sst-config --prefix)/include/sst/sit
+mkdir -p $(sst-config --prefix)/include/sst/sit
 
 cd $(sst-config --prefix)/include/sst/sit
 pip install .

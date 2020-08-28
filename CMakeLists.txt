@@ -77,9 +77,16 @@ if (Python3_FOUND)
         COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
     )
     execute_process(
-        COMMAND ${VENV_DIR}/bin/pip install .
-        WORKING_DIRECTORY ${INCLUDEDIR}/sst/sit
+        COMMAND ${VENV_DIR}/bin/pip freeze
+        OUTPUT_VARIABLE PIP_OUTPUT
     )
+    string(FIND "${PIP_OUTPUT}" "boilerplate" MOD_FOUND)
+    if ("${MOD_FOUND}" STREQUAL "-1")
+        execute_process(
+            COMMAND ${VENV_DIR}/bin/pip install .
+            WORKING_DIRECTORY ${INCLUDEDIR}/sst/sit
+        )
+    endif()
 endif()
 
 include(tests/CMakeLists.txt)
