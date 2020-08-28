@@ -81,6 +81,8 @@ jobs:
           # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
           DEPS_DIR="deps"
           mkdir -p "${DEPS_DIR}"
+          python -m venv .venv
+          source .venv/bin/activate
 
           # add LLVM public keys for Clang compilers
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -159,7 +161,6 @@ jobs:
           sudo mkdir -p $(sst-config --prefix)/include/sst/sit
           mkdir -p build
           cd build && cmake .. && sudo make install
-          cd $(sst-config --prefix)/include/sst/sit && pip install . && cd -
 
           # run tests
           cmake -DHDL=SYSTEMC .. && make -j && make systemc_sock

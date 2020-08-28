@@ -5,6 +5,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 # Define the library target
 add_library(SIT INTERFACE)
 target_include_directories(SIT INTERFACE
@@ -19,7 +21,8 @@ write_basic_package_version_file(
     COMPATIBILITY AnyNewerVersion
 )
 
-install(TARGETS SIT
+install(
+    TARGETS SIT
     EXPORT SITTargets
     LIBRARY DESTINATION lib COMPONENT Runtime
     ARCHIVE DESTINATION lib COMPONENT Development
@@ -35,7 +38,10 @@ configure_package_config_file(
     INSTALL_DESTINATION lib/cmake/SIT
 )
 
-install(EXPORT SITTargets DESTINATION lib/cmake/SIT)
+install(
+    EXPORT SITTargets
+    DESTINATION lib/cmake/SIT
+)
 install(
     FILES "${PROJECT_BINARY_DIR}/SITConfigVersion.cmake" "${PROJECT_BINARY_DIR}/SITConfig.cmake"
     DESTINATION lib/cmake/SIT
@@ -59,6 +65,21 @@ execute_process(
 get_filename_component(INCLUDEDIR "${INCLUDEDIR}" NAME)
 set(INCLUDEDIR "${_PREFIX}/${INCLUDEDIR}")
 
-install(DIRECTORY ${PROJECT_SOURCE_DIR}/sit/ DESTINATION ${INCLUDEDIR}/sst/sit)
+install(
+    DIRECTORY ${PROJECT_SOURCE_DIR}/sit/
+    DESTINATION ${INCLUDEDIR}/sst/sit
+)
+
+find_package(Python3 REQUIRED)
+if (Python3_FOUND)
+    set(VENV_DIR ${PROJECT_SOURCE_DIR}/.venv)
+    execute_process(
+        COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
+    )
+    execute_process(
+        COMMAND ${VENV_DIR}/bin/pip install .
+        WORKING_DIRECTORY ${INCLUDEDIR}/sst/sit
+    )
+endif()
 
 include(tests/CMakeLists.txt)
