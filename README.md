@@ -179,10 +179,12 @@ project.
 |C++     |11     |
 |Python  |3.6    |
 
-|Compiler|Version|
-|--------|-------|
-|Clang   |6.0    |
-|GCC     |6.0    |
+#### C++ Compilers
+
+|Version|7.0|8.0|9.0|10.0|
+|-------|:-:|:-:|:-:|:--:|
+|Clang  |✔️ |✔️ |✔️ |✔️  |
+|GCC    |✔️ |✔️ |✔️ |✔️  |
 
 |Library|Version|
 |-------|-------|
@@ -192,4 +194,4 @@ project.
 ### Systems
 
 Due to limitations with SST, this toolkit currently only works on UNIX systems. A list of supported
-Ubuntu Linux distributions can be found in `.github/workflows/main.yml`.
+Ubuntu Linux distributions can be found in `.github/workflows/clang.yml` and `.github/workflows/gcc.yml`.
