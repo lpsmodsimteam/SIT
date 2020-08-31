@@ -18,17 +18,7 @@ jobs:
           - GCC 7
           - GCC 8
           - GCC 9
-
-        exclude:
-
-          - os: ubuntu-18.04
-            _name: "GCC 7"
-
-          - os: ubuntu-18.04
-            _name: "GCC 8"
-
-          - os: ubuntu-18.04
-            _name: "GCC 9"
+          - GCC 10
 
         include:
 
