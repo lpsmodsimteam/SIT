@@ -51,5 +51,42 @@ WORKDIR /opt/
 
 RUN git clone https://github.com/sabbirahm3d/SIT.git
 
+# Following is from https://github.com/sabbirahm3d/SIT/blob/master/.github/workflows/gcc.yml
+RUN add-apt-repository ppa:ubuntu-toolchain-r/test
+RUN apt-get update
 
+RUN apt install -y libhwloc-dev libopenmpi-dev openmpi-bin libtool
+
+# https://cmake.org/download/
+RUN mkdir /opt/cmake/
+RUN curl -L https://github.com/Kitware/CMake/releases/download/v3.19.4/cmake-3.19.4-Linux-x86_64.tar.gz  | tar xz -C /opt/cmake
+ENV PATH="/opt/cmake/cmake-3.19.4-Linux-x86_64/bin/:${PATH}"
+
+
+RUN mkdir /opt/systemc/
+RUN curl -L https://www.accellera.org/images/downloads/standards/systemc/systemc-2.3.3.tar.gz | tar xz -C /opt/systemc
+
+
+ARG LIBZMQ_VER="4.3.2"
+ARG CPPZMQ_VER="4.6.0"
+ARG libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
+ARG cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
+
+RUN mkdir /opt/zmq/
+RUN curl -L ${libzmq_url} | tar xz -C /opt/zmq
+RUN curl -L ${cppzmq_url} | tar xz -C /opt/zmq 
+#RUN mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
+#RUN mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
+
+RUN pip3 install pyzmq
+
+RUN pip3 install pyrtl
+
+RUN apt install -y iverilog
+RUN pip3 install cocotb
+
+RUN mkdir /opt/SIT/build
+WORKDIR /opt/SIT/build
+
+# cmake .. 
 
