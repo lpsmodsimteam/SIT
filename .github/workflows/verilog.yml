@@ -1,4 +1,4 @@
-name: clang builds
+name: verilog builds
 
 on: [push]
 
