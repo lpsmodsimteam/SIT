@@ -96,7 +96,8 @@ jobs:
 
           # set versions and URLs for requirements
           CMAKE_VER="3.23.1"
-          CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
+          CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz"
+          # CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
 
           SST_VER="11.1.0"
           SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
@@ -127,10 +128,10 @@ jobs:
           # install SST Core
           cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j all && sudo make install && cd -
 
-          # install zmq
-          cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j install && cd -
-          cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j install && cd -
-          pip install pyzmq
+          # # install zmq
+          # cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j install && cd -
+          # cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j install && cd -
+          # pip install pyzmq
 
           # install Verilog compilers and simulators
           sudo apt install iverilog
@@ -144,4 +145,4 @@ jobs:
 
           # run tests
           cmake -DHDL=VERILOG .. && make -j && make verilog_sock
-          cmake -DHDL=VERILOG -DIPC=zmq .. && make -j && make verilog_zmq
+          # cmake -DHDL=VERILOG -DIPC=zmq .. && make -j && make verilog_zmq
