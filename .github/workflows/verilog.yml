@@ -12,62 +12,6 @@ jobs:
           - ubuntu-18.04
           - ubuntu-20.04
 
-        # _name:
-        #   - GCC 9
-        #   - GCC 10
-        #   - GCC 11
-
-        #   - Clang 13
-        #   - Clang 14
-
-        # exclude:
-        #   - os: ubuntu-18.04
-        #     _name: "Clang 9"
-
-        #   - os: ubuntu-18.04
-        #     _name: "Clang 10"
-
-        #   - os: ubuntu-20.04
-        #     _name: "Clang 7"
-
-        #   - os: ubuntu-20.04
-        #     _name: "Clang 8"
-
-        # include:
-        #   # --------------- GCC on Linux --------------- #
-
-        #   # GCC 9
-        #   - _name: "GCC 9"
-        #     _cxx: g++-9
-        #     _cxxv: "9"
-        #     _pkg: ppa:ubuntu-toolchain-r/test
-
-        #   # GCC 10
-        #   - _name: "GCC 10"
-        #     _cxx: g++-10
-        #     _cxxv: "10"
-        #     _pkg: ppa:ubuntu-toolchain-r/test
-
-        #   # GCC 10
-        #   - _name: "GCC 11"
-        #     _cxx: g++-11
-        #     _cxxv: "11"
-        #     _pkg: ppa:ubuntu-toolchain-r/test
-
-        #   # --------------- Clang on Linux --------------- #
-
-        #   # Clang 10
-        #   - _name: "Clang 13"
-        #     _cxx: "clang-13"
-        #     _cxxv: "13"
-        #     _pkg: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
-
-        #   # Clang 10
-        #   - _name: "Clang 14"
-        #     _cxx: "clang-14"
-        #     _cxxv: "14"
-        #     _pkg: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main"
-
     steps:
       - uses: actions/checkout@v1
 
@@ -77,16 +21,10 @@ jobs:
           architecture: x64
 
       - name: ${{ matrix.os }}
-        # env:
-        #   _CXX: ${{ matrix._cxx }}
-        #   _CXXV: ${{ matrix._cxxv }}
-        #   _PKG: ${{ matrix._pkg }}
         run: |
           # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
           DEPS_DIR="deps"
           mkdir -p "${DEPS_DIR}"
-          python -m venv .venv
-          source .venv/bin/activate
 
           # add LLVM public keys for Clang compilers
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
@@ -97,15 +35,9 @@ jobs:
           # set versions and URLs for requirements
           CMAKE_VER="3.23.1"
           CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz"
-          # CMAKE_URL="https://cmake.org/files/v${CMAKE_VER%.[0-9]}/cmake-${CMAKE_VER}-Linux-x86_64.tar.gz"
 
           SST_VER="11.1.0"
           SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
-
-          # LIBZMQ_VER="4.3.2"
-          # CPPZMQ_VER="4.6.0"
-          # libzmq_url="https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VER}.tar.gz"
-          # cppzmq_url="https://github.com/zeromq/cppzmq/archive/v${CPPZMQ_VER}.tar.gz"
 
           # download sources for requirements
           # curl CMake
@@ -116,22 +48,11 @@ jobs:
           curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
           mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
 
-          # curl zmq
-          curl -L ${libzmq_url} | tar xz -C ${DEPS_DIR}
-          curl -L ${cppzmq_url} | tar xz -C ${DEPS_DIR}
-          mkdir -p ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build
-          mkdir -p ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build
-
           # upgrade CMake to a more recent version
           export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
 
           # install SST Core
           cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j all && sudo make install && cd -
-
-          # # install zmq
-          # cd ${DEPS_DIR}/libzmq-${LIBZMQ_VER}/build && cmake .. && sudo make -j install && cd -
-          # cd ${DEPS_DIR}/cppzmq-${CPPZMQ_VER}/build && cmake .. && sudo make -j install && cd -
-          # pip install pyzmq
 
           # install Verilog compilers and simulators
           sudo apt install iverilog
@@ -145,4 +66,3 @@ jobs:
 
           # run tests
           cmake -DHDL=VERILOG .. && make -j && make verilog_sock
-          # cmake -DHDL=VERILOG -DIPC=zmq .. && make -j && make verilog_zmq
