@@ -18,11 +18,9 @@ setup(
     long_description=boilerplate.__doc__,
     author="Sabbir Ahmed",
     author_email="ahmed_sabbir@bah.com",
-    url="https://github.com/sabbirahm3d/sit",
+    url="https://github.com/lpsmodsim/sit",
     packages=["boilerplate"],
-    package_dir={
-        "boilerplate": "boilerplate"
-    },
+    package_dir={"boilerplate": "boilerplate"},
     package_data={
         "boilerplate": [str(Path(*i.parts[1:])) for i in TEMPL_DIR.glob("*/*")]
     },

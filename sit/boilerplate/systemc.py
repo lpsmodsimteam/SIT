@@ -11,9 +11,18 @@ from .boilerplate import BoilerPlate
 
 
 class SystemC(BoilerPlate):
-
-    def __init__(self, ipc, module, lib, width_macros=None, module_dir="", lib_dir="", desc="",
-                 driver_template_path="", component_template_path=""):
+    def __init__(
+        self,
+        ipc,
+        module,
+        lib,
+        width_macros=None,
+        module_dir="",
+        lib_dir="",
+        desc="",
+        driver_template_path="",
+        component_template_path="",
+    ):
         """Constructor for SystemC BoilerPlate
 
         Parameters:
@@ -44,7 +53,7 @@ class SystemC(BoilerPlate):
             lib_dir=lib_dir,
             desc=desc,
             driver_template_path=driver_template_path,
-            component_template_path=component_template_path
+            component_template_path=component_template_path,
         )
 
         if self.ipc == "sock":
@@ -73,6 +82,7 @@ class SystemC(BoilerPlate):
         int
             signal width
         """
+
         def __get_ints():
             """Extract integers from signal string
             This is a closure method to keep scope local
@@ -121,10 +131,11 @@ class SystemC(BoilerPlate):
             lambda x: {
                 "sig": x["name"],
                 "precision": f"std::fixed << std::setprecision({self.precision}) << "
-                if self.precision else "",
+                if self.precision
+                else "",
             },
             self.ports["output"],
-            ";\n" + " " * 8
+            ";\n" + " " * 8,
         )
 
     def _get_driver_inputs(self):
@@ -156,9 +167,7 @@ class SystemC(BoilerPlate):
             for clock_port in self.ports["clock"]:
                 driver_inputs.append(
                     clock_fmt.format(
-                        sp=start_pos,
-                        sl=clock_port["len"],
-                        sig=clock_port["name"]
+                        sp=start_pos, sl=clock_port["len"], sig=clock_port["name"]
                     )
                 )
                 start_pos += int(clock_port["len"])
@@ -174,7 +183,9 @@ class SystemC(BoilerPlate):
         str
            string format of driver port definitions
         """
-        return "sc_signal" + ";\n    sc_signal".join(i["type"] + " " + i["name"] for i in self._get_all_ports())
+        return "sc_signal" + ";\n    sc_signal".join(
+            i["type"] + " " + i["name"] for i in self._get_all_ports()
+        )
 
     def __get_driver_bindings(self):
         """Generate port bindings for the black box-driver
@@ -185,8 +196,7 @@ class SystemC(BoilerPlate):
             snippet of code representing port bindings
         """
         return self._sig_fmt(
-            "DUT.{sig}({sig})",
-            lambda x: {"sig": x["name"]}, self._get_all_ports()
+            "DUT.{sig}({sig})", lambda x: {"sig": x["name"]}, self._get_all_ports()
         )
 
     def _get_driver_defs(self):
@@ -223,4 +233,6 @@ class SystemC(BoilerPlate):
         warning : str
             runtime warning to ignore
         """
-        self.disable_warning += f"sc_report_handler::set_actions({warning}, SC_DO_NOTHING);"
+        self.disable_warning += (
+            f"sc_report_handler::set_actions({warning}, SC_DO_NOTHING);"
+        )

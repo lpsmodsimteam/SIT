@@ -11,9 +11,17 @@ from .boilerplate import BoilerPlate
 
 
 class PyRTL(BoilerPlate):
-
-    def __init__(self, ipc, module, lib, module_dir="", lib_dir="", desc="",
-                 driver_template_path="", component_template_path=""):
+    def __init__(
+        self,
+        ipc,
+        module,
+        lib,
+        module_dir="",
+        lib_dir="",
+        desc="",
+        driver_template_path="",
+        component_template_path="",
+    ):
         """Constructor for PyRTL BoilerPlate.
 
         Parameters:
@@ -43,17 +51,21 @@ class PyRTL(BoilerPlate):
             lib_dir=lib_dir,
             desc=desc,
             driver_template_path=driver_template_path,
-            component_template_path=component_template_path
+            component_template_path=component_template_path,
         )
 
         if self.module_dir:
-            self.module_dir = f"sys.path.append(str(Path(__file__).parent / \"{self.module_dir}\"))"
+            self.module_dir = (
+                f'sys.path.append(str(Path(__file__).parent / "{self.module_dir}"))'
+            )
 
         if self.ipc == "sock":
 
             # driver attributes
             self.driver_ipc = "socket"
-            self.driver_bind = "_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"
+            self.driver_bind = (
+                "_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"
+            )
             self.send = "sendall"
             self.connect = "connect"
 
@@ -94,12 +106,9 @@ _sock = context.socket(zmq.REQ)"""
         """
         return self._sig_fmt(
             "str({module}.sim.inspect({module}.{sig})).encode()",
-            lambda x: {
-                "module": self.module,
-                "sig": x["name"]
-            },
+            lambda x: {"module": self.module, "sig": x["name"]},
             self.ports["output"],
-            " +\n" + " " * 8
+            " +\n" + " " * 8,
         )
 
     def _get_driver_inputs(self):
@@ -110,9 +119,9 @@ _sock = context.socket(zmq.REQ)"""
         str
             snippet of code representing input bindings
         """
-        fmt = "\"{sig}\": int(signal[{sp}:{sl}]),"
+        fmt = '"{sig}": int(signal[{sp}:{sl}]),'
         start_pos = 0
-        clock_fmt = "\"{sig}\": int(signal[{sp}:{sl}]) % 2,"
+        clock_fmt = '"{sig}": int(signal[{sp}:{sl}]) % 2,'
         driver_inputs = []
 
         for input_port in self.ports["input"]:
@@ -131,7 +140,7 @@ _sock = context.socket(zmq.REQ)"""
                     clock_fmt.format(
                         sp=start_pos,
                         sl=str(input_port["len"] + start_pos),
-                        sig=clock_port["name"]
+                        sig=clock_port["name"],
                     )
                 )
                 start_pos += int(clock_port["len"])
@@ -154,5 +163,5 @@ _sock = context.socket(zmq.REQ)"""
             "send": self.send,
             "module_dir": self.module_dir,
             "module": self.module,
-            "buf_size": self.driver_buf_size
+            "buf_size": self.driver_buf_size,
         }

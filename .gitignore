@@ -20,6 +20,7 @@ __pycache__/
 .venv/
 
 # generated files and executables
+.build/
 build/
 dist/
 *.egg-info/

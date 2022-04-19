@@ -14,9 +14,17 @@ from .exceptions import IPCException, TemplateFileNotFound
 
 
 class Chisel(BoilerPlate):
-
-    def __init__(self, ipc, module, lib, module_dir="", lib_dir="", desc="",
-                 driver_template_path="", component_template_path=""):
+    def __init__(
+        self,
+        ipc,
+        module,
+        lib,
+        module_dir="",
+        lib_dir="",
+        desc="",
+        driver_template_path="",
+        component_template_path="",
+    ):
         """Constructor for Chisel BoilerPlate.
 
         Parameters:
@@ -46,7 +54,7 @@ class Chisel(BoilerPlate):
             lib_dir=lib_dir,
             desc=desc,
             driver_template_path=driver_template_path,
-            component_template_path=component_template_path
+            component_template_path=component_template_path,
         )
 
         if self.ipc != "sock":
@@ -81,12 +89,9 @@ class Chisel(BoilerPlate):
         """
         return self._sig_fmt(
             "peek(uut.io.{sig}).toString",
-            lambda x: {
-                "module": self.module,
-                "sig": x["name"]
-            },
+            lambda x: {"module": self.module, "sig": x["name"]},
             self.ports["output"],
-            " +\n" + " " * 8
+            " +\n" + " " * 8,
         )
 
     def _get_driver_inputs(self):
@@ -109,7 +114,7 @@ class Chisel(BoilerPlate):
                     sp=start_pos,
                     sl=str(input_port["len"] + start_pos),
                     sig=input_port["name"],
-                    boolcmp=((input_port["len"] == 1) * " == 1")
+                    boolcmp=((input_port["len"] == 1) * " == 1"),
                 )
             )
             start_pos += input_port["len"]
@@ -120,7 +125,7 @@ class Chisel(BoilerPlate):
                     clock_fmt.format(
                         sp=start_pos,
                         sl=str(input_port["len"] + start_pos),
-                        sig=clock_port["name"]
+                        sig=clock_port["name"],
                     )
                 )
                 start_pos += int(clock_port["len"])
@@ -136,10 +141,7 @@ class Chisel(BoilerPlate):
         dict(str:str)
             format mapping of template Chisel driver string
         """
-        return {
-            "module": self.module,
-            "buf_size": self.driver_buf_size
-        }
+        return {"module": self.module, "buf_size": self.driver_buf_size}
 
     def _generate_extra_files(self):
 
@@ -147,12 +149,11 @@ class Chisel(BoilerPlate):
         build_sbt_templ_path = os.path.join(self.template_path, "build.sbt")
         if os.path.isfile(build_sbt_templ_path):
             with open(build_sbt_templ_path) as template:
-                template_str = template.read().format(
-                    module=self.module
-                )
+                template_str = template.read().format(module=self.module)
         else:
             raise TemplateFileNotFound(
-                f"Component boilerplate template file: {build_sbt_templ_path} not found")
+                f"Component boilerplate template file: {build_sbt_templ_path} not found"
+            )
 
         with open(self.sbt_build_path, "w") as build_file:
             build_file.write(template_str)

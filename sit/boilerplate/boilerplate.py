@@ -24,9 +24,18 @@ from .exceptions import *
 
 
 class BoilerPlate(object):
-
-    def __init__(self, ipc, module, lib, width_macros=None, module_dir="", lib_dir="", desc="",
-                 driver_template_path="", component_template_path=""):
+    def __init__(
+        self,
+        ipc,
+        module,
+        lib,
+        width_macros=None,
+        module_dir="",
+        lib_dir="",
+        desc="",
+        driver_template_path="",
+        component_template_path="",
+    ):
         """Constructor for the virtual base class BoilerPlate
 
         Initialize all member port variables and component variables. Only the following methods
@@ -82,19 +91,22 @@ class BoilerPlate(object):
         self.disable_warning = ""
 
         self.hdl_str = self.__class__.__name__.lower()
-        self.template_path = os.path.join(os.path.dirname(__file__), "template", self.hdl_str)
-        self.driver_template_path = driver_template_path if driver_template_path else os.path.join(
-            self.template_path, "driver")
-        self.component_template_path = component_template_path if component_template_path else os.path.join(
-            self.template_path, "comp")
+        self.template_path = os.path.join(
+            os.path.dirname(__file__), "template", self.hdl_str
+        )
+        self.driver_template_path = (
+            driver_template_path
+            if driver_template_path
+            else os.path.join(self.template_path, "driver")
+        )
+        self.component_template_path = (
+            component_template_path
+            if component_template_path
+            else os.path.join(self.template_path, "comp")
+        )
 
         self.width_macros = width_macros if width_macros else {}
-        self.ports = {
-            "clock": [],
-            "input": [],
-            "output": [],
-            "inout": []
-        }
+        self.ports = {"clock": [], "input": [], "output": [], "inout": []}
         self.bbox_dir = "blackboxes"
         self.driver_path = self.comp_path = os.path.join(self.bbox_dir, self.module)
 
@@ -190,11 +202,15 @@ class BoilerPlate(object):
             if len(port) not in (3, 4):
                 raise SignalFormatException("Invalid signal format") from None
             try:
-                self.ports[port[0]].append({
-                    "name": port[1],
-                    "type": port[2],
-                    "len": int(port[-1]) if len(port) == 4 else self._parse_signal_type(port[2])
-                })
+                self.ports[port[0]].append(
+                    {
+                        "name": port[1],
+                        "type": port[2],
+                        "len": int(port[-1])
+                        if len(port) == 4
+                        else self._parse_signal_type(port[2]),
+                    }
+                )
             except KeyError:
                 raise PortException(f"{port[0]} is an invalid port type") from None
 
@@ -206,9 +222,13 @@ class BoilerPlate(object):
         dict(str:str)
             format mapping of template component string
         """
-        self.comp_buf_size = sum(output_port["len"] for output_port in self.ports["output"])
+        self.comp_buf_size = sum(
+            output_port["len"] for output_port in self.ports["output"]
+        )
         if self.precision and self.precision > self.comp_buf_size - 2:
-            print(f"Component buffer size increased from {self.comp_buf_size} to ", end="")
+            print(
+                f"Component buffer size increased from {self.comp_buf_size} to ", end=""
+            )
             self.comp_buf_size += self.precision - 2
             print(f"{self.comp_buf_size} to include specified precision")
 
@@ -219,12 +239,9 @@ class BoilerPlate(object):
             "desc": self.desc,
             "ports": self._sig_fmt(
                 """{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
-                lambda x: {
-                    "link": self.module + x[0],
-                    "desc": self.module + x[-1]
-                },
+                lambda x: {"link": self.module + x[0], "desc": self.module + x[-1]},
                 (("_din", " data in"), ("_dout", " data out")),
-                ",\n" + " " * 8
+                ",\n" + " " * 8,
             ),
             "sig_type": self.sig_type,
             "buf_size": self.comp_buf_size,
@@ -248,12 +265,11 @@ class BoilerPlate(object):
         """
         if os.path.isfile(self.component_template_path):
             with open(self.component_template_path) as template:
-                return template.read().format(
-                    **self.__get_comp_defs()
-                )
+                return template.read().format(**self.__get_comp_defs())
 
         raise TemplateFileNotFound(
-            f"Component boilerplate template file: {self.component_template_path} not found")
+            f"Component boilerplate template file: {self.component_template_path} not found"
+        )
 
     def __generate_driver_str(self):
         """Generate the black box-driver code based on methods used to format
@@ -274,11 +290,12 @@ class BoilerPlate(object):
                 return template.read().format(
                     inputs=self._get_driver_inputs(),
                     outputs=self._get_driver_outputs(),
-                    **self._get_driver_defs()
+                    **self._get_driver_defs(),
                 )
 
         raise TemplateFileNotFound(
-            f"Driver boilerplate template file: {self.driver_template_path} not found")
+            f"Driver boilerplate template file: {self.driver_template_path} not found"
+        )
 
     def generate_bbox(self):
         """Provide a high-level interface to the user to generate both the components of the
@@ -292,7 +309,8 @@ class BoilerPlate(object):
         print("------------------------------------------------------------")
         if not len(self.ports):
             raise PortException(
-                "No ports were set. Make sure to call set_ports() before generating files.")
+                "No ports were set. Make sure to call set_ports() before generating files."
+            )
 
         if not os.path.exists(self.bbox_dir):
             os.makedirs(self.bbox_dir)
@@ -313,9 +331,11 @@ class BoilerPlate(object):
             if self.ports[port_type]:
                 print(f"Port type: {port_type}")
                 for port in self.ports[port_type]:
-                    print(f""" \"{port['name']}\" -> {{{
+                    print(
+                        f""" \"{port['name']}\" -> {{{
                         "data type" if self.hdl_str == "systemc" else "integer width"
-                    }: {port['type']}, length: {port['len']}}}""")
+                    }: {port['type']}, length: {port['len']}}}"""
+                    )
         print(f"Driver buffer size: {self.driver_buf_size}")
         print(f"Component buffer size: {self.comp_buf_size}")
         print("------------------------------------------------------------")
@@ -338,7 +358,9 @@ class BoilerPlate(object):
         try:
             self._fixed_width_float_output()
         except AttributeError:
-            raise APIException(f"fixed_width_float_output() not supported with {self.module}")
+            raise APIException(
+                f"fixed_width_float_output() not supported with {self.module}"
+            )
 
     def disable_runtime_warnings(self, warnings):
         """Generate additional methods to disable driver runtime warnings
@@ -359,7 +381,9 @@ class BoilerPlate(object):
             try:
                 self._disable_runtime_warnings(warning)
             except AttributeError:
-                raise APIException(f"disable_runtime_warnings() not supported with {self.module}")
+                raise APIException(
+                    f"disable_runtime_warnings() not supported with {self.module}"
+                )
 
     @staticmethod
     def _get_ints(signal):

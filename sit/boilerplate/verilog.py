@@ -14,9 +14,17 @@ from .exceptions import TemplateFileNotFound
 
 
 class Verilog(BoilerPlate):
-
-    def __init__(self, ipc, module, lib, module_dir="", lib_dir="", desc="",
-                 driver_template_path="", component_template_path=""):
+    def __init__(
+        self,
+        ipc,
+        module,
+        lib,
+        module_dir="",
+        lib_dir="",
+        desc="",
+        driver_template_path="",
+        component_template_path="",
+    ):
         """Constructor for Verilog BoilerPlate.
 
         Parameters:
@@ -46,14 +54,16 @@ class Verilog(BoilerPlate):
             lib_dir=lib_dir,
             desc=desc,
             driver_template_path=driver_template_path,
-            component_template_path=component_template_path
+            component_template_path=component_template_path,
         )
 
         if self.ipc == "sock":
 
             # driver attributes
             self.driver_ipc = "socket"
-            self.driver_bind = "_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"
+            self.driver_bind = (
+                "_sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)"
+            )
             self.send = "sendall"
             self.connect = "connect"
 
@@ -104,11 +114,9 @@ class Verilog(BoilerPlate):
         """
         return self._sig_fmt(
             "str(dut.{sig}.value).encode()",
-            lambda x: {
-                "sig": x["name"]
-            },
+            lambda x: {"sig": x["name"]},
             self.ports["output"],
-            " +\n" + " " * 8
+            " +\n" + " " * 8,
         )
 
     def _get_driver_inputs(self):
@@ -140,7 +148,7 @@ class Verilog(BoilerPlate):
                     clock_fmt.format(
                         sp=start_pos,
                         sl=str(input_port["len"] + start_pos),
-                        sig=clock_port["name"]
+                        sig=clock_port["name"],
                     )
                 )
                 start_pos += int(clock_port["len"])
@@ -163,7 +171,7 @@ class Verilog(BoilerPlate):
             "send": self.send,
             "module": self.module,
             "module_dir": self.module_dir,
-            "buf_size": self.driver_buf_size
+            "buf_size": self.driver_buf_size,
         }
 
     def _generate_extra_files(self):
@@ -173,12 +181,12 @@ class Verilog(BoilerPlate):
         if os.path.isfile(makefile_templ_path):
             with open(makefile_templ_path) as template:
                 template_str = template.read().format(
-                    module=self.module,
-                    module_dir=os.path.abspath(self.module_dir)
+                    module=self.module, module_dir=os.path.abspath(self.module_dir)
                 )
         else:
             raise TemplateFileNotFound(
-                f"Component boilerplate template file: {makefile_templ_path} not found")
+                f"Component boilerplate template file: {makefile_templ_path} not found"
+            )
 
         with open(self.makefile_path, "w") as makefile:
             makefile.write(template_str)
