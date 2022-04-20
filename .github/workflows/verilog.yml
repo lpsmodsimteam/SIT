@@ -13,33 +13,33 @@ jobs:
           - ubuntu-20.04
 
         _name:
-          - GCC 9
-          - GCC 10
-          - GCC 11
+          # - GCC 9
+          # - GCC 10
+          # - GCC 11
 
           - Clang 13
           - Clang 14
 
         include:
-          # --------------- GCC on Linux --------------- #
+          # # --------------- GCC on Linux --------------- #
 
-          # GCC 9
-          - _name: "GCC 9"
-            _cxx: g++-9
-            _cxxv: "9"
-            _pkg: ppa:ubuntu-toolchain-r/test
+          # # GCC 9
+          # - _name: "GCC 9"
+          #   _cxx: g++-9
+          #   _cxxv: "9"
+          #   _pkg: ppa:ubuntu-toolchain-r/test
 
-          # GCC 10
-          - _name: "GCC 10"
-            _cxx: g++-10
-            _cxxv: "10"
-            _pkg: ppa:ubuntu-toolchain-r/test
+          # # GCC 10
+          # - _name: "GCC 10"
+          #   _cxx: g++-10
+          #   _cxxv: "10"
+          #   _pkg: ppa:ubuntu-toolchain-r/test
 
-          # GCC 10
-          - _name: "GCC 11"
-            _cxx: g++-11
-            _cxxv: "11"
-            _pkg: ppa:ubuntu-toolchain-r/test
+          # # GCC 10
+          # - _name: "GCC 11"
+          #   _cxx: g++-11
+          #   _cxxv: "11"
+          #   _pkg: ppa:ubuntu-toolchain-r/test
 
           # --------------- Clang on Linux --------------- #
 
@@ -79,7 +79,7 @@ jobs:
 
           # set the proper C++ and MPI compilers
           sudo add-apt-repository "${_PKG}" -y
-          sudo apt install clang-${_CXX} -y
+          sudo apt install ${_CXX} -y
           export CXX=clang++-${_CXXV}
 
           # install necessary packages
