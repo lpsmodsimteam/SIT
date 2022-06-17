@@ -127,9 +127,9 @@ class Verilog(BoilerPlate):
         str
             snippet of code representing input bindings
         """
-        fmt = "dut.{sig} = int(signal[{sp}:{sl}])"
+        fmt = "dut.{sig}.value = int(signal[{sp}:{sl}])"
         start_pos = 0
-        clock_fmt = "dut.{sig} = int(signal[{sp}:{sl}]) % 2"
+        clock_fmt = "dut.{sig}.value = int(signal[{sp}:{sl}]) % 2"
         driver_inputs = []
 
         for input_port in self.ports["input"]:

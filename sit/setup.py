@@ -10,7 +10,6 @@ from boilerplate import boilerplate
 os.chdir(Path(__file__).parents[0])
 TEMPL_DIR = Path("boilerplate") / "template"
 version_re = re.compile(r"\d.\d.\d")
-print([str(Path(*i.parts[1:])) for i in TEMPL_DIR.glob("*/*")])
 setup(
     name="boilerplate",
     version=version_re.findall(Path("version").read_text())[0],

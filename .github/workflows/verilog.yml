@@ -108,4 +108,5 @@ jobs:
           source sit/version
           sudo mkdir -p $(sst-config --prefix)/include/sst/sit
           mkdir -p build
+          python sit/setup.py install
           cd build && cmake .. && sudo make install
