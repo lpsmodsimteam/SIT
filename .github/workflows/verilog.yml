@@ -80,7 +80,6 @@ jobs:
 
           # download sources for requirements
           # curl CMake
-          echo "curling ${CMAKE_URL}"
           curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
 
           # upgrade CMake to a more recent version
@@ -109,4 +108,9 @@ jobs:
           sudo mkdir -p $(sst-config --prefix)/include/sst/sit
           mkdir -p build
           python sit/setup.py install
+
+          # build and test SIT
           cd build && cmake .. && sudo make install
+          python ../tests/verilog/generate_bbox.py sock
+          sst ../tests/verilog/sock/run.py
+          python ../tests/read_mem.py memory_dump.txt
