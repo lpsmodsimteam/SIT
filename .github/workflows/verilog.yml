@@ -3,84 +3,73 @@ name: verilog builds
 on: [push]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-
+  setup:
     strategy:
       matrix:
-        os:
-          - ubuntu-18.04
-          - ubuntu-20.04
-
-        _name:
-          # - GCC 9
-          # - GCC 10
-          # - GCC 11
-
-          - Clang 13
-          - Clang 14
+        os: ["ubuntu-18.04", "ubuntu-20.04"]
+        cxx: ["gcc-9", "gcc-10", "gcc-11", "clang-13", "clang-14"]
 
         include:
-          # # --------------- GCC on Linux --------------- #
-
-          # # GCC 9
-          # - _name: "GCC 9"
-          #   _cxx: g++-9
-          #   _cxxv: "9"
-          #   _pkg: ppa:ubuntu-toolchain-r/test
-
-          # # GCC 10
-          # - _name: "GCC 10"
-          #   _cxx: g++-10
-          #   _cxxv: "10"
-          #   _pkg: ppa:ubuntu-toolchain-r/test
-
-          # # GCC 10
-          # - _name: "GCC 11"
-          #   _cxx: g++-11
-          #   _cxxv: "11"
-          #   _pkg: ppa:ubuntu-toolchain-r/test
-
           # --------------- Clang on Linux --------------- #
 
-          # Clang 10
-          - _name: "Clang 13"
-            _cxx: "clang-13"
-            _cxxv: "13"
-            _pkg: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-13 main"
+          # Clang 13
+          - os: "ubuntu-18.04"
+            cxx: "clang-13"
+            cxxv: "13"
+            pkg: "bionic"
 
-          # Clang 10
-          - _name: "Clang 14"
-            _cxx: "clang-14"
-            _cxxv: "14"
-            _pkg: "deb http://apt.llvm.org/focal/ llvm-toolchain-focal-14 main"
+          # Clang 14
+          - os: "ubuntu-18.04"
+            cxx: "clang-14"
+            cxxv: "14"
+            pkg: "bionic"
 
+          # Clang 13
+          - os: "ubuntu-20.04"
+            cxx: "clang-13"
+            cxxv: "13"
+            pkg: "focal"
+
+          # Clang 14
+          - os: "ubuntu-20.04"
+            cxx: "clang-14"
+            cxxv: "14"
+            pkg: "focal"
+
+    runs-on: ${{ matrix.os }}
+    env:
+      DEPS_DIR: deps
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v3
 
       - uses: actions/setup-python@v1
         with:
           python-version: 3.x
           architecture: x64
 
-      - if: "contains( ${{ matrix._cxx }}, 'clang')"
-        name: ${{ matrix.os }}
-        env:
-          _CXX: ${{ matrix._cxx }}
-          _CXXV: ${{ matrix._cxxv }}
-          _PKG: ${{ matrix._pkg }}
+      - if: ${{ startsWith( matrix.cxx, 'clang' ) }}
+        name: Set the compiler as Clang
         run: |
-          # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
-          DEPS_DIR="deps"
-          mkdir -p "${DEPS_DIR}"
-
           # add LLVM public keys for Clang compilers
           wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | sudo apt-key add -
 
           # set the proper C++ and MPI compilers
-          sudo add-apt-repository "${_PKG}" -y
-          sudo apt install ${_CXX} -y
-          export CXX=clang++-${_CXXV}
+          sudo add-apt-repository "deb http://apt.llvm.org/${{ matrix.pkg }}/ llvm-toolchain-${{ matrix.pkg }}-${{ matrix.cxxv }} main" -y
+          sudo apt install ${{ matrix.cxx }} -y
+          export CXX=clang++-${{ matrix.cxxv }}
+
+      - if: ${{ startsWith( matrix.cxx, 'gcc' ) }}
+        name: Set the compiler as GCC
+        run: |
+          # set the proper C++ and MPI compilers
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+          sudo apt install ${{ matrix.cxx }} -y
+          export CXX=${{ matrix.cxx }}
+
+      - name: Install dependencies
+        run: |
+          # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
+          mkdir -p "${DEPS_DIR}"
 
           # install necessary packages
           sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
@@ -89,24 +78,28 @@ jobs:
           CMAKE_VER="3.23.1"
           CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz"
 
-          SST_VER="11.1.0"
-          SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
-
           # download sources for requirements
           # curl CMake
           echo "curling ${CMAKE_URL}"
           curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
 
+          # upgrade CMake to a more recent version
+          export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
+
+      - name: Install SST
+        run: |
+          SST_VER="11.1.0"
+          SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+
           # curl SST Core
           curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
           mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
 
-          # upgrade CMake to a more recent version
-          export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
-
           # install SST Core
-          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make -j all && sudo make install && cd -
+          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make all && sudo make install && cd -
 
+      - name: Install HDLs
+        run: |
           # install Verilog compilers and simulators
           sudo apt install iverilog
           pip install cocotb
@@ -116,6 +109,3 @@ jobs:
           sudo mkdir -p $(sst-config --prefix)/include/sst/sit
           mkdir -p build
           cd build && cmake .. && sudo make install
-
-          # run tests
-          cmake -DHDL=VERILOG .. && make -j && make verilog_sock
