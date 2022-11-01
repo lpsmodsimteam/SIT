@@ -1,62 +1,37 @@
-"""Implementation of the base class of BoilerPlate. This class generates the
-boilerplate code required to build the black box interface in SST
-Interoperability Toolkit.
-
-This class is purely virtual and therefore requires a child class to inherit
-and implement its protected methods. The child class must implement the
-following protected methods:
-- _get_driver_inputs()
-- _get_driver_outputs()
-- _get_driver_defs()
-
-The following public methods are inherited by the child classes and are not
-to be overridden:
-- set_ports(ports)
-- generate_bbox()
-- fixed_width_float_output(precision)
-- disable_runtime_warnings(warnings)
-"""
-
-import math
-import os
-
-from .exceptions import *
-
+from typing import Literal
 
 class BoilerPlate:
     def __init__(
         self,
-        ipc,
-        module,
-        lib,
-        width_macros=None,
-        module_dir="",
-        lib_dir="",
-        desc="",
-        driver_template_path="",
-        component_template_path="",
+        ipc: Literal["sock", "zmq"],
+        module: str,
+        lib: str,
+        width_macros: dict[str, int] | None = None,
+        module_dir: str = "",
+        lib_dir: str = "",
+        desc: str = "",
+        driver_template_path: str = "",
+        component_template_path: str = "",
     ):
         """Constructor for the virtual base class BoilerPlate
 
-        Initialize all member port variables and component variables. Only the
-        following methods are public:
+        Initialize all member port variables and component variables. Only the following methods
+        are public:
         `set_ports(ports)`
         `generate_bbox()`
 
         Parameters:
         -----------
-        ipc : str (options: "sock", "zmq")
+        ipc
             method of IPC
-        module : str
+        module
             SST element component and HDL module name
-        lib : str
+        lib
             SST element library name
-        width_macros : dict(str:[str|int]) (default: dict(None:None))
-            mapping of signal width macros to their integer values. An HDL
-            module may declare constants or user-inputted variables in their
-            implementation to determine signal widths.
-            The module can only know the values of those macros by utilizing
-            this parameter.
+        width_macros
+            mapping of signal width macros to their integer values. An HDL module may declare
+            constants or user-inputted variables in their implementation to determine signal widths.
+            The module can only know the values of those macros by utilizing this parameter.
             Example:
             `width_macros = {
                 "ADDRESS_WIDTH": 16,
@@ -128,7 +103,6 @@ class BoilerPlate:
 
         # shared attributes
         self.sender = self.receiver = "m_signal_io"
-
     @staticmethod
     def _sig_fmt(fmt, split_func, array, delim=";\n    "):
         """Format lists of signals based on fixed arguments
@@ -150,7 +124,6 @@ class BoilerPlate:
             string formatted signals
         """
         return delim.join(fmt.format(**split_func(i)) for i in array)
-
     def _get_signal_width_from_macro(self, signal_type):
         """Get width of a signal type mapped in width_macros
 
@@ -176,10 +149,8 @@ class BoilerPlate:
         raise SignalFormatException(
             f"Invalid macro in signal: {signal_type}"
         ) from None
-
     def _get_all_ports(self):
         """Flatten all types of ports into a single array
-        Ahmed
 
         Returns:
         --------
@@ -187,7 +158,6 @@ class BoilerPlate:
             all ports in a single array
         """
         return (i for sig in self.ports.values() for i in sig)
-
     def set_ports(self, ports):
         """Assign ports to their corresponding member lists
 
@@ -222,7 +192,6 @@ class BoilerPlate:
                 raise PortException(
                     f"{port[0]} is an invalid port type"
                 ) from None
-
     def __get_comp_defs(self):
         """Map definitions for the component format string
 
@@ -261,7 +230,6 @@ class BoilerPlate:
             "sender": self.sender,
             "receiver": self.receiver,
         }
-
     def __generate_comp_str(self):
         """Generate the black box-model code based on methods used to format
         the template file
@@ -283,7 +251,6 @@ class BoilerPlate:
         raise TemplateFileNotFound(
             f"Component boilerplate template file: {self.component_template_path} not found"
         )
-
     def __generate_driver_str(self):
         """Generate the black box-driver code based on methods used to format
         the template file
@@ -309,7 +276,6 @@ class BoilerPlate:
         raise TemplateFileNotFound(
             f"Driver boilerplate template file: {self.driver_template_path} not found"
         )
-
     def generate_bbox(self):
         """Provide a high-level interface to the user to generate both the components of the
         black box and dump them to their corresponding files
@@ -352,7 +318,6 @@ class BoilerPlate:
         print(f"Driver buffer size: {self.driver_buf_size}")
         print(f"Component buffer size: {self.comp_buf_size}")
         print("------------------------------------------------------------")
-
     def fixed_width_float_output(self, precision):
         """Generate additional methods to handle ports with float signals
 
@@ -374,7 +339,6 @@ class BoilerPlate:
             raise APIException(
                 f"fixed_width_float_output() not supported with {self.module}"
             )
-
     def disable_runtime_warnings(self, warnings):
         """Generate additional methods to disable driver runtime warnings
 
@@ -397,36 +361,5 @@ class BoilerPlate:
                 raise APIException(
                     f"disable_runtime_warnings() not supported with {self.module}"
                 )
-
-    @staticmethod
-    def _get_ints(signal):
-        """Extract integers from signal string
-
-        Parameters:
-        -----------
-        signal : str
-            signal data type or integer width
-
-        Returns:
-        --------
-        int
-            string of integer found in signal string
-        """
-        return int("".join(s for s in signal if s.isdigit()))
-
-    @staticmethod
-    def _get_num_digits(signal):
-        """Compute the minimum number of digits required to hold signal data type width by
-        calculating: `floor(log(-1 + 2^x)/log(10)) + 1`
-
-        Parameters:
-        -----------
-        signal : str
-            signal data type width
-
-        Returns:
-        --------
-        int
-            number of digits for signal width
-        """
-        return math.floor(math.log(math.pow(2, signal) - 1) / math.log(10)) + 1
+    def _get_ints(signal: str) -> int: ...
+    def _get_num_digits(signal: int) -> int: ...
