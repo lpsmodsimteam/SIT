@@ -242,19 +242,33 @@ class BoilerPlate:
             self.comp_buf_size += self.precision - 2
             print(f"{self.comp_buf_size} to include specified precision")
 
+        print("HERE----------------------\n")
+        print(
+            self._sig_fmt(
+                fmt="""{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
+                split_func=lambda x: {
+                    "link": self.module + x[0],
+                    "desc": self.module + x[-1],
+                },
+                array=(("_din", " data in"), ("_dout", " data out")),
+                delim=",\n" + " " * 8,
+            )
+        )
+        print("HERE----------------------\n")
+
         return {
             "lib_dir": self.lib_dir,
             "module": self.module,
             "lib": self.lib,
             "desc": self.desc,
             "ports": self._sig_fmt(
-                """{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
-                lambda x: {
+                fmt="""{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
+                split_func=lambda x: {
                     "link": self.module + x[0],
                     "desc": self.module + x[-1],
                 },
-                (("_din", " data in"), ("_dout", " data out")),
-                ",\n" + " " * 8,
+                array=(("_din", " data in"), ("_dout", " data out")),
+                delim=",\n" + " " * 8,
             ),
             "sig_type": self.sig_type,
             "buf_size": self.comp_buf_size,

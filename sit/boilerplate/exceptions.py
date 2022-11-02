@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Custom exceptions for the BoilerPlate base class"""
 
 

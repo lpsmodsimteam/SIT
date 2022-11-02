@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Implementation of the Verilog class
 
 This class inherits from the BoilerPlate base class and implements its own methods of parsing,
@@ -76,7 +73,9 @@ class Verilog(BoilerPlate):
             self.send = "send"
             self.connect = "bind"
 
-        self.makefile_path = self.driver_path.replace(self.module, "Makefile.config")
+        self.makefile_path = self.driver_path.replace(
+            self.module, "Makefile.config"
+        )
         self.driver_path += "_driver.py"
         self.comp_path += "_comp.cpp"
 
@@ -112,11 +111,23 @@ class Verilog(BoilerPlate):
         str
             snippet of code representing output bindings
         """
+
+        print("HERE----------------------\n")
+        print(
+            self._sig_fmt(
+                fmt="str(dut.{sig}.value).encode()",
+                split_func=lambda x: {"sig": x["name"]},
+                array=self.ports["output"],
+                delim=" \n" + (" " * 12) + "+ ",
+            )
+        )
+        print("HERE----------------------\n")
+
         return self._sig_fmt(
-            "str(dut.{sig}.value).encode()",
-            lambda x: {"sig": x["name"]},
-            self.ports["output"],
-            " +\n" + " " * 8,
+            fmt="str(dut.{sig}.value).encode()",
+            split_func=lambda x: {"sig": x["name"]},
+            array=self.ports["output"],
+            delim=" \n" + (" " * 12) + "+ ",
         )
 
     def _get_driver_inputs(self):
@@ -177,11 +188,14 @@ class Verilog(BoilerPlate):
     def _generate_extra_files(self):
 
         template_str = ""
-        makefile_templ_path = os.path.join(self.template_path, "Makefile.config")
+        makefile_templ_path = os.path.join(
+            self.template_path, "Makefile.config"
+        )
         if os.path.isfile(makefile_templ_path):
             with open(makefile_templ_path) as template:
                 template_str = template.read().format(
-                    module=self.module, module_dir=os.path.abspath(self.module_dir)
+                    module=self.module,
+                    module_dir=os.path.abspath(self.module_dir),
                 )
         else:
             raise TemplateFileNotFound(

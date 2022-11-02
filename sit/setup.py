@@ -22,5 +22,6 @@ setup(
     package_dir={"boilerplate": "boilerplate"},
     package_data={
         "boilerplate": [str(Path(*i.parts[1:])) for i in TEMPL_DIR.glob("*/*")]
+        + ["py.typed"]
     },
 )

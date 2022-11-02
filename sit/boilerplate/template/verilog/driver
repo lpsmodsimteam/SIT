@@ -25,7 +25,9 @@ def ram_test(dut):
         {inputs}
         yield cocotb.triggers.Timer(1, units='ns')
 
-        _outputs = {outputs}
+        _outputs = (
+            {outputs}
+        )
         _sock.{send}(_outputs)
 
     _sock.close()
