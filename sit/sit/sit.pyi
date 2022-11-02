@@ -1,6 +1,6 @@
 from typing import Callable, Literal, final
 
-class BoilerPlate:
+class SIT:
     def __init__(
         self,
         ipc: Literal["sock", "zmq"],
@@ -15,10 +15,7 @@ class BoilerPlate:
     ) -> None: ...
     @staticmethod
     def _sig_fmt(
-        fmt: str,
-        split_func: Callable[[str], str],
-        array: list[str],
-        delim: str = ...,
+        fmt: str, split_func: Callable[[str], str], array: list[str], delim: str
     ) -> str: ...
     def _get_signal_width_from_macro(self, signal_type: str) -> str: ...
     def _get_all_ports(self) -> None: ...

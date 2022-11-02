@@ -1,17 +1,17 @@
-class BoilerPlateError(Exception):
+class SITError(Exception):
     def __init__(self) -> None: ...
 
-class APIException(BoilerPlateError):
+class APIException(SITError):
     def __init__(self, message: str) -> None: ...
 
-class IPCException(BoilerPlateError):
+class IPCException(SITError):
     def __init__(self, message: str) -> None: ...
 
-class PortException(BoilerPlateError):
+class PortException(SITError):
     def __init__(self, message: str) -> None: ...
 
-class SignalFormatException(BoilerPlateError):
+class SignalFormatException(SITError):
     def __init__(self, message: str) -> None: ...
 
-class TemplateFileNotFound(BoilerPlateError):
+class TemplateFileNotFound(SITError):
     def __init__(self, message: str) -> None: ...

@@ -1,19 +1,17 @@
-import sys
-
-from boilerplate import Verilog
+from sit import SITVerilog
 
 if __name__ == "__main__":
 
-    ipc = sys.argv[-1]
+    ipc = "sock"
 
-    boilerplate_obj = Verilog(
+    sit_obj = SITVerilog(
         ipc=ipc,
         module="ram",
         lib="verilog" + ipc,
         desc="Demonstration of a Verilog hardware simulation in SST",
         module_dir="../tests/verilog/common/",
     )
-    boilerplate_obj.set_ports(
+    sit_obj.set_ports(
         (
             ("input", "address", "8"),
             ("input", "cs", "1"),
@@ -23,4 +21,4 @@ if __name__ == "__main__":
             ("output", "data_out", "8b"),
         )
     )
-    boilerplate_obj.generate_bbox()
+    sit_obj.generate_bbox()

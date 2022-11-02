@@ -1,16 +1,16 @@
 """Implementation of the Verilog class
 
-This class inherits from the BoilerPlate base class and implements its own methods of parsing,
+This class inherits from the SIT base class and implements its own methods of parsing,
 modifying and generating boilerplate code for its specific paradigms.
 """
 
 import os
 
-from .boilerplate import BoilerPlate
+from .sit import SIT
 from .exceptions import TemplateFileNotFound
 
 
-class Verilog(BoilerPlate):
+class Verilog(SIT):
     def __init__(
         self,
         ipc,
@@ -22,7 +22,7 @@ class Verilog(BoilerPlate):
         driver_template_path="",
         component_template_path="",
     ):
-        """Constructor for Verilog BoilerPlate.
+        """Constructor for Verilog SIT.
 
         Parameters:
         -----------
@@ -111,18 +111,6 @@ class Verilog(BoilerPlate):
         str
             snippet of code representing output bindings
         """
-
-        print("HERE----------------------\n")
-        print(
-            self._sig_fmt(
-                fmt="str(dut.{sig}.value).encode()",
-                split_func=lambda x: {"sig": x["name"]},
-                array=self.ports["output"],
-                delim=" \n" + (" " * 12) + "+ ",
-            )
-        )
-        print("HERE----------------------\n")
-
         return self._sig_fmt(
             fmt="str(dut.{sig}.value).encode()",
             split_func=lambda x: {"sig": x["name"]},

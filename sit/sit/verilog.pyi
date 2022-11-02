@@ -1,8 +1,8 @@
 from typing import Literal
 
-from .boilerplate import BoilerPlate
+from .sit import SIT
 
-class Verilog(BoilerPlate):
+class Verilog(SIT):
     def __init__(
         self,
         ipc: Literal["sock", "zmq"],

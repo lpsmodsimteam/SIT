@@ -1,4 +1,4 @@
-"""Implementation of the base class of BoilerPlate. This class generates the
+"""Implementation of the base class of SIT. This class generates the
 boilerplate code required to build the black box interface in SST
 Interoperability Toolkit.
 
@@ -23,7 +23,7 @@ import os
 from .exceptions import *
 
 
-class BoilerPlate:
+class SIT:
     def __init__(
         self,
         ipc,
@@ -36,7 +36,7 @@ class BoilerPlate:
         driver_template_path="",
         component_template_path="",
     ):
-        """Constructor for the virtual base class BoilerPlate
+        """Constructor for the virtual base class SIT
 
         Initialize all member port variables and component variables. Only the
         following methods are public:
@@ -130,7 +130,7 @@ class BoilerPlate:
         self.sender = self.receiver = "m_signal_io"
 
     @staticmethod
-    def _sig_fmt(fmt, split_func, array, delim=";\n    "):
+    def _sig_fmt(fmt, split_func, array, delim):
         """Format lists of signals based on fixed arguments
 
         Parameters:
@@ -241,20 +241,6 @@ class BoilerPlate:
             )
             self.comp_buf_size += self.precision - 2
             print(f"{self.comp_buf_size} to include specified precision")
-
-        print("HERE----------------------\n")
-        print(
-            self._sig_fmt(
-                fmt="""{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
-                split_func=lambda x: {
-                    "link": self.module + x[0],
-                    "desc": self.module + x[-1],
-                },
-                array=(("_din", " data in"), ("_dout", " data out")),
-                delim=",\n" + " " * 8,
-            )
-        )
-        print("HERE----------------------\n")
 
         return {
             "lib_dir": self.lib_dir,
