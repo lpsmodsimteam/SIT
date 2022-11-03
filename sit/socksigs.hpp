@@ -16,20 +16,20 @@
  * This class inherits the abstract sigutils::SignalIO base class.
  */
 class SocketSignal : public SignalIO {
-   private:
+private:
     // flag to determine the options for setting up the sockets
     bool m_server_side;
     int m_socket, m_rd_socket;
     struct sockaddr_un m_addr;
 
-   public:
+public:
     explicit SocketSignal(int, bool = true);
 
     ~SocketSignal();
 
-    void set_addr(const std::string &);
+    void set_addr(const std::string&);
 
-    void set_addr(const std::string &, const std::string &) = delete;
+    void set_addr(const std::string&, const std::string&) = delete;
 
     void send() override;
 
@@ -43,16 +43,13 @@ class SocketSignal : public SignalIO {
  *
  * Arguments:
  *     socket -- Unix domain socket
- *     server_side (default: true) -- Flag is set to true for parent processes. The child processes
- *                                    need to set the parameter to false to set up the connection
- *                                    properly.
+ *     server_side (default: true) -- Flag is set to true for parent processes.
+ * The child processes need to set the parameter to false to set up the
+ * connection properly.
  */
 inline SocketSignal::SocketSignal(int buf_size, bool server_side)
-    : SignalIO(buf_size),
-      m_server_side(server_side),
-      m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
-      m_rd_socket(0),
-      m_addr({}) {}
+    : SignalIO(buf_size), m_server_side(server_side),
+      m_socket(socket(AF_UNIX, SOCK_STREAM, 0)), m_rd_socket(0), m_addr({}) {}
 
 /*
  * Unlinks and closes the sockets after use
@@ -69,7 +66,7 @@ inline SocketSignal::~SocketSignal() {
  * Arguments:
  *     addr -- Unix domain socket address
  */
-inline void SocketSignal::set_addr(const std::string &addr) {
+inline void SocketSignal::set_addr(const std::string& addr) {
     if (m_socket < 0) {
         perror("Socket creation\n");
     }
@@ -80,7 +77,7 @@ inline void SocketSignal::set_addr(const std::string &addr) {
 
     // parent process socket options
     if (m_server_side) {
-        if (bind(m_socket, (struct sockaddr *)&m_addr, sizeof(m_addr)) < 0) {
+        if (bind(m_socket, (struct sockaddr*)&m_addr, sizeof(m_addr)) < 0) {
             perror("Bind failed\n");
         }
 
@@ -89,13 +86,14 @@ inline void SocketSignal::set_addr(const std::string &addr) {
         }
 
         socklen_t addr_len = sizeof(m_addr);
-        if ((m_rd_socket = accept(m_socket, (struct sockaddr *)&m_addr, &addr_len)) < 0) {
+        if ((m_rd_socket =
+                 accept(m_socket, (struct sockaddr*)&m_addr, &addr_len)) < 0) {
             perror("Accept failed\n");
         }
 
-    } else {  // child process socket options
+    } else { // child process socket options
 
-        if (connect(m_socket, (struct sockaddr *)&m_addr, sizeof(m_addr)) < 0) {
+        if (connect(m_socket, (struct sockaddr*)&m_addr, sizeof(m_addr)) < 0) {
             perror("Connection failed\n");
         }
     }
@@ -112,7 +110,8 @@ inline void SocketSignal::send() {
  * Receives data and unpacks the buffer
  */
 inline void SocketSignal::recv() {
-    m_data[read((m_server_side ? m_rd_socket : m_socket), m_data, m_buf_size)] = '\0';
+    m_data[read((m_server_side ? m_rd_socket : m_socket), m_data, m_buf_size)] =
+        '\0';
 }
 
-#endif  // SOCKSIGS
+#endif // SOCKSIGS

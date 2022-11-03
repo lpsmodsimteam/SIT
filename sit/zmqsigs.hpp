@@ -12,24 +12,25 @@
 /*
  * Implements methods to receive signals via ZeroMQ.
  *
- * This class inherits the abstract sigutils::SignalIO base class and implicitly overrides some
- * non-virtual base methods to implement only the receiving functionality.
+ * This class inherits the abstract sigutils::SignalIO base class and implicitly
+ * overrides some non-virtual base methods to implement only the receiving
+ * functionality.
  */
 class ZMQSignal : public SignalIO {
-   private:
+private:
     bool m_server_side;
     zmq::context_t m_context;
     zmq::socket_t m_socket;
     zmq::message_t m_msg;
 
-   public:
+public:
     explicit ZMQSignal(int, bool = true);
 
     ~ZMQSignal();
 
-    void set_addr(const std::string &);
+    void set_addr(const std::string&);
 
-    void set_addr(const std::string &, const std::string &) = delete;
+    void set_addr(const std::string&, const std::string&) = delete;
 
     void recv() override;
 
@@ -42,18 +43,18 @@ class ZMQSignal : public SignalIO {
  * Initializes the ZeroMQ sockets
  *
  * Arguments:
- *     num_ports -- Number of ports used in the black box interface. This number is usually 1
- *                  greater than the total number of the SystemC module ports
+ *     num_ports -- Number of ports used in the black box interface. This number
+ * is usually 1 greater than the total number of the SystemC module ports
  */
 inline ZMQSignal::ZMQSignal(int buf_size, bool server_side)
-    : SignalIO(buf_size),
-      m_server_side(server_side),
-      m_context(1),
+    : SignalIO(buf_size), m_server_side(server_side), m_context(1),
       m_socket(m_context, (m_server_side ? ZMQ_REP : ZMQ_REQ)) {}
 
-inline ZMQSignal::~ZMQSignal() { m_socket.close(); }
+inline ZMQSignal::~ZMQSignal() {
+    m_socket.close();
+}
 
-inline void ZMQSignal::set_addr(const std::string &addr) {
+inline void ZMQSignal::set_addr(const std::string& addr) {
     (m_server_side) ? m_socket.connect(addr) : m_socket.bind(addr);
 }
 
@@ -75,4 +76,4 @@ inline void ZMQSignal::send() {
     m_socket.send(m_msg, zmq::send_flags::none);
 }
 
-#endif  // ZMQSIGS
+#endif // ZMQSIGS

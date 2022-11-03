@@ -13,4 +13,4 @@
 #include "zmqsigs.hpp"
 #endif
 
-#endif  // SIT
+#endif // SIT
