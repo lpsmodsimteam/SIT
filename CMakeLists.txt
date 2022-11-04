@@ -10,8 +10,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # Define the library target
 add_library(SIT INTERFACE)
 target_include_directories(SIT INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/sit>
-    $<INSTALL_INTERFACE:sit>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+    $<INSTALL_INTERFACE:src>
 )
 
 include(CMakePackageConfigHelpers)
@@ -66,27 +66,27 @@ get_filename_component(INCLUDEDIR "${INCLUDEDIR}" NAME)
 set(INCLUDEDIR "${_PREFIX}/${INCLUDEDIR}")
 
 install(
-    DIRECTORY ${PROJECT_SOURCE_DIR}/sit/
+    DIRECTORY ${PROJECT_SOURCE_DIR}/src/
     DESTINATION ${INCLUDEDIR}/sst/sit
 )
 
-find_package(Python3 REQUIRED)
-if (Python3_FOUND)
-    set(VENV_DIR ${PROJECT_SOURCE_DIR}/.venv)
-    execute_process(
-        COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
-    )
-    execute_process(
-        COMMAND ${VENV_DIR}/bin/pip freeze
-        OUTPUT_VARIABLE PIP_OUTPUT
-    )
-    string(FIND "${PIP_OUTPUT}" "boilerplate" MOD_FOUND)
-    if ("${MOD_FOUND}" STREQUAL "-1")
-        execute_process(
-            COMMAND ${VENV_DIR}/bin/pip install .
-            WORKING_DIRECTORY ${INCLUDEDIR}/sst/sit
-        )
-    endif()
-endif()
+# find_package(Python3 REQUIRED)
+# if (Python3_FOUND)
+#     set(VENV_DIR ${PROJECT_SOURCE_DIR}/.venv)
+#     execute_process(
+#         COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
+#     )
+#     execute_process(
+#         COMMAND ${VENV_DIR}/bin/pip freeze
+#         OUTPUT_VARIABLE PIP_OUTPUT
+#     )
+#     string(FIND "${PIP_OUTPUT}" "sit" MOD_FOUND)
+#     if ("${MOD_FOUND}" STREQUAL "-1")
+#         execute_process(
+#             COMMAND ${VENV_DIR}/bin/pip install .
+#             WORKING_DIRECTORY ${INCLUDEDIR}/sst/sit
+#         )
+#     endif()
+# endif()
 
 include(tests/CMakeLists.txt)
