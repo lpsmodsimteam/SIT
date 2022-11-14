@@ -1,117 +1,117 @@
-name: verilog builds
+# name: verilog builds
 
-on: [push]
+# on: [push]
 
-jobs:
-  setup:
-    strategy:
-      matrix:
-        os: ["ubuntu-18.04", "ubuntu-20.04"]
-        cxx: ["gcc", "clang"]
-        version: ["9", "10", "11", "13", "14"]
+# jobs:
+#   setup:
+#     strategy:
+#       matrix:
+#         os: ["ubuntu-18.04", "ubuntu-20.04"]
+#         cxx: ["gcc", "clang"]
+#         version: ["9", "10", "11", "13", "14"]
 
-        exclude:
-          # GCC 13
-          - cxx: "gcc"
-            version: "13"
+#         exclude:
+#           # GCC 13
+#           - cxx: "gcc"
+#             version: "13"
 
-          # GCC 14
-          - cxx: "gcc"
-            version: "14"
+#           # GCC 14
+#           - cxx: "gcc"
+#             version: "14"
 
-          # Clang 9
-          - cxx: "clang"
-            version: "9"
+#           # Clang 9
+#           - cxx: "clang"
+#             version: "9"
 
-          # Clang 10
-          - cxx: "clang"
-            version: "10"
+#           # Clang 10
+#           - cxx: "clang"
+#             version: "10"
 
-          # Clang 11
-          - cxx: "clang"
-            version: "11"
+#           # Clang 11
+#           - cxx: "clang"
+#             version: "11"
 
-    runs-on: ${{ matrix.os }}
-    env:
-      DEPS_DIR: deps
-    steps:
-      - uses: actions/checkout@v3
+#     runs-on: ${{ matrix.os }}
+#     env:
+#       DEPS_DIR: deps
+#     steps:
+#       - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v1
-        with:
-          python-version: 3.x
-          architecture: x64
+#       - uses: actions/setup-python@v1
+#         with:
+#           python-version: 3.x
+#           architecture: x64
 
-      - name: Set the compiler as Clang
-        if: ${{ matrix.cxx == 'clang' }}
-        uses: egor-tensin/setup-clang@v1
-        with:
-          version: ${{ matrix.version }}
+#       - name: Set the compiler as Clang
+#         if: ${{ matrix.cxx == 'clang' }}
+#         uses: egor-tensin/setup-clang@v1
+#         with:
+#           version: ${{ matrix.version }}
 
-      - name: Set the compiler as GCC
-        if: ${{ matrix.cxx == 'gcc' }}
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: ${{ matrix.version }}
+#       - name: Set the compiler as GCC
+#         if: ${{ matrix.cxx == 'gcc' }}
+#         uses: egor-tensin/setup-gcc@v1
+#         with:
+#           version: ${{ matrix.version }}
 
-      - name: Set compiler paths
-        run: |
-          echo "CXX=/usr/local/bin/c++" >> $GITHUB_ENV
-          echo "CC=/usr/local/bin/cc" >> $GITHUB_ENV
+#       - name: Set compiler paths
+#         run: |
+#           echo "CXX=/usr/local/bin/c++" >> $GITHUB_ENV
+#           echo "CC=/usr/local/bin/cc" >> $GITHUB_ENV
 
-      - name: Install dependencies
-        run: |
+#       - name: Install dependencies
+#         run: |
 
-          # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
-          mkdir -p "${DEPS_DIR}"
+#           # dependencies required by the CI are installed in ${BUILD_DIR}/deps/
+#           mkdir -p "${DEPS_DIR}"
 
-          # install necessary packages
-          sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
+#           # install necessary packages
+#           sudo apt install libhwloc-dev libopenmpi-dev openmpi-bin libtool
 
-          # set versions and URLs for requirements
-          CMAKE_VER="3.24.2"
-          CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz"
+#           # set versions and URLs for requirements
+#           CMAKE_VER="3.24.2"
+#           CMAKE_URL="https://github.com/Kitware/CMake/releases/download/v${CMAKE_VER}/cmake-${CMAKE_VER}-linux-x86_64.tar.gz"
 
-          # download sources for requirements
-          # curl CMake
-          curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
+#           # download sources for requirements
+#           # curl CMake
+#           curl -L ${CMAKE_URL} | tar xz -C ${DEPS_DIR}
 
-          # upgrade CMake to a more recent version
-          export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
+#           # upgrade CMake to a more recent version
+#           export PATH=$(realpath ${DEPS_DIR}/cmake-${CMAKE_VER}-Linux-x86_64/bin):${PATH}
 
-      - name: Install SST
-        run: |
+#       - name: Install SST
+#         run: |
 
-          export CXX=${{ env.CXX }}
-          export CC=${{ env.CC }}
-          $CXX --version
-          $CC --version
+#           export CXX=${{ env.CXX }}
+#           export CC=${{ env.CC }}
+#           $CXX --version
+#           $CC --version
 
-          SST_VER="12.0.1"
-          SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
+#           SST_VER="12.0.1"
+#           SST_CORE_URL="https://github.com/sstsimulator/sst-core/releases/download/v${SST_VER}_Final/"
 
-          # curl SST Core
-          curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
-          mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
+#           # curl SST Core
+#           curl -L ${SST_CORE_URL}sstcore-${SST_VER}.tar.gz | tar xz -C ${DEPS_DIR}
+#           mkdir -p ~/.sst && touch ~/.sst/sstsimulator.conf
 
-          # install SST Core
-          cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make all && sudo make install && cd -
+#           # install SST Core
+#           cd ${DEPS_DIR}/sstcore-${SST_VER} && ./configure && make all && sudo make install && cd -
 
-      - name: Install HDLs
-        run: |
+#       - name: Install HDLs
+#         run: |
 
-          # install Verilog compilers and simulators
-          sudo apt install iverilog
-          pip install cocotb
+#           # install Verilog compilers and simulators
+#           sudo apt install iverilog
+#           pip install cocotb
 
-          # install boilerplate
-          source sit/version
-          sudo mkdir -p $(sst-config --prefix)/include/sst/sit
-          mkdir -p build
-          python sit/setup.py install
+#           # install boilerplate
+#           source sit/version
+#           sudo mkdir -p $(sst-config --prefix)/include/sst/sit
+#           mkdir -p build
+#           python sit/setup.py install
 
-          # build and test SIT
-          cd build && cmake .. && sudo make install
-          python ../tests/verilog/generate_bbox.py sock
-          sst ../tests/verilog/sock/run.py
-          python ../tests/read_mem.py memory_dump.txt
+#           # build and test SIT
+#           cd build && cmake .. && sudo make install
+#           python ../tests/verilog/generate_bbox.py sock
+#           sst ../tests/verilog/sock/run.py
+#           python ../tests/read_mem.py memory_dump.txt
