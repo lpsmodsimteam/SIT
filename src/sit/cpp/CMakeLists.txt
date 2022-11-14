@@ -10,14 +10,18 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 # Define the library target
 add_library(SIT INTERFACE)
 target_include_directories(SIT INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-    $<INSTALL_INTERFACE:src>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/libsit>
+    $<INSTALL_INTERFACE:libsit>
 )
+
+execute_process(COMMAND python -c "import sit; print(sit.VERSION)"
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    OUTPUT_VARIABLE SIT_VERSION)
 
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
     "${PROJECT_BINARY_DIR}/SITConfigVersion.cmake"
-    VERSION $ENV{SIT_VERSION}
+    VERSION ${SIT_VERSION}
     COMPATIBILITY AnyNewerVersion
 )
 
@@ -66,7 +70,7 @@ get_filename_component(INCLUDEDIR "${INCLUDEDIR}" NAME)
 set(INCLUDEDIR "${_PREFIX}/${INCLUDEDIR}")
 
 install(
-    DIRECTORY ${PROJECT_SOURCE_DIR}/src/
+    DIRECTORY ${PROJECT_SOURCE_DIR}/libsit/
     DESTINATION ${INCLUDEDIR}/sst/sit
 )
 
@@ -89,4 +93,4 @@ install(
 #     endif()
 # endif()
 
-include(tests/CMakeLists.txt)
+include(../../../tests/CMakeLists.txt)
