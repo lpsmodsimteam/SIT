@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "sst_it"
-version = "1.0.0"
-authors = [{ name="ribbas", email="ahmed_sabbir@bah.com" }]
+version = "1.0.1"
+authors = [{ name="lpsmodsim", email="modsim@lps.umd.edu" }]
 description = "SST Interoperability Toolkit"
 readme = "README.md"
 license = { file="LICENSE" }

@@ -1,3 +1,4 @@
+import sysconfig
 import pathlib
 import subprocess
 
@@ -37,7 +38,9 @@ class LibraryManager:
     def __init__(self):
 
         cmd = Commands()
-        self.lib_dir = pathlib.Path.cwd() / "src/sit/cpp/"
+        self.lib_dir = (
+            pathlib.Path(sysconfig.get_paths()["purelib"]) / "sit/cpp"
+        )
         self.dest_dir = cmd.get_dest_dir()
 
     def is_installed(self):

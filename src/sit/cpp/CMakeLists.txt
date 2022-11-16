@@ -14,7 +14,8 @@ target_include_directories(SIT INTERFACE
     $<INSTALL_INTERFACE:libsit>
 )
 
-execute_process(COMMAND python -c "import sit; print(sit.VERSION)"
+execute_process(
+    COMMAND python -c "import pkg_resources; print(pkg_resources.get_distribution('sst_it').version)"
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
     OUTPUT_VARIABLE SIT_VERSION)
 
@@ -74,23 +75,4 @@ install(
     DESTINATION ${INCLUDEDIR}/sst/sit
 )
 
-# find_package(Python3 REQUIRED)
-# if (Python3_FOUND)
-#     set(VENV_DIR ${PROJECT_SOURCE_DIR}/.venv)
-#     execute_process(
-#         COMMAND ${Python3_EXECUTABLE} -m venv ${VENV_DIR}
-#     )
-#     execute_process(
-#         COMMAND ${VENV_DIR}/bin/pip freeze
-#         OUTPUT_VARIABLE PIP_OUTPUT
-#     )
-#     string(FIND "${PIP_OUTPUT}" "sit" MOD_FOUND)
-#     if ("${MOD_FOUND}" STREQUAL "-1")
-#         execute_process(
-#             COMMAND ${VENV_DIR}/bin/pip install .
-#             WORKING_DIRECTORY ${INCLUDEDIR}/sst/sit
-#         )
-#     endif()
-# endif()
-
-include(../../../tests/CMakeLists.txt)
+# include(../../../tests/CMakeLists.txt)
