@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sst_it"
+version = "1.0.1"
+authors = [{ name="lpsmodsim", email="modsim@lps.umd.edu" }]
+description = "SST Interoperability Toolkit"
+readme = "README.md"
+license = { file="LICENSE" }
+requires-python = ">=3.6"
+dependencies = [
+    "cocotb",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/lpsmodsim/SIT"
+
+[tool.setuptools.packages.find]
+where = ["src"]

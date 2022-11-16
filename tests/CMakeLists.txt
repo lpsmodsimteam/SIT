@@ -12,7 +12,7 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 find_package(SIT CONFIG)
 if (${SIT_FOUND})
 
-    set(TESTS_DIR ${PROJECT_SOURCE_DIR}/tests)
+    set(TESTS_DIR ${CMAKE_BINARY_DIR}/../tests)
 
     execute_process(
         COMMAND which sst-config

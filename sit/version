@@ -1,3 +1,0 @@
-#! /bin/sh
-
-export SIT_VERSION="0.9.5"

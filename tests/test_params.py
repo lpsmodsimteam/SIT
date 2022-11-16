@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 from os import environ
 from pathlib import Path
 from random import SystemRandom
@@ -14,7 +11,7 @@ LINK_SPEED = "1ps"
 
 
 def get_rand_tmp():
-    return ''.join(
+    return "".join(
         SystemRandom().choice(ascii_uppercase + digits) for _ in range(8)
     )
 
@@ -30,9 +27,11 @@ def setup(hdl, ipc, comp):
     sst.setProgramOption("stopAtCycle", "25us")
 
     main_comp = sst.Component(comp, f"{hdl}{ipc}.{comp}")
-    main_comp.addParams({
-        "clock": CLOCK,
-    })
+    main_comp.addParams(
+        {
+            "clock": CLOCK,
+        }
+    )
 
     ram_comp = sst.Component("ram", f"{hdl}{ipc}.ram")
 
@@ -44,6 +43,7 @@ def setup(hdl, ipc, comp):
         proc = "test:runMain ram.ramMain"
     elif hdl == "verilog":
         import json
+
         with open("config-cmd.json") as cmd_file:
             data = json.load(cmd_file)
         for k, v in data.items():
@@ -54,11 +54,13 @@ def setup(hdl, ipc, comp):
     else:
         raise NotImplementedError()
 
-    ram_comp.addParams({
-        "proc": proc,
-        "ipc_port": port_prefix + get_rand_tmp(),
-        "clock": CLOCK,
-    })
+    ram_comp.addParams(
+        {
+            "proc": proc,
+            "ipc_port": port_prefix + get_rand_tmp(),
+            "clock": CLOCK,
+        }
+    )
 
     sst.Link("ram_din").connect(
         (ram_comp, "ram_din", LINK_SPEED),

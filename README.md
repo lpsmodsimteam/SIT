@@ -9,7 +9,6 @@ ___Note__: For the sake of simplicity and consistency in the nomenclature, the l
 - _hardware level modeling languages (Chisel, PyRTL, SystemC, etc.)_
 
 For interoperability with supported HDLs, see their corresponding README:
-- [Chisel](/docs/chisel.md)
 - [PyRTL](/docs/pyrtl.md)
 - [SystemC](/docs/systemc.md)
 - [Verilog](/docs/verilog.md)
@@ -21,7 +20,7 @@ For interoperability with supported HDLs, see their corresponding README:
   - [Architecture](#architecture)
   - [Tests](#tests)
 - [Installation](#installation)
-  - [boilerplate](#boilerplate)
+  - [sit](#sit)
   - [CMake](#cmake)
   - [SST Core](#sst-core)
 - [Requirements](#requirements)
@@ -37,7 +36,7 @@ To establish interoperability between an SST model and an HDL module, a black bo
 HDL driver must be generated. The black box establishes the configurations required for the
 interprocess communication (IPC) between the SST and the external HDL processes.
 
-The Python module `boilerplate` can be used to generate the black boxes.
+The Python module `sit` can be used to generate the black boxes.
 
 ### Architecture
 
@@ -45,7 +44,7 @@ The following is the directory structure of an example component `demo` using CM
 
 ```bash
 demo/                     # project directory
-├── generate_bbox.py      # boilerplate code generating script
+├── generate_bbox.py      # sit code generating script
 ├── blackboxes/           # black box interface
 │   ├── demo_comp.cpp     # SST black box component
 │   └── demo_driver.hdl   # HDL black box driver
@@ -132,9 +131,9 @@ sudo make install
 
 The requirements for the project are listed below.
 
-### boilerplate
+### sit
 
-The `boilerplate` module can be installed locally by running `pip`:
+The `sit` module can be installed locally by running `pip`:
 ```shell
 mkdir -p $(sst-config --prefix)/include/sst/sit
 
