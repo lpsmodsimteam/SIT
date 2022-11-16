@@ -12,7 +12,7 @@ from .sit import SIT
 
 class SystemC(SIT):
 
-    raise ImportWarning("SIT-PyRTL has not been fully implemented yet")
+    raise ImportWarning("SIT-SystemC has not been fully implemented yet")
 
     def __init__(
         self,
