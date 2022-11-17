@@ -5,25 +5,28 @@ import subprocess
 
 class Commands:
     @staticmethod
-    def sanitize(cmd):
+    def capture_output(cmd):
 
         return cmd.stdout.decode("utf-8")[:-1]
 
-    def run_cmd(self, cmd):
+    def run_cmd(self, cmd, stdout=subprocess.PIPE):
 
-        return self.sanitize(subprocess.run(cmd, stdout=subprocess.PIPE))
+        return subprocess.run(cmd, stdout=stdout)
 
     def __get_sst_config(self):
 
-        return self.run_cmd(["which", "sst-config"])
+        sst_config = self.run_cmd(["which", "sst-config"])
+        return self.capture_output(sst_config)
 
     def __get_prefix(self, sst_config):
 
-        return pathlib.Path(self.run_cmd([sst_config, "--prefix"]))
+        prefix = self.run_cmd([sst_config, "--prefix"])
+        return pathlib.Path(self.capture_output(prefix))
 
     def __get_include_dir(self, sst_config):
 
-        return pathlib.Path(self.run_cmd([sst_config, "--includedir"]))
+        include_dir = self.run_cmd([sst_config, "--includedir"])
+        return pathlib.Path(self.capture_output(include_dir))
 
     def get_dest_dir(self):
 
@@ -37,21 +40,25 @@ class Commands:
 class LibraryManager:
     def __init__(self):
 
-        cmd = Commands()
-        self.lib_dir = (
-            pathlib.Path(sysconfig.get_paths()["purelib"]) / "sit/cpp"
-        )
-        self.dest_dir = cmd.get_dest_dir()
+        self.__cmd = Commands()
+        self.__dest_dir = self.__cmd.get_dest_dir()
 
     def is_installed(self):
 
-        return self.dest_dir.exists()
+        return self.__dest_dir.exists()
 
     def install(self):
 
         if self.is_installed():
-            print("SIT is already installed on the system")
+            print(f"SIT is already installed at '{self.__dest_dir}'")
+
         else:
-            print("mkdir .build && cd .build")
-            print(f"cmake {self.lib_dir}")
-            print("sudo make install")
+
+            lib_dir = pathlib.Path(sysconfig.get_paths()["purelib"]) / "sit/cpp"
+            try:
+                self.__cmd.run_cmd(["cmake", lib_dir], stdout=None)
+
+            except FileNotFoundError:
+                print("CMake not found")
+
+            self.__cmd.run_cmd(["sudo", "make", "install"], stdout=None)

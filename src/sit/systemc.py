@@ -6,14 +6,12 @@
 This class inherits from the SIT base class and implements its own methods of parsing,
 modifying and generating boilerplate code for its specific paradigms.
 """
+import warnings
 
 from .sit import SIT
 
 
 class SystemC(SIT):
-
-    raise ImportWarning("SIT-SystemC has not been fully implemented yet")
-
     def __init__(
         self,
         ipc,
@@ -59,6 +57,9 @@ class SystemC(SIT):
             component_template_path=component_template_path,
         )
 
+        warnings.warn(
+            "SIT-SystemC has not been fully implemented yet", FutureWarning
+        )
         if self.ipc == "sock":
 
             # driver attributes
