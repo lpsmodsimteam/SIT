@@ -3,7 +3,7 @@ import pathlib
 import subprocess
 
 
-class Commands:
+class _Commands:
     @staticmethod
     def capture_output(cmd):
 
@@ -40,25 +40,25 @@ class Commands:
 class LibraryManager:
     def __init__(self):
 
-        self.__cmd = Commands()
+        self.__cmd = _Commands()
         self.__dest_dir = self.__cmd.get_dest_dir()
 
     def is_installed(self):
 
         return self.__dest_dir.exists()
 
+    def get_dest_dir(self):
+
+        return self.__dest_dir
+
     def install(self):
 
-        if self.is_installed():
-            print(f"SIT is already installed at '{self.__dest_dir}'")
+        lib_dir = pathlib.Path(sysconfig.get_paths()["purelib"]) / "sit/cpp"
+        try:
+            self.__cmd.run_cmd(["cmake", lib_dir], stdout=None)
 
-        else:
+        except FileNotFoundError:
+            print("CMake not found")
+            exit(-1)
 
-            lib_dir = pathlib.Path(sysconfig.get_paths()["purelib"]) / "sit/cpp"
-            try:
-                self.__cmd.run_cmd(["cmake", lib_dir], stdout=None)
-
-            except FileNotFoundError:
-                print("CMake not found")
-
-            self.__cmd.run_cmd(["sudo", "make", "install"], stdout=None)
+        self.__cmd.run_cmd(["sudo", "make", "install"], stdout=None)

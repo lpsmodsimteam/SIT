@@ -7,7 +7,7 @@ modifying and generating boilerplate code for its specific paradigms.
 import os
 
 from .sit import SIT
-from .exceptions import TemplateFileNotFound
+from .util.exceptions import TemplateFileNotFound
 
 
 class Verilog(SIT):

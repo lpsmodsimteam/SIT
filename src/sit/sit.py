@@ -20,7 +20,7 @@ to be overridden:
 import math
 import os
 
-from .exceptions import *
+from .util.exceptions import *
 
 
 class SIT:
