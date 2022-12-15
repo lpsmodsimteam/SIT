@@ -37,6 +37,14 @@ The Python package ships with the header library required to interoperate with S
 
 `$ sit --install`
 
+### Development
+
+To set up the development version, clone the repository and create a virtual environment. Install the toolkit using pip:
+
+`$ pip install .`
+
+Run CMake on the CMakeLists.txt in `/src/sit/cpp/`.
+
 ## Usage
 
 ### Black Box Code Generation

@@ -4,8 +4,6 @@ This class inherits from the SIT base class and implements its own methods of pa
 modifying and generating boilerplate code for its specific paradigms.
 """
 
-import os
-
 from .sit import SIT
 from .util.exceptions import TemplateFileNotFound
 
@@ -73,11 +71,13 @@ class Verilog(SIT):
             self.send = "send"
             self.connect = "bind"
 
-        self.makefile_path = self.driver_path.replace(
-            self.module, "Makefile.config"
+        self.makefile_path = self.driver_path.parent / "Makefile.config"
+        self.driver_path = self.driver_path.parent / (
+            self.driver_path.name + "_driver.py"
         )
-        self.driver_path += "_driver.py"
-        self.comp_path += "_comp.cpp"
+        self.comp_path = self.comp_path.parent / (
+            self.comp_path.name + "_comp.cpp"
+        )
 
     def _parse_signal_type(self, signal):
         """Parse the type and computes its size from the signal
@@ -176,14 +176,12 @@ class Verilog(SIT):
     def _generate_extra_files(self):
 
         template_str = ""
-        makefile_templ_path = os.path.join(
-            self.template_path, "Makefile.config"
-        )
-        if os.path.isfile(makefile_templ_path):
+        makefile_templ_path = self.template_path / "Makefile.config"
+        if makefile_templ_path.exists():
             with open(makefile_templ_path) as template:
                 template_str = template.read().format(
                     module=self.module,
-                    module_dir=os.path.abspath(self.module_dir),
+                    module_dir=self.module_dir.resolve(),
                 )
         else:
             raise TemplateFileNotFound(

@@ -75,4 +75,4 @@ install(
     DESTINATION ${INCLUDEDIR}/sst/sit
 )
 
-# include(../../../tests/CMakeLists.txt)
+include(../../../tests/CMakeLists.txt)

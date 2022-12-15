@@ -18,7 +18,7 @@ to be overridden:
 """
 
 import math
-import os
+import pathlib
 
 from .util.exceptions import *
 
@@ -85,7 +85,7 @@ class SIT:
 
         self.module = module
         self.lib = lib
-        self.module_dir = module_dir
+        self.module_dir = pathlib.Path(module_dir)
         self.lib_dir = lib_dir
         self.desc = desc
         self.precision = 0
@@ -93,26 +93,24 @@ class SIT:
         self.disable_warning = ""
 
         self.hdl_str = self.__class__.__name__.lower()
-        self.template_path = os.path.join(
-            os.path.dirname(__file__), "template", self.hdl_str
+        self.template_path = (
+            pathlib.Path(__file__).parent / "template" / self.hdl_str
         )
         self.driver_template_path = (
             driver_template_path
             if driver_template_path
-            else os.path.join(self.template_path, "driver")
+            else self.template_path / "driver"
         )
         self.component_template_path = (
             component_template_path
             if component_template_path
-            else os.path.join(self.template_path, "comp")
+            else self.template_path / "comp"
         )
 
         self.width_macros = width_macros if width_macros else {}
         self.ports = {"clock": [], "input": [], "output": [], "inout": []}
-        self.bbox_dir = "blackboxes"
-        self.driver_path = self.comp_path = os.path.join(
-            self.bbox_dir, self.module
-        )
+        self.bbox_dir = pathlib.Path("blackboxes/")
+        self.driver_path = self.comp_path = self.bbox_dir / self.module
 
         self.driver_buf_size = 0
         self.comp_buf_size = 0
@@ -128,6 +126,15 @@ class SIT:
 
         # shared attributes
         self.sender = self.receiver = "m_signal_io"
+
+    def _get_driver_inputs(self):
+        raise NotImplementedError()
+
+    def _get_driver_outputs(self):
+        raise NotImplementedError()
+
+    def _get_driver_defs(self):
+        raise NotImplementedError()
 
     @staticmethod
     def _sig_fmt(fmt, split_func, array, delim):
@@ -276,7 +283,7 @@ class SIT:
         str
             boilerplate code representing the black box-model file
         """
-        if os.path.isfile(self.component_template_path):
+        if self.component_template_path.exists():
             with open(self.component_template_path) as template:
                 return template.read().format(**self.__get_comp_defs())
 
@@ -298,7 +305,7 @@ class SIT:
         str
             boilerplate code representing the black box-driver file
         """
-        if os.path.isfile(self.driver_template_path):
+        if self.driver_template_path.exists():
             with open(self.driver_template_path) as template:
                 return template.read().format(
                     inputs=self._get_driver_inputs(),
@@ -325,8 +332,7 @@ class SIT:
                 "No ports were set. Make sure to call set_ports() before generating files."
             )
 
-        if not os.path.exists(self.bbox_dir):
-            os.makedirs(self.bbox_dir)
+        self.bbox_dir.mkdir(exist_ok=True)
 
         with open(self.driver_path, "w") as driver_file:
             driver_file.write(self.__generate_driver_str())
@@ -421,7 +427,7 @@ class SIT:
 
         Parameters:
         -----------
-        signal : str
+        signal : int
             signal data type width
 
         Returns:

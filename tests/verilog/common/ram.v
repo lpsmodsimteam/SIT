@@ -1,8 +1,8 @@
 `timescale 1ns / 1ps
 
 module ram #(
-    parameter ADDR_WIDTH = 32,
-    parameter DATA_WIDTH = 32
+    parameter ADDR_WIDTH = 8,
+    parameter DATA_WIDTH = 8
 ) (
     input wire [ADDR_WIDTH - 1:0] address,
     input wire [DATA_WIDTH - 1:0] data_in,
