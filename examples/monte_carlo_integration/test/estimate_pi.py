@@ -18,7 +18,9 @@ import numpy as np
 
 from mt19937 import mt19937
 
-for num_iters in (100, 1000, 10000, 100000):
+MAX = 4294967295
+
+for num_iters in (100, 1000, 10000, 100000, 1000000):
 
     circle, square = 0, 0
 
@@ -31,8 +33,8 @@ for num_iters in (100, 1000, 10000, 100000):
     radius = 0.5
 
     for i in range(num_iters):
-        x_coords.append(mt.int32b() / 4294967295.0)
-        y_coords.append(mt.int32b() / 4294967295.0)
+        x_coords.append(mt.int32b() / MAX)
+        y_coords.append(mt.int32b() / MAX)
         if (
             x_coords[-1] * x_coords[-1] + y_coords[-1] * y_coords[-1]
             < radius * 2
@@ -56,5 +58,17 @@ for num_iters in (100, 1000, 10000, 100000):
     plt.ylabel("Y")
 
     plt.savefig(f"statics/{num_iters}.png")
+
+    plt.figure(figsize=(9, 9))
+    plt.plot(list(range(num_iters)), estimates)
+    plt.plot(
+        list(range(num_iters)), [np.pi] * num_iters, color="r", linestyle="--"
+    )
+
+    plt.title(f"N: {num_iters} / π: {estimates[-1]}")
+    plt.xlabel("Iterations")
+    plt.ylabel("π")
+
+    plt.savefig(f"statics/{num_iters}_.png")
 
     print(estimates[10], estimates[-1])
