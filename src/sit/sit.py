@@ -18,16 +18,21 @@ to be overridden:
 """
 
 import math
-import pathlib
 
-from .util.exceptions import *
+from .exceptions import (
+    PortException,
+    IPCException,
+    SignalFormatException,
+    TemplateFileNotFound,
+)
+from .files import Paths
 
 
 class SIT:
     def __init__(
         self,
         ipc,
-        module,
+        module_name,
         lib,
         width_macros=None,
         module_dir="",
@@ -83,9 +88,9 @@ class SIT:
         else:
             raise IPCException(f"{ipc} is not a supported IPC protocol")
 
-        self.module = module
+        self.module_name = module_name
         self.lib = lib
-        self.module_dir = pathlib.Path(module_dir)
+        # self.module_dir = pathlib.Path(module_dir)
         self.lib_dir = lib_dir
         self.desc = desc
         self.precision = 0
@@ -93,24 +98,24 @@ class SIT:
         self.disable_warning = ""
 
         self.hdl_str = self.__class__.__name__.lower()
-        self.template_path = (
-            pathlib.Path(__file__).parent / "template" / self.hdl_str
-        )
-        self.driver_template_path = (
-            driver_template_path
-            if driver_template_path
-            else self.template_path / "driver"
-        )
-        self.component_template_path = (
-            component_template_path
-            if component_template_path
-            else self.template_path / "comp"
-        )
+        # self.template_path = (
+        #     pathlib.Path(__file__).parent / "template" / self.hdl_str
+        # )
+        # self.driver_template_path = (
+        #     pathlib.Path(driver_template_path)
+        #     if driver_template_path
+        #     else self.template_path / "driver"
+        # )
+        # self.component_template_path = (
+        #     pathlib.Path(component_template_path)
+        #     if component_template_path
+        #     else self.template_path / "comp"
+        # )
 
         self.width_macros = width_macros if width_macros else {}
         self.ports = {"clock": [], "input": [], "output": [], "inout": []}
-        self.bbox_dir = pathlib.Path("blackboxes/")
-        self.driver_path = self.comp_path = self.bbox_dir / self.module
+        # self.bbox_dir = pathlib.Path("gen")
+        # self.driver_path = self.comp_path = self.bbox_dir / self.module
 
         self.driver_buf_size = 0
         self.comp_buf_size = 0
@@ -126,6 +131,11 @@ class SIT:
 
         # shared attributes
         self.sender = self.receiver = "m_signal_io"
+
+        self.paths = Paths(self.hdl_str, self.module_name, module_dir)
+
+    def set_template_paths(self, driver_template="", component_template=""):
+        pass
 
     def _get_driver_inputs(self):
         raise NotImplementedError()
@@ -186,7 +196,6 @@ class SIT:
 
     def _get_all_ports(self):
         """Flatten all types of ports into a single array
-        Ahmed
 
         Returns:
         --------
@@ -211,10 +220,11 @@ class SIT:
         PortException
             invalid port type provided
         """
-        # PORT =  PORT_DATA_TYPE, PORT_NAME, PORT_TYPE, PORT_LENGTH
+        # PORT = PORT_DATA_TYPE, PORT_NAME, PORT_TYPE, PORT_LENGTH
         for port in ports:
             if len(port) not in (3, 4):
                 raise SignalFormatException("Invalid signal format") from None
+
             try:
                 self.ports[port[0]].append(
                     {
@@ -225,6 +235,7 @@ class SIT:
                         else self._parse_signal_type(port[2]),
                     }
                 )
+
             except KeyError:
                 raise PortException(
                     f"{port[0]} is an invalid port type"
@@ -251,14 +262,14 @@ class SIT:
 
         return {
             "lib_dir": self.lib_dir,
-            "module": self.module,
+            "module": self.module_name,
             "lib": self.lib,
             "desc": self.desc,
             "ports": self._sig_fmt(
                 fmt="""{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
                 split_func=lambda x: {
-                    "link": self.module + x[0],
-                    "desc": self.module + x[-1],
+                    "link": self.module_name + x[0],
+                    "desc": self.module_name + x[-1],
                 },
                 array=(("_din", " data in"), ("_dout", " data out")),
                 delim=",\n" + " " * 8,
@@ -283,12 +294,12 @@ class SIT:
         str
             boilerplate code representing the black box-model file
         """
-        if self.component_template_path.exists():
-            with open(self.component_template_path) as template:
+        if self.paths.component_template_path.exists():
+            with open(self.paths.component_template_path) as template:
                 return template.read().format(**self.__get_comp_defs())
 
         raise TemplateFileNotFound(
-            f"Component boilerplate template file: {self.component_template_path} not found"
+            f"Component boilerplate template file: {self.paths.component_template_path} not found"
         )
 
     def __generate_driver_str(self):
@@ -305,8 +316,8 @@ class SIT:
         str
             boilerplate code representing the black box-driver file
         """
-        if self.driver_template_path.exists():
-            with open(self.driver_template_path) as template:
+        if self.paths.driver_template_path.exists():
+            with open(self.paths.driver_template_path) as template:
                 return template.read().format(
                     inputs=self._get_driver_inputs(),
                     outputs=self._get_driver_outputs(),
@@ -314,10 +325,10 @@ class SIT:
                 )
 
         raise TemplateFileNotFound(
-            f"Driver boilerplate template file: {self.driver_template_path} not found"
+            f"Driver boilerplate template file: {self.paths.driver_template_path} not found"
         )
 
-    def generate_bbox(self):
+    def generate_black_boxes(self):
         """Provide a high-level interface to the user to generate both the components of the
         black box and dump them to their corresponding files
 
@@ -332,12 +343,12 @@ class SIT:
                 "No ports were set. Make sure to call set_ports() before generating files."
             )
 
-        self.bbox_dir.mkdir(exist_ok=True)
+        self.paths.gen_dir_path.mkdir(exist_ok=True)
 
-        with open(self.driver_path, "w") as driver_file:
+        with open(self.paths.driver_path, "w") as driver_file:
             driver_file.write(self.__generate_driver_str())
 
-        with open(self.comp_path, "w") as comp_file:
+        with open(self.paths.comp_path, "w") as comp_file:
             comp_file.write(self.__generate_comp_str())
 
         try:
@@ -345,7 +356,7 @@ class SIT:
         except AttributeError:
             pass
 
-        print(f"Ports generated for: {self.module} ({self.hdl_str})")
+        print(f"Ports generated for: {self.module_name} ({self.hdl_str})")
         for port_type in self.ports:
             if self.ports[port_type]:
                 print(f"Port type: {port_type}")
@@ -369,7 +380,7 @@ class SIT:
 
         Raises:
         -------
-        APIException
+        AttributeError
             method not supported
         """
         self.precision = precision
@@ -377,8 +388,8 @@ class SIT:
         try:
             self._fixed_width_float_output()
         except AttributeError:
-            raise APIException(
-                f"fixed_width_float_output() not supported with {self.module}"
+            raise AttributeError(
+                f"fixed_width_float_output() not supported with {self.module_name}"
             )
 
     def disable_runtime_warnings(self, warnings):
@@ -391,7 +402,7 @@ class SIT:
 
         Raises:
         -------
-        APIException
+        AttributeError
             method not supported
         """
         if not isinstance(warnings, list):
@@ -400,8 +411,8 @@ class SIT:
             try:
                 self._disable_runtime_warnings(warning)
             except AttributeError:
-                raise APIException(
-                    f"disable_runtime_warnings() not supported with {self.module}"
+                raise AttributeError(
+                    f"disable_runtime_warnings() not supported with {self.module_name}"
                 )
 
     @staticmethod

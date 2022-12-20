@@ -6,7 +6,7 @@ if __name__ == "__main__":
 
     sit_obj = SITVerilog(
         ipc=ipc,
-        module="ram",
+        module_name="ram",
         lib="verilog" + ipc,
         desc="Demonstration of a Verilog hardware simulation in SST",
         module_dir="../tests/verilog/common/",
@@ -21,4 +21,4 @@ if __name__ == "__main__":
             ("output", "data_out", "8b"),
         )
     )
-    sit_obj.generate_bbox()
+    sit_obj.generate_black_boxes()

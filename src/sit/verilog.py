@@ -4,15 +4,17 @@ This class inherits from the SIT base class and implements its own methods of pa
 modifying and generating boilerplate code for its specific paradigms.
 """
 
+from .exceptions import TemplateFileNotFound
 from .sit import SIT
-from .util.exceptions import TemplateFileNotFound
+
+from .files import Paths
 
 
 class Verilog(SIT):
     def __init__(
         self,
         ipc,
-        module,
+        module_name,
         lib,
         module_dir="",
         lib_dir="",
@@ -43,7 +45,7 @@ class Verilog(SIT):
         """
         super().__init__(
             ipc=ipc,
-            module=module,
+            module_name=module_name,
             lib=lib,
             module_dir=module_dir,
             lib_dir=lib_dir,
@@ -71,12 +73,20 @@ class Verilog(SIT):
             self.send = "send"
             self.connect = "bind"
 
-        self.makefile_path = self.driver_path.parent / "Makefile.config"
-        self.driver_path = self.driver_path.parent / (
-            self.driver_path.name + "_driver.py"
+        # self.paths = Paths(
+        #     self.hdl_str,
+        #     self.module,
+        #     module_dir,
+        #     driver_template_path,
+        #     component_template_path,
+        # )
+
+        self.makefile_path = self.paths.driver_path.parent / "Makefile.config"
+        self.paths.driver_path = self.paths.driver_path.parent / (
+            self.paths.driver_path.name + "_driver.py"
         )
-        self.comp_path = self.comp_path.parent / (
-            self.comp_path.name + "_comp.cpp"
+        self.paths.comp_path = self.paths.comp_path.parent / (
+            self.paths.comp_path.name + "_comp.cpp"
         )
 
     def _parse_signal_type(self, signal):
@@ -168,20 +178,20 @@ class Verilog(SIT):
             "driver_bind": self.driver_bind,
             "connect": self.connect,
             "send": self.send,
-            "module": self.module,
-            "module_dir": self.module_dir,
+            "module": self.module_name,
+            "module_dir": self.paths.module_dir,
             "buf_size": self.driver_buf_size,
         }
 
     def _generate_extra_files(self):
 
         template_str = ""
-        makefile_templ_path = self.template_path / "Makefile.config"
+        makefile_templ_path = self.paths.template_dir_path / "Makefile.config"
         if makefile_templ_path.exists():
             with open(makefile_templ_path) as template:
                 template_str = template.read().format(
-                    module=self.module,
-                    module_dir=self.module_dir.resolve(),
+                    module=self.module_name,
+                    module_dir=self.paths.module_dir.resolve(),
                 )
         else:
             raise TemplateFileNotFound(

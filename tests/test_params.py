@@ -38,9 +38,7 @@ def setup(hdl, ipc, comp):
     if hdl == "systemc":
         proc = BASE_PATH / "ram.o"
     elif hdl == "pyrtl":
-        proc = BASE_PATH / "blackboxes" / "ram_driver.py"
-    elif hdl == "chisel":
-        proc = "test:runMain ram.ramMain"
+        proc = BASE_PATH / "gen" / "ram_driver.py"
     elif hdl == "verilog":
         import json
 
