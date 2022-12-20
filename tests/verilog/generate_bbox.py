@@ -2,12 +2,9 @@ from sit import SITVerilog
 
 if __name__ == "__main__":
 
-    ipc = "sock"
-
     sit_obj = SITVerilog(
-        ipc=ipc,
         module_name="ram",
-        lib="verilog" + ipc,
+        lib="verilogsock",
         desc="Demonstration of a Verilog hardware simulation in SST",
         module_dir="../tests/verilog/common/",
     )

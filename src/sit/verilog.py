@@ -7,20 +7,10 @@ modifying and generating boilerplate code for its specific paradigms.
 from .exceptions import TemplateFileNotFound
 from .sit import SIT
 
-from .files import Paths
-
 
 class Verilog(SIT):
     def __init__(
-        self,
-        ipc,
-        module_name,
-        lib,
-        module_dir="",
-        lib_dir="",
-        desc="",
-        driver_template_path="",
-        component_template_path="",
+        self, module_name, lib, ipc="sock", module_dir="", lib_dir="", desc=""
     ):
         """Constructor for Verilog SIT.
 
@@ -44,14 +34,12 @@ class Verilog(SIT):
             path to the black box-model boilerplate
         """
         super().__init__(
-            ipc=ipc,
             module_name=module_name,
             lib=lib,
+            ipc=ipc,
             module_dir=module_dir,
             lib_dir=lib_dir,
             desc=desc,
-            driver_template_path=driver_template_path,
-            component_template_path=component_template_path,
         )
 
         if self.ipc == "sock":
@@ -73,21 +61,9 @@ class Verilog(SIT):
             self.send = "send"
             self.connect = "bind"
 
-        # self.paths = Paths(
-        #     self.hdl_str,
-        #     self.module,
-        #     module_dir,
-        #     driver_template_path,
-        #     component_template_path,
-        # )
-
-        self.makefile_path = self.paths.driver_path.parent / "Makefile.config"
-        self.paths.driver_path = self.paths.driver_path.parent / (
-            self.paths.driver_path.name + "_driver.py"
-        )
-        self.paths.comp_path = self.paths.comp_path.parent / (
-            self.paths.comp_path.name + "_comp.cpp"
-        )
+        self.paths.set_driver_path(f"{self.module_name}_driver.py")
+        self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
+        self.paths.set_extra_file_paths({"makefile": "Makefile.config"})
 
     def _parse_signal_type(self, signal):
         """Parse the type and computes its size from the signal
@@ -179,24 +155,16 @@ class Verilog(SIT):
             "connect": self.connect,
             "send": self.send,
             "module": self.module_name,
-            "module_dir": self.paths.module_dir,
+            "module_dir": self.paths.get_meta("module_dir"),
             "buf_size": self.driver_buf_size,
         }
 
     def _generate_extra_files(self):
 
-        template_str = ""
-        makefile_templ_path = self.paths.template_dir_path / "Makefile.config"
-        if makefile_templ_path.exists():
-            with open(makefile_templ_path) as template:
-                template_str = template.read().format(
-                    module=self.module_name,
-                    module_dir=self.paths.module_dir.resolve(),
-                )
-        else:
-            raise TemplateFileNotFound(
-                f"Component boilerplate template file: {makefile_templ_path} not found"
-            )
+        template_str = self.paths.read_template_str("makefile").format(
+            module=self.module_name,
+            module_dir=self.paths.get_meta("module_dir").resolve(),
+        )
 
-        with open(self.makefile_path, "w") as makefile:
+        with open(self.paths.get_gen("makefile"), "w") as makefile:
             makefile.write(template_str)

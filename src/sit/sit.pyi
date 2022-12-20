@@ -1,3 +1,4 @@
+import pathlib
 from typing import Callable, Literal, final
 
 class SIT:
@@ -10,12 +11,22 @@ class SIT:
         module_dir: str = ...,
         lib_dir: str = ...,
         desc: str = ...,
-        driver_template_path: str = ...,
-        component_template_path: str = ...,
     ) -> None: ...
     def _get_driver_inputs(self) -> str: ...
     def _get_driver_outputs(self) -> str: ...
     def _get_driver_defs(self) -> str: ...
+    def set_template_paths(
+        self,
+        template_dir_path: str | pathlib.Path = ...,
+        driver_template_path: str | pathlib.Path = ...,
+        component_template_path: str | pathlib.Path = ...,
+    ) -> None: ...
+    def set_gen_paths(
+        self,
+        gen_dir_path: str | pathlib.Path = ...,
+        driver_path: str | pathlib.Path = ...,
+        comp_path: str | pathlib.Path = ...,
+    ) -> None: ...
     @staticmethod
     def _sig_fmt(
         fmt: str, split_func: Callable[[str], str], array: list[str], delim: str

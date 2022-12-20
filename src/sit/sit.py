@@ -19,27 +19,20 @@ to be overridden:
 
 import math
 
-from .exceptions import (
-    PortException,
-    IPCException,
-    SignalFormatException,
-    TemplateFileNotFound,
-)
+from .exceptions import PortException, IPCException, SignalFormatException
 from .files import Paths
 
 
 class SIT:
     def __init__(
         self,
-        ipc,
         module_name,
         lib,
-        width_macros=None,
+        ipc="sock",
         module_dir="",
         lib_dir="",
         desc="",
-        driver_template_path="",
-        component_template_path="",
+        width_macros=None,
     ):
         """Constructor for the virtual base class SIT
 
@@ -90,7 +83,6 @@ class SIT:
 
         self.module_name = module_name
         self.lib = lib
-        # self.module_dir = pathlib.Path(module_dir)
         self.lib_dir = lib_dir
         self.desc = desc
         self.precision = 0
@@ -98,24 +90,9 @@ class SIT:
         self.disable_warning = ""
 
         self.hdl_str = self.__class__.__name__.lower()
-        # self.template_path = (
-        #     pathlib.Path(__file__).parent / "template" / self.hdl_str
-        # )
-        # self.driver_template_path = (
-        #     pathlib.Path(driver_template_path)
-        #     if driver_template_path
-        #     else self.template_path / "driver"
-        # )
-        # self.component_template_path = (
-        #     pathlib.Path(component_template_path)
-        #     if component_template_path
-        #     else self.template_path / "comp"
-        # )
 
         self.width_macros = width_macros if width_macros else {}
         self.ports = {"clock": [], "input": [], "output": [], "inout": []}
-        # self.bbox_dir = pathlib.Path("gen")
-        # self.driver_path = self.comp_path = self.bbox_dir / self.module
 
         self.driver_buf_size = 0
         self.comp_buf_size = 0
@@ -132,10 +109,23 @@ class SIT:
         # shared attributes
         self.sender = self.receiver = "m_signal_io"
 
-        self.paths = Paths(self.hdl_str, self.module_name, module_dir)
+        self.paths = Paths(self.hdl_str, module_dir)
 
-    def set_template_paths(self, driver_template="", component_template=""):
-        pass
+    def set_template_paths(
+        self,
+        template_dir_path="",
+        driver_template_path="",
+        component_template_path="",
+    ):
+        self.paths.set_template_paths(
+            template_dir_path,
+            driver_template_path,
+            component_template_path,
+        )
+
+    def set_gen_paths(self, gen_dir_path="", driver_path="", comp_path=""):
+
+        self.paths.set_gen_paths(gen_dir_path, driver_path, comp_path)
 
     def _get_driver_inputs(self):
         raise NotImplementedError()
@@ -294,12 +284,8 @@ class SIT:
         str
             boilerplate code representing the black box-model file
         """
-        if self.paths.component_template_path.exists():
-            with open(self.paths.component_template_path) as template:
-                return template.read().format(**self.__get_comp_defs())
-
-        raise TemplateFileNotFound(
-            f"Component boilerplate template file: {self.paths.component_template_path} not found"
+        return self.paths.read_template_str("comp").format(
+            **self.__get_comp_defs()
         )
 
     def __generate_driver_str(self):
@@ -316,16 +302,10 @@ class SIT:
         str
             boilerplate code representing the black box-driver file
         """
-        if self.paths.driver_template_path.exists():
-            with open(self.paths.driver_template_path) as template:
-                return template.read().format(
-                    inputs=self._get_driver_inputs(),
-                    outputs=self._get_driver_outputs(),
-                    **self._get_driver_defs(),
-                )
-
-        raise TemplateFileNotFound(
-            f"Driver boilerplate template file: {self.paths.driver_template_path} not found"
+        return self.paths.read_template_str("driver").format(
+            inputs=self._get_driver_inputs(),
+            outputs=self._get_driver_outputs(),
+            **self._get_driver_defs(),
         )
 
     def generate_black_boxes(self):
@@ -343,12 +323,12 @@ class SIT:
                 "No ports were set. Make sure to call set_ports() before generating files."
             )
 
-        self.paths.gen_dir_path.mkdir(exist_ok=True)
+        self.paths.get_gen("dir").mkdir(exist_ok=True)
 
-        with open(self.paths.driver_path, "w") as driver_file:
+        with open(self.paths.get_gen("driver"), "w") as driver_file:
             driver_file.write(self.__generate_driver_str())
 
-        with open(self.paths.comp_path, "w") as comp_file:
+        with open(self.paths.get_gen("comp"), "w") as comp_file:
             comp_file.write(self.__generate_comp_str())
 
         try:
