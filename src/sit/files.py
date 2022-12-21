@@ -7,12 +7,10 @@ class Paths:
     def __init__(self, hdl_str, module_dir_path):
 
         self.hdl_str = hdl_str
+        self.__module_dir = pathlib.Path(module_dir_path)
 
-        self.__paths = {}
         self.__template_paths = {}
         self.__gen_paths = {}
-
-        self.__paths["module_dir"] = pathlib.Path(module_dir_path)
 
         self.__template_paths["dir"] = (
             pathlib.Path(__file__).parent / "template" / hdl_str
@@ -24,9 +22,9 @@ class Paths:
 
         self.__gen_paths["dir"] = pathlib.Path("gen")
 
-    def get_meta(self, key):
+    def get_module_dir(self):
 
-        return self.__paths[key]
+        return self.__module_dir
 
     def get_template(self, key):
 
@@ -38,7 +36,7 @@ class Paths:
 
     def get_paths(self):
 
-        return self.__paths, self.__template_paths, self.__gen_paths
+        return self.__module_dir, self.__template_paths, self.__gen_paths
 
     def set_template_paths(
         self,

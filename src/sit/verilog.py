@@ -4,7 +4,6 @@ This class inherits from the SIT base class and implements its own methods of pa
 modifying and generating boilerplate code for its specific paradigms.
 """
 
-from .exceptions import TemplateFileNotFound
 from .sit import SIT
 
 
@@ -16,22 +15,18 @@ class Verilog(SIT):
 
         Parameters:
         -----------
-        ipc : str (options: "sock", "zmq")
-            method of IPC
         module : str
             SST element component and HDL module name
         lib : str
             SST element library name
+        ipc : str (options: "sock", "zmq")
+            method of IPC
         module_dir : str (default: "")
             directory of HDL module
         lib_dir : str (default: "")
             directory of SIT library
         desc : str (default: "")
             description of the SST model
-        driver_template_path : str (default: "")
-            path to the black box-driver boilerplate
-        component_template_path : str (default: "")
-            path to the black box-model boilerplate
         """
         super().__init__(
             module_name=module_name,
@@ -154,8 +149,7 @@ class Verilog(SIT):
             "driver_bind": self.driver_bind,
             "connect": self.connect,
             "send": self.send,
-            "module": self.module_name,
-            "module_dir": self.paths.get_meta("module_dir"),
+            "module_name": self.module_name,
             "buf_size": self.driver_buf_size,
         }
 
@@ -163,7 +157,7 @@ class Verilog(SIT):
 
         template_str = self.paths.read_template_str("makefile").format(
             module=self.module_name,
-            module_dir=self.paths.get_meta("module_dir").resolve(),
+            module_dir=self.paths.get_module_dir().resolve(),
         )
 
         with open(self.paths.get_gen("makefile"), "w") as makefile:

@@ -4,13 +4,13 @@ from typing import Callable, Literal, final
 class SIT:
     def __init__(
         self,
-        ipc: Literal["sock", "zmq"],
-        module: str,
+        module_name: str,
         lib: str,
-        width_macros: dict[str, int] | None = ...,
+        ipc: Literal["sock", "zmq"],
         module_dir: str = ...,
         lib_dir: str = ...,
         desc: str = ...,
+        width_macros: dict[str, int] | None = ...,
     ) -> None: ...
     def _get_driver_inputs(self) -> str: ...
     def _get_driver_outputs(self) -> str: ...

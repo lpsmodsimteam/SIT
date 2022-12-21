@@ -43,12 +43,18 @@ class SIT:
 
         Parameters:
         -----------
-        ipc : str (options: "sock", "zmq")
-            method of IPC
         module : str
             SST element component and HDL module name
         lib : str
             SST element library name
+        ipc : str (options: "sock", "zmq")
+            method of IPC
+        module_dir : str (default: "")
+            directory of HDL module
+        lib_dir : str (default: "")
+            directory of SIT library
+        desc : str (default: "")
+            description of the SST model
         width_macros : dict(str:[str|int]) (default: dict(None:None))
             mapping of signal width macros to their integer values. An HDL
             module may declare constants or user-inputted variables in their
@@ -60,16 +66,6 @@ class SIT:
                 "ADDRESS_WIDTH": 16,
                 "DATA_WIDTH": 16,
             }`
-        module_dir : str (default: "")
-            directory of HDL module
-        lib_dir : str (default: "")
-            directory of SIT library
-        desc : str (default: "")
-            description of the SST model
-        driver_template_path : str (default: "")
-            path to the black box-driver boilerplate
-        component_template_path : str (default: "")
-            path to the black box-model boilerplate
 
         Raises:
         -------
@@ -342,7 +338,7 @@ class SIT:
                 print(f"Port type: {port_type}")
                 for port in self.ports[port_type]:
                     print(
-                        f""" \"{port['name']}\" -> {{{
+                        f"""\t\"{port['name']}\" -> {{{
                         "data type" if self.hdl_str == "systemc" else "integer width"
                     }: {port['type']}, length: {port['len']}}}"""
                     )

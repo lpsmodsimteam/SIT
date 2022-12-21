@@ -5,14 +5,12 @@ from .sit import SIT
 class Verilog(SIT):
     def __init__(
         self,
-        ipc: Literal["sock", "zmq"],
-        module: str,
+        module_name: str,
         lib: str,
+        ipc: Literal["sock", "zmq"] = ...,
         module_dir: str = ...,
         lib_dir: str = ...,
         desc: str = ...,
-        driver_template_path: str = ...,
-        component_template_path: str = ...,
     ) -> None: ...
     def _parse_signal_type(self, signal: str) -> int: ...
     def _get_driver_inputs(self) -> str: ...

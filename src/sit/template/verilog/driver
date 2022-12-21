@@ -5,7 +5,7 @@ import cocotb
 
 
 @cocotb.test()
-def ram_test(dut):
+def {module_name}_test(dut):
 
     # connect the cocotb simulation to SST through {ipc}
     {driver_bind}
