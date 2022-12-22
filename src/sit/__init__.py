@@ -2,9 +2,9 @@ import argparse
 import pkg_resources
 
 from .libmgmt import LibraryManager
-from .pyrtl import PyRTL as SITPyRTL
-from .systemc import SystemC as SITSystemC
-from .verilog import Verilog as SITVerilog
+from .hdl.pyrtl import PyRTL as SITPyRTL
+from .hdl.systemc import SystemC as SITSystemC
+from .hdl.verilog import Verilog as SITVerilog
 
 
 def run():

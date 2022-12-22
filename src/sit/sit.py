@@ -21,6 +21,7 @@ import math
 
 from .exceptions import PortException, IPCException, SignalFormatException
 from .files import Paths
+from .render import TemplateRenderer
 
 
 class SIT:
@@ -43,7 +44,7 @@ class SIT:
 
         Parameters:
         -----------
-        module : str
+        module_name : str
             SST element component and HDL module name
         lib : str
             SST element library name
@@ -106,6 +107,8 @@ class SIT:
         self.sender = self.receiver = "m_signal_io"
 
         self.paths = Paths(self.hdl_str, module_dir)
+
+        self.tr = TemplateRenderer()
 
     def set_template_paths(self, dir="", driver="", comp=""):
         self.paths.set_template_paths(dir, driver, comp)
@@ -270,9 +273,8 @@ class SIT:
         str
             boilerplate code representing the black box-model file
         """
-        return self.paths.read_template_str("comp").format(
-            **self.__get_comp_defs()
-        )
+        template = self.paths.read_template_str("comp")
+        return self.tr.render(template, self.__get_comp_defs())
 
     def __generate_driver_str(self):
         """Generate the black box-driver code based on methods used to format
@@ -288,10 +290,14 @@ class SIT:
         str
             boilerplate code representing the black box-driver file
         """
-        return self.paths.read_template_str("driver").format(
-            inputs=self._get_driver_inputs(),
-            outputs=self._get_driver_outputs(),
-            **self._get_driver_defs(),
+        template = self.paths.read_template_str("driver")
+        return self.tr.render(
+            template,
+            dict(
+                inputs=self._get_driver_inputs(),
+                outputs=self._get_driver_outputs(),
+                **self._get_driver_defs(),
+            ),
         )
 
     def generate_black_boxes(self):

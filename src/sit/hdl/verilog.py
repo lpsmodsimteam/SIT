@@ -1,62 +1,41 @@
-"""Implementation of the PyRTL class
+"""Implementation of the Verilog class
 
 This class inherits from the SIT base class and implements its own methods of parsing,
 modifying and generating boilerplate code for its specific paradigms.
 """
-import warnings
 
-from .sit import SIT
+from ..sit import SIT
 
 
-class PyRTL(SIT):
+class Verilog(SIT):
     def __init__(
-        self,
-        ipc,
-        module,
-        lib,
-        module_dir="",
-        lib_dir="",
-        desc="",
-        driver_template_path="",
-        component_template_path="",
+        self, module_name, lib, ipc="sock", module_dir="", lib_dir="", desc=""
     ):
-        """Constructor for PyRTL SIT.
+        """Constructor for Verilog SIT
 
         Parameters:
         -----------
-        ipc : str (options: "sock", "zmq")
-            method of IPC
         module : str
             SST element component and HDL module name
         lib : str
             SST element library name
+        ipc : str (options: "sock", "zmq")
+            method of IPC
         module_dir : str (default: "")
             directory of HDL module
         lib_dir : str (default: "")
             directory of SIT library
         desc : str (default: "")
             description of the SST model
-        driver_template_path : str (default: "")
-            path to the black box-driver boilerplate
-        component_template_path : str (default: "")
-            path to the black box-model boilerplate
         """
         super().__init__(
-            ipc=ipc,
-            module=module,
+            module_name=module_name,
             lib=lib,
+            ipc=ipc,
             module_dir=module_dir,
             lib_dir=lib_dir,
             desc=desc,
-            driver_template_path=driver_template_path,
-            component_template_path=component_template_path,
         )
-
-        warnings.warn(
-            "SIT-PyRTL has not been fully implemented yet", FutureWarning
-        )
-        if self.module_dir:
-            self.module_dir = f'sys.path.append(str(Path(__file__).parent / "{self.module_dir}"))'
 
         if self.ipc == "sock":
 
@@ -73,15 +52,16 @@ class PyRTL(SIT):
             # driver attributes
             self.driver_ipc = "zmq"
             self.driver_bind = """context = zmq.Context()
-_sock = context.socket(zmq.REQ)"""
+    _sock = context.socket(zmq.REQ)"""
             self.send = "send"
             self.connect = "bind"
 
-        self.driver_path += "_driver.py"
-        self.comp_path += "_comp.cpp"
+        self.paths.set_driver_path(f"{self.module_name}_driver.py")
+        self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
+        self.paths.set_extra_file_paths({"makefile": "Makefile.config"})
 
     def _parse_signal_type(self, signal):
-        """Parse the type and computes its width from the signal
+        """Parse the type and computes its size from the signal
 
         Parameters:
         -----------
@@ -93,9 +73,16 @@ _sock = context.socket(zmq.REQ)"""
         int
             signal width
         """
-        return (
-            1 if signal == "1" else self._get_num_digits(self._get_ints(signal))
-        )
+
+        # bit vector signals
+        if "b" in signal:
+            return self._get_ints(signal)
+
+        elif signal == "1":
+            return 1
+
+        else:
+            return self._get_num_digits(self._get_ints(signal))
 
     def _get_driver_outputs(self):
         """Generate output bindings for both the components in the black box
@@ -106,10 +93,10 @@ _sock = context.socket(zmq.REQ)"""
             snippet of code representing output bindings
         """
         return self._sig_fmt(
-            "str({module}.sim.inspect({module}.{sig})).encode()",
-            lambda x: {"module": self.module, "sig": x["name"]},
-            self.ports["output"],
-            " +\n" + " " * 8,
+            fmt="str(dut.{sig}.value).encode()",
+            split_func=lambda x: {"sig": x["name"]},
+            array=self.ports["output"],
+            delim=" \n" + (" " * 12) + "+ ",
         )
 
     def _get_driver_inputs(self):
@@ -120,9 +107,9 @@ _sock = context.socket(zmq.REQ)"""
         str
             snippet of code representing input bindings
         """
-        fmt = '"{sig}": int(signal[{sp}:{sl}]),'
+        fmt = "dut.{sig}.value = int(signal[{sp}:{sl}])"
         start_pos = 0
-        clock_fmt = '"{sig}": int(signal[{sp}:{sl}]) % 2,'
+        clock_fmt = "dut.{sig}.value = int(signal[{sp}:{sl}]) % 2"
         driver_inputs = []
 
         for input_port in self.ports["input"]:
@@ -150,19 +137,33 @@ _sock = context.socket(zmq.REQ)"""
         return ("\n" + " " * 8).join(driver_inputs)
 
     def _get_driver_defs(self):
-        """Map definitions for the PyRTL driver format string
+        """Map definitions for the Verilog driver format string
 
         Returns:
         --------
         dict(str:str)
-            format mapping of template PyRTL driver string
+            format mapping of template Verilog driver string
         """
         return {
             "ipc": self.driver_ipc,
             "driver_bind": self.driver_bind,
             "connect": self.connect,
             "send": self.send,
-            "module_dir": self.module_dir,
-            "module": self.module,
+            "module_name": self.module_name,
             "buf_size": self.driver_buf_size,
         }
+
+    def _generate_extra_files(self):
+
+        template = self.paths.read_template_str("makefile")
+        template_str = self.tr.render(
+            template,
+            dict(
+                module_name=self.module_name,
+                module_dir=self.paths.get_module_dir().resolve(),
+            ),
+        )
+
+        with open(self.paths.get_gen("makefile"), "w") as makefile:
+            makefile.write(template_str)
+        print(f"Dumped Makefile to '{self.paths.get_gen('makefile')}'")

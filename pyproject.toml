@@ -27,3 +27,10 @@ sit = "sit:run"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"sit.templates" = [
+    "pyrtl/*",
+    "systemc/*",
+    "verilog/*"
+]

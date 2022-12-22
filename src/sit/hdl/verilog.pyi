@@ -1,6 +1,6 @@
 from typing import Literal
 
-from .sit import SIT
+from ..sit import SIT
 
 class Verilog(SIT):
     def __init__(

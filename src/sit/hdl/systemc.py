@@ -8,7 +8,7 @@ modifying and generating boilerplate code for its specific paradigms.
 """
 import warnings
 
-from .sit import SIT
+from ..sit import SIT
 
 
 class SystemC(SIT):

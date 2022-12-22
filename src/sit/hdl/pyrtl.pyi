@@ -1,14 +1,18 @@
+"""Implementation of the PyRTL class
+
+This class inherits from the SIT base class and implements its own methods of parsing,
+modifying and generating boilerplate code for its specific paradigms.
+"""
 from typing import Literal
 
-from .sit import SIT
+from ..sit import SIT
 
-class SystemC(SIT):
+class PyRTL(SIT):
     def __init__(
         self,
         ipc: Literal["sock", "zmq"],
         module: str,
         lib: str,
-        width_macros: dict[str, int] | None = ...,
         module_dir: str = ...,
         lib_dir: str = ...,
         desc: str = ...,
@@ -19,7 +23,3 @@ class SystemC(SIT):
     def _get_driver_outputs(self) -> str: ...
     def _get_driver_inputs(self) -> str: ...
     def _get_driver_defs(self) -> dict[str, str]: ...
-    def __get_driver_port_defs(self) -> str: ...
-    def __get_driver_bindings(self) -> str: ...
-    def _fixed_width_float_output(self) -> None: ...
-    def _disable_runtime_warnings(self, warning: str) -> None: ...
