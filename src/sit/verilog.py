@@ -11,7 +11,7 @@ class Verilog(SIT):
     def __init__(
         self, module_name, lib, ipc="sock", module_dir="", lib_dir="", desc=""
     ):
-        """Constructor for Verilog SIT.
+        """Constructor for Verilog SIT
 
         Parameters:
         -----------
@@ -162,3 +162,4 @@ class Verilog(SIT):
 
         with open(self.paths.get_gen("makefile"), "w") as makefile:
             makefile.write(template_str)
+        print(f"Dumped Makefile to '{self.paths.get_gen('makefile')}'")

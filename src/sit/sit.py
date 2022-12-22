@@ -12,7 +12,7 @@ following protected methods:
 The following public methods are inherited by the child classes and are not
 to be overridden:
 - set_ports(ports)
-- generate_bbox()
+- generate_black_boxes()
 - fixed_width_float_output(precision)
 - disable_runtime_warnings(warnings)
 """
@@ -39,7 +39,7 @@ class SIT:
         Initialize all member port variables and component variables. Only the
         following methods are public:
         `set_ports(ports)`
-        `generate_bbox()`
+        `generate_black_boxes()`
 
         Parameters:
         -----------
@@ -107,21 +107,11 @@ class SIT:
 
         self.paths = Paths(self.hdl_str, module_dir)
 
-    def set_template_paths(
-        self,
-        template_dir_path="",
-        driver_template_path="",
-        component_template_path="",
-    ):
-        self.paths.set_template_paths(
-            template_dir_path,
-            driver_template_path,
-            component_template_path,
-        )
+    def set_template_paths(self, dir="", driver="", comp=""):
+        self.paths.set_template_paths(dir, driver, comp)
 
-    def set_gen_paths(self, gen_dir_path="", driver_path="", comp_path=""):
-
-        self.paths.set_gen_paths(gen_dir_path, driver_path, comp_path)
+    def set_gen_paths(self, dir="", driver="", comp=""):
+        self.paths.set_gen_paths(dir, driver, comp)
 
     def _get_driver_inputs(self):
         raise NotImplementedError()
@@ -323,9 +313,11 @@ class SIT:
 
         with open(self.paths.get_gen("driver"), "w") as driver_file:
             driver_file.write(self.__generate_driver_str())
+        print(f"Dumped driver file to '{self.paths.get_gen('driver')}'")
 
         with open(self.paths.get_gen("comp"), "w") as comp_file:
             comp_file.write(self.__generate_comp_str())
+        print(f"Dumped component file to '{self.paths.get_gen('comp')}'")
 
         try:
             self._generate_extra_files()
