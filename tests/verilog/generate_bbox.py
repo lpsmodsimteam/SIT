@@ -6,7 +6,7 @@ if __name__ == "__main__":
         module_name="ram",
         lib="verilogsock",
         desc="Demonstration of a Verilog hardware simulation in SST",
-        module_dir="../tests/verilog/common/",
+        module_dir="../tests/verilog/",
     )
     sit_obj.set_ports(
         (
