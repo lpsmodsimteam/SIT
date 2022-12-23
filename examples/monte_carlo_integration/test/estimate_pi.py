@@ -13,67 +13,35 @@ pi approximately = (count inside circle / total count) * 4
 Code below does this, using np.linalg.norm to calc euclidean distance to circle centre
 and therefore determine is point distance to centre less than or greater than circle radius"""
 
-import matplotlib.pyplot as plt
-import numpy as np
-
 from mt19937 import mt19937
 
-MAX = 4294967295
+MAX_32 = 4294967295
+
+RADIUS = 0.5 * 2
 
 for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
-
-    circle, square = 0, 0
 
     mt = mt19937()
     mt.seed(0)
 
-    estimates = []
-    x_coords = []
-    y_coords = []
-    radius = 0.5
+    x_coords = 0
+    y_coords = 0
 
-    for i in range(num_iters):
-        x_coords.append(mt.int32b() / MAX)
-        y_coords.append(mt.int32b() / MAX)
-        if (
-            x_coords[-1] * x_coords[-1] + y_coords[-1] * y_coords[-1]
-            < radius * 2
-        ):
+    circle = 0
+    square = 0
+
+    estimates = 0.0
+
+    for _ in range(num_iters):
+
+        x_coords = mt.int32b() / MAX_32
+        y_coords = mt.int32b() / MAX_32
+
+        if x_coords * x_coords + y_coords * y_coords < RADIUS:
             circle += 1
         else:
             square += 1
 
-        estimates.append((circle / (circle + square)) * 4)
+        estimates = (circle / (circle + square)) * 4
 
-    print(estimates[1], estimates[-1])
-
-    theta = np.linspace(0, 2 * np.pi, 300)
-    a = radius + radius * np.cos(theta)
-    b = radius + radius * np.sin(theta)
-
-    plt.figure(figsize=(9, 9))
-    plt.plot(a, b, "r")
-    plt.scatter(x_coords, y_coords, edgecolor="black", linewidth=2.5)
-
-    plt.title(f"N: {num_iters} / π: {estimates[-1]}")
-    plt.xlabel("X")
-    plt.ylabel("Y")
-
-    plt.savefig(f"statics/{num_iters}.png")
-    plt.close()
-
-    plt.figure(figsize=(9, 9))
-    plt.plot(list(range(num_iters)), estimates)
-    plt.plot(
-        list(range(num_iters)),
-        [np.pi] * num_iters,
-        color="r",
-        linestyle="--",
-    )
-
-    plt.title(f"N: {num_iters} / π: {estimates[-1]}")
-    plt.xlabel("Iterations")
-    plt.ylabel("π")
-
-    plt.savefig(f"statics/{num_iters}_.png")
-    plt.close()
+    print(f"{num_iters:10d}: {estimates:.6f}")

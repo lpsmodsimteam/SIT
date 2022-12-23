@@ -1,4 +1,4 @@
-class mt19937(object):
+class mt19937:
     def __init__(self):
         self.mt = [0] * 624
         self.mti = 625
