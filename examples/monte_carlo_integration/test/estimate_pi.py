@@ -47,33 +47,33 @@ for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
 
     print(estimates[1], estimates[-1])
 
-    if num_iters != 10000000:
+    theta = np.linspace(0, 2 * np.pi, 300)
+    a = radius + radius * np.cos(theta)
+    b = radius + radius * np.sin(theta)
 
-        theta = np.linspace(0, 2 * np.pi, 300)
-        a = radius + radius * np.cos(theta)
-        b = radius + radius * np.sin(theta)
+    plt.figure(figsize=(9, 9))
+    plt.plot(a, b, "r")
+    plt.scatter(x_coords, y_coords, edgecolor="black", linewidth=2.5)
 
-        plt.figure(figsize=(9, 9))
-        plt.plot(a, b, "r")
-        plt.scatter(x_coords, y_coords, edgecolor="black", linewidth=2.5)
+    plt.title(f"N: {num_iters} / π: {estimates[-1]}")
+    plt.xlabel("X")
+    plt.ylabel("Y")
 
-        plt.title(f"N: {num_iters} / π: {estimates[-1]}")
-        plt.xlabel("X")
-        plt.ylabel("Y")
+    plt.savefig(f"statics/{num_iters}.png")
+    plt.close()
 
-        plt.savefig(f"statics/{num_iters}.png")
+    plt.figure(figsize=(9, 9))
+    plt.plot(list(range(num_iters)), estimates)
+    plt.plot(
+        list(range(num_iters)),
+        [np.pi] * num_iters,
+        color="r",
+        linestyle="--",
+    )
 
-        plt.figure(figsize=(9, 9))
-        plt.plot(list(range(num_iters)), estimates)
-        plt.plot(
-            list(range(num_iters)),
-            [np.pi] * num_iters,
-            color="r",
-            linestyle="--",
-        )
+    plt.title(f"N: {num_iters} / π: {estimates[-1]}")
+    plt.xlabel("Iterations")
+    plt.ylabel("π")
 
-        plt.title(f"N: {num_iters} / π: {estimates[-1]}")
-        plt.xlabel("Iterations")
-        plt.ylabel("π")
-
-        plt.savefig(f"statics/{num_iters}_.png")
+    plt.savefig(f"statics/{num_iters}_.png")
+    plt.close()
