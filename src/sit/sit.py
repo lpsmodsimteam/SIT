@@ -241,7 +241,7 @@ class SIT:
 
         return {
             "lib_dir": self.lib_dir,
-            "module": self.module_name,
+            "module_name": self.module_name,
             "lib": self.lib,
             "desc": self.desc,
             "ports": self._sig_fmt(

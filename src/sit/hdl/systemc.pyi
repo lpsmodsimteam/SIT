@@ -5,15 +5,13 @@ from ..sit import SIT
 class SystemC(SIT):
     def __init__(
         self,
-        ipc: Literal["sock", "zmq"],
-        module: str,
+        module_name: str,
         lib: str,
-        width_macros: dict[str, int] | None = ...,
+        ipc: Literal["sock", "zmq"] = ...,
         module_dir: str = ...,
         lib_dir: str = ...,
         desc: str = ...,
-        driver_template_path: str = ...,
-        component_template_path: str = ...,
+        width_macros: dict[str, int] | None = ...,
     ) -> None: ...
     def _parse_signal_type(self, signal: str) -> int: ...
     def _get_driver_outputs(self) -> str: ...

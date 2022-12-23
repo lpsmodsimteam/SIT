@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Implementation of the SystemC class
 
 This class inherits from the SIT base class and implements its own methods of parsing,
@@ -14,15 +11,13 @@ from ..sit import SIT
 class SystemC(SIT):
     def __init__(
         self,
-        ipc,
-        module,
+        module_name,
         lib,
-        width_macros=None,
+        ipc="sock",
         module_dir="",
         lib_dir="",
         desc="",
-        driver_template_path="",
-        component_template_path="",
+        width_macros=None,
     ):
         """Constructor for SystemC SIT
 
@@ -46,20 +41,19 @@ class SystemC(SIT):
             path to the black box-model boilerplate
         """
         super().__init__(
-            ipc=ipc,
-            module=module,
+            module_name=module_name,
             lib=lib,
-            width_macros=width_macros,
+            ipc=ipc,
             module_dir=module_dir,
             lib_dir=lib_dir,
             desc=desc,
-            driver_template_path=driver_template_path,
-            component_template_path=component_template_path,
+            width_macros=width_macros,
         )
 
-        warnings.warn(
-            "SIT-SystemC has not been fully implemented yet", FutureWarning
-        )
+        # warnings.warn(
+        #     "SIT-SystemC has not been fully implemented yet", FutureWarning
+        # )
+
         if self.ipc == "sock":
 
             # driver attributes
@@ -70,8 +64,8 @@ class SystemC(SIT):
             # driver attributes
             self.sig_type = "ZMQSignal"
 
-        self.driver_path += "_driver.cpp"
-        self.comp_path += "_comp.cpp"
+        self.paths.set_driver_path(f"{self.module_name}_driver.cpp")
+        self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
 
     def _parse_signal_type(self, signal):
         """Parse the type and computes its size from the signal
@@ -202,9 +196,10 @@ class SystemC(SIT):
             snippet of code representing port bindings
         """
         return self._sig_fmt(
-            "DUT.{sig}({sig})",
-            lambda x: {"sig": x["name"]},
-            self._get_all_ports(),
+            fmt="DUT.{sig}({sig})",
+            split_func=lambda x: {"sig": x["name"]},
+            array=self._get_all_ports(),
+            delim=";\n    ",
         )
 
     def _get_driver_defs(self):
@@ -217,9 +212,9 @@ class SystemC(SIT):
         """
         return {
             "extra_libs": self.extra_libs,
-            "module_dir": self.module_dir,
+            "module_dir": self.paths.get_module_dir().resolve(),
             "lib_dir": self.lib_dir,
-            "module": self.module,
+            "module_name": self.module_name,
             "disable_warning": self.disable_warning,
             "port_defs": self.__get_driver_port_defs(),
             "bindings": self.__get_driver_bindings(),

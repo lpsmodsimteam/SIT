@@ -73,7 +73,6 @@ if (${SIT_FOUND})
 
     if ("${HDL}" STREQUAL "SYSTEMC")
 
-        include(${TESTS_DIR}/systemc/CMakeLists.txt)
         _sst_run(systemc ${IPC})
 
     elseif ("${HDL}" STREQUAL "PYRTL")
@@ -83,10 +82,6 @@ if (${SIT_FOUND})
     elseif ("${HDL}" STREQUAL "VERILOG")
 
         _sst_run(verilog ${IPC})
-
-    elseif ("${HDL}" STREQUAL "CHISEL")
-
-        _sst_run(chisel sock)
 
     endif()
 

@@ -1,10 +1,10 @@
-#include "{module_dir}{{module_name}}.hpp"
+#include "{{module_dir}}/{{module_name}}.hpp"
 #include <sst/sit/sit.hpp>
-{extra_libs}
+{{extra_libs}}
 
 int sc_main(int, char *argv[]) {
 
-    {disable_warning}
+    {{disable_warning}}
     // ---------- SYSTEMC UUT INIT ---------- //
     {{port_defs}};
 
