@@ -34,14 +34,17 @@ for num_iters in (10, 100, 1000, 10000, 100000, 1000000, 10000000):
 
     for _ in range(num_iters):
 
-        x_coords = mt.int32b() / MAX_32
-        y_coords = mt.int32b() / MAX_32
+        x_coords = mt.int32b()
+        y_coords = mt.int32b()
+        x_coords = x_coords / MAX_32
+        y_coords = y_coords / MAX_32
+        dist = x_coords * x_coords + y_coords * y_coords
 
-        if x_coords * x_coords + y_coords * y_coords < RADIUS:
+        if dist < RADIUS:
             circle += 1
         else:
             square += 1
 
-        estimates = (circle / (circle + square)) * 4
+        estimates = 4 * (circle / (circle + square))
 
     print(f"{num_iters:10d}: {estimates:.6f}")
