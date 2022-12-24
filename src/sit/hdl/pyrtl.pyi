@@ -10,14 +10,12 @@ from ..sit import SIT
 class PyRTL(SIT):
     def __init__(
         self,
-        ipc: Literal["sock", "zmq"],
         module: str,
         lib: str,
+        ipc: Literal["sock", "zmq"] = ...,
         module_dir: str = ...,
         lib_dir: str = ...,
         desc: str = ...,
-        driver_template_path: str = ...,
-        component_template_path: str = ...,
     ) -> None: ...
     def _parse_signal_type(self, signal: str) -> int: ...
     def _get_driver_outputs(self) -> str: ...

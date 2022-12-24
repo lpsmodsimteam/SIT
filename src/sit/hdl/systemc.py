@@ -3,8 +3,6 @@
 This class inherits from the SIT base class and implements its own methods of parsing,
 modifying and generating boilerplate code for its specific paradigms.
 """
-import warnings
-
 from ..sit import SIT
 
 
@@ -49,10 +47,6 @@ class SystemC(SIT):
             desc=desc,
             width_macros=width_macros,
         )
-
-        # warnings.warn(
-        #     "SIT-SystemC has not been fully implemented yet", FutureWarning
-        # )
 
         if self.ipc == "sock":
 

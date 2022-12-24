@@ -1,6 +1,6 @@
-import sysconfig
 import pathlib
 import subprocess
+import sysconfig
 
 
 class _Commands:

@@ -45,8 +45,8 @@ class PyRTL(SIT):
         warnings.warn(
             "SIT-PyRTL has not been fully implemented yet", FutureWarning
         )
-        if self.module_dir:
-            self.module_dir = f'sys.path.append(str(Path(__file__).parent / "{self.module_dir}"))'
+        # if self.module_dir:
+        #     self.module_dir = f'sys.path.append(str(Path(__file__).parent / "{self.module_dir}"))'
 
         if self.ipc == "sock":
 
@@ -67,8 +67,8 @@ _sock = context.socket(zmq.REQ)"""
             self.send = "send"
             self.connect = "bind"
 
-        self.driver_path += "_driver.py"
-        self.comp_path += "_comp.cpp"
+        self.paths.set_driver_path(f"{self.module_name}_driver.py")
+        self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
 
     def _parse_signal_type(self, signal):
         """Parse the type and computes its width from the signal
@@ -96,10 +96,13 @@ _sock = context.socket(zmq.REQ)"""
             snippet of code representing output bindings
         """
         return self._sig_fmt(
-            "str({module}.sim.inspect({module}.{sig})).encode()",
-            lambda x: {"module": self.module, "sig": x["name"]},
-            self.ports["output"],
-            " +\n" + " " * 8,
+            fmt="str({module}.sim.inspect({module}.{sig})).encode()",
+            split_func=lambda x: {
+                "module_name": self.module_name,
+                "sig": x["name"],
+            },
+            array=self.ports["output"],
+            delim=" +\n" + " " * 8,
         )
 
     def _get_driver_inputs(self):
@@ -152,7 +155,7 @@ _sock = context.socket(zmq.REQ)"""
             "driver_bind": self.driver_bind,
             "connect": self.connect,
             "send": self.send,
-            "module_dir": self.module_dir,
-            "module": self.module,
+            "module_dir": self.paths.get_module_dir().resolve(),
+            "module_name": self.module_name,
             "buf_size": self.driver_buf_size,
         }
