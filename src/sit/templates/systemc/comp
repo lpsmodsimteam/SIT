@@ -68,7 +68,6 @@ class {{module_name}} : public SST::Component {
         auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
 
         if (se) {
-
             std::string _data_in = se->getString();
             bool keep_send = _data_in[0] != '0';
             bool keep_recv = _data_in[1] != '0';
@@ -107,5 +106,4 @@ class {{module_name}} : public SST::Component {
     SST_ELI_DOCUMENT_PORTS(
         {{ports}}
     )
-
 };

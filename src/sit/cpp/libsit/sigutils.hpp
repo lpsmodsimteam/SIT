@@ -1,5 +1,5 @@
 /*
- * SignalIO abstract class definitions and implementations.
+ * SITBuffer abstract class definitions and implementations.
  */
 
 #ifndef SIGUTILS
@@ -7,6 +7,7 @@
 
 #include <unistd.h>
 
+#include <iomanip>
 #include <sstream>
 
 /*
@@ -16,16 +17,16 @@
  * This class is implicitly-abstract and needs to be inherited by a class that
  * implements a supported interprocess communication (IPC) protocol.
  */
-class SignalIO {
-protected:
-    explicit SignalIO(int);
+class SITBuffer {
+   protected:
+    explicit SITBuffer(int);
 
-    ~SignalIO();
+    ~SITBuffer();
 
     int m_buf_size;
     char* m_data;
 
-public:
+   public:
     /* FINAL METHODS - CANNOT BE OVERRIDDEN BY CHILD CLASS */
     virtual void set(const std::string&) final;
 
@@ -42,6 +43,16 @@ public:
     void set_addr(const std::string&);
 
     void set_addr(const std::string&, const std::string&);
+
+    /*
+    Align buffer widths by left-padding with place-holding '0'
+    */
+    static void align_buffer_width(int width, std::string& buffer);
+
+    static void
+    align_buffer_width(int width, float buffer, std::string& new_buffer);
+
+    static void append_buffer(const char chr, int width, std::string& buffer);
 };
 
 /* -------------------- SIGNALIO IMPLEMENTATIONS -------------------- */
@@ -49,7 +60,7 @@ public:
 /*
  * Allocate the transported data on heap
  */
-inline SignalIO::SignalIO(int buf_size)
+inline SITBuffer::SITBuffer(int buf_size)
     : m_buf_size(buf_size), m_data(new char[m_buf_size]) {
     // do nothing
 }
@@ -57,7 +68,7 @@ inline SignalIO::SignalIO(int buf_size)
 /*
  * Clears the member variable containing the transported data
  */
-inline SignalIO::~SignalIO() {
+inline SITBuffer::~SITBuffer() {
     delete[] m_data;
 }
 
@@ -67,7 +78,7 @@ inline SignalIO::~SignalIO() {
  * Arguments:
  *     values -- values of the transport data
  */
-inline void SignalIO::set(const std::string& values) {
+inline void SITBuffer::set(const std::string& values) {
     snprintf(m_data, values.size() + 1, "%s", values.c_str());
 }
 
@@ -75,7 +86,7 @@ inline void SignalIO::set(const std::string& values) {
  * Returns the value specified by `index`. The values are casted statically as a
  * templated type.
  */
-inline std::string SignalIO::get() {
+inline std::string SITBuffer::get() {
     return m_data;
 }
 
@@ -99,8 +110,35 @@ inline std::string SignalIO::get() {
  * the child driver process to call all its destructors to exit gracefully
  * before the parent process kills it.
  */
-inline void SignalIO::set_state(bool state) {
+inline void SITBuffer::set_state(bool state) {
     m_data[0] = state ? '1' : '0';
 }
 
-#endif // SIGUTILS
+/*
+Align buffer widths by left-padding with place-holding '0'
+*/
+void SITBuffer::align_buffer_width(int width, std::string& buffer) {
+    int _len = buffer.length();
+    if (_len < width) {
+        buffer = std::string(width - _len, '0') + buffer;
+    }
+}
+
+void SITBuffer::align_buffer_width(
+    int width,
+    float buffer,
+    std::string& new_buffer
+) {
+    std::ostringstream _data_out;
+    _data_out << std::fixed << std::setprecision(width) << buffer;
+    new_buffer = _data_out.str().substr(0, width);
+}
+
+void SITBuffer::append_buffer(const char chr, int width, std::string& buffer) {
+    int _len = buffer.length();
+    if (_len < width) {
+        buffer += std::string(width - _len, chr);
+    }
+}
+
+#endif  // SIGUTILS

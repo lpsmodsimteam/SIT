@@ -13,16 +13,16 @@
 /*
  * Implements methods to receive signals via UNIX domain sockets.
  *
- * This class inherits the abstract sigutils::SignalIO base class.
+ * This class inherits the abstract sigutils::SITBuffer base class.
  */
-class SocketSignal : public SignalIO {
-private:
+class SocketSignal : public SITBuffer {
+   private:
     // flag to determine the options for setting up the sockets
     bool m_server_side;
     int m_socket, m_rd_socket;
     struct sockaddr_un m_addr;
 
-public:
+   public:
     explicit SocketSignal(int, bool = true);
 
     ~SocketSignal();
@@ -48,8 +48,11 @@ public:
  * connection properly.
  */
 inline SocketSignal::SocketSignal(int buf_size, bool server_side)
-    : SignalIO(buf_size), m_server_side(server_side),
-      m_socket(socket(AF_UNIX, SOCK_STREAM, 0)), m_rd_socket(0), m_addr({}) {}
+    : SITBuffer(buf_size),
+      m_server_side(server_side),
+      m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
+      m_rd_socket(0),
+      m_addr({}) {}
 
 /*
  * Unlinks and closes the sockets after use
@@ -91,7 +94,7 @@ inline void SocketSignal::set_addr(const std::string& addr) {
             perror("Accept failed\n");
         }
 
-    } else { // child process socket options
+    } else {  // child process socket options
 
         if (connect(m_socket, (struct sockaddr*)&m_addr, sizeof(m_addr)) < 0) {
             perror("Connection failed\n");
@@ -114,4 +117,4 @@ inline void SocketSignal::recv() {
         '\0';
 }
 
-#endif // SOCKSIGS
+#endif  // SOCKSIGS
