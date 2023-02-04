@@ -2,8 +2,8 @@
  * SST Interoperable
  * */
 
-#ifndef SIT
-#define SIT
+#ifndef SIT_HPP
+#define SIT_HPP
 
 #ifndef USE_ZMQ
 
@@ -13,4 +13,4 @@
 #include "zmqsigs.hpp"
 #endif
 
-#endif // SIT
+#endif  // SIT_HPP

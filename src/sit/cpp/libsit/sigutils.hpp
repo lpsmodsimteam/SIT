@@ -43,16 +43,6 @@ class SITBuffer {
     void set_addr(const std::string&);
 
     void set_addr(const std::string&, const std::string&);
-
-    /*
-    Align buffer widths by left-padding with place-holding '0'
-    */
-    static void align_buffer_width(int width, std::string& buffer);
-
-    static void
-    align_buffer_width(int width, float buffer, std::string& new_buffer);
-
-    static void append_buffer(const char chr, int width, std::string& buffer);
 };
 
 /* -------------------- SIGNALIO IMPLEMENTATIONS -------------------- */
@@ -112,33 +102,6 @@ inline std::string SITBuffer::get() {
  */
 inline void SITBuffer::set_state(bool state) {
     m_data[0] = state ? '1' : '0';
-}
-
-/*
-Align buffer widths by left-padding with place-holding '0'
-*/
-void SITBuffer::align_buffer_width(int width, std::string& buffer) {
-    int _len = buffer.length();
-    if (_len < width) {
-        buffer = std::string(width - _len, '0') + buffer;
-    }
-}
-
-void SITBuffer::align_buffer_width(
-    int width,
-    float buffer,
-    std::string& new_buffer
-) {
-    std::ostringstream _data_out;
-    _data_out << std::fixed << std::setprecision(width) << buffer;
-    new_buffer = _data_out.str().substr(0, width);
-}
-
-void SITBuffer::append_buffer(const char chr, int width, std::string& buffer) {
-    int _len = buffer.length();
-    if (_len < width) {
-        buffer += std::string(width - _len, chr);
-    }
 }
 
 #endif  // SIGUTILS
