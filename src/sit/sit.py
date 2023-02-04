@@ -245,7 +245,7 @@ class SIT:
             "lib": self.lib,
             "desc": self.desc,
             "ports": self._sig_fmt(
-                fmt="""{{ "{link}", "{desc}", {{ "sst.Interfaces.StringEvent" }}}}""",
+                fmt="""{{"{link}", "{desc}", {{"sst.Interfaces.StringEvent"}}}}""",
                 split_func=lambda x: {
                     "link": self.module_name + x[0],
                     "desc": self.module_name + x[-1],

@@ -1,8 +1,9 @@
-#include "{{module_dir}}/{{module_name}}.hpp"
-#include <sst/sit/sit.hpp>
 {{extra_libs}}
+#include <sst/sit/sit.hpp>
 
-int sc_main(int, char *argv[]) {
+#include "{{module_dir}}/{{module_name}}.hpp"
+
+int sc_main(int, char* argv[]) {
 
     {{disable_warning}}
     // ---------- SYSTEMC UUT INIT ---------- //

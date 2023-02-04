@@ -96,7 +96,7 @@ class Verilog(SIT):
             fmt="str(dut.{sig}.value).encode()",
             split_func=lambda x: {"sig": x["name"]},
             array=self.ports["output"],
-            delim=" \n" + (" " * 12) + "+ ",
+            delim="\n" + (" " * 12) + "+ ",
         )
 
     def _get_driver_inputs(self):

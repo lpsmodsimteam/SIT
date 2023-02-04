@@ -147,7 +147,7 @@ class SystemC(SIT):
         for input_port in self.ports["input"]:
             driver_inputs.append(
                 fmt.format(
-                    type="f" if input_port["type"] == "<float>" else "i",
+                    type="f" if input_port["type"] == "<float>" else "l",
                     sp=start_pos,
                     sl=str(input_port["len"]),
                     sig=input_port["name"],

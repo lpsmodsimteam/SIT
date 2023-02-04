@@ -16,7 +16,7 @@ class {{module_name}} : public SST::Component {
 
    public:
     // constructor for component
-    {{module_name}}(SST::ComponentId_t id, SST::Params &params)
+    {{module_name}}(SST::ComponentId_t id, SST::Params& params)
         : SST::Component(id),
           m_signal_io({{buf_size}}),
           m_clock(params.find<std::string>("clock", "")),
@@ -47,7 +47,7 @@ class {{module_name}} : public SST::Component {
 
         if (!child_pid) {
 
-            char *args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
+            char* args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
             m_output.verbose(
                 CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str()
             );
@@ -71,11 +71,19 @@ class {{module_name}} : public SST::Component {
 
     }
 
-    bool tick(SST::Cycle_t) { return false; };
+    bool tick(SST::Cycle_t) {
+        return false;
+    }
 
-    void handle_event(SST::Event *ev) {
+    void finish() {
+        m_output.verbose(
+            CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str()
+        );
+    }
 
-        auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+    void handle_event(SST::Event* ev) {
+
+        auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
 
         if (se) {
             std::string _data_in = se->getString();

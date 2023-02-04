@@ -16,7 +16,7 @@ class {{module_name}} : public SST::Component {
 
    public:
     // constructor for component
-    {{module_name}}(SST::ComponentId_t id, SST::Params &params)
+    {{module_name}}(SST::ComponentId_t id, SST::Params& params)
         : SST::Component(id),
           m_signal_io({{buf_size}}),
           m_clock(params.find<std::string>("clock", "")),
@@ -45,7 +45,9 @@ class {{module_name}} : public SST::Component {
         if (!child_pid) {
 
             char *args[] = {(char *) "python3", &m_proc[0u], &m_ipc_port[0u], nullptr};
-            m_output.verbose(CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str());
+            m_output.verbose(
+                CALL_INFO, 1, 0, "Forking process \"%s\"...\n", m_proc.c_str()
+            );
             execvp(args[0], args);
 
         } else {
@@ -53,19 +55,32 @@ class {{module_name}} : public SST::Component {
             m_signal_io.set_addr(m_ipc_port);
             {{receiver}}.recv();
             if (child_pid == std::stoi({{receiver}}.get())) {
-                m_output.verbose(CALL_INFO, 1, 0, "Process \"%s\" successfully synchronized\n",
-                                 m_proc.c_str());
+                m_output.verbose(
+                    CALL_INFO,
+                    1,
+                    0,
+                    "Process \"%s\" successfully synchronized\n",
+                    m_proc.c_str()
+                );
             }
 
         }
 
     }
 
-    bool tick(SST::Cycle_t) { return false; };
+    bool tick(SST::Cycle_t) {
+        return false;
+    }
+
+    void finish() {
+        m_output.verbose(
+            CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str()
+        );
+    }
 
     void handle_event(SST::Event *ev) {
 
-        auto *se = dynamic_cast<SST::Interfaces::StringEvent *>(ev);
+        auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
 
         if (se) {
 
