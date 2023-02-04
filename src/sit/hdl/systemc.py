@@ -140,7 +140,7 @@ class SystemC(SIT):
         """
         fmt = "{sig} = std::sto{type}(_data_in.substr({sp}, {sl}));"
         start_pos = 1
-        clock_fmt = "{sig} = std::stoi(_data_in.substr({sp}, {sl})) % 2;"
+        clock_fmt = "{sig} = std::stol(_data_in.substr({sp}, {sl})) % 2;"
         driver_inputs = []
 
         # input_port = (INPUT NAME, INPUT TYPE)

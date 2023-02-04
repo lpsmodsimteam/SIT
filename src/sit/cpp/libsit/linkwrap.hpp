@@ -3,31 +3,13 @@
 
 #include <sst/core/component.h>
 
+#include "bufwidth.hpp"
+
 class LinkWrapper {
    private:
     bool *_keep_send, *_keep_recv;
     std::vector<int> _buffer_lens;
     SST::Link *_din_link, *_dout_link;
-
-    void align_buffer_width(int width, std::string& buffer) {
-        int _len = buffer.length();
-        if (_len < width) {
-            buffer = std::string(width - _len, '0') + buffer;
-        }
-    }
-
-    // std::string align_buffer_width(int width, float buffer) {
-    //     std::ostringstream _data_out;
-    //     _data_out << std::fixed << std::setprecision(width) << buffer;
-    //     return _data_out.str().substr(0, width);
-    // }
-
-    // void append_buffer(const char chr, int width, std::string& buffer) {
-    //     int _len = buffer.length();
-    //     if (_len < width) {
-    //         buffer += std::string(width - _len, chr);
-    //     }
-    // }
 
    public:
     LinkWrapper(bool* keep_send, bool* keep_recv) {
@@ -62,7 +44,7 @@ class LinkWrapper {
             int i = 0;
             for (const auto& p : {args...}) {
                 std::string temp = p;
-                align_buffer_width(_buffer_lens[i++], temp);
+                align_buffer_width(temp, _buffer_lens[i++]);
                 result += temp;
             }
 
