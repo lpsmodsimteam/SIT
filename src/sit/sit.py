@@ -96,12 +96,12 @@ class SIT:
         if self.ipc == "sock":
 
             # component attributes
-            self.sig_type = "SocketSignal"
+            self.sig_type = "SITSocketBuffer"
 
         elif self.ipc == "zmq":
 
             # component attributes
-            self.sig_type = "ZMQSignal"
+            self.sig_type = "SITZMQBuffer"
 
         # shared attributes
         self.sender = self.receiver = "m_signal_io"

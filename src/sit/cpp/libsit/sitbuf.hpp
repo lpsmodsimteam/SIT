@@ -2,8 +2,8 @@
  * SITBuffer abstract class definitions and implementations.
  */
 
-#ifndef SIGUTILS
-#define SIGUTILS
+#ifndef SIT_BUF_HPP
+#define SIT_BUF_HPP
 
 #include <unistd.h>
 
@@ -104,4 +104,4 @@ inline void SITBuffer::set_state(bool state) {
     m_data[0] = state ? '1' : '0';
 }
 
-#endif  // SIGUTILS
+#endif  // SIT_BUF_HPP

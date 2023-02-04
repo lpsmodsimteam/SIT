@@ -7,10 +7,10 @@
 
 #ifndef USE_ZMQ
 
-#include "socksigs.hpp"
+#include "socket.hpp"
 
 #else
-#include "zmqsigs.hpp"
+#include "zmq.hpp"
 #endif
 
 #endif  // SIT_HPP

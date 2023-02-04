@@ -1,5 +1,5 @@
 /*
- * SocketSignal class definitions and implementations.
+ * SITSocketBuffer class definitions and implementations.
  */
 
 #ifndef SOCKSIGS
@@ -8,14 +8,14 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 
-#include "sigutils.hpp"
+#include "sitbuf.hpp"
 
 /*
  * Implements methods to receive signals via UNIX domain sockets.
  *
- * This class inherits the abstract sigutils::SITBuffer base class.
+ * This class inherits the abstract sitbuf::SITBuffer base class.
  */
-class SocketSignal : public SITBuffer {
+class SITSocketBuffer : public SITBuffer {
    private:
     // flag to determine the options for setting up the sockets
     bool m_server_side;
@@ -23,9 +23,9 @@ class SocketSignal : public SITBuffer {
     struct sockaddr_un m_addr;
 
    public:
-    explicit SocketSignal(int, bool = true);
+    explicit SITSocketBuffer(int, bool = true);
 
-    ~SocketSignal();
+    ~SITSocketBuffer();
 
     void set_addr(const std::string&);
 
@@ -47,7 +47,7 @@ class SocketSignal : public SITBuffer {
  * The child processes need to set the parameter to false to set up the
  * connection properly.
  */
-inline SocketSignal::SocketSignal(int buf_size, bool server_side)
+inline SITSocketBuffer::SITSocketBuffer(int buf_size, bool server_side)
     : SITBuffer(buf_size),
       m_server_side(server_side),
       m_socket(socket(AF_UNIX, SOCK_STREAM, 0)),
@@ -57,7 +57,7 @@ inline SocketSignal::SocketSignal(int buf_size, bool server_side)
 /*
  * Unlinks and closes the sockets after use
  */
-inline SocketSignal::~SocketSignal() {
+inline SITSocketBuffer::~SITSocketBuffer() {
     unlink(m_addr.sun_path);
     close(m_socket);
     close(m_rd_socket);
@@ -69,7 +69,7 @@ inline SocketSignal::~SocketSignal() {
  * Arguments:
  *     addr -- Unix domain socket address
  */
-inline void SocketSignal::set_addr(const std::string& addr) {
+inline void SITSocketBuffer::set_addr(const std::string& addr) {
     if (m_socket < 0) {
         perror("Socket creation\n");
     }
@@ -105,14 +105,14 @@ inline void SocketSignal::set_addr(const std::string& addr) {
 /*
  * Packs the buffer and sends the data
  */
-inline void SocketSignal::send() {
+inline void SITSocketBuffer::send() {
     write((m_server_side ? m_rd_socket : m_socket), m_data, strlen(m_data));
 }
 
 /*
  * Receives data and unpacks the buffer
  */
-inline void SocketSignal::recv() {
+inline void SITSocketBuffer::recv() {
     m_data[read((m_server_side ? m_rd_socket : m_socket), m_data, m_buf_size)] =
         '\0';
 }

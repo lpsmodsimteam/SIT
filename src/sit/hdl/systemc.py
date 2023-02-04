@@ -51,12 +51,12 @@ class SystemC(SIT):
         if self.ipc == "sock":
 
             # driver attributes
-            self.sig_type = "SocketSignal"
+            self.sig_type = "SITSocketBuffer"
 
         elif self.ipc == "zmq":
 
             # driver attributes
-            self.sig_type = "ZMQSignal"
+            self.sig_type = "SITZMQBuffer"
 
         self.paths.set_driver_path(f"{self.module_name}_driver.cpp")
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
