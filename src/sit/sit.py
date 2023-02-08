@@ -104,7 +104,7 @@ class SIT:
             self.sig_type = "SITZMQBuffer"
 
         # shared attributes
-        self.sender = self.receiver = "m_signal_io"
+        self.sender = self.receiver = "sit_buf"
 
         self.paths = Paths(self.hdl_str, module_dir)
 

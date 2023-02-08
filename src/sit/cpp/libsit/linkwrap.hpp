@@ -21,17 +21,17 @@ class LinkWrapper {
         _buffer_lens.clear();
     }
 
-    template <typename... Args>
-    void set_buffer_lengths(const Args&... args) {
-        _buffer_lens = {args...};
-    }
-
     void set_din_link(SST::Link* link) {
         _din_link = link;
     }
 
     void set_dout_link(SST::Link* link) {
         _dout_link = link;
+    }
+
+    template <typename... Args>
+    void set_buffer_lengths(const Args&... args) {
+        _buffer_lens = {args...};
     }
 
     template <typename... Args>
@@ -42,10 +42,8 @@ class LinkWrapper {
         if (!_buffer_lens.empty()) {
 
             int i = 0;
-            for (const auto& p : {args...}) {
-                std::string temp = p;
-                align_buffer_width(temp, _buffer_lens[i++]);
-                result += temp;
+            for (const auto& arg : {args...}) {
+                result += align_buffer_width(arg, _buffer_lens[i++]);
             }
 
         } else {

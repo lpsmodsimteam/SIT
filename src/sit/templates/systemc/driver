@@ -16,8 +16,8 @@ int sc_main(int, char* argv[]) {
 
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
     // Initialize signal handlers
-    {{sig_type}} m_signal_io({{buf_size}}, false);
-    m_signal_io.set_addr(argv[1]);
+    {{sig_type}} sit_buf({{buf_size}}, false);
+    sit_buf.set_addr(argv[1]);
     // ---------- IPC SOCKET SETUP AND HANDSHAKE ---------- //
 
     // ---------- INITIAL HANDSHAKE ---------- //

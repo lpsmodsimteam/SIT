@@ -7,7 +7,7 @@
 class {{module_name}} : public SST::Component {
    private:
     // Prepare the signal handler
-    {{sig_type}} m_signal_io;
+    {{sig_type}} sit_buf;
 
     // SST parameters
     SST::Output m_output;
@@ -18,7 +18,7 @@ class {{module_name}} : public SST::Component {
     // constructor for component
     {{module_name}}(SST::ComponentId_t id, SST::Params& params)
         : SST::Component(id),
-          m_signal_io({{buf_size}}),
+          sit_buf({{buf_size}}),
           m_clock(params.find<std::string>("clock", "")),
           m_proc(params.find<std::string>("proc", "")),
           m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -55,7 +55,7 @@ class {{module_name}} : public SST::Component {
 
         } else {
 
-            m_signal_io.set_addr(m_ipc_port);
+            sit_buf.set_addr(m_ipc_port);
             {{receiver}}.recv();
             if (child_pid == std::stoi({{receiver}}.get())) {
                 m_output.verbose(
