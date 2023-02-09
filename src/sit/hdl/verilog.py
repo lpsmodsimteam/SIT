@@ -95,7 +95,7 @@ class Verilog(SIT):
         return self._sig_fmt(
             fmt="str(dut.{sig}.value).encode()",
             split_func=lambda x: {"sig": x["name"]},
-            array=self.ports["output"],
+            array=self._get_output_ports(),
             delim="\n" + (" " * 12) + "+ ",
         )
 
@@ -112,7 +112,7 @@ class Verilog(SIT):
         clock_fmt = "dut.{sig}.value = int(signal[{sp}:{sl}]) % 2"
         driver_inputs = []
 
-        for input_port in self.ports["input"]:
+        for input_port in self._get_input_ports():
             driver_inputs.append(
                 fmt.format(
                     sp=start_pos,

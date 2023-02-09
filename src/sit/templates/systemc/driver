@@ -26,6 +26,7 @@ int sc_main(int, char* argv[]) {
     // ---------- INITIAL HANDSHAKE ---------- //
 
     std::ostringstream _data_out;
+    {{multi_outputs}}
 
     while (true) {
 

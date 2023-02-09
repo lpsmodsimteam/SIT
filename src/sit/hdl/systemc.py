@@ -60,6 +60,7 @@ class SystemC(SIT):
 
         self.paths.set_driver_path(f"{self.module_name}_driver.cpp")
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
+        self.__data_out_str = ""
 
     def _parse_signal_type(self, signal):
         """Parse the type and computes its size from the signal
@@ -99,11 +100,11 @@ class SystemC(SIT):
                 return __get_ints()
 
         # boolean signals
-        elif signal == "<bool>":
+        elif signal == "bool":
             return 1
 
         # arbitrary precision for float signals
-        elif signal == "<float>":
+        elif signal == "float":
             return 12
 
         # default C++ data types
@@ -118,17 +119,28 @@ class SystemC(SIT):
         str
             snippet of code representing output bindings
         """
-        return self._sig_fmt(
-            "_data_out << {precision}{sig}",
-            lambda x: {
-                "sig": x["name"],
-                "precision": f"std::fixed << std::setprecision({self.precision}) << "
-                if self.precision
-                else "",
-            },
-            self.ports["output"],
-            ";\n" + " " * 8,
-        )
+        if len(self._get_output_ports()) > 1:
+            self.extra_libs += "#include <sst/sit/bufwidth.hpp>\n"
+            self.__data_out_str = "std::string _data_out_str;"
+            return self._sig_fmt(
+                fmt="_data_out_str = align_buffer_width(std::to_string({sig}.read()), {len});\n_data_out << _data_out_str",
+                split_func=lambda x: {"sig": x["name"], "len": x["len"]},
+                array=self._get_output_ports(),
+                delim=";\n" + " " * 8,
+            )
+
+        else:
+            return self._sig_fmt(
+                fmt="_data_out << {precision}{sig}",
+                split_func=lambda x: {
+                    "sig": x["name"],
+                    "precision": f"std::fixed << std::setprecision({self.precision}) << "
+                    if self.precision
+                    else "",
+                },
+                array=self._get_output_ports(),
+                delim=";\n" + " " * 8,
+            )
 
     def _get_driver_inputs(self):
         """Generate input bindings for the driver.
@@ -144,10 +156,10 @@ class SystemC(SIT):
         driver_inputs = []
 
         # input_port = (INPUT NAME, INPUT TYPE)
-        for input_port in self.ports["input"]:
+        for input_port in self._get_input_ports():
             driver_inputs.append(
                 fmt.format(
-                    type="f" if input_port["type"] == "<float>" else "l",
+                    type="f" if input_port["type"] == "float" else "l",
                     sp=start_pos,
                     sl=str(input_port["len"]),
                     sig=input_port["name"],
@@ -178,7 +190,7 @@ class SystemC(SIT):
            string format of driver port definitions
         """
         return "sc_signal" + ";\n    sc_signal".join(
-            i["type"] + " " + i["name"] for i in self._get_all_ports()
+            f"""<{i["type"]}> {i["name"]}""" for i in self._get_all_ports()
         )
 
     def __get_driver_bindings(self):
@@ -212,6 +224,7 @@ class SystemC(SIT):
             "disable_warning": self.disable_warning,
             "port_defs": self.__get_driver_port_defs(),
             "bindings": self.__get_driver_bindings(),
+            "multi_outputs": self.__data_out_str,
             "sender": self.sender,
             "receiver": self.receiver,
             "buf_size": self.driver_buf_size,
@@ -220,7 +233,7 @@ class SystemC(SIT):
 
     def _fixed_width_float_output(self):
         """Add <iomanip> library to handle ports with float signals"""
-        self.extra_libs += "#include <iomanip>"
+        self.extra_libs += "#include <iomanip>\n"
 
     def _disable_runtime_warnings(self, warning):
         """Add sc_report_handler to disable driver runtime warnings

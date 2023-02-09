@@ -101,7 +101,7 @@ _sock = context.socket(zmq.REQ)"""
                 "module_name": self.module_name,
                 "sig": x["name"],
             },
-            array=self.ports["output"],
+            array=self._get_output_ports(),
             delim=" +\n" + " " * 8,
         )
 
@@ -118,7 +118,7 @@ _sock = context.socket(zmq.REQ)"""
         clock_fmt = '"{sig}": int(signal[{sp}:{sl}]) % 2,'
         driver_inputs = []
 
-        for input_port in self.ports["input"]:
+        for input_port in self._get_input_ports():
             driver_inputs.append(
                 fmt.format(
                     sp=start_pos,

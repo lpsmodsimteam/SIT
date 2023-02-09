@@ -89,7 +89,12 @@ class SIT:
         self.hdl_str = self.__class__.__name__.lower()
 
         self.width_macros = width_macros if width_macros else {}
-        self.ports = {"clock": [], "input": [], "output": [], "inout": []}
+        self.ports: dict[str, list[dict[str, int]]] = {
+            "clock": [],
+            "input": [],
+            "output": [],
+            "inout": [],
+        }
 
         self.driver_buf_size = 0
         self.comp_buf_size = 0
@@ -123,6 +128,12 @@ class SIT:
         raise NotImplementedError()
 
     def _get_driver_defs(self):
+        raise NotImplementedError()
+
+    def _parse_signal_type(self, signal):
+        raise NotImplementedError()
+
+    def _generate_extra_files(self):
         raise NotImplementedError()
 
     @staticmethod
@@ -181,7 +192,27 @@ class SIT:
         generator
             all ports in a single array
         """
-        return (i for sig in self.ports.values() for i in sig)
+        return [i for sig in self.ports.values() for i in sig]
+
+    def _get_input_ports(self):
+        """Flatten all types of ports into a single array
+
+        Returns:
+        --------
+        generator
+            all ports in a single array
+        """
+        return self.ports["input"]
+
+    def _get_output_ports(self):
+        """Flatten all types of ports into a single array
+
+        Returns:
+        --------
+        generator
+            all ports in a single array
+        """
+        return self.ports["output"]
 
     def set_ports(self, ports):
         """Assign ports to their corresponding member lists
@@ -209,9 +240,11 @@ class SIT:
                     {
                         "name": port[1],
                         "type": port[2],
-                        "len": int(port[-1])
-                        if len(port) == 4
-                        else self._parse_signal_type(port[2]),
+                        "len": (
+                            int(port[-1])
+                            if len(port) == 4
+                            else self._parse_signal_type(port[2])
+                        ),
                     }
                 )
 
@@ -327,7 +360,7 @@ class SIT:
 
         try:
             self._generate_extra_files()
-        except AttributeError:
+        except NotImplementedError:
             pass
 
         print(f"Ports generated for: {self.module_name} ({self.hdl_str})")
