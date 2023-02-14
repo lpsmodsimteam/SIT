@@ -220,8 +220,10 @@ class SIT:
         Parameters:
         -----------
         ports : tuple(tuple3(str))
-            type-declared signals in the form (<PORT TYPE>, <PORT NAME>, <DATA TYPE>).
-            The current types of signals supported are ("clock", "input", "output", "inout")
+            type-declared signals in the form:
+                (<PORT TYPE>, <PORT NAME>, <DATA TYPE>)
+            The current types of signals supported are:
+                ("clock", "input", "output", "inout")
 
         Raises:
         -------
@@ -334,8 +336,8 @@ class SIT:
         )
 
     def generate_black_boxes(self):
-        """Provide a high-level interface to the user to generate both the components of the
-        black box and dump them to their corresponding files
+        """Provide a high-level interface to the user to generate both the
+        components of the black box and dump them to their corresponding files
 
         Raises:
         -------
@@ -440,8 +442,9 @@ class SIT:
 
     @staticmethod
     def _get_num_digits(signal):
-        """Compute the minimum number of digits required to hold signal data type width by
-        calculating: `floor(log(-1 + 2^x)/log(10)) + 1`
+        """Compute the minimum number of digits required to hold signal data
+        type width by calculating: `floor(log2(-1 + 2^x)/log2(10)) + 1`. This
+        expression is equivalent to `ceil(x / log2(10))`
 
         Parameters:
         -----------
@@ -453,4 +456,5 @@ class SIT:
         int
             number of digits for signal width
         """
-        return math.floor(math.log(math.pow(2, signal) - 1) / math.log(10)) + 1
+        # log2(10) = 3.321928094887362
+        return math.ceil(signal / 3.321928094887362)

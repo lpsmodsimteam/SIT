@@ -23,7 +23,7 @@ classifiers = [
 sit = "sit:run"
 
 [project.urls]
-"Homepage" = "https://github.com/lpsmodsim/SIT"
+"Homepage" = "https://github.com/lpsmodsimteam/SIT"
 
 [tool.setuptools.packages.find]
 where = ["src"]

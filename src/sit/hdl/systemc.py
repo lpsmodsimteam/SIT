@@ -123,7 +123,8 @@ class SystemC(SIT):
             self.extra_libs += "#include <sst/sit/bufwidth.hpp>\n"
             self.__data_out_str = "std::string _data_out_str;"
             return self._sig_fmt(
-                fmt="_data_out_str = align_buffer_width(std::to_string({sig}.read()), {len});\n_data_out << _data_out_str",
+                fmt="""_data_out_str = align_buffer_width(std::to_string({sig}.read()), {len});
+        _data_out << _data_out_str""",
                 split_func=lambda x: {"sig": x["name"], "len": x["len"]},
                 array=self._get_output_ports(),
                 delim=";\n" + " " * 8,
@@ -135,7 +136,7 @@ class SystemC(SIT):
                 split_func=lambda x: {
                     "sig": x["name"],
                     "precision": f"std::fixed << std::setprecision({self.precision}) << "
-                    if self.precision
+                    if self.precision and x["type"] == "float"
                     else "",
                 },
                 array=self._get_output_ports(),
