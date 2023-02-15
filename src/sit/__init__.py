@@ -1,10 +1,10 @@
 import argparse
 import pkg_resources
 
-from .libmgmt import LibraryManager
 from .hdl.pyrtl import PyRTL as SITPyRTL
 from .hdl.systemc import SystemC as SITSystemC
 from .hdl.verilog import Verilog as SITVerilog
+from .libmgmt import LibraryManager
 
 
 def run():

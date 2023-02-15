@@ -12,7 +12,7 @@ class Paths:
 
         self.__template_paths = {}
         self.__template_paths["dir"] = (
-            pathlib.Path(__file__).parent / "templates" / hdl_str
+            pathlib.Path(__file__).parent / "hdl" / hdl_str / "templates"
         ).resolve()
         self.__template_paths["driver"] = (
             self.__template_paths["dir"] / "driver"

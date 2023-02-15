@@ -1,11 +1,16 @@
+"""Implementation of the PyRTL class
+
+This class inherits from the SIT base class and implements its own methods of parsing,
+modifying and generating boilerplate code for its specific paradigms.
+"""
 from typing import Literal
 
-from ..sit import SIT
+from ...sit import SIT
 
-class Verilog(SIT):
+class PyRTL(SIT):
     def __init__(
         self,
-        module_name: str,
+        module: str,
         lib: str,
         ipc: Literal["sock", "zmq"] = ...,
         module_dir: str = ...,
@@ -13,7 +18,6 @@ class Verilog(SIT):
         desc: str = ...,
     ) -> None: ...
     def _parse_signal_type(self, signal: str) -> int: ...
-    def _get_driver_inputs(self) -> str: ...
     def _get_driver_outputs(self) -> str: ...
+    def _get_driver_inputs(self) -> str: ...
     def _get_driver_defs(self) -> dict[str, str]: ...
-    def _generate_extra_files(self) -> None: ...

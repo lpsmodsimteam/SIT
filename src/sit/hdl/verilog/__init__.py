@@ -4,7 +4,7 @@ This class inherits from the SIT base class and implements its own methods of pa
 modifying and generating boilerplate code for its specific paradigms.
 """
 
-from ..sit import SIT
+from ...sit import SIT
 
 
 class Verilog(SIT):

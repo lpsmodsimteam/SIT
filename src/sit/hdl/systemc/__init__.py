@@ -3,7 +3,7 @@
 This class inherits from the SIT base class and implements its own methods of
 parsing, modifying and generating boilerplate code for its specific paradigms.
 """
-from ..sit import SIT
+from ...sit import SIT
 
 
 class SystemC(SIT):

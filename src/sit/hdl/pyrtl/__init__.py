@@ -3,9 +3,7 @@
 This class inherits from the SIT base class and implements its own methods of parsing,
 modifying and generating boilerplate code for its specific paradigms.
 """
-import warnings
-
-from ..sit import SIT
+from ...sit import SIT
 
 
 class PyRTL(SIT):
@@ -41,12 +39,6 @@ class PyRTL(SIT):
             lib_dir=lib_dir,
             desc=desc,
         )
-
-        warnings.warn(
-            "SIT-PyRTL has not been fully implemented yet", FutureWarning
-        )
-        # if self.module_dir:
-        #     self.module_dir = f'sys.path.append(str(Path(__file__).parent / "{self.module_dir}"))'
 
         if self.ipc == "sock":
 
