@@ -1,7 +1,7 @@
 """Implementation of the SystemC class
 
-This class inherits from the SIT base class and implements its own methods of parsing,
-modifying and generating boilerplate code for its specific paradigms.
+This class inherits from the SIT base class and implements its own methods of
+parsing, modifying and generating boilerplate code for its specific paradigms.
 """
 from ..sit import SIT
 

@@ -93,7 +93,7 @@ class Verilog(SIT):
             snippet of code representing output bindings
         """
         return self._sig_fmt(
-            fmt="str(dut.{sig}.value).encode()",
+            fmt="str(dut.{sig}.value.integer)",
             split_func=lambda x: {"sig": x["name"]},
             array=self._get_output_ports(),
             delim="\n" + (" " * 12) + "+ ",
@@ -156,7 +156,7 @@ class Verilog(SIT):
     def _generate_extra_files(self):
 
         template = self.paths.read_template_str("makefile")
-        template_str = self.tr.render(
+        template_str = self.template.render(
             template,
             dict(
                 module_name=self.module_name,

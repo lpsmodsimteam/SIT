@@ -113,7 +113,7 @@ class SIT:
 
         self.paths = Paths(self.hdl_str, module_dir)
 
-        self.tr = TemplateRenderer()
+        self.template = TemplateRenderer()
 
     def set_template_paths(self, dir="", driver="", comp=""):
         self.paths.set_template_paths(dir, driver, comp)
@@ -309,7 +309,7 @@ class SIT:
             boilerplate code representing the black box-model file
         """
         template = self.paths.read_template_str("comp")
-        return self.tr.render(template, self.__get_comp_defs())
+        return self.template.render(template, self.__get_comp_defs())
 
     def __generate_driver_str(self):
         """Generate the black box-driver code based on methods used to format
@@ -326,7 +326,7 @@ class SIT:
             boilerplate code representing the black box-driver file
         """
         template = self.paths.read_template_str("driver")
-        return self.tr.render(
+        return self.template.render(
             template,
             dict(
                 inputs=self._get_driver_inputs(),
