@@ -62,7 +62,7 @@ class SystemC(SIT):
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
         self.__data_out_str = ""
 
-    def _parse_signal_type(self, signal):
+    def _parse_signal_type(self, signal_type, signal_len):
         """Parse the type and computes its size from the signal
 
         Parameters:
@@ -86,26 +86,26 @@ class SystemC(SIT):
                 integers found in signal string
             """
             try:
-                return self._get_ints(signal)
+                return int(signal_type)
             except ValueError:
-                return int(self._get_signal_width_from_macro(signal))
+                return int(self._get_signal_width_from_macro(signal_type))
 
         # SystemC member data types
-        if "sc" in signal:
+        if "sc" in signal_type:
 
-            if any(x in signal for x in ("bv", "lv", "int")):
-                return self._get_num_digits(__get_ints())
+            if any(x in signal_type for x in ("bv", "lv", "int")):
+                return self._get_num_digits(signal_len)
 
-            elif any(x in signal for x in ("bit", "logic")):
+            elif any(x in signal_type for x in ("bit", "logic")):
                 return __get_ints()
 
         # boolean signals
-        elif signal == "bool":
+        elif signal_type == "bool":
             return 1
 
         # arbitrary precision for float signals
-        elif signal == "float":
-            return 12
+        elif signal_type == "float":
+            return signal_len
 
         # default C++ data types
         else:

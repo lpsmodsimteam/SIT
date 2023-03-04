@@ -1,6 +1,7 @@
 import argparse
 import pkg_resources
 
+from .exceptions import ConfigException
 from .hdl import pyrtl, systemc, verilog
 from .libmgmt import LibraryManager
 
@@ -10,14 +11,12 @@ class SSTInteroperability:
 
         self.__config_data = config_data
         self.__instance: pyrtl.PyRTL | systemc.SystemC | verilog.Verilog
-        self.__ports = []
 
-    def ingest(self):
+    def generate_black_boxes(self):
 
-        self.set_ports(self.__config_data["ports"])
+        self.__set_hdl_str(self.__config_data["hdl"])
 
-        self.set_hdl_str(self.__config_data["hdl"])
-        self.__instance.set_ports(self.__ports)
+        self.__instance.set_ports(self.__config_data["ports"])
 
         if extra_configs := self.__config_data.get("extra", None):
 
@@ -35,32 +34,33 @@ class SSTInteroperability:
                     disable_runtime_warnings
                 )
 
-    def generate_black_boxes(self):
-
         self.__instance.generate_black_boxes()
-
-    def set_hdl_str(self, hdl_str: str):
-
-        if hdl_str.lower() == "pyrtl":
-            self.__instance = pyrtl.PyRTL(**self.__config_data["config"])
-
-        elif hdl_str.lower() == "systemc":
-            self.__instance = systemc.SystemC(**self.__config_data["config"])
-
-        elif hdl_str.lower() == "verilog":
-            self.__instance = verilog.Verilog(**self.__config_data["config"])
-
-    def set_ports(self, ports: dict[str, list[str]]):
-
-        # PORT = PORT_DATA_TYPE, PORT_NAME, PORT_TYPE, PORT_LENGTH
-        for k, v in ports.items():
-
-            for port in v:
-                self.__ports.append((k, port["name"], port["type"]))
 
     def set_config_data(self, config_data):
 
         self.__config_data = config_data
+
+    def __set_hdl_str(self, hdl_str):
+
+        match hdl_str.lower():
+
+            case "pyrtl":
+                self.__instance = pyrtl.PyRTL(**self.__config_data["config"])
+
+            case "systemc":
+                self.__instance = systemc.SystemC(
+                    **self.__config_data["config"]
+                )
+
+            case "verilog":
+                self.__instance = verilog.Verilog(
+                    **self.__config_data["config"]
+                )
+
+            case _:
+                raise ConfigException(
+                    f'"{hdl_str}" is not supported as a hardware description language'
+                )
 
 
 def run():

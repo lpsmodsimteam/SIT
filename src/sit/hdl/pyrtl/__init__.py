@@ -68,7 +68,7 @@ _sock = context.socket(zmq.REQ)"""
         self.paths.set_driver_path(f"{self.module_name}_driver.py")
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
 
-    def _parse_signal_type(self, signal):
+    def _parse_signal_type(self, signal_type, signal_len):
         """Parse the type and computes its width from the signal
 
         Parameters:
@@ -81,9 +81,7 @@ _sock = context.socket(zmq.REQ)"""
         int
             signal width
         """
-        return (
-            1 if signal == "1" else self._get_num_digits(self._get_ints(signal))
-        )
+        return self._get_num_digits(signal_len)
 
     def _get_driver_outputs(self):
         """Generate output bindings for both the components in the black box

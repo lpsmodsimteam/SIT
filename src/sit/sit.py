@@ -19,7 +19,7 @@ to be overridden:
 
 import math
 
-from .exceptions import PortException, IPCException, SignalFormatException
+from .exceptions import PortException, ConfigException, SignalFormatException
 from .files import Paths
 from .render import TemplateRenderer
 
@@ -70,13 +70,13 @@ class SIT:
 
         Raises:
         -------
-        IPCException
+        ConfigException
             unsupported IPC is provided
         """
         if ipc in ("sock", "zmq"):
             self.ipc = ipc
         else:
-            raise IPCException(f"{ipc} is not a supported IPC protocol")
+            raise ConfigException(f"{ipc} is not a supported IPC protocol")
 
         self.module_name = module_name
         self.lib = lib
@@ -131,7 +131,7 @@ class SIT:
     def _get_driver_defs(self):
         raise NotImplementedError()
 
-    def _parse_signal_type(self, signal):
+    def _parse_signal_type(self, signal_type, signal_len):
         raise NotImplementedError()
 
     def _generate_extra_files(self):
@@ -234,27 +234,24 @@ class SIT:
             invalid port type provided
         """
         # PORT = PORT_DATA_TYPE, PORT_NAME, PORT_TYPE, PORT_LENGTH
-        for port in ports:
-            if len(port) not in (3, 4):
-                raise SignalFormatException("Invalid signal format") from None
+        for port_type, port_values in ports.items():
 
-            try:
-                self.ports[port[0]].append(
-                    {
-                        "name": port[1],
-                        "type": port[2],
-                        "len": (
-                            int(port[-1])
-                            if len(port) == 4
-                            else self._parse_signal_type(port[2])
-                        ),
-                    }
-                )
+            for port in port_values:
 
-            except KeyError:
-                raise PortException(
-                    f"{port[0]} is an invalid port type"
-                ) from None
+                if len(port) != 3:
+                    raise SignalFormatException(
+                        "Invalid signal format"
+                    ) from None
+
+                port["len"] = self._parse_signal_type(port["type"], port["len"])
+
+                try:
+                    self.ports[port_type].append(port)
+
+                except KeyError:
+                    raise PortException(
+                        f"{port[port_type]} is an invalid port type"
+                    ) from None
 
     def __get_comp_defs(self):
         """Map definitions for the component format string
@@ -424,22 +421,6 @@ class SIT:
                 raise AttributeError(
                     f"disable_runtime_warnings() not supported with {self.module_name}"
                 )
-
-    @staticmethod
-    def _get_ints(signal):
-        """Extract integers from signal string
-
-        Parameters:
-        -----------
-        signal : str
-            signal data type or integer width
-
-        Returns:
-        --------
-        int
-            string of integer found in signal string
-        """
-        return int("".join(s for s in signal if s.isdigit()))
 
     @staticmethod
     def _get_num_digits(signal):

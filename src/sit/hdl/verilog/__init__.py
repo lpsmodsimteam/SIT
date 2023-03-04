@@ -3,8 +3,8 @@
 This class inherits from the SIT base class and implements its own methods of
 parsing, modifying and generating boilerplate code for its specific paradigms.
 """
-
 from ...sit import SIT
+from ...exceptions import SignalFormatException
 
 
 class Verilog(SIT):
@@ -66,7 +66,7 @@ class Verilog(SIT):
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
         self.paths.set_extra_file_paths({"makefile": "Makefile.config"})
 
-    def _parse_signal_type(self, signal):
+    def _parse_signal_type(self, signal_type, signal_len):
         """Parse the type and computes its size from the signal
 
         Parameters:
@@ -80,15 +80,18 @@ class Verilog(SIT):
             signal width
         """
 
-        # bit vector signals
-        if "b" in signal:
-            return self._get_ints(signal)
+        match signal_type:
 
-        elif signal == "1":
-            return 1
+            case "int":
+                return self._get_num_digits(signal_len)
 
-        else:
-            return self._get_num_digits(self._get_ints(signal))
+            case "bit":
+                return signal_len
+
+            case _:
+                raise SignalFormatException(
+                    f'Invalid signal type "{signal_type}"'
+                ) from None
 
     def _get_driver_outputs(self):
         """Generate output bindings for both the components in the black box

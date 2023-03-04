@@ -7,8 +7,8 @@ class SITError(Exception):
     pass
 
 
-class IPCException(SITError):
-    """Exceptions for invalid or unsupported interprocess communication"""
+class ConfigException(SITError):
+    """Exceptions for invalid or unsupported configuration, including IPC method and HDL"""
 
     pass
 
