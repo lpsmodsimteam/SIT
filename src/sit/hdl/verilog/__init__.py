@@ -1,7 +1,7 @@
 """Implementation of the Verilog class
 
-This class inherits from the SIT base class and implements its own methods of parsing,
-modifying and generating boilerplate code for its specific paradigms.
+This class inherits from the SIT base class and implements its own methods of
+parsing, modifying and generating boilerplate code for its specific paradigms.
 """
 
 from ...sit import SIT
@@ -9,7 +9,13 @@ from ...sit import SIT
 
 class Verilog(SIT):
     def __init__(
-        self, module_name, lib, ipc="sock", module_dir="", lib_dir="", desc=""
+        self,
+        module_name,
+        lib,
+        ipc="sock",
+        module_dir="",
+        lib_dir="",
+        desc="",
     ):
         """Constructor for Verilog SIT
 

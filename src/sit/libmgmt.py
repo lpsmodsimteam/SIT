@@ -62,3 +62,16 @@ class LibraryManager:
             exit(-1)
 
         self.__cmd.run_cmd(["sudo", "make", "install"], stdout=None)
+
+
+class Format:
+    def __init__(self) -> None:
+
+        self.linkwrapper = """{{module_name}}_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
+        {{module_name}}_link->set_din_link(configureLink("{{module_name}}_din"));
+        {{module_name}}_link->set_dout_link(configureLink(
+            "{{module_name}}_dout",
+            new SST::Event::Handler<{{lib}}>(this, &{{lib}}::{{module_name}})
+        ));
+        {{module_name}}_link->set_buffer_lengths({{buf_lens}});
+        """

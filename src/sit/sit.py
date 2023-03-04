@@ -82,6 +82,7 @@ class SIT:
         self.lib = lib
         self.lib_dir = lib_dir
         self.desc = desc
+
         self.precision = 0
         self.extra_libs = ""
         self.disable_warning = ""
