@@ -23,23 +23,19 @@ def connect_comps(comp, comp_name, main_comp_name):
 
 
 class ConfigFile:
-    def __init__(self) -> None:
+    def generate_linkwrapper_binding(self, module_name, lib, input_ports):
 
-        self.template = TemplateRenderer()
-
-    def generate_linkwrapper_binding(self, module_name, lib, buf_lens):
-
-        return self.template.render(
+        return TemplateRenderer().render(
             LINK_WRAPPER_STR,
             {
                 "module_name": module_name,
                 "lib": lib,
-                "buf_lens": buf_lens,
+                "buf_lens": ", ".join(str(i["len"]) for i in input_ports),
             },
         )
 
     def generate_comps_func(self, module_name):
 
-        return self.template.render(
+        return TemplateRenderer().render(
             CONNECT_COMPS_FUNC_STR, {"module_name": module_name}
         )

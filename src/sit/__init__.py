@@ -67,9 +67,7 @@ Component buffer size: {self.__instance.comp_buf_size}"""
             self.__config_file.generate_linkwrapper_binding(
                 self.__config_data["config"]["module_name"],
                 self.__config_data["config"]["lib"],
-                ", ".join(
-                    str(i["len"]) for i in self.__instance._get_input_ports()
-                ),
+                self.__instance._get_input_ports(),
             )
         )
 

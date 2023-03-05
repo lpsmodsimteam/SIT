@@ -1,0 +1,120 @@
+@startuml
+
+skinparam linetype polyline
+skinparam linetype ortho
+left to right direction
+skinparam backgroundColor transparent
+skinparam classBackgroundColor fff
+
+namespace SSTInteroperabilityToolkit {
+
+  class SSTInteroperability {
+    + __init__(config_data: nested dict)
+    + generate_black_boxes()
+    + set_config_data(config_data: nested dict)
+    + dump_summary()
+    + generate_config_file()
+    - set_hdl_str(hdl_str: str)
+  }
+
+  class SIT {
+    + __init__(module_name: str, lib: str, ipc: literal, module_dir: str, lib_dir: str desc: str, width_macros: dict[str, int])
+    + set_template_paths(template_dir_path: os.PathLike, driver_template_path: os.PathLike, component_template_path: os.PathLike)
+    + set_gen_paths(gen_dir_path: os.PathLike, driver_path: os.PathLike, comp_path: os.PathLike)
+    + set_ports(ports: tuple[tuple[str, str, str] | tuple[str, str, str, int], ...])
+    + fixed_width_float_output(precision: int)
+    + disable_runtime_warnings(warnings: str | list[str])
+    + generate_black_boxes()
+    # get_driver_inputs(): str
+    # get_driver_outputs(): str
+    # get_driver_defs(): str
+    # parse_signal_type(signal: str): int
+    # sig_fmt(fmt: str, split_func: Callable[[dict[str, str]], dict[str, str]], array: list[dict[str, str | int]], delim: str): str
+    # get_signal_width_from_macro(signal_type: str): str
+    # get_all_ports(): list[dict[str, str | int]]
+    # get_input_ports(): list[dict[str, str | int]]
+    # get_output_ports(): list[dict[str, str | int]]
+    # get_ints(signal: str): int
+    # get_num_digits(signal: int): int
+    - get_comp_defs(): dict[str, str]
+    - generate_comp_str(): str
+    - generate_driver_str(): str
+  }
+
+  class TemplateRenderer {
+    + __init__()
+    + render(template: str, mapping: dict[str, str | int]): str
+  }
+
+  class Paths {
+    + __init__(hdl_str: str, module_dir_path: str)
+    + get_meta(key: str): os.PathLike
+    + get_template(key: str): os.PathLike
+    + get_gen(key: str): os.PathLike
+    + get_paths(): dict[str, os.PathLike]
+    + set_template_paths(dir: str, driver: str, comp: str)
+    + set_gen_paths(dir: str, driver: str, comp: str)
+    + set_driver_path(driver_file: str)
+    + set_comp_path(comp_file: str)
+    + set_extra_file_paths(templates: dict[str, str], gens: dict[str, str])
+    + read_template_str(file: str): str
+  }
+
+  class PyRTL {
+      + __init__(module_name: str, lib: str, ipc: literal, module_dir: str, lib_dir: str, desc: str)
+      # get_driver_inputs(): str
+      # get_driver_outputs(): str
+      # get_driver_defs(): dict[str, str]
+  }
+
+  class SystemC {
+      + __init__(module_name: str, lib: str, ipc: literal, module_dir: str, lib_dir: str, desc: str, width_macros: dict[str, int])
+      # parse_signal_type(signal: str): int
+      # get_driver_inputs(): str
+      # get_driver_outputs(): str
+      # get_driver_defs(): dict[str, str]
+      - get_driver_port_defs(): str
+      - get_driver_bindings(): str
+      # fixed_width_float_output()
+      # disable_runtime_warnings(warning: str)
+  }
+
+  class Verilog {
+      + __init__(module_name: str, lib: str, ipc: literal, module_dir: str, lib_dir: str, desc: str)
+      # parse_signal_type(signal: str): int
+      # get_driver_inputs(): str
+      # get_driver_outputs(): str
+      # get_driver_defs(): dict[str, str]
+      # generate_extra_files()
+  }
+
+  class ConfigFile {
+    + generate_linkwrapper_binding(module_name: str, lib: str, input_ports: list[dict[str, str | int]]): str
+    + generate_comps_func(module_name: str): str
+  }
+
+  SSTInteroperability *-- SIT
+  SSTInteroperability *-- ConfigFile
+
+  ConfigFile *-- TemplateRenderer
+
+  SIT *-- TemplateRenderer
+  SIT *-- Paths
+  SIT <|-- PyRTL
+  SIT <|-- SystemC
+  SIT <|-- Verilog
+
+  'class Exception {}
+  'class SITError {}
+  'class IPCException {}
+  'class PortException {}
+  'class SignalFormatException {}
+  'class TemplateFileNotFound {}
+
+  'Exception <|-- SITError
+  'SITError <|-- IPCException
+  'SITError <|-- PortException
+  'SITError <|-- SignalFormatException
+  'SITError <|-- TemplateFileNotFound
+
+}

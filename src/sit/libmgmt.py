@@ -34,7 +34,7 @@ class _Commands:
         prefix = self.__get_prefix(sst_config)
         include_dir = self.__get_include_dir(sst_config)
 
-        return prefix / include_dir.name / "sst/sit"
+        return prefix / include_dir.name / "sst" / "sit"
 
 
 class LibraryManager:
