@@ -66,7 +66,7 @@ class Verilog(SIT):
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
         self.paths.set_extra_file_paths({"makefile": "Makefile.config"})
 
-    def _parse_signal_type(self, signal_type, signal_len):
+    def _compute_signal_buffer_len(self, signal_type, signal_len):
         """Parse the type and computes its size from the signal
 
         Parameters:

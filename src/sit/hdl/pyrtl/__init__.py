@@ -68,7 +68,7 @@ _sock = context.socket(zmq.REQ)"""
         self.paths.set_driver_path(f"{self.module_name}_driver.py")
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
 
-    def _parse_signal_type(self, signal_type, signal_len):
+    def _compute_signal_buffer_len(self, signal_type, signal_len):
         """Parse the type and computes its width from the signal
 
         Parameters:

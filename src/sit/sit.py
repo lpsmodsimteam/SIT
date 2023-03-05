@@ -131,7 +131,7 @@ class SIT:
     def _get_driver_defs(self):
         raise NotImplementedError()
 
-    def _parse_signal_type(self, signal_type, signal_len):
+    def _compute_signal_buffer_len(self, signal_type, signal_len):
         raise NotImplementedError()
 
     def _generate_extra_files(self):
@@ -220,9 +220,9 @@ class SIT:
 
         Parameters:
         -----------
-        ports : tuple(tuple3(str))
+        ports : nested dict
             type-declared signals in the form:
-                (<PORT TYPE>, <PORT NAME>, <DATA TYPE>)
+                {"name": <SIGNAL NAME>, "type": <SIGNAL DATA TYPE>, "len": <SIGNAL LEN>}
             The current types of signals supported are:
                 ("clock", "input", "output", "inout")
 
@@ -233,24 +233,25 @@ class SIT:
         PortException
             invalid port type provided
         """
-        # PORT = PORT_DATA_TYPE, PORT_NAME, PORT_TYPE, PORT_LENGTH
-        for port_type, port_values in ports.items():
+        for port_type, signals in ports.items():
 
-            for port in port_values:
+            for signal in signals:
 
-                if len(port) != 3:
+                if len(signal) != 3:
                     raise SignalFormatException(
                         "Invalid signal format"
                     ) from None
 
-                port["len"] = self._parse_signal_type(port["type"], port["len"])
+                signal["len"] = self._compute_signal_buffer_len(
+                    signal_type=signal["type"], signal_len=signal["len"]
+                )
 
                 try:
-                    self.ports[port_type].append(port)
+                    self.ports[port_type].append(signal)
 
                 except KeyError:
                     raise PortException(
-                        f"{port[port_type]} is an invalid port type"
+                        f"{signal[port_type]} is an invalid port type"
                     ) from None
 
     def __get_comp_defs(self):
@@ -342,7 +343,6 @@ class SIT:
         PortException
             no ports were provided
         """
-        print("------------------------------------------------------------")
         if not len(self.ports):
             raise PortException(
                 "No ports were set. Make sure to call set_ports() before generating files."
@@ -352,30 +352,14 @@ class SIT:
 
         with open(self.paths.get_gen("driver"), "w") as driver_file:
             driver_file.write(self.__generate_driver_str())
-        print(f"Dumped driver file to '{self.paths.get_gen('driver')}'")
 
         with open(self.paths.get_gen("comp"), "w") as comp_file:
             comp_file.write(self.__generate_comp_str())
-        print(f"Dumped component file to '{self.paths.get_gen('comp')}'")
 
         try:
             self._generate_extra_files()
         except NotImplementedError:
             pass
-
-        print(f"Ports generated for: {self.module_name} ({self.hdl_str})")
-        for port_type in self.ports:
-            if self.ports[port_type]:
-                print(f"Port type: {port_type}")
-                for port in self.ports[port_type]:
-                    print(
-                        f"""\t\"{port['name']}\" -> {{{
-                        "data type" if self.hdl_str == "systemc" else "integer width"
-                    }: {port['type']}, length: {port['len']}}}"""
-                    )
-        print(f"Driver buffer size: {self.driver_buf_size}")
-        print(f"Component buffer size: {self.comp_buf_size}")
-        print("------------------------------------------------------------")
 
     def fixed_width_float_output(self, precision):
         """Generate additional methods to handle ports with float signals

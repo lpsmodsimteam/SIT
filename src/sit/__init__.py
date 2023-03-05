@@ -35,6 +35,28 @@ class SSTInteroperability:
                 )
 
         self.__instance.generate_black_boxes()
+        self.dump_summary()
+
+    def dump_summary(self):
+
+        print("------------------------------------------------------------")
+        print(
+            f"""Dumped driver file to '{self.__instance.paths.get_gen('driver')}'
+Dumped component file to '{self.__instance.paths.get_gen('comp')}'
+Ports generated for: {self.__config_data['config']['module_name']} ({self.__config_data['hdl']})"""
+        )
+        for port_type in self.__config_data["ports"]:
+            if self.__config_data["ports"][port_type]:
+                print(f"Port type: {port_type}")
+                for port in self.__config_data["ports"][port_type]:
+                    print(
+                        f"\t\"{port['name']}\" -> {{data type: {port['type']}, buffer length: {port['len']}}}"
+                    )
+        print(
+            f"""Driver buffer size: {self.__instance.driver_buf_size}
+Component buffer size: {self.__instance.comp_buf_size}"""
+        )
+        print("------------------------------------------------------------")
 
     def set_config_data(self, config_data):
 
