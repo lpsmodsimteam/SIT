@@ -1,6 +1,7 @@
 import argparse
 import pkg_resources
 
+from .configfile import ConfigFile
 from .exceptions import ConfigException
 from .hdl import pyrtl, systemc, verilog
 from .libmgmt import LibraryManager
@@ -11,6 +12,7 @@ class SSTInteroperability:
 
         self.__config_data = config_data
         self.__instance: pyrtl.PyRTL | systemc.SystemC | verilog.Verilog
+        self.__config_file: ConfigFile
 
     def generate_black_boxes(self):
 
@@ -57,6 +59,19 @@ Ports generated for: {self.__config_data['config']['module_name']} ({self.__conf
 Component buffer size: {self.__instance.comp_buf_size}"""
         )
         print("------------------------------------------------------------")
+
+    def generate_config_file(self):
+
+        self.__config_file = ConfigFile()
+        print(
+            self.__config_file.generate_linkwrapper_binding(
+                self.__config_data["config"]["module_name"],
+                self.__config_data["config"]["lib"],
+                ", ".join(
+                    str(i["len"]) for i in self.__instance._get_input_ports()
+                ),
+            )
+        )
 
     def set_config_data(self, config_data):
 
