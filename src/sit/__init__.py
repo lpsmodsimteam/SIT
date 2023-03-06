@@ -7,7 +7,7 @@ from .hdl import pyrtl, systemc, verilog
 from .libmgmt import LibraryManager
 
 
-class SSTInteroperability:
+class SIT:
     def __init__(self, config_data):
 
         self.__config_data = config_data

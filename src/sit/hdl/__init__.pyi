@@ -1,7 +1,7 @@
 import os
 from typing import Callable, Literal, final
 
-class SIT:
+class HardwareDescriptionLanguage:
     def __init__(
         self,
         module_name: str,

@@ -1,8 +1,8 @@
 from typing import Literal
 
-from ...sit import SIT
+from .. import HardwareDescriptionLanguage
 
-class SystemC(SIT):
+class SystemC(HardwareDescriptionLanguage):
     def __init__(
         self,
         module_name: str,
@@ -13,7 +13,9 @@ class SystemC(SIT):
         desc: str = ...,
         width_macros: dict[str, int] | None = ...,
     ) -> None: ...
-    def _compute_signal_buffer_len(self, signal_type: str, signal_len: int) -> int: ...
+    def _compute_signal_buffer_len(
+        self, signal_type: str, signal_len: int
+    ) -> int: ...
     def _get_driver_inputs(self) -> str: ...
     def _get_driver_outputs(self) -> str: ...
     def _get_driver_defs(self) -> dict[str, str]: ...

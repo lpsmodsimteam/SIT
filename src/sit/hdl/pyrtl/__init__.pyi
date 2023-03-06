@@ -1,13 +1,13 @@
 """Implementation of the PyRTL class
 
-This class inherits from the SIT base class and implements its own methods of
+This class inherits from the HardwareDescriptionLanguage base class and implements its own methods of
 parsing, modifying and generating boilerplate code for its specific paradigms.
 """
 from typing import Literal
 
-from ...sit import SIT
+from ..it import HardwareDescriptionLanguage
 
-class PyRTL(SIT):
+class PyRTL(HardwareDescriptionLanguage):
     def __init__(
         self,
         module_name: str,
@@ -17,7 +17,9 @@ class PyRTL(SIT):
         lib_dir: str = ...,
         desc: str = ...,
     ) -> None: ...
-    def _compute_signal_buffer_len(self, signal_type: str, signal_len: int) -> int: ...
+    def _compute_signal_buffer_len(
+        self, signal_type: str, signal_len: int
+    ) -> int: ...
     def _get_driver_inputs(self) -> str: ...
     def _get_driver_outputs(self) -> str: ...
     def _get_driver_defs(self) -> dict[str, str]: ...

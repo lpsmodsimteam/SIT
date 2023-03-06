@@ -1,12 +1,12 @@
 """Implementation of the SystemC class
 
-This class inherits from the SIT base class and implements its own methods of
+This class inherits from the HardwareDescriptionLanguage base class and implements its own methods of
 parsing, modifying and generating boilerplate code for its specific paradigms.
 """
-from ...sit import SIT
+from .. import HardwareDescriptionLanguage
 
 
-class SystemC(SIT):
+class SystemC(HardwareDescriptionLanguage):
     def __init__(
         self,
         module_name,
@@ -17,7 +17,7 @@ class SystemC(SIT):
         desc="",
         width_macros=None,
     ):
-        """Constructor for SystemC SIT
+        """Constructor for SystemC HardwareDescriptionLanguage
 
         Parameters:
         -----------
@@ -30,7 +30,7 @@ class SystemC(SIT):
         module_dir : str (default: "")
             directory of HDL module
         lib_dir : str (default: "")
-            directory of SIT library
+            directory of HardwareDescriptionLanguage library
         desc : str (default: "")
             description of the SST model
         driver_template_path : str (default: "")

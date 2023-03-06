@@ -1,4 +1,4 @@
-class SSTInteroperability:
+class HardwareDescriptionLanguage:
     def __init__(
         self,
         config_data: dict[

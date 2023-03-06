@@ -8,7 +8,7 @@ skinparam classBackgroundColor fff
 
 namespace SSTInteroperabilityToolkit {
 
-  class SSTInteroperability {
+  class SIT {
     + __init__(config_data: nested dict)
     + generate_black_boxes()
     + set_config_data(config_data: nested dict)
@@ -17,7 +17,7 @@ namespace SSTInteroperabilityToolkit {
     - set_hdl_str(hdl_str: str)
   }
 
-  class SIT {
+  class HardwareDescriptionLanguage {
     + __init__(module_name: str, lib: str, ipc: literal, module_dir: str, lib_dir: str desc: str, width_macros: dict[str, int])
     + set_template_paths(template_dir_path: os.PathLike, driver_template_path: os.PathLike, component_template_path: os.PathLike)
     + set_gen_paths(gen_dir_path: os.PathLike, driver_path: os.PathLike, comp_path: os.PathLike)
@@ -93,28 +93,28 @@ namespace SSTInteroperabilityToolkit {
     + generate_comps_func(module_name: str): str
   }
 
-  SSTInteroperability *-- SIT
-  SSTInteroperability *-- ConfigFile
+  SIT *-- HardwareDescriptionLanguage
+  SIT *-- ConfigFile
 
   ConfigFile *-- TemplateRenderer
 
-  SIT *-- TemplateRenderer
-  SIT *-- Paths
-  SIT <|-- PyRTL
-  SIT <|-- SystemC
-  SIT <|-- Verilog
+  HardwareDescriptionLanguage *-- TemplateRenderer
+  HardwareDescriptionLanguage *-- Paths
+  HardwareDescriptionLanguage <|-- PyRTL
+  HardwareDescriptionLanguage <|-- SystemC
+  HardwareDescriptionLanguage <|-- Verilog
 
   'class Exception {}
-  'class SITError {}
+  'class HardwareDescriptionLanguageError {}
   'class IPCException {}
   'class PortException {}
   'class SignalFormatException {}
   'class TemplateFileNotFound {}
 
-  'Exception <|-- SITError
-  'SITError <|-- IPCException
-  'SITError <|-- PortException
-  'SITError <|-- SignalFormatException
-  'SITError <|-- TemplateFileNotFound
+  'Exception <|-- HardwareDescriptionLanguageError
+  'HardwareDescriptionLanguageError <|-- IPCException
+  'HardwareDescriptionLanguageError <|-- PortException
+  'HardwareDescriptionLanguageError <|-- SignalFormatException
+  'HardwareDescriptionLanguageError <|-- TemplateFileNotFound
 
 }
