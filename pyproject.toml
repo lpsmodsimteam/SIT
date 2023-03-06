@@ -27,6 +27,7 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 "sit" = [
+    "hdl/templates/**",
     "hdl/pyrtl/**",
     "hdl/systemc/**",
     "hdl/verilog/**"

@@ -17,7 +17,9 @@ class Paths:
         self.__template_paths["driver"] = (
             self.__template_paths["dir"] / "driver"
         )
-        self.__template_paths["comp"] = self.__template_paths["dir"] / "comp"
+        self.__template_paths["comp"] = (
+            pathlib.Path(__file__).parent / "hdl" / "templates" / "comp"
+        )
 
         self.__gen_paths = {}
         self.__gen_paths["dir"] = pathlib.Path("gen").resolve()

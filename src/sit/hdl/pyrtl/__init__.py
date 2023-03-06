@@ -65,6 +65,12 @@ _sock = context.socket(zmq.REQ)"""
             self.send = "send"
             self.connect = "bind"
 
+        self.exec_cmd = """char* args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
+
+        m_output.verbose(
+            CALL_INFO, 1, 0, "Forking process \\\"%s\\\"...\n\", m_proc.c_str()
+        );"""
+
         self.paths.set_driver_path(f"{self.module_name}_driver.py")
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
 

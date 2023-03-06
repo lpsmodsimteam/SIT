@@ -63,6 +63,21 @@ class Verilog(HardwareDescriptionLanguage):
             self.send = "send"
             self.connect = "bind"
 
+        self.exec_cmd = """std::string cmd = m_proc + m_ipc_port;
+
+            char* args[8];
+            int i = 0;
+            args[i] = std::strtok(&cmd[0u], " ");
+
+            while (args[i] != nullptr) {
+                args[++i] = strtok(nullptr, " ");
+            }
+            args[i] = nullptr;
+
+            m_output.verbose(
+                CALL_INFO, 1, 0, "Forking process \\\"%s\\\"...\\n\", cmd.c_str()
+            );"""
+
         self.paths.set_driver_path(f"{self.module_name}_driver.py")
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
         self.paths.set_extra_file_paths({"makefile": "Makefile.config"})

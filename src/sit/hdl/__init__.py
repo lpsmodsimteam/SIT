@@ -82,6 +82,7 @@ class HardwareDescriptionLanguage:
         self.lib = lib
         self.lib_dir = lib_dir
         self.desc = desc
+        self.exec_cmd = ""
 
         self.precision = 0
         self.extra_libs = ""
@@ -274,6 +275,7 @@ class HardwareDescriptionLanguage:
             print(f"{self.comp_buf_size} to include specified precision")
 
         return {
+            "exec_cmd": self.exec_cmd,
             "lib_dir": self.lib_dir,
             "module_name": self.module_name,
             "lib": self.lib,
