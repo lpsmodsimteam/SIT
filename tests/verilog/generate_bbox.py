@@ -1,21 +1,26 @@
-from sit import SITVerilog
+from sit import SIT
 
 if __name__ == "__main__":
 
-    sit_obj = SITVerilog(
-        module_name="ram",
-        lib="verilogsock",
-        desc="Demonstration of a Verilog hardware simulation in SST",
-        module_dir="../tests/verilog/",
-    )
-    sit_obj.set_ports(
-        (
-            ("input", "address", "8"),
-            ("input", "cs", "1"),
-            ("input", "we", "1"),
-            ("input", "oe", "1"),
-            ("input", "data_in", "8"),
-            ("output", "data_out", "8b"),
-        )
-    )
+    config = {
+        "hdl": "verilog",
+        "config": {
+            "module_name": "ram",
+            "lib": "verilogsock",
+            "desc": "Demonstration of a Verilog hardware simulation in SST",
+            "module_dir": "../tests/verilog/",
+        },
+        "ports": {
+            "input": [
+                {"name": "address", "type": "int", "len": 8},
+                {"name": "cs", "type": "int", "len": 1},
+                {"name": "we", "type": "int", "len": 1},
+                {"name": "oe", "type": "int", "len": 1},
+                {"name": "data_in", "type": "int", "len": 8},
+            ],
+            "output": [{"name": "data_out", "type": "bit", "len": 8}],
+        },
+    }
+
+    sit_obj = SIT(config)
     sit_obj.generate_black_boxes()

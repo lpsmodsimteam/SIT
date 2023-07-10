@@ -5,7 +5,7 @@ import sst
 
 BASE_PATH = Path.cwd()
 
-with tempfile.NamedTemporaryFile() as temp_fp:
+with tempfile.NamedTemporaryFile() as tfp:
 
     sst.setProgramOption("stopAtCycle", "25us")
 
@@ -21,7 +21,7 @@ with tempfile.NamedTemporaryFile() as temp_fp:
     ram_comp.addParams(
         {
             "proc": BASE_PATH / "ram.o",
-            "ipc_port": temp_fp.name,
+            "ipc_port": tfp.name,
             "clock": "1MHz",
         }
     )

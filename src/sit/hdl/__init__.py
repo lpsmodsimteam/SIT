@@ -19,7 +19,7 @@ to be overridden:
 
 import math
 
-from ..exceptions import PortException, ConfigException, SignalFormatException
+from ..exceptions import ConfigException, PortException, SignalFormatException
 from ..files import Paths
 from ..render import TemplateRenderer
 
@@ -71,7 +71,7 @@ class HardwareDescriptionLanguage:
         Raises:
         -------
         ConfigException
-            unsupported IPC is provided
+            unsupported IPC inputted
         """
         if ipc in ("sock", "zmq"):
             self.ipc = ipc

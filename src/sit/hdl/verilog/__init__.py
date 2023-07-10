@@ -134,7 +134,6 @@ class Verilog(HardwareDescriptionLanguage):
         """
         fmt = "dut.{sig}.value = int(signal[{sp}:{sl}])"
         start_pos = 0
-        clock_fmt = "dut.{sig}.value = int(signal[{sp}:{sl}]) % 2"
         driver_inputs = []
 
         for input_port in self._get_input_ports():
@@ -148,6 +147,8 @@ class Verilog(HardwareDescriptionLanguage):
             start_pos += input_port["len"]
 
         if self.ports["clock"]:
+            clock_fmt = "dut.{sig}.value = int(signal[{sp}:{sl}]) % 2"
+
             for clock_port in self.ports["clock"]:
                 driver_inputs.append(
                     clock_fmt.format(
