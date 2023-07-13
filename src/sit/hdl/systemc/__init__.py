@@ -61,7 +61,7 @@ class SystemC(HardwareDescriptionLanguage):
         self.exec_cmd = """char* args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
 
             m_output.verbose(
-                CALL_INFO, 1, 0, "Forking process \\\"%s\\\"...\\n\", m_proc.c_str()
+                CALL_INFO, 1, 0, "\033[35m[FORK] %s\033[0m\\n\", cmd.c_str()
             );"""
 
         self.paths.set_driver_path(f"{self.module_name}_driver.cpp")

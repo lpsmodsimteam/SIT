@@ -63,8 +63,9 @@ class Verilog(HardwareDescriptionLanguage):
             self.send = "send"
             self.connect = "bind"
 
-        self.exec_cmd = """std::string cmd = m_proc + m_ipc_port;
-
+        self.exec_cmd = """m_output.verbose(
+                CALL_INFO, 1, 0, "\033[35m[FORK] %s\033[0m\\n\", cmd.c_str()
+            );
             char* args[8];
             int i = 0;
             args[i] = std::strtok(&cmd[0u], " ");
@@ -72,11 +73,7 @@ class Verilog(HardwareDescriptionLanguage):
             while (args[i] != nullptr) {
                 args[++i] = strtok(nullptr, " ");
             }
-            args[i] = nullptr;
-
-            m_output.verbose(
-                CALL_INFO, 1, 0, "Forking process \\\"%s\\\"...\\n\", cmd.c_str()
-            );"""
+            args[i] = nullptr;"""
 
         self.paths.set_driver_path(f"{self.module_name}_driver.py")
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")

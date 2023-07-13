@@ -28,7 +28,7 @@ class {{module_name}} : public SST::Component {
           )),
           m_dout_link(configureLink("{{module_name}}_dout")) {
 
-        m_output.init("gen-" + getName() + " -> ", 1, 0, SST::Output::STDOUT);
+        m_output.init("gen-" + getName() + ": ", 1, 0, SST::Output::STDOUT);
         m_output.setVerboseLevel(params.find<bool>("OUTPUT", true));
 
         registerClock(
@@ -41,6 +41,7 @@ class {{module_name}} : public SST::Component {
     }
 
     void setup() {
+        std::string cmd = m_proc + m_ipc_port;
         int child_pid = fork();
 
         if (!child_pid) {
@@ -56,8 +57,8 @@ class {{module_name}} : public SST::Component {
                     CALL_INFO,
                     1,
                     0,
-                    "Process \"%s\" successfully synchronized\n",
-                    m_proc.c_str()
+                    "\033[92m[SYNC] %s\033[0m\n",
+                    cmd.c_str()
                 );
             }
         }
@@ -69,7 +70,7 @@ class {{module_name}} : public SST::Component {
 
     void finish() {
         m_output.verbose(
-            CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str()
+            CALL_INFO, 1, 0, "\033[92m[DEST] %s\033[0m\n", getName().c_str()
         );
     }
 
