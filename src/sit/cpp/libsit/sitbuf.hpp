@@ -32,6 +32,8 @@ class SITBuffer {
 
     virtual std::string get() final;
 
+    virtual void resize(int) final;
+
     virtual void set_state(bool) final;
 
     /* PURE VIRTUAL METHODS - MUST BE IMPLEMENTED BY CHILD CLASS */
@@ -45,7 +47,7 @@ class SITBuffer {
     void set_addr(const std::string&, const std::string&);
 };
 
-/* -------------------- SIGNALIO IMPLEMENTATIONS -------------------- */
+/* -------------------- SITBUFFER IMPLEMENTATIONS -------------------- */
 
 /*
  * Allocate the transported data on heap
@@ -60,6 +62,14 @@ inline SITBuffer::SITBuffer(int buf_size)
  */
 inline SITBuffer::~SITBuffer() {
     delete[] m_data;
+}
+
+/*
+ * Allocate the transported data on heap
+ */
+inline void SITBuffer::resize(int buf_size) {
+    m_buf_size = buf_size;
+    m_data = new char[m_buf_size];
 }
 
 /*

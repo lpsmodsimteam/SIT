@@ -18,7 +18,7 @@ class {{module_name}} : public SST::Component {
     // constructor for component
     {{module_name}}(SST::ComponentId_t id, SST::Params& params)
         : SST::Component(id),
-          sit_buf({{buf_size}}),
+          sit_buf(5),
           m_clock(params.find<std::string>("clock", "")),
           m_proc(params.find<std::string>("proc", "")),
           m_ipc_port(params.find<std::string>("ipc_port", "")),
@@ -60,6 +60,7 @@ class {{module_name}} : public SST::Component {
                     "\033[92m[SYNC] %s\033[0m\n",
                     cmd.c_str()
                 );
+                sit_buf.resize({{buf_size}});
             }
         }
     }

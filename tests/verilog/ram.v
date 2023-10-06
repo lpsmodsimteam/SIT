@@ -5,11 +5,11 @@ module ram #(
     parameter DATA_WIDTH = 8
 ) (
     input wire [ADDR_WIDTH - 1:0] address,
-    input wire [DATA_WIDTH - 1:0] data_in,
-    output wire [DATA_WIDTH - 1:0] data_out,
     input wire cs,
     input wire we,
-    input wire oe
+    input wire oe,
+    input wire [DATA_WIDTH - 1:0] data_in,
+    output wire [DATA_WIDTH - 1:0] data_out
 );
 
   reg [DATA_WIDTH - 1:0] mem[0:(1 << ADDR_WIDTH) - 1];
