@@ -12,7 +12,7 @@ following protected methods:
 The following public methods are inherited by the child classes and are not
 to be overridden:
 - set_ports(ports)
-- generate_black_boxes()
+- generate_boilerplate()
 - fixed_width_float_output(precision)
 - disable_runtime_warnings(warnings)
 """
@@ -40,7 +40,7 @@ class HardwareDescriptionLanguage:
         Initialize all member port variables and component variables. Only the
         following methods are public:
         `set_ports(ports)`
-        `generate_black_boxes()`
+        `generate_boilerplate()`
 
         Parameters:
         -----------
@@ -336,7 +336,7 @@ class HardwareDescriptionLanguage:
             ),
         )
 
-    def generate_black_boxes(self):
+    def generate_boilerplate(self):
         """Provide a high-level interface to the user to generate both the
         components of the black box and dump them to their corresponding files
 

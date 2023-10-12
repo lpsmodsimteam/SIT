@@ -64,7 +64,7 @@ class Verilog(HardwareDescriptionLanguage):
             self.connect = "bind"
 
         self.exec_cmd = """m_output.verbose(
-                CALL_INFO, 1, 0, "\033[35m[FORK] %s\033[0m\\n\", cmd.c_str()
+                CALL_INFO, 1, 0, "\\033[35m[FORK] %s\\033[0m\\n\", cmd.c_str()
             );
             char* args[8];
             int i = 0;

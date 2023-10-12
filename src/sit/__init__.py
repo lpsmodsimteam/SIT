@@ -14,7 +14,7 @@ class SIT:
         self.__instance: pyrtl.PyRTL | systemc.SystemC | verilog.Verilog
         self.__config_file: ConfigFile
 
-    def generate_black_boxes(self):
+    def generate_boilerplate(self):
 
         self.__set_hdl_str(self.__config_data["hdl"])
 
@@ -36,7 +36,7 @@ class SIT:
                     disable_runtime_warnings
                 )
 
-        self.__instance.generate_black_boxes()
+        self.__instance.generate_boilerplate()
         self.dump_summary()
 
     def dump_summary(self):
