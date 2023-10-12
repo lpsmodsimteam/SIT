@@ -17,7 +17,7 @@ class SystemC(HardwareDescriptionLanguage):
         desc="",
         width_macros=None,
     ):
-        """Constructor for SystemC HardwareDescriptionLanguage
+        """Constructor for SystemC
 
         Parameters:
         -----------
@@ -30,7 +30,7 @@ class SystemC(HardwareDescriptionLanguage):
         module_dir : str (default: "")
             directory of HDL module
         lib_dir : str (default: "")
-            directory of HardwareDescriptionLanguage library
+            directory of library
         desc : str (default: "")
             description of the SST model
         driver_template_path : str (default: "")
