@@ -62,9 +62,8 @@ class unit : public SST::Component {
 
 unit::unit(SST::ComponentId_t id, SST::Params& params)
     : SST::Component(id), m_clock(params.find<std::string>("clock", "")) {
-    m_output.init(
-        "\033[34mparent-" + getName() + "\033[0m -> ", 1, 0, SST::Output::STDOUT
-    );
+
+    m_output.init("parent-" + getName() + ": ", 1, 0, SST::Output::STDOUT);
 
     ram_link = new LinkWrapper(&m_keep_send, &m_keep_recv);
     ram_link->set_din_link(configureLink("ram_din"));
@@ -82,14 +81,16 @@ unit::unit(SST::ComponentId_t id, SST::Params& params)
 }
 
 void unit::setup() {
-    m_output.verbose(CALL_INFO, 1, 0, "Component is being set up.\n");
     m_fp = std::fopen("memory_dump.txt", "w");
 }
 
 void unit::finish() {
-    m_output.verbose(CALL_INFO, 1, 0, "Destroying %s...\n", getName().c_str());
+    m_output.verbose(
+        CALL_INFO, 1, 0, "\033[92m[DEST] %s\033[0m\n", getName().c_str()
+    );
     std::fclose(m_fp);
 }
+
 void unit::handle_ram_data_out(SST::Event* ev) {
     auto* se = dynamic_cast<SST::Interfaces::StringEvent*>(ev);
     if (se) {

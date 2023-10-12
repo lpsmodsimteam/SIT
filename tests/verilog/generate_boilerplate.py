@@ -12,15 +12,15 @@ if __name__ == "__main__":
         },
         "ports": {
             "input": [
-                {"name": "address", "type": "bit", "len": 8},
+                {"name": "address", "type": "int", "len": 8},
                 {"name": "cs", "type": "int", "len": 1},
                 {"name": "we", "type": "int", "len": 1},
                 {"name": "oe", "type": "int", "len": 1},
-                {"name": "data_in", "type": "bit", "len": 8},
+                {"name": "data_in", "type": "int", "len": 8},
             ],
             "output": [{"name": "data_out", "type": "bit", "len": 8}],
         },
     }
 
     sit_obj = SIT(config)
-    sit_obj.generate_black_boxes()
+    sit_obj.generate_boilerplate()

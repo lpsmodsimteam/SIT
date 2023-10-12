@@ -62,7 +62,7 @@ if (${SIT_FOUND})
             COMMAND python ${TESTS_DIR}/read_mem.py memory_dump.txt
         )
         execute_process(
-            COMMAND python ${TESTS_DIR}/${_hdl}/generate_bbox.py ${_ipc}
+            COMMAND python ${TESTS_DIR}/${_hdl}/generate_boilerplate.py ${_ipc}
         )
         include(${TESTS_DIR}/${_hdl}/${_ipc}/CMakeLists.txt)
     endmacro()
