@@ -115,8 +115,11 @@ class Verilog(HardwareDescriptionLanguage):
             snippet of code representing output bindings
         """
         return self._sig_fmt(
-            fmt="str(dut.{sig}.value.integer)",
-            split_func=lambda x: {"sig": x["name"]},
+            fmt="str(dut.{sig}.value{type})",
+            split_func=lambda x: {
+                "sig": x["name"],
+                "type": (".integer" if x["type"] == "int" else ""),
+            },
             array=self._get_output_ports(),
             delim="\n" + (" " * 12) + "+ ",
         )
