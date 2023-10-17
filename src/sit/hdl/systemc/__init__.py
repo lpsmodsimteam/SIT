@@ -117,13 +117,13 @@ class SystemC(HardwareDescriptionLanguage):
 
                 if not (signal_len == 1):
                     warnings.warn(
-                        f'"{signal_type}" types will always be of length 1'
+                        f'Length of "{signal_type}" types will always be 1'
                     )
                 return 1
 
             if not (signal_len == -1):
                 warnings.warn(
-                    f'Length of "{signal_type}" types will be automatically computed. Explicit values will be ignored.'
+                    f'Length of "{signal_type}" type lengths will be automatically computed. Explicit values will be ignored.'
                 )
 
             signal_type_int = self.__extract_int(signal_type)
@@ -137,7 +137,7 @@ class SystemC(HardwareDescriptionLanguage):
         elif signal_type == "bool":
 
             if not (signal_len == 1):
-                warnings.warn('"bool" types will always be of length 1')
+                warnings.warn('Length of "bool" types will always be 1')
 
             return 1
 

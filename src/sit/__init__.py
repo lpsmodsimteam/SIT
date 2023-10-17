@@ -1,5 +1,6 @@
 import argparse
 import pkg_resources
+from pprint import pprint
 
 from .configfile import ConfigFile
 from .exceptions import ConfigException
@@ -43,24 +44,36 @@ class SIT:
 
     def dump_summary(self):
 
-        print("------------------------------------------------------------")
-        print(
-            f"""Dumped driver file to '{self.__instance.paths.get_gen('driver')}'
-Dumped component file to '{self.__instance.paths.get_gen('comp')}'
-Ports generated for: {self.__config_data['config']['module_name']} ({self.__config_data['hdl']})"""
-        )
+        summary = {
+            "module name": self.__config_data["config"]["module_name"],
+            "hdl": self.__config_data["hdl"],
+            "generated filepaths": {
+                "driver": self.__instance.paths.get_gen("driver"),
+                "component": self.__instance.paths.get_gen("comp"),
+            },
+            "ports": {
+                "input": [],
+                "output": [],
+                "inout": [],
+            },
+            "buffer sizes": {
+                "driver": self.__instance.driver_buf_size,
+                "component": self.__instance.comp_buf_size,
+            },
+        }
+
         for port_type in self.__config_data["ports"]:
             if self.__config_data["ports"][port_type]:
-                print(f"Port type: {port_type}")
                 for port in self.__config_data["ports"][port_type]:
-                    print(
-                        f"\t\"{port['name']}\" -> {{data type: {port['type']}, buffer length: {port['len']}}}"
+                    summary["ports"][port_type].append(
+                        {
+                            "name": port["name"],
+                            "data type": port["type"],
+                            "buffer length": port["len"],
+                        }
                     )
-        print(
-            f"""Driver buffer size: {self.__instance.driver_buf_size}
-Component buffer size: {self.__instance.comp_buf_size}"""
-        )
-        print("------------------------------------------------------------")
+
+        pprint(summary, sort_dicts=False)
 
     def generate_config_file(self):
 
