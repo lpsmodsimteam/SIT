@@ -1,27 +1,27 @@
 import os
 from pathlib import Path
-import {ipc}
+import {{ipc}}
 import sys
 
-{module_dir}
-import {module}
+sys.path.insert(1, "{{module_dir}}")
+import {{module_name}}
 
-# Connect the PyRTL simulation to SST through {ipc}
-{driver_bind}
-_sock.{connect}(sys.argv[1])
+# Connect the PyRTL simulation to SST through {{ipc}}
+{{driver_bind}}
+_sock.{{connect}}(sys.argv[1])
 
-_sock.{send}(str(os.getpid()).encode())
+_sock.{{send}}(str(os.getpid()).encode())
 
 while True:
-    signal = str(_sock.recv({buf_size}).decode("utf-8"))
+    signal = str(_sock.recv({{buf_size}}).decode("utf-8"))
     alive = int(signal[0])
     signal = signal[1:]
     if not alive:
         break
-    {module}.sim.step({{
-        {inputs}
-    }})
-    _outputs = {outputs}
-    _sock.{send}(_outputs)
+    {{module_name}}.sim.step({
+        {{inputs}}
+    })
+    _outputs = {{outputs}}
+    _sock.{{send}}(_outputs)
 
 _sock.close()
