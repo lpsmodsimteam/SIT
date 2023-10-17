@@ -33,7 +33,6 @@ class HardwareDescriptionLanguage:
         module_dir="",
         lib_dir="",
         desc="",
-        width_macros=None,
     ):
         """Constructor for the virtual base class SIT
 
@@ -56,17 +55,6 @@ class HardwareDescriptionLanguage:
             directory of SIT library
         desc : str (default: "")
             description of the SST model
-        width_macros : dict(str:[str|int]) (default: dict(None:None))
-            mapping of signal width macros to their integer values. An HDL
-            module may declare constants or user-inputted variables in their
-            implementation to determine signal widths.
-            The module can only know the values of those macros by utilizing
-            this parameter.
-            Example:
-            `width_macros = {
-                "ADDRESS_WIDTH": 16,
-                "DATA_WIDTH": 16,
-            }`
 
         Raises:
         -------
@@ -90,7 +78,7 @@ class HardwareDescriptionLanguage:
 
         self.hdl_str = self.__class__.__name__.lower()
 
-        self.width_macros = width_macros if width_macros else {}
+        self.width_macros = {}
         self.ports: dict[str, list[dict[str, int]]] = {
             "clock": [],
             "input": [],
@@ -116,12 +104,6 @@ class HardwareDescriptionLanguage:
         self.paths = Paths(self.hdl_str, module_dir)
 
         self.template = TemplateRenderer()
-
-    def set_template_paths(self, dir="", driver="", comp=""):
-        self.paths.set_template_paths(dir, driver, comp)
-
-    def set_gen_paths(self, dir="", driver="", comp=""):
-        self.paths.set_gen_paths(dir, driver, comp)
 
     def _get_driver_inputs(self):
         raise NotImplementedError()
@@ -160,13 +142,15 @@ class HardwareDescriptionLanguage:
         """
         return delim.join(fmt.format(**split_func(i)) for i in array)
 
-    def _get_signal_width_from_macro(self, signal_type):
+    def _get_signal_width_from_macro(self, signal_type, signal_type_macro):
         """Get width of a signal type mapped in width_macros
 
         Parameters:
         -----------
         signal_type : str
             signal type of port
+        signal_type_macro : str
+            signal type macro of port
 
         Raises:
         -------
@@ -175,12 +159,13 @@ class HardwareDescriptionLanguage:
 
         Returns:
         --------
-        value : str|int
+        value : str
             width of signal type
         """
-        for macro, value in self.width_macros.items():
-            if macro in signal_type:
-                return value
+        if signal_type_macro_value := self.width_macros.get(
+            signal_type_macro, None
+        ):
+            return signal_type_macro_value
 
         raise SignalFormatException(
             f"Invalid macro in signal: {signal_type}"
@@ -216,44 +201,24 @@ class HardwareDescriptionLanguage:
         """
         return self.ports["output"]
 
-    def set_ports(self, ports):
-        """Assign ports to their corresponding member lists
+    @staticmethod
+    def _get_num_digits(signal):
+        """Compute the minimum number of digits required to hold signal data
+        type width by calculating: `floor(log2(-1 + 2^x)/log2(10)) + 1`. This
+        expression is equivalent to `ceil(x / log2(10))`
 
         Parameters:
         -----------
-        ports : nested dict
-            type-declared signals in the form:
-                {"name": <SIGNAL NAME>, "type": <SIGNAL DATA TYPE>, "len": <SIGNAL LEN>}
-            The current types of signals supported are:
-                ("clock", "input", "output", "inout")
+        signal : int
+            signal data type width
 
-        Raises:
-        -------
-        SignalFormatException
-            invalid signal format provided
-        PortException
-            invalid port type provided
+        Returns:
+        --------
+        int
+            number of digits for signal width
         """
-        for port_type, signals in ports.items():
-
-            for signal in signals:
-
-                if len(signal) != 3:
-                    raise SignalFormatException(
-                        "Invalid signal format"
-                    ) from None
-
-                signal["len"] = self._compute_signal_buffer_len(
-                    signal_type=signal["type"], signal_len=signal["len"]
-                )
-
-                try:
-                    self.ports[port_type].append(signal)
-
-                except KeyError:
-                    raise PortException(
-                        f"{signal[port_type]} is an invalid port type"
-                    ) from None
+        # log2(10) = 3.321928094887362
+        return math.ceil(signal / 3.321928094887362)
 
     def __get_comp_defs(self):
         """Map definitions for the component format string
@@ -336,32 +301,27 @@ class HardwareDescriptionLanguage:
             ),
         )
 
-    def generate_boilerplate(self):
-        """Provide a high-level interface to the user to generate both the
-        components of the black box and dump them to their corresponding files
+    def set_template_paths(self, dir="", driver="", comp=""):
+        self.paths.set_template_paths(dir, driver, comp)
 
-        Raises:
-        -------
-        PortException
-            no ports were provided
-        """
-        if not len(self.ports):
-            raise PortException(
-                "No ports were set. Make sure to call set_ports() before generating files."
-            )
+    def set_gen_paths(self, dir="", driver="", comp=""):
+        self.paths.set_gen_paths(dir, driver, comp)
 
-        self.paths.get_gen("dir").mkdir(exist_ok=True)
+    def set_width_macros(self, width_macros):
+        """Set width macros provided by user
 
-        with open(self.paths.get_gen("driver"), "w") as driver_file:
-            driver_file.write(self.__generate_driver_str())
-
-        with open(self.paths.get_gen("comp"), "w") as comp_file:
-            comp_file.write(self.__generate_comp_str())
-
-        try:
-            self._generate_extra_files()
-        except NotImplementedError:
-            pass
+        width_macros : dict(str:[str|int]) (default: dict(None:None))
+            mapping of signal width macros to their integer values. An HDL
+            module may declare constants or user-inputted variables in their
+            implementation to determine signal widths.
+            The module can only know the values of those macros by utilizing
+            this parameter.
+            Example:
+            `width_macros = {
+                "ADDRESS_WIDTH": 16,
+                "DATA_WIDTH": 16,
+            }`"""
+        self.width_macros = width_macros
 
     def fixed_width_float_output(self, precision):
         """Generate additional methods to handle ports with float signals
@@ -408,21 +368,68 @@ class HardwareDescriptionLanguage:
                     f"disable_runtime_warnings() not supported with {self.module_name}"
                 )
 
-    @staticmethod
-    def _get_num_digits(signal):
-        """Compute the minimum number of digits required to hold signal data
-        type width by calculating: `floor(log2(-1 + 2^x)/log2(10)) + 1`. This
-        expression is equivalent to `ceil(x / log2(10))`
+    def set_ports(self, ports):
+        """Assign ports to their corresponding member lists
 
         Parameters:
         -----------
-        signal : int
-            signal data type width
+        ports : nested dict
+            type-declared signals in the form:
+                {"name": <SIGNAL NAME>, "type": <SIGNAL DATA TYPE>, "len": <SIGNAL LEN>}
+            The current types of signals supported are:
+                ("clock", "input", "output", "inout")
 
-        Returns:
-        --------
-        int
-            number of digits for signal width
+        Raises:
+        -------
+        SignalFormatException
+            invalid signal format provided
+        PortException
+            invalid port type provided
         """
-        # log2(10) = 3.321928094887362
-        return math.ceil(signal / 3.321928094887362)
+        for port_type, signals in ports.items():
+
+            for signal in signals:
+
+                if len(signal) != 3:
+                    raise SignalFormatException(
+                        "Invalid signal format"
+                    ) from None
+
+                signal["len"] = self._compute_signal_buffer_len(
+                    signal_type=signal["type"], signal_len=signal["len"]
+                )
+
+                try:
+                    self.ports[port_type].append(signal)
+
+                except KeyError:
+                    raise PortException(
+                        f"{signal[port_type]} is an invalid port type"
+                    ) from None
+
+    def generate_boilerplate(self):
+        """Provide a high-level interface to the user to generate both the
+        components of the black box and dump them to their corresponding files
+
+        Raises:
+        -------
+        PortException
+            no ports were provided
+        """
+        if not len(self.ports):
+            raise PortException(
+                "No ports were set. Make sure to call set_ports() before generating files."
+            )
+
+        self.paths.get_gen("dir").mkdir(exist_ok=True)
+
+        with open(self.paths.get_gen("driver"), "w") as driver_file:
+            driver_file.write(self.__generate_driver_str())
+
+        with open(self.paths.get_gen("comp"), "w") as comp_file:
+            comp_file.write(self.__generate_comp_str())
+
+        try:
+            self._generate_extra_files()
+        except NotImplementedError:
+            pass

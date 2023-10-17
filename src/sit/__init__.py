@@ -18,8 +18,6 @@ class SIT:
 
         self.__set_hdl_str(self.__config_data["hdl"])
 
-        self.__instance.set_ports(self.__config_data["ports"])
-
         if extra_configs := self.__config_data.get("extra", None):
 
             if fixed_width_float_output := extra_configs.get(
@@ -36,6 +34,10 @@ class SIT:
                     disable_runtime_warnings
                 )
 
+            if width_macros := extra_configs.get("width_macros", None):
+                self.__instance.set_width_macros(width_macros)
+
+        self.__instance.set_ports(self.__config_data["ports"])
         self.__instance.generate_boilerplate()
         self.dump_summary()
 

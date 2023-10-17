@@ -5,11 +5,11 @@
 #define RAM_DEPTH 1 << ADDR_WIDTH
 
 SC_MODULE(ram) {
-    sc_in<sc_bv<ADDR_WIDTH>> address;
+    sc_in<sc_uint<ADDR_WIDTH>> address;
     sc_in<bool> cs;
     sc_in<bool> we;
     sc_in<bool> oe;
-    sc_in<sc_bv<DATA_WIDTH>> data_in;
+    sc_in<sc_uint<DATA_WIDTH>> data_in;
     sc_out<sc_bv<DATA_WIDTH>> data_out;
 
     //-----------Internal variables-------------------

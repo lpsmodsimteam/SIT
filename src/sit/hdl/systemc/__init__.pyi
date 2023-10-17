@@ -11,8 +11,8 @@ class SystemC(HardwareDescriptionLanguage):
         module_dir: str = ...,
         lib_dir: str = ...,
         desc: str = ...,
-        width_macros: dict[str, int] | None = ...,
     ) -> None: ...
+    def __extract_int(self, signal_type: str) -> int: ...
     def _compute_signal_buffer_len(
         self, signal_type: str, signal_len: int
     ) -> int: ...

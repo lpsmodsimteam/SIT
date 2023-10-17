@@ -18,17 +18,17 @@ if __name__ == "__main__":
         },
         "ports": {
             "input": [
-                {"name": "address", "type": "sc_bv<ADDR_WIDTH>", "len": 8},
-                {"name": "cs", "type": "bool", "len": 1},
-                {"name": "we", "type": "bool", "len": 1},
-                {"name": "oe", "type": "bool", "len": 1},
-                {"name": "data_in", "type": "sc_bv<DATA_WIDTH>", "len": 8},
+                {"name": "address", "type": "sc_uint<ADDR_WIDTH>", "len": 9090},
+                {"name": "cs", "type": "bool", "len": -1},
+                {"name": "we", "type": "bool", "len": -1},
+                {"name": "oe", "type": "bool", "len": -1},
+                {"name": "data_in", "type": "sc_uint<DATA_WIDTH>", "len": -1},
             ],
             "output": [
-                {"name": "data_out", "type": "sc_bv<DATA_WIDTH>", "len": 8}
+                {"name": "data_out", "type": "sc_bv<DATA_WIDTH>", "len": -1}
             ],
         },
     }
 
     sit_obj = SIT(config)
-    sit_obj.generate_black_boxes()
+    sit_obj.generate_boilerplate()

@@ -3,6 +3,8 @@
 This class inherits from the HardwareDescriptionLanguage base class and implements its own methods of
 parsing, modifying and generating boilerplate code for its specific paradigms.
 """
+import warnings
+
 from .. import HardwareDescriptionLanguage
 
 
@@ -15,7 +17,6 @@ class SystemC(HardwareDescriptionLanguage):
         module_dir="",
         lib_dir="",
         desc="",
-        width_macros=None,
     ):
         """Constructor for SystemC
 
@@ -45,7 +46,6 @@ class SystemC(HardwareDescriptionLanguage):
             module_dir=module_dir,
             lib_dir=lib_dir,
             desc=desc,
-            width_macros=width_macros,
         )
 
         if self.ipc == "sock":
@@ -61,12 +61,41 @@ class SystemC(HardwareDescriptionLanguage):
         self.exec_cmd = """char* args[] = {&m_proc[0u], &m_ipc_port[0u], nullptr};
 
             m_output.verbose(
-                CALL_INFO, 1, 0, "\033[35m[FORK] %s\033[0m\\n\", cmd.c_str()
+                CALL_INFO, 1, 0, "\\033[35m[FORK] %s\\033[0m\\n\", cmd.c_str()
             );"""
 
         self.paths.set_driver_path(f"{self.module_name}_driver.cpp")
         self.paths.set_comp_path(f"{self.module_name}_comp.cpp")
         self.__data_out_str = ""
+
+    def __extract_int(self, signal_type):
+        """Extract integers from signal string
+        This is a closure method to keep scope local
+
+        Returns:
+        --------
+        int
+            integers found in signal string
+        """
+        signal_type_macro = ""
+        parse_flag = False
+        for c in signal_type:
+
+            if c == "<":
+                parse_flag = True
+                continue
+            elif c == ">":
+                break
+
+            if parse_flag:
+                signal_type_macro += c
+
+        if signal_type_macro.isdigit():
+            return int(signal_type_macro)
+
+        return int(
+            self._get_signal_width_from_macro(signal_type, signal_type_macro)
+        )
 
     def _compute_signal_buffer_len(self, signal_type, signal_len):
         """Parse the type and computes its size from the signal
@@ -81,41 +110,40 @@ class SystemC(HardwareDescriptionLanguage):
         int
             signal width
         """
-
-        def __get_ints():
-            """Extract integers from signal string
-            This is a closure method to keep scope local
-
-            Returns:
-            --------
-            int
-                integers found in signal string
-            """
-            try:
-                return int(signal_type)
-            except ValueError:
-                return int(self._get_signal_width_from_macro(signal_type))
-
         # SystemC member data types
         if "sc" in signal_type:
 
-            if any(x in signal_type for x in ("bv", "lv", "int")):
-                return self._get_num_digits(signal_len)
+            if any(x in signal_type for x in ("bit", "logic")):
 
-            elif any(x in signal_type for x in ("bit", "logic")):
-                return __get_ints()
+                if not (signal_len == 1):
+                    warnings.warn(
+                        f'"{signal_type}" types will always be of length 1'
+                    )
+                return 1
+
+            if not (signal_len == -1):
+                warnings.warn(
+                    f'Length of "{signal_type}" types will be automatically computed. Explicit values will be ignored.'
+                )
+
+            signal_type_int = self.__extract_int(signal_type)
+            if any(x in signal_type for x in ("bv", "lv")):
+                return signal_type_int
+
+            elif any(x in signal_type for x in ("int", "uint")):
+                return self._get_num_digits(signal_type_int)
 
         # boolean signals
         elif signal_type == "bool":
-            return 1
 
-        # arbitrary precision for float signals
-        elif signal_type == "float":
-            return signal_len
+            if not (signal_len == 1):
+                warnings.warn('"bool" types will always be of length 1')
+
+            return 1
 
         # default C++ data types
         else:
-            return __get_ints()
+            return signal_len
 
     def _get_driver_outputs(self):
         """Generate output bindings for both the components in the black box
