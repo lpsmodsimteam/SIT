@@ -20,7 +20,7 @@ with tempfile.NamedTemporaryFile() as tfp:
 
     ram_comp.addParams(
         {
-            "proc": "python " + str(BASE_PATH / "ram_driver.py"),
+            "proc": f"python {BASE_PATH/'ram_driver.py'} ",
             "ipc_port": tfp.name,
             "clock": "1MHz",
         }
