@@ -12,6 +12,9 @@ A toolkit to provide support for interoperability between [Structural Simulation
 - [Installation](#installation)
 - [Usage](#usage)
   - [Boilerplate Code Generation](#black-box-code-generation)
+    - [Library Parameters](#library-parameters)
+    - [Configuration Parameters](#configuration-parameters)
+    - [Port Parameters](#port-parameters)
 
 ## Requirements
 
@@ -46,7 +49,7 @@ The library can be installed by downloading the source and [following their inst
 
 Verilog modules have the following requirements:
 
-- cocotb
+- [cocotb](https://github.com/cocotb/cocotb), a coroutine based cosimulation library for writing VHDL and Verilog testbenches in Python.
 - An HDL simulator (such as [Icarus Verilog](https://docs.cocotb.org/en/stable/simulator_support.html#icarus-verilog),
 [Verilator](https://docs.cocotb.org/en/stable/simulator_support.html#verilator),
 [GHDL](https://docs.cocotb.org/en/stable/simulator_support.html#ghdl) or
@@ -76,28 +79,39 @@ To set up the development version, clone the repository and create a virtual env
 
 To establish interoperability between an SST model and an HDL module, a boilerplate SST component and HDL driver must be generated. The boilerplate layer establishes the configurations required for the interprocess communication (IPC) between the SST and the external HDL processes.
 
-The code generation library accepts configuration arguments in JSON format.
+The boilerplate code generation library accepts arguments in a JSON format.
+
+#### Library Parameters
+
+|Parameter|Description|
+|---------|-----------|
+|`hdl`|Name of the hardware description language. The string value must correspond to a supported HDL. Valid options are `{"pyrtl"\|"systemc"\|"verilog"}`|
+|`config`|High level configuration parameters, including library names and locations of module files|
+|`ports`|Description of the ports. Ports can be of type: `"input", "output", "inout"`|
+
+#### Configuration Parameters
 
 |Parameter|Description|Type|
 |---------|-----------|----|
-|`hdl`|Name of HDL|`{"pyrtl"\|"systemc"\|"verilog"}`|
-|`config`|High level configuration parameters, including library names and locations of module files|`dict[str,str]`|
 |`config.ipc`|IPC method for the boilerplate layer|`{"sock"\|"zmq"}`|
-|`config.module_name`|Name of the module, i.e. SST Component name and HDL module name|str|
-|`config.lib`|Name of the library, i.e. SST Component library name|str|
-|`config.desc`|Description of the module|str|
-|`config.lib_dir`|Location of the library|str|
-|`config.module_dir`|Location of the module|str|
-|`ports`|Description of the ports. Ports can be of type: `"input", "output", "inout"`|`dict[str,list[dict[str,str\|int]]]`|
+|`config.module_name`|Name of the module, i.e. SST Component name and HDL module name|`str`|
+|`config.lib`|Name of the library, i.e. SST Component library name|`str`|
+|`config.desc`|Description of the module|`str`|
+|`config.lib_dir`|Location of the library|`str`|
+|`config.module_dir`|Location of the module|`str`|
+
+#### Port Parameters
+
+|Parameter|Description|Type|
+|---------|-----------|----|
 |`ports.input`|Array of input port objects|`list[dict[str,str\|int]]`|
 |`ports.output`|Array of output port objects|`list[dict[str,str\|int]]`|
 |`ports.inout`|Array of inout port objects|`list[dict[str,str\|int]]`|
-|`ports.{"input"\|"output"\|"inout"}.name`|Name of port|str|
-|`ports.{"input"\|"output"\|"inout"}.type`|Data type of port|str|
-|`ports.{"input"\|"output"\|"inout"}.len`|Buffer length of port|int|
+|`ports.{"input"\|"output"\|"inout"}.name`|Name of port|`str`|
+|`ports.{"input"\|"output"\|"inout"}.type`|Data type of port|`str`|
+|`ports.{"input"\|"output"\|"inout"}.len`|Buffer length of port|`int`|
 
 The following is an example configuration:
-
 ```python
 config = {
     "hdl": "verilog",
@@ -119,3 +133,14 @@ config = {
     }
 }
 ```
+
+The configuration can be passed into the class constructor to generate the boilerplate layer.
+
+```python
+from sit import SIT
+
+sit_obj = SIT(config)
+sit_obj.generate_boilerplate()
+```
+
+The boilerplate layer code will be generated and saved to the directory `./gen`.
